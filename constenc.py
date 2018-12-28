@@ -1,0 +1,134 @@
+# This library should be imported during *TriggerExec
+# Otherwise, error happens - IndexError: list index out of range 
+
+from eudplib import *
+from encoder import ReadNumber, ReadName, ArgEncoderPtr
+from table import ReferenceTable
+from utils import *
+
+tmpbuf = Db(100) # Temporarily store string
+
+table_Modifier = ReferenceTable([
+    ("SetTo", EncodeModifier(SetTo)),
+    ("Add", EncodeModifier(Add)),
+    ("Subtract", EncodeModifier(Subtract)),
+], "Modifier")
+table_AllyStatus = ReferenceTable([
+    ("Enemy", EncodeAllyStatus(Enemy)),
+    ("Ally", EncodeAllyStatus(Ally)),
+    ("AlliedVictory", EncodeAllyStatus(AlliedVictory)),
+], "AllyStatus")
+table_Comparison = ReferenceTable([
+    ("AtLeast", EncodeComparison(AtLeast)),
+    ("AtMost", EncodeComparison(AtMost)),
+    ("Exactly", EncodeComparison(Exactly)),
+], "Comparison")
+table_Order = ReferenceTable([
+    ("Move", EncodeOrder(Move)),
+    ("Patrol", EncodeOrder(Patrol)),
+    ("Attack", EncodeOrder(Attack)),
+], "Order")
+table_Player = ReferenceTable([
+    ("P1", EncodePlayer(P1)),
+    ("P2", EncodePlayer(P2)),
+    ("P3", EncodePlayer(P3)),
+    ("P4", EncodePlayer(P4)),
+    ("P5", EncodePlayer(P5)),
+    ("P6", EncodePlayer(P6)),
+    ("P7", EncodePlayer(P7)),
+    ("P8", EncodePlayer(P8)),
+    ("P9", EncodePlayer(P9)),
+    ("P10", EncodePlayer(P10)),
+    ("P11", EncodePlayer(P11)),
+    ("P12", EncodePlayer(P12)),
+    ("Player1", EncodePlayer(Player1)),
+    ("Player2", EncodePlayer(Player2)),
+    ("Player3", EncodePlayer(Player3)),
+    ("Player4", EncodePlayer(Player4)),
+    ("Player5", EncodePlayer(Player5)),
+    ("Player6", EncodePlayer(Player6)),
+    ("Player7", EncodePlayer(Player7)),
+    ("Player8", EncodePlayer(Player8)),
+    ("Player9", EncodePlayer(Player9)),
+    ("Player10", EncodePlayer(Player10)),
+    ("Player11", EncodePlayer(Player11)),
+    ("Player12", EncodePlayer(Player12)),
+    ("CurrentPlayer", EncodePlayer(CurrentPlayer)),
+    ("Foes", EncodePlayer(Foes)),
+    ("Allies", EncodePlayer(Allies)),
+    ("NeutralPlayers", EncodePlayer(NeutralPlayers)),
+    ("AllPlayers", EncodePlayer(AllPlayers)),
+    ("Force1", EncodePlayer(Force1)),
+    ("Force2", EncodePlayer(Force2)),
+    ("Force3", EncodePlayer(Force3)),
+    ("Force4", EncodePlayer(Force4)),
+    ("NonAlliedVictoryPlayers", EncodePlayer(NonAlliedVictoryPlayers)),
+], "Player")
+table_PropState = ReferenceTable([
+    ("Enable", EncodePropState(Enable)),
+    ("Disable", EncodePropState(Disable)),
+    ("Toggle", EncodePropState(Toggle)),
+], "PropState")
+table_Resource = ReferenceTable([
+    ("Ore", EncodeResource(Ore)),
+    ("Gas", EncodeResource(Gas)),
+    ("OreAndGas", EncodeResource(OreAndGas)),
+], "Resource")
+table_Score = ReferenceTable([
+    ("Total", EncodeScore(Total)),
+    ("Units", EncodeScore(Units)),
+    ("Buildings", EncodeScore(Buildings)),
+    ("UnitsAndBuildings", EncodeScore(UnitsAndBuildings)),
+    ("Kills", EncodeScore(Kills)),
+    ("Razings", EncodeScore(Razings)),
+    ("KillsAndRazings", EncodeScore(KillsAndRazings)),
+    ("Custom", EncodeScore(Custom)),
+], "Score")
+table_SwitchAction = ReferenceTable([
+    ("Set", EncodeSwitchAction(Set)),
+    ("Clear", EncodeSwitchAction(Clear)),
+    ("Toggle", EncodeSwitchAction(Toggle)),
+    ("Random", EncodeSwitchAction(Random)),
+], "SwitchAction")
+table_SwitchState = ReferenceTable([
+    ("Set", EncodeSwitchState(Set)),
+    ("Cleared", EncodeSwitchState(Cleared)),
+], "SwitchState")
+
+def _makeConstEncoder(table):
+    @EUDFunc
+    def _enc(offset, delim, ref_offset_epd, retval_epd):
+        if EUDIf()(ReadName(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
+            if EUDIf()(table.search(tmpbuf, retval_epd) == 1):
+                EUDReturn(1)
+            if EUDElse()():
+                f_dwwrite_epd(ref_offset_epd, offset)
+            EUDEndIf()
+        EUDEndIf()
+        EUDReturn(ReadNumber(offset, delim, ref_offset_epd, retval_epd))
+    return _enc
+
+@EUDFunc
+def _EncodeCount(offset, delim, ref_offset_epd, retval_epd):
+    if EUDIf()(ReadName(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
+        if EUDIf()(f_strcmp2(tmpbuf, makeText('All')) == 0):
+            f_dwwrite_epd(retval_epd, 0)
+            EUDReturn(1)
+        if EUDElse()():
+            f_dwwrite_epd(ref_offset_epd, offset)
+        EUDEndIf()
+    EUDEndIf()
+    EUDReturn(ReadNumber(offset, delim, ref_offset_epd, retval_epd))
+
+arg_EncodeNumber = ReadNumber
+arg_EncodeCount = _EncodeCount
+arg_EncodeModifier = _makeConstEncoder(table_Modifier)
+arg_EncodeAllyStatus = _makeConstEncoder(table_AllyStatus)
+arg_EncodeComparison = _makeConstEncoder(table_Comparison)
+arg_EncodeOrder = _makeConstEncoder(table_Order)
+arg_EncodePlayer = _makeConstEncoder(table_Player)
+arg_EncodePropState = _makeConstEncoder(table_PropState)
+arg_EncodeResource = _makeConstEncoder(table_Resource)
+arg_EncodeScore = _makeConstEncoder(table_Score)
+arg_EncodeSwitchAction = _makeConstEncoder(table_SwitchAction)
+arg_EncodeSwitchState = _makeConstEncoder(table_SwitchState)
