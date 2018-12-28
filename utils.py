@@ -231,28 +231,41 @@ class EUDByteRW:
 
 	@EUDMethod
 	def write(self, val):
+		_acts = [Forward() for _ in range(4)]
+		_offvals = [0xFF, 0xFF00, 0xFF0000, 0xFF000000]
+		DoActions([SetMemory(_act+20, SetTo, 0) for _act in _acts])
+		for i in range(8):
+			RawTrigger(
+				conditions = [
+					eudx.MemoryX(val.getValueAddr(), Exactly, 2**i, 2**i)
+				],
+				actions = [
+					eudx.SetMemoryX(_acts[off]+20, Add, 2**(i+off*8), _offvals[off])
+					for off in range(4)
+				]
+			)
 		EUDSwitch(self.off)
 		if EUDSwitchCase()(0):
 			DoActions([
-				eudx.SetMemoryXEPD(self.epd, SetTo, val, 0xFF),
+				_acts[0] << eudx.SetMemoryXEPD(self.epd, SetTo, 0, 0xFF),
 				self.off.AddNumber(1)
 			])
 			EUDBreak()
 		if EUDSwitchCase()(1):
 			DoActions([
-				eudx.SetMemoryXEPD(self.epd, SetTo, val*0x100, 0xFF00),
+				_acts[1] << eudx.SetMemoryXEPD(self.epd, SetTo, 0, 0xFF00),
 				self.off.AddNumber(1)
 			])
 			EUDBreak()
 		if EUDSwitchCase()(2):
 			DoActions([
-				eudx.SetMemoryXEPD(self.epd, SetTo, val*0x10000, 0xFF0000),
+				_acts[2] << eudx.SetMemoryXEPD(self.epd, SetTo, 0, 0xFF0000),
 				self.off.AddNumber(1)
 			])
 			EUDBreak()
 		if EUDSwitchCase()(3):
 			DoActions([
-				eudx.SetMemoryXEPD(self.epd, SetTo, val*0x1000000, 0xFF000000),
+				_acts[3] << eudx.SetMemoryXEPD(self.epd, SetTo, 0, 0xFF000000),
 				self.epd.AddNumber(1), self.off.SetNumber(0)
 			])
 			EUDBreak()

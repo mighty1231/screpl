@@ -70,6 +70,9 @@ def onPluginStart():
 	_commands.append(EUDCommandStruct('list_tables', cmd_listTable))
 	_commands.append(EUDCommandStruct('tb_cons', cmd_listTableContents))
 
+	from ipc import make_db
+	make_db()
+
 def beforeTriggerExec():
 	# Turbo
 	DoActions(SetDeaths(203151, SetTo, 1, 0))
