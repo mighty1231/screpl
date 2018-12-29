@@ -225,14 +225,14 @@ def cmd_MemoryEPD(dest, cmptype, value):
 
 @EUDCommand([arg_EncodePlayer, arg_EncodeComparison, arg_EncodeNumber, arg_EncodeUnit, arg_EncodeNumber], [ret_DecodeBool])
 def cmd_DeathsX(Player, Comparison, Number, Unit, Mask):
-	if EUDIf()(eudx.DeathsX(Player, Comparison, Number, Unit, Mask)):
+	if EUDIf()(DeathsX(Player, Comparison, Number, Unit, Mask)):
 		EUDReturn(1)
 	EUDEndIf()
 	EUDReturn(0)
 
 @EUDCommand([arg_EncodeNumber, arg_EncodeComparison, arg_EncodeNumber, arg_EncodeNumber], [ret_DecodeBool])
 def cmd_MemoryX(dest, cmptype, value, mask):
-	if EUDIf()(eudx.MemoryX(dest, cmptype, value, mask)):
+	if EUDIf()(MemoryX(dest, cmptype, value, mask)):
 		EUDReturn(1)
 	EUDEndIf()
 	EUDReturn(0)

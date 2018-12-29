@@ -1,5 +1,4 @@
 from eudplib import *
-import eudx
 
 def makeText(msg):
 	if not hasattr(makeText, 'textdict'):
@@ -197,7 +196,7 @@ class EUDByteRW:
 		if EUDSwitchCase()(0):
 			for i in range(8):
 				Trigger(
-					conditions = eudx.MemoryXEPD(self.epd, Exactly, 2**i, 2**i),
+					conditions = MemoryXEPD(self.epd, Exactly, 2**i, 2**i),
 					actions = ret.AddNumber(2**i)
 				)
 			self.off += 1
@@ -205,7 +204,7 @@ class EUDByteRW:
 		if EUDSwitchCase()(1):
 			for i in range(8):
 				Trigger(
-					conditions = eudx.MemoryXEPD(self.epd, Exactly, 2**(i+8), 2**(i+8)),
+					conditions = MemoryXEPD(self.epd, Exactly, 2**(i+8), 2**(i+8)),
 					actions = ret.AddNumber(2**i)
 				)
 			self.off += 1
@@ -213,7 +212,7 @@ class EUDByteRW:
 		if EUDSwitchCase()(2):
 			for i in range(8):
 				Trigger(
-					conditions = eudx.MemoryXEPD(self.epd, Exactly, 2**(i+16), 2**(i+16)),
+					conditions = MemoryXEPD(self.epd, Exactly, 2**(i+16), 2**(i+16)),
 					actions = ret.AddNumber(2**i)
 				)
 			self.off += 1
@@ -221,7 +220,7 @@ class EUDByteRW:
 		if EUDSwitchCase()(3):
 			for i in range(8):
 				Trigger(
-					conditions = eudx.MemoryXEPD(self.epd, Exactly, 2**(i+24), 2**(i+24)),
+					conditions = MemoryXEPD(self.epd, Exactly, 2**(i+24), 2**(i+24)),
 					actions = ret.AddNumber(2**i)
 				)
 			DoActions([self.epd.AddNumber(1), self.off.SetNumber(0)])
@@ -237,35 +236,35 @@ class EUDByteRW:
 		for i in range(8):
 			RawTrigger(
 				conditions = [
-					eudx.MemoryX(val.getValueAddr(), Exactly, 2**i, 2**i)
+					MemoryX(val.getValueAddr(), Exactly, 2**i, 2**i)
 				],
 				actions = [
-					eudx.SetMemoryX(_acts[off]+20, Add, 2**(i+off*8), _offvals[off])
+					SetMemoryX(_acts[off]+20, Add, 2**(i+off*8), _offvals[off])
 					for off in range(4)
 				]
 			)
 		EUDSwitch(self.off)
 		if EUDSwitchCase()(0):
 			DoActions([
-				_acts[0] << eudx.SetMemoryXEPD(self.epd, SetTo, 0, 0xFF),
+				_acts[0] << SetMemoryXEPD(self.epd, SetTo, 0, 0xFF),
 				self.off.AddNumber(1)
 			])
 			EUDBreak()
 		if EUDSwitchCase()(1):
 			DoActions([
-				_acts[1] << eudx.SetMemoryXEPD(self.epd, SetTo, 0, 0xFF00),
+				_acts[1] << SetMemoryXEPD(self.epd, SetTo, 0, 0xFF00),
 				self.off.AddNumber(1)
 			])
 			EUDBreak()
 		if EUDSwitchCase()(2):
 			DoActions([
-				_acts[2] << eudx.SetMemoryXEPD(self.epd, SetTo, 0, 0xFF0000),
+				_acts[2] << SetMemoryXEPD(self.epd, SetTo, 0, 0xFF0000),
 				self.off.AddNumber(1)
 			])
 			EUDBreak()
 		if EUDSwitchCase()(3):
 			DoActions([
-				_acts[3] << eudx.SetMemoryXEPD(self.epd, SetTo, 0, 0xFF000000),
+				_acts[3] << SetMemoryXEPD(self.epd, SetTo, 0, 0xFF000000),
 				self.epd.AddNumber(1), self.off.SetNumber(0)
 			])
 			EUDBreak()
@@ -367,7 +366,7 @@ class EUDByteRW:
 		for i in range(31, -1, -1):
 			if i in [23, 15, 7]:
 				self.write(ord(' '))
-			if EUDIf()(eudx.MemoryX(number.getValueAddr(), Exactly, 2**i, 2**i)):
+			if EUDIf()(MemoryX(number.getValueAddr(), Exactly, 2**i, 2**i)):
 				self.write(ord('1'))
 			if EUDElse()():
 				self.write(ord('0'))

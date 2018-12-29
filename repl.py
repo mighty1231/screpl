@@ -1,7 +1,6 @@
 from eudplib import *
 from utils import *
 from encoder import ReadName
-import eudx
 from board import Board
 from command import EUDCommandStruct
 
@@ -57,15 +56,15 @@ class REPL:
 			m = 256 ** (offset % 4)
 			n = 2 ** (offset % 32)
 			RawTrigger(
-				conditions = eudx.MemoryX(0x596A18 + offset, Exactly, 0, m),
-				actions = eudx.SetMemoryX(
+				conditions = MemoryX(0x596A18 + offset, Exactly, 0, m),
+				actions = SetMemoryX(
 					cur_keystate.getValueAddr(),
 					SetTo, 0, 2**i
 				)
 			)
 			RawTrigger(
-				conditions = eudx.MemoryX(0x596A18 + offset, Exactly, m, m),
-				actions = eudx.SetMemoryX(
+				conditions = MemoryX(0x596A18 + offset, Exactly, m, m),
+				actions = SetMemoryX(
 					cur_keystate.getValueAddr(),
 					SetTo, 2**i, 2**i
 				)
@@ -76,25 +75,25 @@ class REPL:
 			pos = 2 ** self.keycodes.index(keycode)
 			if callwhen == 'OnKeyDown':
 				if EUDIf()([
-							eudx.MemoryX(self.prev_keystate.getValueAddr(),
+							MemoryX(self.prev_keystate.getValueAddr(),
 								Exactly, 0, pos),
-							eudx.MemoryX(cur_keystate.getValueAddr(),
+							MemoryX(cur_keystate.getValueAddr(),
 								Exactly, pos, pos),
 						]):
 					callback()
 				EUDEndIf()
 			elif callwhen == 'OnKeyUp':
 				if EUDIf()([
-							eudx.MemoryX(self.prev_keystate.getValueAddr(),
+							MemoryX(self.prev_keystate.getValueAddr(),
 								Exactly, pos, pos),
-							eudx.MemoryX(cur_keystate.getValueAddr(),
+							MemoryX(cur_keystate.getValueAddr(),
 								Exactly, 0, pos),
 						]):
 					callback()
 				EUDEndIf()
 			elif callwhen == 'OnKeyPress':
 				if EUDIf()(
-							eudx.MemoryX(cur_keystate.getValueAddr(),
+							MemoryX(cur_keystate.getValueAddr(),
 								Exactly, pos, pos)
 						):
 					callback()
@@ -242,7 +241,7 @@ def beforeTriggerExec():
 
 	display = EUDVariable(1)
 	def ToggleDisplay():
-		DoActions(eudx.SetMemoryX(display.getValueAddr(), Add, 1, 1))
+		DoActions(SetMemoryX(display.getValueAddr(), Add, 1, 1))
 
 	key_callbacks = [
 		('F7', 'OnKeyDown', SetPrevPage),

@@ -332,9 +332,9 @@ def cmd_SetMemoryEPD(dest, modtype, value):
 
 @EUDCommand([arg_EncodePlayer, arg_EncodeModifier, arg_EncodeNumber, arg_EncodeUnit, arg_EncodeNumber])
 def cmd_SetDeathsX(Player, Modifier, Number, Unit, Mask):
-	DoActions(eudx.SetDeathsX(Player, Modifier, Number, Unit, Mask))
+	DoActions(SetDeathsX(Player, Modifier, Number, Unit, Mask))
 
 @EUDCommand([arg_EncodeNumber, arg_EncodeModifier, arg_EncodeNumber, arg_EncodeNumber])
 def cmd_SetMemoryX(dest, modtype, value, mask):
-	DoActions(eudx.SetMemoryX(dest, modtype, value, mask))
+	DoActions(SetMemoryX(dest, modtype, value, mask))
 
