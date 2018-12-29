@@ -18,7 +18,7 @@ def makeTextEPDArray(txt):
 		for line in txt:
 			lines += line.split('\n')
 	ln = len(lines)
-	return EUDVArray(ln)([EPD(makeText(line)) for line in lines]), ln
+	return EUDArray([EPD(makeText(line)) for line in lines]), ln
 
 @EUDFunc
 def f_dbepd_print(epd):

@@ -10,20 +10,18 @@ import functools
 __all__ = ['EUDCommand', 'EUDCommandPtr', 'EUDCommandStruct']
 
 _MAXARGCNT = 8
-_MAXRETCNT = 4
+_MAXRETCNT = 8
 _output_writer = EUDByteRW()
 _error_writer = EUDByteRW()
 
 # variables for outer function
 from encoder import ArgEncoderPtr, _reader, _read_until_delimiter
 _argn = EUDVariable()
-_arg_encoders = EUDVArray(_MAXARGCNT, ArgEncoderPtr)()
-_arg_encoder_ptr = ArgEncoderPtr()
+_arg_encoders = EUDArray(_MAXARGCNT)
 
 from decoder import RetDecoderPtr
 _retn = EUDVariable()
-_ret_decoders = EUDVArray(_MAXRETCNT, RetDecoderPtr)()
-_ret_decoder_ptr = RetDecoderPtr()
+_ret_decoders = EUDArray(_MAXRETCNT)
 
 # Used as global variable during parsing iteratively
 _offset = EUDVariable()
@@ -34,8 +32,8 @@ _refencoded = EPD(_encoded.getValueAddr())
 _encode_success = EUDVariable()
 
 # store arguments/returned values from inner function
-_arg_storage = EUDVArray(_MAXARGCNT)()
-_ret_storage = EUDVArray(_MAXRETCNT)()
+_arg_storage = EUDArray(_MAXARGCNT)
+_ret_storage = EUDArray(_MAXRETCNT)
 
 @EUDFunc
 def encodeArguments():
@@ -51,7 +49,7 @@ def encodeArguments():
 			if EUDIf()(i == _argn-1):
 				delim << ord(')')
 			EUDEndIf()
-			_arg_encoder_ptr << _arg_encoders[i]
+			_arg_encoder_ptr = ArgEncoderPtr.cast(_arg_encoders[i])
 			if EUDIf()(_arg_encoder_ptr(_offset, delim, _refoffset_epd, _refencoded) == 1):
 				_arg_storage[i] = _encoded
 			if EUDElse()():
@@ -84,7 +82,7 @@ def decodeReturns():
 			_output_writer.write_str(makeText(', '))
 		EUDEndIf()
 
-		_ret_decoder_ptr << _ret_decoders[i]
+		_ret_decoder_ptr = RetDecoderPtr.cast(_ret_decoders[i])
 		_ret_decoder_ptr(_ret_storage[i])
 		i += 1
 	EUDEndInfLoop()
@@ -172,12 +170,14 @@ class EUDCommandPtr(EUDStruct):
 		'_fendnext_epd',
 	]
 
-	def constructor(self, f_init=None):
-		if f_init:
-			self.checkValidFunction(f_init)
-			f_idcstart, f_idcend = createIndirectCaller(f_init)
-			self._fstart = f_idcstart
-			self._fendnext_epd = EPD(f_idcend + 4)
+	def constructor(*args, **kwargs):
+		raise NotImplemented
+
+	def constructor_static(self, f_init):
+		self.checkValidFunction(f_init)
+		f_idcstart, f_idcend = createIndirectCaller(f_init)
+		self._fstart = f_idcstart
+		self._fendnext_epd = EPD(f_idcend + 4)
 
 	@classmethod
 	def cast(cls, _from):
@@ -255,7 +255,10 @@ class EUDCommandStruct(EUDStruct):
 		('cmdptr', EUDCommandPtr),
 	]
 
-	def constructor(self, cmdname, cmdn):
+	def constructor(*args, **kwargs):
+		raise NotImplemented
+
+	def constructor_static(self, cmdname, cmdn):
 		if isinstance(cmdname, Db):
 			self.cmdname = cmdname
 		elif isinstance(cmdname, str):

@@ -117,7 +117,7 @@ class ReferenceTable(EUDStruct):
     ]
 
     def constructor(self, items, tbname = None):
-        raise RuntimeError
+        raise NotImplemented
 
     def constructor_static(self, items, tbname = None):
         names = [EPD(makeText(s[0])) for s in items]

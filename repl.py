@@ -6,17 +6,11 @@ from command import EUDCommandStruct
 
 class REPL:
 	def __init__(self, commands, keystate_callbacks = [], superuser = P1):
-		self.epd, self.off = EUDCreateVariables(2)
-		self.retval, self.errmsg_epd = EUDCreateVariables(2)
 		self.rettext = Db(1024)
-
-		self.offset = EUDVariable()
-		self.ref_offset_epd = EPD(self.offset.getValueAddr())
-
 		self.prev_txtPtr = EUDVariable(initval=10)
 
-		self._cmds = commands
-		self.cmds = EUDVArray(len(self._cmds))(self._cmds)
+		self.cmds = EUDArray(commands)
+		self.cmdn = len(commands)
 
 		self.cmds._basetype = EUDCommandStruct
 
@@ -112,18 +106,17 @@ class REPL:
 
 		# Read function first
 		if EUDIf()(ReadName(offset, ord('('), ref_offset_epd, EPD(self.rettext)) == 1):
-			cmds_cnt = len(self._cmds)
-
 			func_idx = EUDVariable()
 			func_idx << 0
 
 			argidx = EUDVariable()
 			argidx << 0
-			if EUDWhile()(func_idx <= cmds_cnt - 1):
+			if EUDWhile()(func_idx <= self.cmdn - 1):
 
 				# Search for available functions
-				if EUDIf()(f_strcmp2(self.rettext, self.cmds[func_idx].cmdname) == 0):
-					if EUDIf()(self.cmds[func_idx].cmdptr(
+				_f = EUDCommandStruct.cast(self.cmds[func_idx])
+				if EUDIf()(f_strcmp2(self.rettext, _f.cmdname) == 0):
+					if EUDIf()(_f.cmdptr(
 							offset, br.repl_outputEPDPtr, br._dbgbug_epd) == 1):
 						# br.REPLWriteOutput(makeText('Success!'))
 						pass
