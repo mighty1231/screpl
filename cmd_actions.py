@@ -1,25 +1,25 @@
 from eudplib import *
 from utils import *
-from constenc import (
-	arg_EncodeNumber,
-	arg_EncodeCount,
-	arg_EncodeModifier,
-	arg_EncodeAllyStatus,
-	arg_EncodeComparison,
-	arg_EncodeOrder,
-	arg_EncodePlayer,
-	arg_EncodePropState,
-	arg_EncodeResource,
-	arg_EncodeScore,
-	arg_EncodeSwitchAction,
-	arg_EncodeSwitchState,
+from enc_const import (
+	argEncNumber,
+	argEncCount,
+	argEncModifier,
+	argEncAllyStatus,
+	argEncComparison,
+	argEncOrder,
+	argEncPlayer,
+	argEncPropState,
+	argEncResource,
+	argEncScore,
+	argEncSwitchAction,
+	argEncSwitchState,
 )
-from strenc import (
-	arg_EncodeUnit,
-	arg_EncodeLocation,
-	arg_EncodeAIScript,
-	arg_EncodeSwitch,
-	arg_EncodeString,
+from enc_str import (
+	argEncUnit,
+	argEncLocation,
+	argEncAIScript,
+	argEncSwitch,
+	argEncString,
 )
 from command import EUDCommand, EUDCommandStruct
 # Note, 
@@ -105,7 +105,7 @@ def cmd_Defeat():
 def cmd_PreserveTrigger():
 	DoActions(PreserveTrigger())
 
-@EUDCommand([arg_EncodeNumber])
+@EUDCommand([argEncNumber])
 def cmd_Wait(Time):
 	DoActions(Wait(Time))
 
@@ -117,96 +117,96 @@ def cmd_PauseGame():
 def cmd_UnpauseGame():
 	DoActions(UnpauseGame())
 
-@EUDCommand([arg_EncodeString])
+@EUDCommand([argEncString])
 def cmd_PlayWAV(WAVName):
 	DoActions(PlayWAV(WAVName))
 
-@EUDCommand([arg_EncodeString])
+@EUDCommand([argEncString])
 def cmd_DisplayText(Text):
 	DoActions(DisplayText(Text))
 
-@EUDCommand([arg_EncodeString, arg_EncodeNumber])
+@EUDCommand([argEncString, argEncNumber])
 def cmd_DisplayText_ad(Text, AlwaysDisplay):
 	DoActions(DisplayText(Text, AlwaysDisplay))
 
-@EUDCommand([arg_EncodeLocation])
+@EUDCommand([argEncLocation])
 def cmd_CenterView(Where):
 	DoActions(CenterView(Where))
 
 # UnitProperty!
-@EUDCommand([arg_EncodeNumber, arg_EncodeUnit, arg_EncodeLocation, arg_EncodePlayer, arg_EncodeNumber])
+@EUDCommand([argEncNumber, argEncUnit, argEncLocation, argEncPlayer, argEncNumber])
 def cmd_CreateUnitWithProperties(Count, Unit, Where, Player, Properties):
 	DoActions(Action(Where, 0, 0, 0, Player, Properties, Unit, 11, Count, 28))
 
-@EUDCommand([arg_EncodeString])
+@EUDCommand([argEncString])
 def cmd_SetMissionObjectives(Text):
 	DoActions(SetMissionObjectives(Text))
 
-@EUDCommand([arg_EncodeSwitch, arg_EncodeSwitchAction])
+@EUDCommand([argEncSwitch, argEncSwitchAction])
 def cmd_SetSwitch(Switch, State):
 	DoActions(SetSwitch(Switch, State))
 
-@EUDCommand([arg_EncodeModifier, arg_EncodeNumber])
+@EUDCommand([argEncModifier, argEncNumber])
 def cmd_SetCountdownTimer(TimeModifier, Time):
 	DoActions(SetCountdownTimer(TimeModifier, Time))
 
-@EUDCommand([arg_EncodeAIScript])
+@EUDCommand([argEncAIScript])
 def cmd_RunAIScript(Script):
 	DoActions(RunAIScript(Script))
 
-@EUDCommand([arg_EncodeAIScript, arg_EncodeLocation])
+@EUDCommand([argEncAIScript, argEncLocation])
 def cmd_RunAIScriptAt(Script, Where):
 	DoActions(RunAIScriptAt(Script, Where))
 
-@EUDCommand([arg_EncodeUnit, arg_EncodeString])
+@EUDCommand([argEncUnit, argEncString])
 def cmd_LeaderBoardControl(Unit, Label):
 	DoActions(LeaderBoardControl(Unit, Label))
 
-@EUDCommand([arg_EncodeUnit, arg_EncodeLocation, arg_EncodeString])
+@EUDCommand([argEncUnit, argEncLocation, argEncString])
 def cmd_LeaderBoardControlAt(Unit, Location, Label):
 	DoActions(LeaderBoardControlAt(Unit, Location, Label))
 
-@EUDCommand([arg_EncodeResource, arg_EncodeString])
+@EUDCommand([argEncResource, argEncString])
 def cmd_LeaderBoardResources(ResourceType, Label):
 	DoActions(LeaderBoardResources(ResourceType, Label))
 
-@EUDCommand([arg_EncodeUnit, arg_EncodeString])
+@EUDCommand([argEncUnit, argEncString])
 def cmd_LeaderBoardKills(Unit, Label):
 	DoActions(LeaderBoardKills(Unit, Label))
 
-@EUDCommand([arg_EncodeScore, arg_EncodeString])
+@EUDCommand([argEncScore, argEncString])
 def cmd_LeaderBoardScore(ScoreType, Label):
 	DoActions(LeaderBoardScore(ScoreType, Label))
 
-@EUDCommand([arg_EncodeUnit, arg_EncodePlayer])
+@EUDCommand([argEncUnit, argEncPlayer])
 def cmd_KillUnit(Unit, Player):
 	DoActions(KillUnit(Unit, Player))
 
-@EUDCommand([arg_EncodeCount, arg_EncodeUnit, arg_EncodeLocation, arg_EncodePlayer])
+@EUDCommand([argEncCount, argEncUnit, argEncLocation, argEncPlayer])
 def cmd_KillUnitAt(Count, Unit, Where, ForPlayer):
 	DoActions(KillUnitAt(Count, Unit, Where, ForPlayer))
 
-@EUDCommand([arg_EncodeUnit, arg_EncodePlayer])
+@EUDCommand([argEncUnit, argEncPlayer])
 def cmd_RemoveUnit(Unit, Player):
 	DoActions(RemoveUnit(Unit, Player))
 
-@EUDCommand([arg_EncodeCount, arg_EncodeUnit, arg_EncodeLocation, arg_EncodePlayer])
+@EUDCommand([argEncCount, argEncUnit, argEncLocation, argEncPlayer])
 def cmd_RemoveUnitAt(Count, Unit, Where, ForPlayer):
 	DoActions(RemoveUnitAt(Count, Unit, Where, ForPlayer))
 
-@EUDCommand([arg_EncodePlayer, arg_EncodeModifier, arg_EncodeNumber, arg_EncodeResource])
+@EUDCommand([argEncPlayer, argEncModifier, argEncNumber, argEncResource])
 def cmd_SetResources(Player, Modifier, Amount, ResourceType):
 	DoActions(SetResources(Player, Modifier, Amount, ResourceType))
 
-@EUDCommand([arg_EncodePlayer, arg_EncodeModifier, arg_EncodeNumber, arg_EncodeScore])
+@EUDCommand([argEncPlayer, argEncModifier, argEncNumber, argEncScore])
 def cmd_SetScore(Player, Modifier, Amount, ScoreType):
 	DoActions(SetScore(Player, Modifier, Amount, ScoreType))
 
-@EUDCommand([arg_EncodeLocation])
+@EUDCommand([argEncLocation])
 def cmd_MinimapPing(Where):
 	DoActions(MinimapPing(Where))
 
-@EUDCommand([arg_EncodeUnit, arg_EncodeNumber])
+@EUDCommand([argEncUnit, argEncNumber])
 def cmd_TalkingPortrait(Unit, Time):
 	DoActions(TalkingPortrait(Unit, Time))
 
@@ -218,91 +218,91 @@ def cmd_MuteUnitSpeech():
 def cmd_UnMuteUnitSpeech():
 	DoActions(UnMuteUnitSpeech())
 
-@EUDCommand([arg_EncodePropState])
+@EUDCommand([argEncPropState])
 def cmd_LeaderBoardComputerPlayers(State):
 	DoActions(LeaderBoardComputerPlayers(State))
 
-@EUDCommand([arg_EncodeNumber, arg_EncodeUnit, arg_EncodeString])
+@EUDCommand([argEncNumber, argEncUnit, argEncString])
 def cmd_LeaderBoardGoalControl(Goal, Unit, Label):
 	DoActions(LeaderBoardGoalControl(Goal, Unit, Label))
 
-@EUDCommand([arg_EncodeNumber, arg_EncodeUnit, arg_EncodeLocation, arg_EncodeString])
+@EUDCommand([argEncNumber, argEncUnit, argEncLocation, argEncString])
 def cmd_LeaderBoardGoalControlAt(Goal, Unit, Location, Label):
 	DoActions(LeaderBoardGoalControlAt(Goal, Unit, Location, Label))
 
-@EUDCommand([arg_EncodeNumber, arg_EncodeResource, arg_EncodeString])
+@EUDCommand([argEncNumber, argEncResource, argEncString])
 def cmd_LeaderBoardGoalResources(Goal, ResourceType, Label):
 	DoActions(LeaderBoardGoalResources(Goal, ResourceType, Label))
 
-@EUDCommand([arg_EncodeNumber, arg_EncodeUnit, arg_EncodeString])
+@EUDCommand([argEncNumber, argEncUnit, argEncString])
 def cmd_LeaderBoardGoalKills(Goal, Unit, Label):
 	DoActions(LeaderBoardGoalKills(Goal, Unit, Label))
 
-@EUDCommand([arg_EncodeNumber, arg_EncodeScore, arg_EncodeString])
+@EUDCommand([argEncNumber, argEncScore, argEncString])
 def cmd_LeaderBoardGoalScore(Goal, ScoreType, Label):
 	DoActions(LeaderBoardGoalScore(Goal, ScoreType, Label))
 
-@EUDCommand([arg_EncodeLocation, arg_EncodeUnit, arg_EncodePlayer, arg_EncodeLocation])
+@EUDCommand([argEncLocation, argEncUnit, argEncPlayer, argEncLocation])
 def cmd_MoveLocation(Location, OnUnit, Owner, DestLocation):
 	DoActions(MoveLocation(Location, OnUnit, Owner, DestLocation))
 
-@EUDCommand([arg_EncodeCount, arg_EncodeUnit, arg_EncodePlayer, arg_EncodeLocation, arg_EncodeLocation])
+@EUDCommand([argEncCount, argEncUnit, argEncPlayer, argEncLocation, argEncLocation])
 def cmd_MoveUnit(Count, UnitType, Owner, StartLocation, DestLocation):
 	DoActions(MoveUnit(Count, UnitType, Owner, StartLocation, DestLocation))
 
-@EUDCommand([arg_EncodeNumber])
+@EUDCommand([argEncNumber])
 def cmd_LeaderBoardGreed(Goal):
 	DoActions(LeaderBoardGreed(Goal))
 
-@EUDCommand([arg_EncodeString])
+@EUDCommand([argEncString])
 def cmd_SetNextScenario(ScenarioName):
 	DoActions(SetNextScenario(ScenarioName))
 
-@EUDCommand([arg_EncodePropState, arg_EncodeUnit, arg_EncodePlayer, arg_EncodeLocation])
+@EUDCommand([argEncPropState, argEncUnit, argEncPlayer, argEncLocation])
 def cmd_SetDoodadState(State, Unit, Owner, Where):
 	DoActions(SetDoodadState(State, Unit, Owner, Where))
 
-@EUDCommand([arg_EncodePropState, arg_EncodeUnit, arg_EncodePlayer, arg_EncodeLocation])
+@EUDCommand([argEncPropState, argEncUnit, argEncPlayer, argEncLocation])
 def cmd_SetInvincibility(State, Unit, Owner, Where):
 	DoActions(SetInvincibility(State, Unit, Owner, Where))
 
-@EUDCommand([arg_EncodeNumber, arg_EncodeUnit, arg_EncodeLocation, arg_EncodePlayer])
+@EUDCommand([argEncNumber, argEncUnit, argEncLocation, argEncPlayer])
 def cmd_CreateUnit(Number, Unit, Where, ForPlayer):
 	DoActions(CreateUnit(Number, Unit, Where, ForPlayer))
 
-@EUDCommand([arg_EncodePlayer, arg_EncodeModifier, arg_EncodeNumber, arg_EncodeUnit])
+@EUDCommand([argEncPlayer, argEncModifier, argEncNumber, argEncUnit])
 def cmd_SetDeaths(Player, Modifier, Number, Unit):
 	DoActions(SetDeaths(Player, Modifier, Number, Unit))
 
-@EUDCommand([arg_EncodeUnit, arg_EncodePlayer, arg_EncodeLocation, arg_EncodeOrder, arg_EncodeLocation])
+@EUDCommand([argEncUnit, argEncPlayer, argEncLocation, argEncOrder, argEncLocation])
 def cmd_Order(Unit, Owner, StartLocation, OrderType, DestLocation):
 	DoActions(Order(Unit, Owner, StartLocation, OrderType, DestLocation))
 
-@EUDCommand([arg_EncodeString])
+@EUDCommand([argEncString])
 def cmd_Comment(Text):
 	DoActions(Comment(Text))
 
-@EUDCommand([arg_EncodeCount, arg_EncodeUnit, arg_EncodePlayer, arg_EncodeLocation, arg_EncodePlayer])
+@EUDCommand([argEncCount, argEncUnit, argEncPlayer, argEncLocation, argEncPlayer])
 def cmd_GiveUnits(Count, Unit, Owner, Where, NewOwner):
 	DoActions(GiveUnits(Count, Unit, Owner, Where, NewOwner))
 
-@EUDCommand([arg_EncodeCount, arg_EncodeUnit, arg_EncodePlayer, arg_EncodeLocation, arg_EncodeNumber])
+@EUDCommand([argEncCount, argEncUnit, argEncPlayer, argEncLocation, argEncNumber])
 def cmd_ModifyUnitHitPoints(Count, Unit, Owner, Where, Percent):
 	DoActions(ModifyUnitHitPoints(Count, Unit, Owner, Where, Percent))
 
-@EUDCommand([arg_EncodeCount, arg_EncodeUnit, arg_EncodePlayer, arg_EncodeLocation, arg_EncodeNumber])
+@EUDCommand([argEncCount, argEncUnit, argEncPlayer, argEncLocation, argEncNumber])
 def cmd_ModifyUnitEnergy(Count, Unit, Owner, Where, Percent):
 	DoActions(ModifyUnitEnergy(Count, Unit, Owner, Where, Percent))
 
-@EUDCommand([arg_EncodeCount, arg_EncodeUnit, arg_EncodePlayer, arg_EncodeLocation, arg_EncodeNumber])
+@EUDCommand([argEncCount, argEncUnit, argEncPlayer, argEncLocation, argEncNumber])
 def cmd_ModifyUnitShields(Count, Unit, Owner, Where, Percent):
 	DoActions(ModifyUnitShields(Count, Unit, Owner, Where, Percent))
 
-@EUDCommand([arg_EncodeNumber, arg_EncodePlayer, arg_EncodeLocation, arg_EncodeNumber])
+@EUDCommand([argEncNumber, argEncPlayer, argEncLocation, argEncNumber])
 def cmd_ModifyUnitResourceAmount(Count, Owner, Where, NewValue):
 	DoActions(ModifyUnitResourceAmount(Count, Owner, Where, NewValue))
 
-@EUDCommand([arg_EncodeNumber, arg_EncodeCount, arg_EncodeUnit, arg_EncodePlayer, arg_EncodeLocation])
+@EUDCommand([argEncNumber, argEncCount, argEncUnit, argEncPlayer, argEncLocation])
 def cmd_ModifyUnitHangarCount(Add, Count, Unit, Owner, Where):
 	DoActions(ModifyUnitHangarCount(Add, Count, Unit, Owner, Where))
 
@@ -318,23 +318,23 @@ def cmd_UnpauseTimer():
 def cmd_Draw():
 	DoActions(Draw())
 
-@EUDCommand([arg_EncodePlayer, arg_EncodeAllyStatus])
+@EUDCommand([argEncPlayer, argEncAllyStatus])
 def cmd_SetAllianceStatus(Player, Status):
 	DoActions(SetAllianceStatus(Player, Status))
 
-@EUDCommand([arg_EncodeNumber, arg_EncodeModifier, arg_EncodeNumber])
+@EUDCommand([argEncNumber, argEncModifier, argEncNumber])
 def cmd_SetMemory(dest, modtype, value):
 	DoActions(SetMemory(dest, modtype, value))
 
-@EUDCommand([arg_EncodePlayer, arg_EncodeModifier, arg_EncodeNumber])
+@EUDCommand([argEncPlayer, argEncModifier, argEncNumber])
 def cmd_SetMemoryEPD(dest, modtype, value):
 	DoActions(SetMemoryEPD(dest, modtype, value))
 
-@EUDCommand([arg_EncodePlayer, arg_EncodeModifier, arg_EncodeNumber, arg_EncodeUnit, arg_EncodeNumber])
+@EUDCommand([argEncPlayer, argEncModifier, argEncNumber, argEncUnit, argEncNumber])
 def cmd_SetDeathsX(Player, Modifier, Number, Unit, Mask):
 	DoActions(SetDeathsX(Player, Modifier, Number, Unit, Mask))
 
-@EUDCommand([arg_EncodeNumber, arg_EncodeModifier, arg_EncodeNumber, arg_EncodeNumber])
+@EUDCommand([argEncNumber, argEncModifier, argEncNumber, argEncNumber])
 def cmd_SetMemoryX(dest, modtype, value, mask):
 	DoActions(SetMemoryX(dest, modtype, value, mask))
 

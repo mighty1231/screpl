@@ -32,7 +32,7 @@ tbai = ReferenceTable(
         list(map(lambda a:(a[0], b2i4(a[1])), DefAIScriptDict.items())), "AIScript")
 
 @EUDFunc
-def arg_EncodeUnit(offset, delim, ref_offset_epd, retval_epd):
+def argEncUnit(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
@@ -46,7 +46,7 @@ def arg_EncodeUnit(offset, delim, ref_offset_epd, retval_epd):
     EUDReturn(0)
 
 @EUDFunc
-def arg_EncodeLocation(offset, delim, ref_offset_epd, retval_epd):
+def argEncLocation(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
@@ -60,7 +60,7 @@ def arg_EncodeLocation(offset, delim, ref_offset_epd, retval_epd):
     EUDReturn(0)
 
 @EUDFunc
-def arg_EncodeAIScript(offset, delim, ref_offset_epd, retval_epd):
+def argEncAIScript(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
@@ -72,7 +72,7 @@ def arg_EncodeAIScript(offset, delim, ref_offset_epd, retval_epd):
     EUDReturn(0)
 
 @EUDFunc
-def arg_EncodeSwitch(offset, delim, ref_offset_epd, retval_epd):
+def argEncSwitch(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
@@ -86,7 +86,7 @@ def arg_EncodeSwitch(offset, delim, ref_offset_epd, retval_epd):
     EUDReturn(0)
 
 @EUDFunc
-def arg_EncodeString(offset, delim, ref_offset_epd, retval_epd):
+def argEncString(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, \

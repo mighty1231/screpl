@@ -120,15 +120,15 @@ def _EncodeCount(offset, delim, ref_offset_epd, retval_epd):
     EUDEndIf()
     EUDReturn(ReadNumber(offset, delim, ref_offset_epd, retval_epd))
 
-arg_EncodeNumber = ReadNumber
-arg_EncodeCount = _EncodeCount
-arg_EncodeModifier = _makeConstEncoder(table_Modifier)
-arg_EncodeAllyStatus = _makeConstEncoder(table_AllyStatus)
-arg_EncodeComparison = _makeConstEncoder(table_Comparison)
-arg_EncodeOrder = _makeConstEncoder(table_Order)
-arg_EncodePlayer = _makeConstEncoder(table_Player)
-arg_EncodePropState = _makeConstEncoder(table_PropState)
-arg_EncodeResource = _makeConstEncoder(table_Resource)
-arg_EncodeScore = _makeConstEncoder(table_Score)
-arg_EncodeSwitchAction = _makeConstEncoder(table_SwitchAction)
-arg_EncodeSwitchState = _makeConstEncoder(table_SwitchState)
+argEncNumber = ReadNumber
+argEncCount = _EncodeCount
+argEncModifier = _makeConstEncoder(table_Modifier)
+argEncAllyStatus = _makeConstEncoder(table_AllyStatus)
+argEncComparison = _makeConstEncoder(table_Comparison)
+argEncOrder = _makeConstEncoder(table_Order)
+argEncPlayer = _makeConstEncoder(table_Player)
+argEncPropState = _makeConstEncoder(table_PropState)
+argEncResource = _makeConstEncoder(table_Resource)
+argEncScore = _makeConstEncoder(table_Score)
+argEncSwitchAction = _makeConstEncoder(table_SwitchAction)
+argEncSwitchState = _makeConstEncoder(table_SwitchState)

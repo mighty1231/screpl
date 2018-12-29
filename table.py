@@ -69,7 +69,7 @@ def table_init():
         br.SetMode(1)
 
     @EUDFunc
-    def arg_EncodeTable(offset, delim, ref_offset_epd, retval_epd):
+    def argEncTable(offset, delim, ref_offset_epd, retval_epd):
         if EUDIf()(ReadName(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
             idx, name_epd = EUDCreateVariables(2)
             DoActions([
@@ -91,7 +91,7 @@ def table_init():
         f_dwwrite_epd(ref_offset_epd, offset)
         EUDReturn(0)
 
-    @EUDCommand([arg_EncodeTable])
+    @EUDCommand([argEncTable])
     def cmd_listTableContents(reftable_ptr):
         from board import Board
 

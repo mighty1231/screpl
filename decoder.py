@@ -5,7 +5,7 @@ from command import _output_writer
 RetDecoderPtr = EUDFuncPtr(1, 0)
 
 @EUDFunc
-def ret_DecodeBool(number):
+def retDecBool(number):
 	if EUDIf()(number == 0):
 		_output_writer.write_str(makeText('False'))
 	if EUDElse()():
@@ -13,13 +13,13 @@ def ret_DecodeBool(number):
 	EUDEndIf()
 
 @EUDFunc
-def ret_DecodeBinary(number):
+def retDecBinary(number):
 	_output_writer.write_binary(number)
 
 @EUDFunc
-def ret_DecodeDecimal(number):
+def retDecDecimal(number):
 	_output_writer.write_decimal(number)
 
 @EUDFunc
-def ret_DecodeHex(number):
+def retDecHex(number):
 	_output_writer.write_hex(number)
