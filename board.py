@@ -39,9 +39,8 @@ class Board:
 
 		# Print a single page
 		self.page = DBString(1024)
-		inittitle = u2b('SC-REPL')
+		inittitle = u2b('SC-REPL, type help()')
 		self.title = Db(inittitle + bytes(100-len(inittitle)))
-		self._dbgbug_epd = EPD(Db(200))
 
 		# 1 if it needs to update page before display
 		self.update = EUDVariable()
@@ -122,6 +121,10 @@ class Board:
 		if EUDIfNot()(Memory(self.mode.getValueAddr(),Exactly, mode)):
 			self.mode << mode
 			self.update << 1
+
+			if EUDIf()(self.mode == 0):
+				self.SetTitle(makeText('SC-REPL'))
+			EUDEndIf()
 		EUDEndIf()
 
 	@EUDMethod
@@ -227,9 +230,7 @@ class Board:
 
 		# Write title and page
 		self.writer.write_str(self.title)
-		self.writer.write_str(makeText('[ '))
-		self.writer.write_strepd(self._dbgbug_epd)
-		self.writer.write_str(makeText(' ] ( '))
+		self.writer.write_str(makeText(' ( '))
 
 		if EUDIf()(self.mode == 0):
 			# REPL mode

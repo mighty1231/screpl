@@ -113,7 +113,7 @@ class REPL:
 
 			if EUDIf()(SearchTable(self.rettext, EPD(repl_commands), f_strcmp_ptrepd, EPD(ret.getValueAddr())) == 1):
 				func << EUDCommandPtr.cast(ret)
-				if EUDIf()(func(offset, br.repl_outputEPDPtr, br._dbgbug_epd) == 1):
+				if EUDIf()(func(offset, br.repl_outputEPDPtr) == 1):
 					pass
 				if EUDElse()():
 					pass

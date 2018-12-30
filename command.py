@@ -12,7 +12,6 @@ __all__ = ['EUDCommand', 'EUDCommandPtr']
 _MAXARGCNT = 8
 _MAXRETCNT = 8
 _output_writer = EUDByteRW()
-_error_writer = EUDByteRW()
 
 # variables for outer function
 from encoder import ArgEncoderPtr, _reader, _read_until_delimiter
@@ -230,7 +229,7 @@ class EUDCommandPtr(EUDStruct):
 	def __lshift__(self, rhs):
 		self.setFunc(rhs)
 
-	def __call__(self, offset, ref_stdout_epd, ref_stderr_epd):
+	def __call__(self, offset, ref_stdout_epd):
 		"""Call target function with given offset ptr for string
 		This call can change offset
 		Returns 1 if it parsed offset successfully and call function
@@ -238,7 +237,6 @@ class EUDCommandPtr(EUDStruct):
 		"""
 		DoActions(SetMemoryEPD(_refoffset_epd, SetTo, offset))
 		_output_writer.seekepd(ref_stdout_epd)
-		_error_writer.seekepd(ref_stderr_epd)
 
 		# Call function
 		t, a = Forward(), Forward()
