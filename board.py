@@ -124,45 +124,6 @@ class Board:
 			self.update << 1
 		EUDEndIf()
 
-	@EUDTypedMethod([None, ReferenceTable])
-	def SetContentsWithTable(self, title, ref_table):
-		f_simpleprint(ref_table, ref_table.size, ref_table.name)
-		dest_epd, name_epd, val_epd, cnt = EUDCreateVariables(4)
-		DoActions([
-			cnt.SetNumber(ref_table.size),
-			name_epd.SetNumber(EPD(ref_table.name)),
-			val_epd.SetNumber(EPD(ref_table.value)),
-			dest_epd.SetNumber(EPD(self.static_data))
-		])
-		index = EUDVariable()
-		index << 0
-		dest_epd << EPD(self.static_data)
-
-		if EUDInfLoop()():
-			EUDBreakIf(cnt == 0)
-			self.writer.seekepd(dest_epd)
-			self.writer.write_strepd(ref_table.name[index])
-			self.writer.write_str(makeText(': '))
-			self.writer.write_decimal(ref_table.name[index])
-			self.writer.write(0)
-			DoActions([
-				index.AddNumber(1),
-				cnt.SubtractNumber(1),
-				name_epd.AddNumber(1),
-				val_epd.AddNumber(1),
-				dest_epd.AddNumber(LINESIZE // 4)
-			])
-		EUDEndInfLoop()
-		self.SetTitle(title)
-		self.static_ln << cnt
-		self.static_offset << 0
-		self.static_cur_page << 0
-		self.static_num_pages << f_div(cnt+PAGE_NUMLINES-1, PAGE_NUMLINES)[0]
-
-		if EUDIf()(self.mode == 1):
-			self.update << 1
-		EUDEndIf()
-
 	@EUDMethod
 	def SetContentWithTbName_epd(self, table_epd):
 		size = f_dwread_epd(table_epd)
@@ -185,7 +146,38 @@ class Board:
 			DoActions([
 				name_epd.AddNumber(2),
 				size.SubtractNumber(1),
-				dest_epd.AddNumber(LINESIZE // 4),	
+				dest_epd.AddNumber(LINESIZE // 4),
+			])
+		EUDEndInfLoop()
+
+		if EUDIf()(self.mode == 1):
+			self.update << 1
+		EUDEndIf()
+
+	@EUDTypedMethod([None, EUDFuncPtr(3, 0)])
+	def SetContentWithTable_epd(self, table_epd, item_decoder):
+		size = f_dwread_epd(table_epd)
+		self.static_ln << size
+		self.static_offset << 0
+		self.static_cur_page << 0
+		self.static_num_pages << f_div(size+PAGE_NUMLINES-1, PAGE_NUMLINES)[0]
+
+		name_epd, val_epd, dest_ptr = EUDCreateVariables(3)
+		DoActions([
+			name_epd.SetNumber(table_epd),
+			name_epd.AddNumber(1),
+			val_epd.SetNumber(table_epd),
+			val_epd.AddNumber(2),
+			dest_ptr.SetNumber(self.static_data)
+		])
+		if EUDInfLoop()():
+			EUDBreakIf(size == 0)
+			item_decoder(dest_ptr, f_dwread_epd(name_epd), f_dwread_epd(val_epd))
+			DoActions([
+				size.SubtractNumber(1),
+				name_epd.AddNumber(2),
+				val_epd.AddNumber(2),
+				dest_ptr.AddNumber(LINESIZE),
 			])
 		EUDEndInfLoop()
 

@@ -1,5 +1,5 @@
 from eudplib import *
-from table import ReferenceTable, SearchTable
+from table import ReferenceTable, SearchTable, decItem_StringHex
 from utils import *
 from command import EUDCommand
 
@@ -14,7 +14,7 @@ def cmd_objtrace():
 	from board import Board
 	br = Board.GetInstance()
 	br.SetTitle(makeText("Objects"))
-	br.SetContentWithTbName_epd(EPD(_objtable))
+	br.SetContentWithTable_epd(EPD(_objtable), decItem_StringHex)
 	br.SetMode(1)
 
 

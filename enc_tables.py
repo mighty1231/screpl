@@ -1,5 +1,10 @@
 from eudplib import *
-from table import ReferenceTable, SearchTable
+from table import (
+    ReferenceTable,
+    SearchTable,
+    decItem_StringDecimal,
+    decItem_String
+)
 from utils import *
 from eudplib.core.rawtrigger.strdict import (
     DefUnitDict,
@@ -25,10 +30,10 @@ tb_ai = ReferenceTable(
         list(map(lambda a:(a[0], b2i4(a[1])), DefAIScriptDict.items())),
         [(encodingTables, "AIScript")], key_f=makeEPDText)
 
-tb_unitMap = ReferenceTable(unitmap._s2id.items(), [(encodingTables, "Unit")], key_f=makeEPDText)
+tb_unitMap = ReferenceTable(unitmap._s2id.items(), [(encodingTables, "MapUnit")], key_f=makeEPDText)
 tb_locMap = ReferenceTable(
-    list(map(lambda a:(a[0], a[1]+1), locmap._s2id.items())), [(encodingTables, "Location")], key_f=makeEPDText)
-tb_swMap = ReferenceTable(swmap._s2id.items(), [(encodingTables, "Switch")], key_f=makeEPDText)
+    list(map(lambda a:(a[0], a[1]+1), locmap._s2id.items())), [(encodingTables, "MapLocation")], key_f=makeEPDText)
+tb_swMap = ReferenceTable(swmap._s2id.items(), [(encodingTables, "MapSwitch")], key_f=makeEPDText)
 
 tb_Modifier = ReferenceTable([
     ("SetTo", EncodeModifier(SetTo)),
@@ -122,7 +127,7 @@ def cmd_listEncoders():
 	from board import Board
 	br = Board.GetInstance()
 	br.SetTitle(makeText('List of encoders'))
-	br.SetContentWithTbName_epd(EPD(encodingTables))
+	br.SetContentWithTable_epd(EPD(encodingTables), decItem_String)
 	br.SetMode(1)
 
 @EUDFunc
@@ -141,7 +146,7 @@ def cmd_printEncoder(table_epd):
 	from board import Board
 	br = Board.GetInstance()
 	br.SetTitle(makeText('List'))
-	br.SetContentWithTbName_epd(table_epd)
+	br.SetContentWithTable_epd(table_epd, decItem_StringDecimal)
 	br.SetMode(1)
 
 def register_encoder():

@@ -115,7 +115,7 @@ def createIndirectCaller(f, _caller_dict={}):
 				# print result to output buffer
 				decodeReturns()
 			else:
-				_output_writer.write_str(makeText('Successful'))
+				_output_writer.write_str(makeText('Success!'))
 				_output_writer.write(0)
 		EUDEndIf()
 		caller_end = RawTrigger()

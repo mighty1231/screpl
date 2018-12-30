@@ -6,15 +6,26 @@ from encoder import ReadNumber, ReadName
 _writer = EUDByteRW()
 
 @EUDFunc
-def decItem_StringDecimal(name, val):
+def decItem_StringDecimal(offset, name, val):
+    _writer.seekoffset(offset)
     _writer.write_strepd(name)
-    _writer.write(ord(': '))
-    _writer.write()
+    _writer.write_strepd(EPD(makeText(': ')))
+    _writer.write_decimal(val)
+    _writer.write(0)
 
 @EUDFunc
-def decItem_String(name, val):
+def decItem_StringHex(offset, name, val):
+    _writer.seekoffset(offset)
     _writer.write_strepd(name)
+    _writer.write_strepd(EPD(makeText(': ')))
+    _writer.write_hex(val)
+    _writer.write(0)
 
+@EUDFunc
+def decItem_String(offset, name, val):
+    _writer.seekoffset(offset)
+    _writer.write_strepd(name)
+    _writer.write(0)
 
 class ReferenceTable(EUDObject):
     '''
