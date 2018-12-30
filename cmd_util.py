@@ -8,18 +8,19 @@ from table import (
     SearchTable,
     decItem_String,
     decItem_StringDecimal,
-    decItem_StringHex
+    decItem_StringHex,
+    decItem_Command
 )
 from tables import encoding_tables, traced_objects, repl_commands
 
 def register_cmds():
 	RegisterCommand("cmds", cmd_commands)
-	RegisterCommand("tables", cmd_listEncoders)
-	RegisterCommand("contents", cmd_printEncoder)
+	RegisterCommand("tables", cmd_encoders)
+	RegisterCommand("contents", cmd_contents)
 	RegisterCommand('objtrace', cmd_objtrace)
 
 @EUDCommand([])
-def cmd_listEncoders():
+def cmd_encoders():
 	br = Board.GetInstance()
 	br.SetTitle(makeText('List of encoders'))
 	br.SetContentWithTable_epd(EPD(encoding_tables), decItem_String)
@@ -37,7 +38,10 @@ def argEncEncoderName(offset, delim, ref_offset_epd, retval_epd):
 	EUDReturn(0)
 
 @EUDCommand([argEncEncoderName])
-def cmd_printEncoder(table_epd):
+def cmd_contents(table_epd):
+	'''
+	see contents of table ex) contents(MapLocation)
+	'''
 	br = Board.GetInstance()
 	br.SetTitle(makeText('List'))
 	br.SetContentWithTable_epd(table_epd, decItem_StringDecimal)
@@ -45,6 +49,9 @@ def cmd_printEncoder(table_epd):
 
 @EUDCommand([])
 def cmd_objtrace():
+	'''
+	get address table of marked EUDObjects with RegisterTraceObject
+	'''
 	br = Board.GetInstance()
 	br.SetTitle(makeText("Objects"))
 	br.SetContentWithTable_epd(EPD(traced_objects), decItem_StringHex)
@@ -54,5 +61,5 @@ def cmd_objtrace():
 def cmd_commands():
 	br = Board.GetInstance()
 	br.SetTitle(makeText("Commands"))
-	br.SetContentWithTable_epd(EPD(repl_commands), decItem_String)
+	br.SetContentWithTable_epd(EPD(repl_commands), decItem_Command)
 	br.SetMode(1)

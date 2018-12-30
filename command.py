@@ -163,11 +163,18 @@ class EUDCommandN(EUDFuncN):
 
 		self.arg_encoders = arg_encoders
 		self.ret_decoders = ret_decoders
+		doc = inspect.getdoc(func)
+		if doc != None:
+			assert '\n' not in doc, "document should be one-line"
+		else:
+			doc = ', '.join(inspect.getargspec(func)[0])
+		self._doc_epd = makeEPDText(doc)
 
 class EUDCommandPtr(EUDStruct):
 	_fields_ = [
 		'_fstart',
 		'_fendnext_epd',
+		'_doc_epd',
 	]
 
 	def constructor(*args, **kwargs):
@@ -179,6 +186,7 @@ class EUDCommandPtr(EUDStruct):
 			f_idcstart, f_idcend = createIndirectCaller(f_init)
 			self._fstart = f_idcstart
 			self._fendnext_epd = EPD(f_idcend + 4)
+			self._doc_epd = f_init._doc_epd
 
 	@classmethod
 	def cast(cls, _from):
@@ -208,6 +216,7 @@ class EUDCommandPtr(EUDStruct):
 		"""
 		try:
 			self._fstart, self._fendnext_epd = f._fstart, f._fendnext_epd
+			self._doc_epd = f._doc_epd
 
 		except AttributeError:
 			self.checkValidFunction(f)
@@ -216,6 +225,7 @@ class EUDCommandPtr(EUDStruct):
 			f_idcstart, f_idcend = createIndirectCaller(f)
 			self._fstart = f_idcstart
 			self._fendnext_epd = EPD(f_idcend + 4)
+			self._doc_epd = f._doc_epd
 
 	def __lshift__(self, rhs):
 		self.setFunc(rhs)

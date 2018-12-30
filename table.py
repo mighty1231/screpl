@@ -27,6 +27,17 @@ def decItem_String(offset, name, val):
     _writer.write_strepd(name)
     _writer.write(0)
 
+@EUDFunc
+def decItem_Command(offset, name, val):
+    from command import EUDCommandPtr
+
+    _writer.seekoffset(offset)
+    _writer.write_strepd(name)
+    _writer.write_strepd(EPD(makeText(" - ")))
+    _writer.write_strepd(
+        EUDCommandPtr.cast(val)._doc_epd)
+    _writer.write(0)
+
 class ReferenceTable(EUDObject):
     '''
     Same with EUDArray with contents
