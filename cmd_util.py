@@ -8,25 +8,74 @@ from enc_const import argEncNumber
 from decoder import retDecDecimal, retDecHex, retDecBinary
 
 def register_utilcmds():
-	RegisterCommand('mv', cmd_memoryview)
-	RegisterCommand('mvepd', cmd_memoryview_epd)
+	# EUDVariable
+	RegisterCommand('mul', cmd_mul)
+	RegisterCommand('div', cmd_div)
+
+	# Memory manipulation
 	RegisterCommand('dwread', cmd_dwread)
 	RegisterCommand('wread', cmd_wread)
 	RegisterCommand('bread', cmd_bread)
 	RegisterCommand('dwwrite', cmd_dwwrite)
 	RegisterCommand('wwrite', cmd_wwrite)
 	RegisterCommand('bwrite', cmd_bwrite)
+	RegisterCommand('memcpy', cmd_memcpy)
+	RegisterCommand('strcpy', cmd_strcpy)
+
+	# Memory view
+	RegisterCommand('mv', cmd_memoryview)
+	RegisterCommand('mvepd', cmd_memoryview_epd)
+
+	# Special
 	RegisterCommand('objtrace', cmd_objtrace)
 
-@EUDCommand([])
-def cmd_objtrace():
-	'''
-	get address table of marked EUDObjects with RegisterTraceObject
-	'''
-	br = Board.GetInstance()
-	br.SetTitle(makeText("Objects"))
-	br.SetContentWithTable_epd(EPD(traced_objects), decItem_StringHex)
-	br.SetMode(1)
+
+@EUDCommand([argEncNumber, argEncNumber], \
+		[retDecDecimal, retDecHex])
+def cmd_mul(a, b):
+	v = f_mul(a, b)
+	EUDReturn([v, v])
+
+@EUDCommand([argEncNumber, argEncNumber], \
+		[retDecDecimal, retDecDecimal])
+def cmd_div(a, b):
+	c, d = f_div(a, b)
+	EUDReturn([c, d])
+
+@EUDCommand([argEncNumber], [retDecDecimal, retDecHex, retDecBinary])
+def cmd_dwread(ptr):
+	val = f_dwread(ptr)
+	EUDReturn([val, val, val])
+
+@EUDCommand([argEncNumber], [retDecDecimal, retDecHex, retDecBinary])
+def cmd_wread(ptr):
+	val = f_wread(ptr)
+	EUDReturn([val, val, val])
+
+@EUDCommand([argEncNumber], [retDecDecimal, retDecHex, retDecBinary])
+def cmd_bread(ptr):
+	val = f_bread(ptr)
+	EUDReturn([val, val, val])
+
+@EUDCommand([argEncNumber, argEncNumber])
+def cmd_dwwrite(ptr, val):
+	f_dwwrite(ptr, val)
+
+@EUDCommand([argEncNumber, argEncNumber])
+def cmd_wwrite(ptr, val):
+	f_wwrite(ptr, val)
+
+@EUDCommand([argEncNumber, argEncNumber])
+def cmd_bwrite(ptr, val):
+	f_bwrite(ptr, val)
+
+@EUDCommand([argEncNumber, argEncNumber, argEncNumber])
+def cmd_memcpy(dst, src, copylen):
+	f_memcpy(dst, src, copylen)
+
+@EUDCommand([argEncNumber, argEncNumber])
+def cmd_strcpy(dst, src):
+	f_strcpy(dst, src)
 
 @EUDCommand([argEncNumber])
 def cmd_memoryview(offset):
@@ -94,36 +143,12 @@ def cmd_memoryview_epd(epd):
 	br.SetStaticContent(bufs, 8)
 	br.SetMode(1)
 
-# Example
-@EUDCommand([argEncNumber, argEncNumber], \
-		[retDecDecimal, retDecDecimal])
-def cmd_div(a, b):
-	c, d = f_div(a, b)
-	EUDReturn([c, d])
-
-@EUDCommand([argEncNumber], [retDecDecimal, retDecHex, retDecBinary])
-def cmd_dwread(ptr):
-	val = f_dwread(ptr)
-	EUDReturn([val, val, val])
-
-@EUDCommand([argEncNumber], [retDecDecimal, retDecHex, retDecBinary])
-def cmd_wread(ptr):
-	val = f_wread(ptr)
-	EUDReturn([val, val, val])
-
-@EUDCommand([argEncNumber], [retDecDecimal, retDecHex, retDecBinary])
-def cmd_bread(ptr):
-	val = f_bread(ptr)
-	EUDReturn([val, val, val])
-
-@EUDCommand([argEncNumber, argEncNumber])
-def cmd_dwwrite(ptr, val):
-	f_dwwrite(ptr, val)
-
-@EUDCommand([argEncNumber, argEncNumber])
-def cmd_wwrite(ptr, val):
-	f_wwrite(ptr, val)
-
-@EUDCommand([argEncNumber, argEncNumber])
-def cmd_bwrite(ptr, val):
-	f_bwrite(ptr, val)
+@EUDCommand([])
+def cmd_objtrace():
+	'''
+	get address table of marked EUDObjects with RegisterTraceObject
+	'''
+	br = Board.GetInstance()
+	br.SetTitle(makeText("Objects"))
+	br.SetContentWithTable_epd(EPD(traced_objects), decItem_StringHex)
+	br.SetMode(1)

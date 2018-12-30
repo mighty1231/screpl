@@ -199,9 +199,6 @@ def onPluginStart():
 	register_all_actioncmds()
 
 def beforeTriggerExec():
-	# Turbo
-	DoActions(SetDeaths(203151, SetTo, 1, 0))
-
 	_repl.execute()
 	br = Board.GetInstance()
 	if EUDIf()(display == 1):

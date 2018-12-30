@@ -6,6 +6,9 @@ def main():
 
 	onPluginStart()
 	if EUDInfLoop()():
+		# Turbo
+		DoActions(SetDeaths(203151, SetTo, 1, 0))
+
 		beforeTriggerExec()
 		RunTrigTrigger()
 		EUDDoEvents()
