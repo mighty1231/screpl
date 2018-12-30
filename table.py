@@ -3,160 +3,120 @@ from command import EUDCommand
 from utils import *
 from encoder import ReadNumber, ReadName
 
-tmpbuf = Db(150) # Temporarily store string
+_writer = EUDByteRW()
 
-# global reference table
-# list of (table_name, reference_table_pointer)
-_table_list = []
-_table_of_table = None
+@EUDFunc
+def decItem_StringDecimal(name, val):
+    _writer.write_strepd(name)
+    _writer.write(ord(': '))
+    _writer.write()
 
-_var_list = []
-_table_of_vars = None
-
-_eudobj_vars = EUDStack(50)([0 for _ in range(50)])
-
-def vartrace_init():
-    global _var_list, _table_of_vars
-
-    _table_of_vars = ReferenceTable([
-        (name, var) for name, var in _var_list
-    ])
-    size = len(_var_list)
-
-    @EUDCommand([])
-    def cmd_vartrace():
-        buf = EUDArray([EPD(Db(218)) for _ in range(size)])
-
-        writer = EUDByteRW()
-
-        i = EUDVariable()
-        i << 0
-        if EUDLoopN()(size):
-            writer.seekepd(buf[i])
-            writer.write_strepd(_table_of_vars.name[i])
-            writer.write_strepd(EPD(makeText(' :   ')))
-            writer.write_hex(_table_of_vars.value[i])
-            writer.write(0)
-
-            i += 1
-        EUDEndLoopN()
-
-        from board import Board
-        br = Board.GetInstance()
-        br.SetTitle(makeText('List of vars'))
-        br.SetStaticContent(buf, size)
-        br.SetMode(1)
-
-    return cmd_vartrace
+@EUDFunc
+def decItem_String(name, val):
+    _writer.write_strepd(name)
 
 
-# init() should be called after all table is loaded
-def table_init():
-    global _table_list, _table_of_table
+class ReferenceTable(EUDObject):
+    '''
+    Same with EUDArray with contents
+        size(=N), key 1, value 1, key 2, value 2, ..., key N, value N
+    However, these key-value pair are lazily collected.
 
-    # sort tables by name
-    _table_of_table = ReferenceTable([
-        (name, ptr) for name, ptr in _table_list
-    ])
-    size = len(_table_list)
+    key_f transforms key before registered.
+    rt = ReferenceTable(key_transformer = makeText)
+    rt.AddPair("Hello", 3) # transforms "Hello" to EPD(Db())
 
-    @EUDCommand([])
-    def cmd_listTable():
-        from board import Board
-        br = Board.GetInstance()
-        br.SetTitle(makeText('List of tables'))
-        br.SetStaticContent(_table_of_table.name, size)
-        br.SetMode(1)
+    value_f works similar to key_f
+    '''
+    def __init__(self,
+            initdict=[], 
+            ref_by = [],
+            key_f = lambda k:k,
+            value_f = lambda v:v
+        ):
+        super().__init__()
+        self._dict = []
+        self.key_f = key_f
+        self.value_f = value_f
 
-    @EUDFunc
-    def argEncTable(offset, delim, ref_offset_epd, retval_epd):
-        if EUDIf()(ReadName(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
-            idx, name_epd = EUDCreateVariables(2)
-            DoActions([
-                idx.SetNumber(0),
-                # name_epd.SetNumber(EPD()),
-            ])
-            if EUDInfLoop()():
-                EUDBreakIf(idx >= size)
-                if EUDIf()(f_strcmp_epd(_table_of_table.name[idx], EPD(tmpbuf)) ==  0):
-                    f_dwwrite_epd(retval_epd, _table_of_table.value[idx])
-                    EUDReturn(1)
-                EUDEndIf()
-                DoActions([
-                    idx.AddNumber(1),
-                    name_epd.AddNumber(1)
-                ])
-            EUDEndInfLoop()
+        # Added on parents lazily
+        self._ref_by = ref_by
+
+        # Check the object called Evaluate() at least once
+        self._addedToParents = False
+
+        # list of tuples, [(k1, v1), (k2, v2), ... ]
+        for k, v in initdict:
+            self.AddPair(k, v)
+
+    def AddPair(self, key, value):
+        # duplicate check
+        key = self.key_f(key)
+        for k, v in self._dict:
+            if k == key:
+                raise RuntimeError
+        value = self.value_f(value)
+        ep_assert(IsConstExpr(key), 'Invalid item {}'.format(key))
+        ep_assert(IsConstExpr(value), 'Invalid item {}'.format(value))
+        self._dict.append((key, value))
+
+    def AddPairLazily(self, key, value):
+        from eudplib.core.allocator.payload import phase, PHASE_COLLECTING
+        assert phase == PHASE_COLLECTING
+
+        # duplicate check
+        self.AddPair(key, value)
+
+    def Evaluate(self):
+        # Collection phase
+        if not self._addedToParents:
+            for parent, key in self._ref_by:
+                parent.AddPairLazily(key, self)
+            self._addedToParents = True
+        return super().Evaluate()
+
+    def DynamicConstructed(self):
+        return True
+
+    def GetDataSize(self):
+        return 4 + 8 * len(self._dict)
+
+    def CollectDependency(self, emitbuffer):
+        for key, value in self._dict:
+            if key is not int:
+                emitbuffer.WriteDword(key)
+            if value is not int:
+                emitbuffer.WriteDword(value)
+
+    def WritePayload(self, emitbuffer):
+        emitbuffer.WriteDword(len(self._dict))
+        for key, value in self._dict:
+            emitbuffer.WriteDword(key)
+            emitbuffer.WriteDword(value)
+
+@EUDTypedFunc([None, None, EUDFuncPtr(2, 1), None], [None])
+def SearchTable(key, table_epd, compareFunc, retval_epd):
+    size = f_dwread_epd(table_epd)
+    k, v = table_epd + 1, table_epd + 2
+    if EUDInfLoop()():
+        EUDBreakIf(size == 0)
+        if EUDIf()(compareFunc(key, f_dwread_epd(k)) == 0): # Caution: 0
+            f_dwwrite_epd(retval_epd, f_dwread_epd(v))
+            EUDReturn(1)
         EUDEndIf()
-        f_dwwrite_epd(ref_offset_epd, offset)
-        EUDReturn(0)
+        DoActions([
+            size.SubtractNumber(1),
+            k.AddNumber(2),
+            v.AddNumber(2),
+        ])
+    EUDEndInfLoop()
+    EUDReturn(0)
 
-    @EUDCommand([argEncTable])
-    def cmd_listTableContents(reftable_ptr):
-        from board import Board
+@EUDFunc
+def PrintTable(table_epd):
+    f_simpleprint('size:', f_dwread_epd(table_epd))
+    f_dbepd_print(f_dwread_epd(table_epd+1))
+    f_simpleprint(hptr(f_dwread_epd(table_epd+2)))
+    # f_dbepd_print(table_epd+3)
 
-        f_simpleprint(reftable_ptr)
-        f_print_memorytable(reftable_ptr)
-        br = Board.GetInstance()
-        br.SetContentsWithTable(
-            makeText('Contents in Table'),
-            reftable_ptr
-        )
-        br.SetMode(1)
-
-    return cmd_listTable, cmd_listTableContents
-
-class ReferenceTable(EUDStruct):
-    _fields_ = [
-        # name: EPD values of Db
-        # val: Value of data. In general, decoded value
-        #      Value becomes epd pointer of ReferenceTable on _global_table
-        ('name', EUDArray),
-        ('value', EUDArray),
-        'size',
-    ]
-
-    def constructor(self, items, tbname = None):
-        raise NotImplemented
-
-    def constructor_static(self, items, tbname = None):
-        names = [EPD(makeText(s[0])) for s in items]
-        vals = [s[1] for s in items]
-
-        self.name = EUDArray(names)
-        self.value = EUDArray(vals)
-        self.size = len(items)
-
-        if tbname != None:
-            global _table_list, _table_of_table
-            assert _table_of_table == None, \
-                    "All tables are should be declared before table_init()"
-            _table_list.append((tbname, self))
-
-    @EUDMethod
-    def search(self, ptr, retval_epd):
-        i = EUDVariable()
-        i << 0
-        if EUDInfLoop()():
-            EUDBreakIf(i == self.size)
-            if EUDIf()(f_strcmp_ptrepd(ptr, self.name[i]) == 0):
-                f_dwwrite_epd(retval_epd, self.value[i])
-                EUDReturn(1)
-            EUDEndIf()
-            i += 1
-        EUDEndInfLoop()
-        EUDReturn(0)
-
-    @EUDMethod
-    def print(self):
-        i = EUDVariable()
-        i << 0
-        if EUDInfLoop()():
-            EUDBreakIf(i == self.size)
-            EUDBreakIf(i >= 4)
-            f_dbepd_print(self.name[i])
-            i += 1
-        EUDEndInfLoop()
-        EUDReturn(0)
-
-
+    # f_simpleprint(hptr(f_dwread_epd(table_epd+4)))

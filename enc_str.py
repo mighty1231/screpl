@@ -3,42 +3,30 @@
 
 from eudplib import *
 from encoder import ReadNumber, ReadString, ArgEncoderPtr
-from table import ReferenceTable
-from eudplib.core.rawtrigger.strdict import (
-    DefUnitDict,
-    DefAIScriptDict,
-    DefLocationDict,
-    DefSwitchDict,
-)
-from eudplib.core.mapdata.stringmap import (
-    unitmap,
-    locmap,
-    swmap
-)
+from enc_tables import encodingTables
+from table import ReferenceTable, SearchTable
 from utils import *
+from enc_tables import (
+    tb_unit,
+    tb_locSub,
+    tb_swSub,
+    tb_ai,
+    tb_unitMap,
+    tb_locMap,
+    tb_swMap
+)
 
 tmpbuf = Db(150) # Temporarily store string
 tmpstrbuf = DBString(150)
-
-# @TODO : optimize for sub tables from location/switch
-tbunit = ReferenceTable(unitmap._s2id.items(), "Unit")
-tbunitsub = ReferenceTable(DefUnitDict.items(), "UnitSub")
-tbloc = ReferenceTable(
-    list(map(lambda a:(a[0], a[1]+1), locmap._s2id.items())), "Location")
-tblocsub = ReferenceTable(DefLocationDict.items(), "LocationSub")
-tbsw = ReferenceTable(swmap._s2id.items(), "Switch")
-tbswsub = ReferenceTable(DefSwitchDict.items(), "SwitchSub")
-tbai = ReferenceTable(
-        list(map(lambda a:(a[0], b2i4(a[1])), DefAIScriptDict.items())), "AIScript")
 
 @EUDFunc
 def argEncUnit(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
-        if EUDIf()(tbunit.search(tmpbuf, retval_epd) == 1):
+        if EUDIf()(SearchTable(tmpbuf, EPD(tb_unitMap), f_strcmp_ptrepd, retval_epd) == 1):
             EUDReturn(1)
-        if EUDElseIf()(tbunitsub.search(tmpbuf, retval_epd) == 1):
+        if EUDElseIf()(SearchTable(tmpbuf, EPD(tb_unit), f_strcmp_ptrepd, retval_epd) == 1):
             EUDReturn(1)
         EUDEndIf()
     EUDEndIf()
@@ -50,9 +38,9 @@ def argEncLocation(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
-        if EUDIf()(tbloc.search(tmpbuf, retval_epd) == 1):
+        if EUDIf()(SearchTable(tmpbuf, EPD(tb_locMap), f_strcmp_ptrepd, retval_epd) == 1):
             EUDReturn(1)
-        if EUDElseIf()(tblocsub.search(tmpbuf, retval_epd) == 1):
+        if EUDElseIf()(SearchTable(tmpbuf, EPD(tb_locSub), f_strcmp_ptrepd, retval_epd) == 1):
             EUDReturn(1)
         EUDEndIf()
     EUDEndIf()
@@ -64,7 +52,7 @@ def argEncAIScript(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
-        if EUDIf()(tbai.search(tmpbuf, retval_epd) == 1):
+        if EUDIf()(SearchTable(tmpbuf, EPD(tb_ai), f_strcmp_ptrepd, retval_epd)  == 1):
             EUDReturn(1)
         EUDEndIf()
     EUDEndIf()
@@ -76,9 +64,9 @@ def argEncSwitch(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
-        if EUDIf()(tbsw.search(tmpbuf, retval_epd) == 1):
+        if EUDIf()(SearchTable(tmpbuf, EPD(tb_swMap), f_strcmp_ptrepd, retval_epd)  == 1):
             EUDReturn(1)
-        if EUDElseIf()(tbswsub.search(tmpbuf, retval_epd) == 1):
+        if EUDElseIf()(SearchTable(tmpbuf, EPD(tb_swSub), f_strcmp_ptrepd, retval_epd)  == 1):
             EUDReturn(1)
         EUDEndIf()
     EUDEndIf()

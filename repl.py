@@ -2,17 +2,21 @@ from eudplib import *
 from utils import *
 from encoder import ReadName
 from board import Board
-from command import EUDCommandStruct
+from command import EUDCommandStruct, EUDCommandPtr
+from table import ReferenceTable, SearchTable
+
+repl_commands = ReferenceTable(key_f = makeEPDText)
+_repl = None
 
 class REPL:
-	def __init__(self, commands, keystate_callbacks = [], superuser = P1):
+	def __init__(self, keystate_callbacks = [], superuser = P1):
+		global _repl 
+		assert _repl == None, "REPL instance should be unique"
+		_repl = self
+
 		self.rettext = Db(1024)
 		self.prev_txtPtr = EUDVariable(initval=10)
-
-		self.cmds = EUDArray(commands)
-		self.cmdn = len(commands)
-
-		self.cmds._basetype = EUDCommandStruct
+		self.cmds = ReferenceTable()
 
 		# superuser's name
 		# assert isinstance(superuser, str), 'must be string'
@@ -106,30 +110,22 @@ class REPL:
 
 		# Read function first
 		if EUDIf()(ReadName(offset, ord('('), ref_offset_epd, EPD(self.rettext)) == 1):
-			func_idx = EUDVariable()
-			func_idx << 0
+			func = EUDCommandPtr()
+			ret = EUDVariable()
 
-			argidx = EUDVariable()
-			argidx << 0
-			if EUDWhile()(func_idx <= self.cmdn - 1):
+			if EUDIf()(SearchTable(self.rettext, EPD(repl_commands), f_strcmp_ptrepd, EPD(ret.getValueAddr())) == 1):
+				func << EUDCommandPtr.cast(ret)
 
-				# Search for available functions
-				_f = EUDCommandStruct.cast(self.cmds[func_idx])
-				if EUDIf()(f_strcmp2(self.rettext, _f.cmdname) == 0):
-					if EUDIf()(_f.cmdptr(
-							offset, br.repl_outputEPDPtr, br._dbgbug_epd) == 1):
-						# br.REPLWriteOutput(makeText('Success!'))
-						pass
-					if EUDElse()():
-						# br.REPLWriteOutput(makeText('Failed!'))
-						pass
-					EUDEndIf()
-					br.REPLCompleteEval()
-					EUDReturn()
+				if EUDIf()(func(offset, br.repl_outputEPDPtr, br._dbgbug_epd) == 1):
+					pass
+				if EUDElse()():
+					pass
 				EUDEndIf()
-				func_idx += 1
-			EUDEndWhile()
-			br.REPLWriteOutput(makeText('\x06Failed to read function name'))
+			if EUDElse()():
+				br.REPLWriteOutput(makeText('\x06Failed to read function name'))
+			EUDEndIf()
+		if EUDElse()():
+			br.REPLWriteOutput(makeText('\x06Failed to read command'))
 		EUDEndIf()
 		br.REPLCompleteEval()
 
@@ -154,9 +150,7 @@ class REPL:
 			EUDBreakIf(i == cur_txtPtr)
 
 			if EUDIf()(f_memcmp(chat_off, self.prefix, self.prefixlen) == 0):
-
 				self._execute_command(chat_off + (self.prefixlen + 2)) # 2 from (colorcode, spacebar)
-
 			EUDEndIf()
 			if EUDIf()(i == 10):
 				i << 0
@@ -169,54 +163,14 @@ class REPL:
 
 		self.prev_txtPtr << cur_txtPtr
 
-def cmd_basics():
-	from cmd_basics import (
-		cmd_help, 
-		cmd_memoryview,
-		cmd_memoryview_epd,
-		cmd_dwread,
-		cmd_wread,
-		cmd_bread,
-		cmd_dwwrite,
-		cmd_wwrite,
-		cmd_bwrite,
-	)
-	commands = []
-	commands.append(EUDCommandStruct('help', cmd_help))
-	commands.append(EUDCommandStruct('mv', cmd_memoryview))
-	commands.append(EUDCommandStruct('mvepd', cmd_memoryview_epd))
-	commands.append(EUDCommandStruct('dwread', cmd_dwread))
-	commands.append(EUDCommandStruct('wread', cmd_wread))
-	commands.append(EUDCommandStruct('bread', cmd_bread))
-	commands.append(EUDCommandStruct('dwwrite', cmd_dwwrite))
-	commands.append(EUDCommandStruct('wwrite', cmd_wwrite))
-	commands.append(EUDCommandStruct('bwrite', cmd_bwrite))
-	return commands
+def RegisterCommand(cmdname, command):
+	global repl_commands
+	from command import EUDCommandPtr
+	repl_commands.AddPair(cmdname, EUDCommandPtr(command))
 
-_commands = []
+display = EUDVariable(1)
 def onPluginStart():
-	global _commands
-	from table import table_init
-	from cmd_conditions import cmdstruct_all_conditions
-	from cmd_actions import cmdstruct_all_actions
-	_commands = cmd_basics()
-	_commands += cmdstruct_all_conditions()
-	_commands += cmdstruct_all_actions()
-
-	# table_init should be called after all table initialized
-	cmd_listTable, cmd_listTableContents = table_init()
-	_commands.append(EUDCommandStruct('list_tables', cmd_listTable))
-	_commands.append(EUDCommandStruct('tb_cons', cmd_listTableContents))
-
-	# from ipc import make_db
-	# make_db()
-
-def beforeTriggerExec():
-	# Turbo
-	DoActions(SetDeaths(203151, SetTo, 1, 0))
-	from repl import REPL
-	from board import Board
-	global _commands
+	global display, _repl
 
 	def SetPrevPage():
 		br = Board.GetInstance()
@@ -232,7 +186,6 @@ def beforeTriggerExec():
 		br = Board.GetInstance()
 		br.SetMode(0)
 
-	display = EUDVariable(1)
 	def ToggleDisplay():
 		DoActions(SetMemoryX(display.getValueAddr(), Add, 1, 1))
 
@@ -242,14 +195,26 @@ def beforeTriggerExec():
 		('F9', 'OnKeyDown', ToggleDisplay),
 		('ESC', 'OnKeyDown', SetREPLPage),
 	]
-	from table import _table_list, _table_of_table, _var_list, vartrace_init 
+	_repl = REPL(key_callbacks, superuser = P1)
 
-	_var_list.append(('table of table', _table_of_table))
-	cmd_vartrace = vartrace_init()
-	_commands.append(EUDCommandStruct('vartrace', cmd_vartrace))
+	from cmd_basics import register_all_basics
+	from cmd_conditions import register_all_conditions
+	from cmd_actions import register_all_actions
+	from enc_tables import register_encoder
+	from obj_tables import traceObject, register_objtrace
 
-	cr = REPL(_commands, key_callbacks, superuser = P1)
-	cr.execute()
+	register_all_basics()
+	register_all_conditions()
+	register_all_actions()
+	register_encoder()
+	traceObject("replcmds", repl_commands)
+	register_objtrace()
+
+def beforeTriggerExec():
+	# Turbo
+	DoActions(SetDeaths(203151, SetTo, 1, 0))
+
+	_repl.execute()
 	br = Board.GetInstance()
 	if EUDIf()(display == 1):
 		br.Display(P1)

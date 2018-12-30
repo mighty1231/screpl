@@ -173,11 +173,12 @@ class EUDCommandPtr(EUDStruct):
 	def constructor(*args, **kwargs):
 		raise NotImplemented
 
-	def constructor_static(self, f_init):
-		self.checkValidFunction(f_init)
-		f_idcstart, f_idcend = createIndirectCaller(f_init)
-		self._fstart = f_idcstart
-		self._fendnext_epd = EPD(f_idcend + 4)
+	def constructor_static(self, f_init = None):
+		if f_init:
+			self.checkValidFunction(f_init)
+			f_idcstart, f_idcend = createIndirectCaller(f_init)
+			self._fstart = f_idcstart
+			self._fendnext_epd = EPD(f_idcend + 4)
 
 	@classmethod
 	def cast(cls, _from):

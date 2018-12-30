@@ -29,6 +29,19 @@ from decoder import (
 	retDecBinary,
 )
 
+def register_all_basics():
+	from repl import RegisterCommand
+
+	RegisterCommand('help', cmd_help)
+	RegisterCommand('mv', cmd_memoryview)
+	RegisterCommand('mvepd', cmd_memoryview_epd)
+	RegisterCommand('dwread', cmd_dwread)
+	RegisterCommand('wread', cmd_wread)
+	RegisterCommand('bread', cmd_bread)
+	RegisterCommand('dwwrite', cmd_dwwrite)
+	RegisterCommand('wwrite', cmd_wwrite)
+	RegisterCommand('bwrite', cmd_bwrite)
+
 # Basic commands
 @EUDCommand([])
 def cmd_help():

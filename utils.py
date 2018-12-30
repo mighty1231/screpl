@@ -10,6 +10,9 @@ def makeText(msg):
 		textdict[msg] = Db(u2b(msg) + b'\0')
 		return textdict[msg]
 
+def makeEPDText(msg):
+	return EPD(makeText(msg))
+
 def makeTextEPDArray(txt):
 	lines = []
 	if type(txt) == str:
