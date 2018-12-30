@@ -78,7 +78,7 @@ def cmd_memoryview(offset):
 
 	i = EUDVariable()
 	i << 0
-	if EUDWhile()(i < 16):
+	if EUDWhile()(i < 8):
 		writer.seekepd(bufs[i])
 		writer.write_hex(offset)
 		writer.write_str(makeText(': '))
@@ -112,7 +112,7 @@ def cmd_memoryview_epd(epd):
 
 	i = EUDVariable()
 	i << 0
-	if EUDWhile()(i < 16):
+	if EUDWhile()(i < 8):
 		writer.seekepd(bufs[i])
 		writer.write_hex(offset)
 		writer.write_str(makeText(': '))
