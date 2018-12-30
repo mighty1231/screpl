@@ -4,7 +4,16 @@ from command import EUDCommand
 from board import Board
 from tables import RegisterCommand, traced_objects
 from table import decItem_StringHex
-from enc_const import argEncNumber
+from enc_const import (
+	argEncNumber,
+	argEncPlayer,
+	argEncResource,
+	argEncScore
+)
+from enc_str import (
+	argEncUnit,
+	argEncLocation,
+)
 from decoder import retDecDecimal, retDecHex, retDecBinary
 
 def register_utilcmds():
@@ -29,6 +38,16 @@ def register_utilcmds():
 	# Special
 	RegisterCommand('objtrace', cmd_objtrace)
 
+	# Extended Conditions
+	RegisterCommand('exCountdownTimer', cmd_ExCountdownTimer)
+	RegisterCommand('exCommand', cmd_ExCommand)
+	RegisterCommand('exBring', cmd_ExBring)
+	RegisterCommand('exAccumulate', cmd_ExAccumulate)
+	RegisterCommand('exKills', cmd_ExKills)
+	RegisterCommand('exElapsedTime', cmd_ExElapsedTime)
+	RegisterCommand('exOpponents', cmd_ExOpponents)
+	RegisterCommand('exDeaths', cmd_ExDeaths)
+	RegisterCommand('exScore', cmd_ExScore)
 
 @EUDCommand([argEncNumber, argEncNumber], \
 		[retDecDecimal, retDecHex])
@@ -152,3 +171,76 @@ def cmd_objtrace():
 	br.SetTitle(makeText("Objects"))
 	br.SetContentWithTable_epd(EPD(traced_objects), decItem_StringHex)
 	br.SetMode(1)
+
+
+@EUDCommand([], [retDecDecimal])
+def cmd_ExCountdownTimer():
+	'''
+	Get x satisfies CountdownTimer(Exactly, x)
+	'''
+	v = EUDBinaryMax(lambda x:CountdownTimer(AtLeast, x))
+	EUDReturn(v)
+
+@EUDCommand([argEncPlayer, argEncUnit], [retDecDecimal])
+def cmd_ExCommand(Player, Unit):
+	'''
+	Player, Unit-> Get x satisfies Command(Player, Exactly, x, Unit)
+	'''
+	v = EUDBinaryMax(lambda x:Command(Player, AtLeast, x, Unit))
+	EUDReturn(v)
+
+@EUDCommand([argEncPlayer, argEncUnit, argEncLocation], [retDecDecimal])
+def cmd_ExBring(Player, Unit, Location):
+	'''
+	Player, Unit, Location -> Get x satisfies Bring(Player, Exactly, x, Unit, Location)
+	'''
+	v = EUDBinaryMax(lambda x:Bring(Player, AtLeast, x, Unit, Location))
+	EUDReturn(v)
+
+@EUDCommand([argEncPlayer, argEncResource], [retDecDecimal])
+def cmd_ExAccumulate(Player, ResourceType):
+	'''
+	Player, ResourceType -> Get x satisfies Accumulate(Player, Exactly, x, ResourceType)
+	'''
+	v = EUDBinaryMax(lambda x:Accumulate(Player, AtLeast, x, ResourceType))
+	EUDReturn(v)
+
+@EUDCommand([argEncPlayer, argEncUnit], [retDecDecimal])
+def cmd_ExKills(Player, Unit):
+	'''
+	Player, Unit -> Get x satisfies Kills(Player, Exactly, x, Unit)
+	'''
+	v = EUDBinaryMax(lambda x:Kills(Player, AtLeast, x, Unit))
+	EUDReturn(v)
+
+@EUDCommand([], [retDecDecimal])
+def cmd_ExElapsedTime():
+	'''
+	Get x satisfies ElapsedTime(Exactly, x)
+	'''
+	v = EUDBinaryMax(lambda x:ElapsedTime(AtLeast, x))
+	EUDReturn(v)
+
+@EUDCommand([argEncPlayer], [retDecDecimal])
+def cmd_ExOpponents(Player):
+	'''
+	Player -> Get x satisfies Opponents(Player, Exactly, x)
+	'''
+	v = EUDBinaryMax(lambda x:Opponents(Player, AtLeast, x))
+	EUDReturn(v)
+
+@EUDCommand([argEncPlayer, argEncUnit], [retDecDecimal])
+def cmd_ExDeaths(Player, Unit):
+	'''
+	Player, Unit -> Get x satisfies Deaths(Player, Exactly, x, Unit)
+	'''
+	v = EUDBinaryMax(lambda x:Deaths(Player, AtLeast, x, Unit))
+	EUDReturn(v)
+
+@EUDCommand([argEncPlayer, argEncScore], [retDecDecimal])
+def cmd_ExScore(Player, ScoreType):
+	'''
+	Player, ScoreType -> Get x satisfies Score(Player, ScoreType, Exactly, x)
+	'''
+	v = EUDBinaryMax(lambda x:Score(Player, ScoreType, AtLeast, x))
+	EUDReturn(v)
