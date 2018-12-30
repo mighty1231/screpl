@@ -2,4 +2,4 @@
 input: base.scx
 output: repl.scx
 
-[main.py]
+[repl.py]
