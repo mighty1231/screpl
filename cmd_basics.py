@@ -29,8 +29,8 @@ from decoder import (
 	retDecBinary,
 )
 
-def register_all_basics():
-	from repl import RegisterCommand
+def register_all_basiccmds():
+	from tables import RegisterCommand
 
 	RegisterCommand('help', cmd_help)
 	RegisterCommand('mv', cmd_memoryview)
@@ -46,7 +46,7 @@ def register_all_basics():
 @EUDCommand([])
 def cmd_help():
 	help_text = [
-		'\x13SC-REPL ver 0.1',
+		'\x13SC-REPL ver 0.2',
 		'\x13Made by sixthMeat',
 		'',
 		'Key Inputs',
@@ -57,9 +57,9 @@ def cmd_help():
 		'',
 		'build in functions',
 		'help() - See manual',
-		'list() - See list of all functions (To be developed)',
-		'listtb() - See list of registered tables',
-		'listtbcon(table) - See list of table contents',
+		'cmds() - See list of all commands',
+		'tables() - See list of encoder tables (Used in trigger)',
+		'contents(table) - See contents in encoder tables',
 		'',
 	]
 	from board import Board

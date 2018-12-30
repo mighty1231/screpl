@@ -2,11 +2,10 @@
 # Otherwise, error happens - IndexError: list index out of range 
 
 from eudplib import *
-from encoder import ReadNumber, ReadString, ArgEncoderPtr
-from enc_tables import encodingTables
-from table import ReferenceTable, SearchTable
+from encoder import ReadNumber, ReadString
+from table import SearchTable
 from utils import *
-from enc_tables import (
+from tables import (
     tb_unit,
     tb_locSub,
     tb_swSub,

@@ -21,14 +21,14 @@ from enc_str import (
 	argEncSwitch,
 	argEncString,
 )
-from command import EUDCommand, EUDCommandStruct
+from command import EUDCommand
 # Note, 
 # 1. DisplayText ~ AlwaysDisplay
 # 2. UnitProperty is not able to be parsed
 # 3. Transmission.. trouble due to two string encoders.
 
-def register_all_actions():
-	from repl import RegisterCommand
+def register_all_actioncmds():
+	from tables import RegisterCommand
 
 	RegisterCommand('Victory', cmd_Victory)
 	RegisterCommand('Defeat', cmd_Defeat)

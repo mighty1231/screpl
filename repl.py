@@ -2,10 +2,9 @@ from eudplib import *
 from utils import *
 from encoder import ReadName
 from board import Board
-from command import EUDCommandStruct, EUDCommandPtr
+from command import EUDCommandPtr
 from table import ReferenceTable, SearchTable
 
-repl_commands = ReferenceTable(key_f = makeEPDText)
 _repl = None
 
 class REPL:
@@ -16,7 +15,6 @@ class REPL:
 
 		self.rettext = Db(1024)
 		self.prev_txtPtr = EUDVariable(initval=10)
-		self.cmds = ReferenceTable()
 
 		# superuser's name
 		# assert isinstance(superuser, str), 'must be string'
@@ -27,7 +25,6 @@ class REPL:
 		self.prefixlen = EUDVariable()
 		f_strcpy(self.prefix, 0x57EEEB + 36*self.pid)
 		self.prefixlen << f_strlen(0x57EEEB)
-
 
 		# Previously stored key states
 		# list of tuple: (keycode, callwhen, callback)
@@ -102,6 +99,7 @@ class REPL:
 
 	@EUDMethod
 	def _execute_command(self, offset):
+		from tables import repl_commands
 		br = Board.GetInstance()
 		br.REPLWriteInput(offset)
 		offset_cpy = EUDVariable()
@@ -115,7 +113,6 @@ class REPL:
 
 			if EUDIf()(SearchTable(self.rettext, EPD(repl_commands), f_strcmp_ptrepd, EPD(ret.getValueAddr())) == 1):
 				func << EUDCommandPtr.cast(ret)
-
 				if EUDIf()(func(offset, br.repl_outputEPDPtr, br._dbgbug_epd) == 1):
 					pass
 				if EUDElse()():
@@ -163,11 +160,6 @@ class REPL:
 
 		self.prev_txtPtr << cur_txtPtr
 
-def RegisterCommand(cmdname, command):
-	global repl_commands
-	from command import EUDCommandPtr
-	repl_commands.AddPair(cmdname, EUDCommandPtr(command))
-
 display = EUDVariable(1)
 def onPluginStart():
 	global display, _repl
@@ -197,18 +189,14 @@ def onPluginStart():
 	]
 	_repl = REPL(key_callbacks, superuser = P1)
 
-	from cmd_basics import register_all_basics
-	from cmd_conditions import register_all_conditions
-	from cmd_actions import register_all_actions
-	from enc_tables import register_encoder
-	from obj_tables import traceObject, register_objtrace
-
-	register_all_basics()
-	register_all_conditions()
-	register_all_actions()
-	register_encoder()
-	traceObject("replcmds", repl_commands)
-	register_objtrace()
+	from cmd_basics import register_all_basiccmds
+	from cmd_conditions import register_all_conditioncmds
+	from cmd_actions import register_all_actioncmds
+	from cmd_util import register_cmds
+	register_all_basiccmds()
+	register_all_conditioncmds()
+	register_all_actioncmds()
+	register_cmds()
 
 def beforeTriggerExec():
 	# Turbo

@@ -22,10 +22,10 @@ from enc_str import (
 	argEncString,
 )
 from decoder import retDecBool
-from command import EUDCommand, EUDCommandStruct
+from command import EUDCommand
 
-def register_all_conditions():
-	from repl import RegisterCommand
+def register_all_conditioncmds():
+	from tables import RegisterCommand
 
 	RegisterCommand('CountdownTimer', cmd_CountdownTimer)
 	RegisterCommand('Command', cmd_Command)

@@ -1,11 +1,7 @@
 from eudplib import *
-from table import (
-    ReferenceTable,
-    SearchTable,
-    decItem_StringDecimal,
-    decItem_String
-)
 from utils import *
+from table import ReferenceTable
+from command import EUDCommand, EUDCommandPtr
 from eudplib.core.rawtrigger.strdict import (
     DefUnitDict,
     DefAIScriptDict,
@@ -17,44 +13,52 @@ from eudplib.core.mapdata.stringmap import (
     locmap,
     swmap
 )
-from command import EUDCommand
-from encoder import ReadName
 
-encodingTables = ReferenceTable(key_f=makeEPDText, value_f=EPD)
+# repl commands are stored
+repl_commands = ReferenceTable(key_f=makeEPDText)
+def RegisterCommand(cmdname, command):
+	repl_commands.AddPair(cmdname, EUDCommandPtr(command))
 
-# string encoders
-tb_unit = ReferenceTable(DefUnitDict.items(), [(encodingTables, "Unit")], key_f=makeEPDText)
-tb_locSub = ReferenceTable(DefLocationDict.items(), [(encodingTables, "LocationSub")], key_f=makeEPDText)
-tb_swSub = ReferenceTable(DefSwitchDict.items(), [(encodingTables, "SwitchSub")], key_f=makeEPDText)
+# used on object trace
+traced_objects = ReferenceTable(key_f=makeEPDText)
+def RegisterTraceObject(name, var):
+	traced_objects.AddPair(name, var)
+
+# trigger strings/constants
+encoding_tables = ReferenceTable(key_f=makeEPDText, value_f=EPD)
+
+tb_unit = ReferenceTable(DefUnitDict.items(), [(encoding_tables, "Unit")], key_f=makeEPDText)
+tb_locSub = ReferenceTable(DefLocationDict.items(), [(encoding_tables, "LocationSub")], key_f=makeEPDText)
+tb_swSub = ReferenceTable(DefSwitchDict.items(), [(encoding_tables, "SwitchSub")], key_f=makeEPDText)
 tb_ai = ReferenceTable(
         list(map(lambda a:(a[0], b2i4(a[1])), DefAIScriptDict.items())),
-        [(encodingTables, "AIScript")], key_f=makeEPDText)
+        [(encoding_tables, "AIScript")], key_f=makeEPDText)
 
-tb_unitMap = ReferenceTable(unitmap._s2id.items(), [(encodingTables, "MapUnit")], key_f=makeEPDText)
+tb_unitMap = ReferenceTable(unitmap._s2id.items(), [(encoding_tables, "MapUnit")], key_f=makeEPDText)
 tb_locMap = ReferenceTable(
-    list(map(lambda a:(a[0], a[1]+1), locmap._s2id.items())), [(encodingTables, "MapLocation")], key_f=makeEPDText)
-tb_swMap = ReferenceTable(swmap._s2id.items(), [(encodingTables, "MapSwitch")], key_f=makeEPDText)
+    list(map(lambda a:(a[0], a[1]+1), locmap._s2id.items())), [(encoding_tables, "MapLocation")], key_f=makeEPDText)
+tb_swMap = ReferenceTable(swmap._s2id.items(), [(encoding_tables, "MapSwitch")], key_f=makeEPDText)
 
 tb_Modifier = ReferenceTable([
     ("SetTo", EncodeModifier(SetTo)),
     ("Add", EncodeModifier(Add)),
     ("Subtract", EncodeModifier(Subtract)),
-], [(encodingTables, "Modifier")], key_f=makeEPDText)
+], [(encoding_tables, "Modifier")], key_f=makeEPDText)
 tb_AllyStatus = ReferenceTable([
     ("Enemy", EncodeAllyStatus(Enemy)),
     ("Ally", EncodeAllyStatus(Ally)),
     ("AlliedVictory", EncodeAllyStatus(AlliedVictory)),
-], [(encodingTables, "AllyStatus")], key_f=makeEPDText)
+], [(encoding_tables, "AllyStatus")], key_f=makeEPDText)
 tb_Comparison = ReferenceTable([
     ("AtLeast", EncodeComparison(AtLeast)),
     ("AtMost", EncodeComparison(AtMost)),
     ("Exactly", EncodeComparison(Exactly)),
-], [(encodingTables, "Comparison")], key_f=makeEPDText)
+], [(encoding_tables, "Comparison")], key_f=makeEPDText)
 tb_Order = ReferenceTable([
     ("Move", EncodeOrder(Move)),
     ("Patrol", EncodeOrder(Patrol)),
     ("Attack", EncodeOrder(Attack)),
-], [(encodingTables, "Order")], key_f=makeEPDText)
+], [(encoding_tables, "Order")], key_f=makeEPDText)
 tb_Player = ReferenceTable([
     ("P1", EncodePlayer(P1)),
     ("P2", EncodePlayer(P2)),
@@ -90,17 +94,17 @@ tb_Player = ReferenceTable([
     ("Force3", EncodePlayer(Force3)),
     ("Force4", EncodePlayer(Force4)),
     ("NonAlliedVictoryPlayers", EncodePlayer(NonAlliedVictoryPlayers)),
-], [(encodingTables, "Player")], key_f=makeEPDText)
+], [(encoding_tables, "Player")], key_f=makeEPDText)
 tb_PropState = ReferenceTable([
     ("Enable", EncodePropState(Enable)),
     ("Disable", EncodePropState(Disable)),
     ("Toggle", EncodePropState(Toggle)),
-], [(encodingTables, "PropState")], key_f=makeEPDText)
+], [(encoding_tables, "PropState")], key_f=makeEPDText)
 tb_Resource = ReferenceTable([
     ("Ore", EncodeResource(Ore)),
     ("Gas", EncodeResource(Gas)),
     ("OreAndGas", EncodeResource(OreAndGas)),
-], [(encodingTables, "Resource")], key_f=makeEPDText)
+], [(encoding_tables, "Resource")], key_f=makeEPDText)
 tb_Score = ReferenceTable([
     ("Total", EncodeScore(Total)),
     ("Units", EncodeScore(Units)),
@@ -110,46 +114,15 @@ tb_Score = ReferenceTable([
     ("Razings", EncodeScore(Razings)),
     ("KillsAndRazings", EncodeScore(KillsAndRazings)),
     ("Custom", EncodeScore(Custom)),
-], [(encodingTables, "Score")], key_f=makeEPDText)
+], [(encoding_tables, "Score")], key_f=makeEPDText)
 tb_SwitchAction = ReferenceTable([
     ("Set", EncodeSwitchAction(Set)),
     ("Clear", EncodeSwitchAction(Clear)),
     ("Toggle", EncodeSwitchAction(Toggle)),
     ("Random", EncodeSwitchAction(Random)),
-], [(encodingTables, "SwitchAction")], key_f=makeEPDText)
+], [(encoding_tables, "SwitchAction")], key_f=makeEPDText)
 tb_SwitchState = ReferenceTable([
     ("Set", EncodeSwitchState(Set)),
     ("Cleared", EncodeSwitchState(Cleared)),
-], [(encodingTables, "SwitchState")], key_f=makeEPDText)
+], [(encoding_tables, "SwitchState")], key_f=makeEPDText)
 
-@EUDCommand([])
-def cmd_listEncoders():
-	from board import Board
-	br = Board.GetInstance()
-	br.SetTitle(makeText('List of encoders'))
-	br.SetContentWithTable_epd(EPD(encodingTables), decItem_String)
-	br.SetMode(1)
-
-@EUDFunc
-def argEncEncoderName(offset, delim, ref_offset_epd, retval_epd):
-	tmpbuf = Db(150)
-	if EUDIf()(ReadName(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
-		if EUDIf()(SearchTable(tmpbuf, EPD(encodingTables), f_strcmp_ptrepd, retval_epd) == 1):
-			EUDReturn(1)
-		EUDEndIf()
-	EUDEndIf()
-	f_dwwrite_epd(ref_offset_epd, offset)
-	EUDReturn(0)
-
-@EUDCommand([argEncEncoderName])
-def cmd_printEncoder(table_epd):
-	from board import Board
-	br = Board.GetInstance()
-	br.SetTitle(makeText('List'))
-	br.SetContentWithTable_epd(table_epd, decItem_StringDecimal)
-	br.SetMode(1)
-
-def register_encoder():
-	from repl import RegisterCommand
-	RegisterCommand("tables", cmd_listEncoders)
-	RegisterCommand("contents", cmd_printEncoder)

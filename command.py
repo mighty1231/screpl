@@ -7,7 +7,7 @@ from eudplib.core.eudfunc.eudfptr import callFuncBody
 import inspect
 import functools
 
-__all__ = ['EUDCommand', 'EUDCommandPtr', 'EUDCommandStruct']
+__all__ = ['EUDCommand', 'EUDCommandPtr']
 
 _MAXARGCNT = 8
 _MAXRETCNT = 8
@@ -249,21 +249,3 @@ class EUDCommandPtr(EUDStruct):
 		tmpRet = EUDVariable()
 		SetVariables([tmpRet], [_encode_success])
 		return tmpRet
-
-class EUDCommandStruct(EUDStruct):
-	_fields_ = [
-		'cmdname', 
-		('cmdptr', EUDCommandPtr),
-	]
-
-	def constructor(*args, **kwargs):
-		raise NotImplemented
-
-	def constructor_static(self, cmdname, cmdn):
-		if isinstance(cmdname, Db):
-			self.cmdname = cmdname
-		elif isinstance(cmdname, str):
-			self.cmdname = makeText(cmdname)
-		else:
-			raise RuntimeError()
-		self.cmdptr = EUDCommandPtr(cmdn)
