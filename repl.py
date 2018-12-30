@@ -189,14 +189,14 @@ def onPluginStart():
 	]
 	_repl = REPL(key_callbacks, superuser = P1)
 
-	from cmd_basics import register_all_basiccmds
+	from cmd_basics import register_basiccmds
 	from cmd_conditions import register_all_conditioncmds
 	from cmd_actions import register_all_actioncmds
-	from cmd_util import register_cmds
-	register_all_basiccmds()
+	from cmd_util import register_utilcmds
+	register_basiccmds()
+	register_utilcmds()
 	register_all_conditioncmds()
 	register_all_actioncmds()
-	register_cmds()
 
 def beforeTriggerExec():
 	# Turbo

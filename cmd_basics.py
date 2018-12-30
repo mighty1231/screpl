@@ -1,46 +1,28 @@
 from eudplib import *
 from utils import *
 from command import EUDCommand
-from enc_const import (
-	argEncNumber,
-	argEncCount,
-	argEncModifier,
-	argEncAllyStatus,
-	argEncComparison,
-	argEncOrder,
-	argEncPlayer,
-	argEncPropState,
-	argEncResource,
-	argEncScore,
-	argEncSwitchAction,
-	argEncSwitchState,
+from table import (
+	SearchTable,
+	decItem_Command,
+	decItem_String,
+	decItem_StringDecimal
 )
-from enc_str import (
-	argEncUnit,
-	argEncLocation,
-	argEncAIScript,
-	argEncSwitch,
-	argEncString,
+from tables import (
+	encoding_tables,
+	repl_commands,
+	RegisterCommand
 )
-from decoder import (
-	retDecBool,
-	retDecDecimal,
-	retDecHex,
-	retDecBinary,
+from encoder import (
+	ReadName,
 )
+from board import Board
 
-def register_all_basiccmds():
-	from tables import RegisterCommand
-
+def register_basiccmds():
 	RegisterCommand('help', cmd_help)
-	RegisterCommand('mv', cmd_memoryview)
-	RegisterCommand('mvepd', cmd_memoryview_epd)
-	RegisterCommand('dwread', cmd_dwread)
-	RegisterCommand('wread', cmd_wread)
-	RegisterCommand('bread', cmd_bread)
-	RegisterCommand('dwwrite', cmd_dwwrite)
-	RegisterCommand('wwrite', cmd_wwrite)
-	RegisterCommand('bwrite', cmd_bwrite)
+	RegisterCommand("cmds", cmd_commands)
+	RegisterCommand("tables", cmd_encoders)
+	RegisterCommand("contents", cmd_contents)
+
 
 # Basic commands
 @EUDCommand([])
@@ -68,102 +50,37 @@ def cmd_help():
 	br.SetStaticContent(*makeTextEPDArray(help_text))
 	br.SetMode(1)
 
-@EUDCommand([argEncNumber])
-def cmd_memoryview(offset):
-	from board import Board
-	bufs = EUDArray([EPD(Db(300)) for i in range(8)])
-	writer = EUDByteRW()
-	reader = EUDByteRW()
-	reader.seekoffset(offset)
-
-	i = EUDVariable()
-	i << 0
-	if EUDWhile()(i < 8):
-		writer.seekepd(bufs[i])
-		writer.write_hex(offset)
-		writer.write_str(makeText(': '))
-
-		if EUDLoopN()(16):
-			writer.write_bytehex(reader.read())
-			writer.write(ord(' '))
-		EUDEndLoopN()
-		writer.write_str(makeText(' | '))
-		writer.write_strn(offset, 16)
-		writer.write(0)
-
-		offset += 16
-		i += 1
-	EUDEndWhile()
-
+@EUDCommand([])
+def cmd_commands():
 	br = Board.GetInstance()
-	br.SetTitle(makeText('Memory View'))
-	br.SetStaticContent(bufs, 8)
+	br.SetTitle(makeText("Commands"))
+	br.SetContentWithTable_epd(EPD(repl_commands), decItem_Command)
 	br.SetMode(1)
 
-@EUDCommand([argEncNumber])
-def cmd_memoryview_epd(epd):
-	offset = f_epd2ptr(epd)
-
-	from board import Board
-	bufs = EUDArray([EPD(Db(300)) for i in range(8)])
-	writer = EUDByteRW()
-	reader = EUDByteRW()
-	reader.seekoffset(offset)
-
-	i = EUDVariable()
-	i << 0
-	if EUDWhile()(i < 8):
-		writer.seekepd(bufs[i])
-		writer.write_hex(offset)
-		writer.write_str(makeText(': '))
-
-		if EUDLoopN()(16):
-			writer.write_bytehex(reader.read())
-			writer.write(ord(' '))
-		EUDEndLoopN()
-		writer.write_str(makeText(' | '))
-		writer.write_strn(offset, 16)
-		writer.write(0)
-
-		offset += 16
-		i += 1
-	EUDEndWhile()
-
+@EUDCommand([])
+def cmd_encoders():
 	br = Board.GetInstance()
-	br.SetTitle(makeText('Memory View'))
-	br.SetStaticContent(bufs, 8)
+	br.SetTitle(makeText('List of encoders'))
+	br.SetContentWithTable_epd(EPD(encoding_tables), decItem_String)
 	br.SetMode(1)
 
-# Example
-@EUDCommand([argEncNumber, argEncNumber], \
-		[retDecDecimal, retDecDecimal])
-def cmd_div(a, b):
-	c, d = f_div(a, b)
-	EUDReturn([c, d])
+@EUDFunc
+def argEncEncoderName(offset, delim, ref_offset_epd, retval_epd):
+	tmpbuf = Db(150)
+	if EUDIf()(ReadName(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
+		if EUDIf()(SearchTable(tmpbuf, EPD(encoding_tables), f_strcmp_ptrepd, retval_epd) == 1):
+			EUDReturn(1)
+		EUDEndIf()
+	EUDEndIf()
+	f_dwwrite_epd(ref_offset_epd, offset)
+	EUDReturn(0)
 
-@EUDCommand([argEncNumber], [retDecDecimal, retDecHex, retDecBinary])
-def cmd_dwread(ptr):
-	val = f_dwread(ptr)
-	EUDReturn([val, val, val])
-
-@EUDCommand([argEncNumber], [retDecDecimal, retDecHex, retDecBinary])
-def cmd_wread(ptr):
-	val = f_wread(ptr)
-	EUDReturn([val, val, val])
-
-@EUDCommand([argEncNumber], [retDecDecimal, retDecHex, retDecBinary])
-def cmd_bread(ptr):
-	val = f_bread(ptr)
-	EUDReturn([val, val, val])
-
-@EUDCommand([argEncNumber, argEncNumber])
-def cmd_dwwrite(ptr, val):
-	f_dwwrite(ptr, val)
-
-@EUDCommand([argEncNumber, argEncNumber])
-def cmd_wwrite(ptr, val):
-	f_wwrite(ptr, val)
-
-@EUDCommand([argEncNumber, argEncNumber])
-def cmd_bwrite(ptr, val):
-	f_bwrite(ptr, val)
+@EUDCommand([argEncEncoderName])
+def cmd_contents(table_epd):
+	'''
+	see contents of table ex) contents(MapLocation)
+	'''
+	br = Board.GetInstance()
+	br.SetTitle(makeText('List'))
+	br.SetContentWithTable_epd(table_epd, decItem_StringDecimal)
+	br.SetMode(1)
