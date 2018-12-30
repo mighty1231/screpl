@@ -8,23 +8,55 @@ from table import ReferenceTable, SearchTable
 _repl = None
 
 class REPL:
-	def __init__(self, keystate_callbacks = [], superuser = P1):
+	def __init__(self, superuser = P1):
 		global _repl 
 		assert _repl == None, "REPL instance should be unique"
 		_repl = self
 
 		self.rettext = Db(1024)
 		self.prev_txtPtr = EUDVariable(initval=10)
+		self.display = EUDVariable(1)
 
 		# superuser's name
 		# assert isinstance(superuser, str), 'must be string'
 		# self.prefix = makeText(superuser + ':')
 		# self.prefixlen = len(superuser + ':')
-		self.pid = EncodePlayer(superuser)
+		self.playerId = EncodePlayer(superuser)
 		self.prefix = Db(26)
 		self.prefixlen = EUDVariable()
-		f_strcpy(self.prefix, 0x57EEEB + 36*self.pid)
-		self.prefixlen << f_strlen(0x57EEEB)
+		self.board = Board.GetInstance()
+
+		# these registering functions are python-functions
+		from cmd_basics import register_basiccmds
+		from cmd_conditions import register_all_conditioncmds
+		from cmd_actions import register_all_actioncmds
+		from cmd_util import register_utilcmds
+		register_basiccmds()
+		register_utilcmds()
+		register_all_conditioncmds()
+		register_all_actioncmds()
+
+		# Keystate functions
+		def SetPrevPage():
+			self.board.SetPrevPage()
+			self.board.UpdatePage()
+
+		def SetNextPage():
+			self.board.SetNextPage()
+			self.board.UpdatePage()
+
+		def SetREPLPage():
+			self.board.SetMode(0)
+
+		def ToggleDisplay():
+			DoActions(SetMemoryX(self.display.getValueAddr(), Add, 1, 1))
+
+		keystate_callbacks = [
+			('F7', 'OnKeyDown', SetPrevPage),
+			('F8', 'OnKeyDown', SetNextPage),
+			('F9', 'OnKeyDown', ToggleDisplay),
+			('ESC', 'OnKeyDown', SetREPLPage),
+		]
 
 		# Previously stored key states
 		# list of tuple: (keycode, callwhen, callback)
@@ -131,11 +163,18 @@ class REPL:
 		'''
 		Main part of REPL
 		'''
+		# key callbacks
 		self.update_keystate()
 
+		# Check whether user typed nothing
+		do_display = Forward()
 		if EUDIf()(Memory(0x640B58, Exactly, self.prev_txtPtr)):
-			EUDReturn()
+			EUDJump(do_display)
 		EUDEndIf()
+
+		# copy P1's name
+		f_strcpy(self.prefix, 0x57EEEB + 36*self.playerId)
+		self.prefixlen << f_strlen(0x57EEEB)
 
 		cur_txtPtr = f_dwread_epd(EPD(0x640B58))
 		i = EUDVariable()
@@ -160,47 +199,10 @@ class REPL:
 
 		self.prev_txtPtr << cur_txtPtr
 
-display = EUDVariable(1)
-def onPluginStart():
-	global display, _repl
-
-	def SetPrevPage():
-		br = Board.GetInstance()
-		br.SetPrevPage()
-		br.UpdatePage()
-
-	def SetNextPage():
-		br = Board.GetInstance()	
-		br.SetNextPage()
-		br.UpdatePage()
-
-	def SetREPLPage():
-		br = Board.GetInstance()
-		br.SetMode(0)
-
-	def ToggleDisplay():
-		DoActions(SetMemoryX(display.getValueAddr(), Add, 1, 1))
-
-	key_callbacks = [
-		('F7', 'OnKeyDown', SetPrevPage),
-		('F8', 'OnKeyDown', SetNextPage),
-		('F9', 'OnKeyDown', ToggleDisplay),
-		('ESC', 'OnKeyDown', SetREPLPage),
-	]
-	_repl = REPL(key_callbacks, superuser = P1)
-
-	from cmd_basics import register_basiccmds
-	from cmd_conditions import register_all_conditioncmds
-	from cmd_actions import register_all_actioncmds
-	from cmd_util import register_utilcmds
-	register_basiccmds()
-	register_utilcmds()
-	register_all_conditioncmds()
-	register_all_actioncmds()
+		do_display << NextTrigger()
+		if EUDIf()(self.display == 1):
+			Board.GetInstance().Display(P1)
+		EUDEndIf()
 
 def beforeTriggerExec():
-	_repl.execute()
-	br = Board.GetInstance()
-	if EUDIf()(display == 1):
-		br.Display(P1)
-	EUDEndIf()
+	REPL(superuser = P1).execute()

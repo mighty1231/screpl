@@ -43,7 +43,7 @@ class Board:
 		self.title = Db(inittitle + bytes(100-len(inittitle)))
 
 		# 1 if it needs to update page before display
-		self.update = EUDVariable()
+		self.update = EUDVariable(1)
 
 		# mode 0: REPL mode
 		# mode 1: Static page mode
@@ -234,7 +234,11 @@ class Board:
 
 		if EUDIf()(self.mode == 0):
 			# REPL mode
-			self.writer.write_decimal(self.repl_cur_page + 1)
+			if EUDIf()(self.repl_index == 0):
+				self.writer.write_decimal(0)
+			if EUDElse()():
+				self.writer.write_decimal(self.repl_cur_page + 1)
+			EUDEndIf()
 			self.writer.write_str(makeText(' / '))
 			self.writer.write_decimal(f_div(\
 				self.repl_index + (PAGE_NUMLINES//2-1), 
@@ -245,9 +249,9 @@ class Board:
 			cur, inputepd, outputepd, until, pageend = EUDCreateVariables(5)
 			cur << self.repl_top_index
 
-			pageend << self.repl_top_index + (PAGE_NUMLINES//2 - 1)
+			pageend << self.repl_top_index + PAGE_NUMLINES//2
 			if EUDIf()(pageend >= self.repl_index):
-				until << self.repl_index - 1
+				until << self.repl_index
 			if EUDElse()():
 				until << pageend
 			EUDEndIf()
@@ -255,7 +259,8 @@ class Board:
 			off = (LINESIZE // 4) * cur
 			inputepd << EPD(self.repl_input) + off
 			outputepd << EPD(self.repl_output) + off
-			if EUDWhile()(cur <= until):
+			if EUDInfLoop()():
+				EUDBreakIf(cur >= until)
 
 				self.writer.write_str(makeText('\x1C>>> \x1D'))
 				self.writer.write_strepd(inputepd)
@@ -270,17 +275,22 @@ class Board:
 					inputepd.AddNumber(LINESIZE // 4),
 					outputepd.AddNumber(LINESIZE // 4),
 				])
-			EUDEndWhile()
+			EUDEndInfLoop()
 
 			# make empty lines
-			if EUDWhile()(cur <= pageend):
+			if EUDInfLoop()():
+				EUDBreakIf(cur >= pageend)
 				self.writer.write(ord('\n'))
 				self.writer.write(ord('\n'))
 				DoActions(cur.AddNumber(1))
-			EUDEndWhile()
+			EUDEndInfLoop()
 		if EUDElse()():
 			# static mode
-			self.writer.write_decimal(self.static_cur_page + 1)
+			if EUDIf()(self.static_num_pages == 0):
+				self.writer.write_decimal(0)
+			if EUDElse()():
+				self.writer.write_decimal(self.static_cur_page + 1)
+			EUDEndIf()
 			self.writer.write_str(makeText(' / '))
 			self.writer.write_decimal(self.static_num_pages)
 			self.writer.write_str(makeText(' )\n'))

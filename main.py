@@ -2,9 +2,8 @@ from eudplib import *
 
 @EUDFunc
 def main():
-	from repl import onPluginStart, beforeTriggerExec
+	from repl import beforeTriggerExec
 
-	onPluginStart()
 	if EUDInfLoop()():
 		# Turbo
 		DoActions(SetDeaths(203151, SetTo, 1, 0))
