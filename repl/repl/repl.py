@@ -1,5 +1,4 @@
 from eudplib import *
-from ..utils import makeText
 from ..utils.utils import f_strlen
 from ..core.command import runCommand
 from .board import Board
@@ -17,7 +16,6 @@ class REPL:
 		assert _repl == None, "REPL instance should be unique"
 		_repl = self
 
-		self.rettext = Db(1024)
 		self.prev_txtPtr = EUDVariable(initval=10)
 		self.display = EUDVariable(1)
 

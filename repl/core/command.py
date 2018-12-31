@@ -9,8 +9,6 @@ from .table import SearchTable
 import inspect
 import functools
 
-__all__ = ['EUDCommand', 'EUDCommandPtr']
-
 _MAXARGCNT = 8
 _MAXRETCNT = 8
 

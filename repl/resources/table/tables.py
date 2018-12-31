@@ -18,14 +18,14 @@ from ...utils import makeEPDText
 repl_commands = ReferenceTable(key_f=makeEPDText)
 def RegisterCommand(cmdname, command):
     # Note: these register process is not Trigger.
-    # These objects are evaluated at Phase 1 of EUDPLIB - Allocation Phase
+    # These objects are evaluated at Phase 1 of EUDPLIB - Collection Phase
 	repl_commands.AddPair(cmdname, EUDCommandPtr(command))
 
 # used on object trace
 traced_objects = ReferenceTable(key_f=makeEPDText)
 def RegisterTraceObject(name, var):
     # Note: these register process is not Trigger.
-    # These objects are evaluated at Phase 1 of EUDPLIB - Allocation Phase
+    # These objects are evaluated at Phase 1 of EUDPLIB - Collection Phase
 	traced_objects.AddPair(name, var)
 
 # trigger strings/constants
