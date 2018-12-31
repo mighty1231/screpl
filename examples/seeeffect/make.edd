@@ -1,0 +1,5 @@
+[main]
+input: base.scx
+output: seeeffect.scx
+
+[main.py]

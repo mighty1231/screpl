@@ -33,5 +33,5 @@ def main():
 		EUDDoEvents()
 	EUDEndInfLoop()
 
-LoadMap("base.scx")
+LoadMap("../base.scx")
 SaveMap("seeeffect.scx", main)

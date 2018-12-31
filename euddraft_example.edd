@@ -1,5 +1,0 @@
-[main]
-input: base.scx
-output: repl.scx
-
-[euddraft_example.py]

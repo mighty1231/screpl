@@ -3,4 +3,4 @@ input: base.scx
 output: repl.scx
 
 [prepl.py]
-superuser: P2
+superuser: P1
