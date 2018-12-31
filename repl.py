@@ -1,9 +1,8 @@
 from eudplib import *
 from utils import *
-from encoder import ReadName
+from command import runCommand
 from board import Board
-from command import EUDCommandPtr
-from table import ReferenceTable, SearchTable
+from tables import repl_commands
 
 _repl = None
 
@@ -22,6 +21,7 @@ class REPL:
 		# self.prefix = makeText(superuser + ':')
 		# self.prefixlen = len(superuser + ':')
 		self.playerId = EncodePlayer(superuser)
+		assert 0 <= self.playerId < 8, "Superuser should be one of P1 ~ P8"
 		self.prefix = Db(26)
 		self.prefixlen = EUDVariable()
 		self.board = Board.GetInstance()
@@ -131,32 +131,9 @@ class REPL:
 
 	@EUDMethod
 	def _execute_command(self, offset):
-		from tables import repl_commands
-		br = Board.GetInstance()
-		br.REPLWriteInput(offset)
-		offset_cpy = EUDVariable()
-		offset_cpy << offset
-		ref_offset_epd = EPD(offset.getValueAddr())
-
-		# Read function first
-		if EUDIf()(ReadName(offset, ord('('), ref_offset_epd, EPD(self.rettext)) == 1):
-			func = EUDCommandPtr()
-			ret = EUDVariable()
-
-			if EUDIf()(SearchTable(self.rettext, EPD(repl_commands), f_strcmp_ptrepd, EPD(ret.getValueAddr())) == 1):
-				func << EUDCommandPtr.cast(ret)
-				if EUDIf()(func(offset, br.repl_outputEPDPtr) == 1):
-					pass
-				if EUDElse()():
-					pass
-				EUDEndIf()
-			if EUDElse()():
-				br.REPLWriteOutput(makeText('\x06Failed to read function name'))
-			EUDEndIf()
-		if EUDElse()():
-			br.REPLWriteOutput(makeText('\x06Failed to read command'))
-		EUDEndIf()
-		br.REPLCompleteEval()
+		self.board.REPLWriteInput(offset)
+		runCommand(offset, EPD(repl_commands), self.board.repl_outputEPDPtr)
+		self.board.REPLCompleteEval()
 
 	@EUDMethod
 	def execute(self):
@@ -201,7 +178,7 @@ class REPL:
 
 		do_display << NextTrigger()
 		if EUDIf()(self.display == 1):
-			Board.GetInstance().Display(P1)
+			self.board.Display(self.playerId)
 		EUDEndIf()
 
 def beforeTriggerExec():

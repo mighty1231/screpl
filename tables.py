@@ -1,7 +1,7 @@
 from eudplib import *
 from utils import *
 from table import ReferenceTable
-from command import EUDCommand, EUDCommandPtr
+from command import EUDCommandPtr
 from eudplib.core.rawtrigger.strdict import (
     DefUnitDict,
     DefAIScriptDict,

@@ -1,9 +1,10 @@
-# This library should be imported during *TriggerExec
-# Otherwise, error happens - IndexError: list index out of range 
-
 from eudplib import *
 from utils import *
 from eudplib.core.eudfunc.eudfptr import callFuncBody
+from encoder import ArgEncoderPtr, _read_until_delimiter, ReadName
+from decoder import RetDecoderPtr, _output_writer
+from table import SearchTable
+
 import inspect
 import functools
 
@@ -11,28 +12,43 @@ __all__ = ['EUDCommand', 'EUDCommandPtr']
 
 _MAXARGCNT = 8
 _MAXRETCNT = 8
-_output_writer = EUDByteRW()
 
-# variables for outer function
-from encoder import ArgEncoderPtr, _reader, _read_until_delimiter
+# variables for EUDCommand
 _argn = EUDVariable()
 _arg_encoders = EUDArray(_MAXARGCNT)
+_arg_storage = EUDArray(_MAXARGCNT)
 
-from decoder import RetDecoderPtr
 _retn = EUDVariable()
 _ret_decoders = EUDArray(_MAXRETCNT)
+_ret_storage = EUDArray(_MAXRETCNT)
 
 # Used as global variable during parsing iteratively
 _offset = EUDVariable()
-_encoded = EUDVariable()
-_refoffset_epd = EPD(_offset.getValueAddr())
-_refencoded = EPD(_encoded.getValueAddr())
-
 _encode_success = EUDVariable()
 
-# store arguments/returned values from inner function
-_arg_storage = EUDArray(_MAXARGCNT)
-_ret_storage = EUDArray(_MAXRETCNT)
+@EUDFunc
+def runCommand(txtptr, cmdtable_epd, ref_stdout_epd):
+	funcname = Db(50)
+	if EUDIf()(ReadName(txtptr, ord('('), \
+			EPD(txtptr.getValueAddr()), EPD(funcname)) == 1):
+		func = EUDCommandPtr()
+		ret = EUDVariable()
+
+		if EUDIf()(SearchTable(funcname, cmdtable_epd, \
+				f_strcmp_ptrepd, EPD(ret.getValueAddr())) == 1):
+			func << EUDCommandPtr.cast(ret)
+			func(txtptr, ref_stdout_epd)
+		if EUDElse()():
+			_output_writer.seekepd(ref_stdout_epd)
+			_output_writer.write_strepd(makeEPDText('\x06Failed to read function name'))
+			_output_writer.write(0)
+		EUDEndIf()
+	if EUDElse()():
+		_output_writer.seekepd(ref_stdout_epd)
+		_output_writer.write_strepd(makeEPDText('\x06Failed to read command'))
+		_output_writer.write(0)
+	EUDEndIf()
+
 
 @EUDFunc
 def encodeArguments():
@@ -49,9 +65,9 @@ def encodeArguments():
 				delim << ord(')')
 			EUDEndIf()
 			_arg_encoder_ptr = ArgEncoderPtr.cast(_arg_encoders[i])
-			if EUDIf()(_arg_encoder_ptr(_offset, delim, _refoffset_epd, _refencoded) == 1):
-				_arg_storage[i] = _encoded
-			if EUDElse()():
+			if EUDIfNot()(_arg_encoder_ptr(_offset, delim, \
+					EPD(_offset.getValueAddr()), \
+					EPD(_arg_storage)+i) == 1):
 				_encode_success << 0 # failed to encode argument
 				_output_writer.write_str(makeText(\
 						'\x06Syntax Error: during encoding argument ['))
@@ -235,7 +251,7 @@ class EUDCommandPtr(EUDStruct):
 		Returns 1 if it parsed offset successfully and call function
 		Otherwise 0
 		"""
-		DoActions(SetMemoryEPD(_refoffset_epd, SetTo, offset))
+		_offset << offset
 		_output_writer.seekepd(ref_stdout_epd)
 
 		# Call function

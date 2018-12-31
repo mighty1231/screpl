@@ -1,6 +1,5 @@
 from eudplib import *
 from utils import *
-from table import ReferenceTable
 
 PAGE_NUMLINES = 8
 BUFSIZE = 500
@@ -125,36 +124,6 @@ class Board:
 			if EUDIf()(self.mode == 0):
 				self.SetTitle(makeText('SC-REPL'))
 			EUDEndIf()
-		EUDEndIf()
-
-	@EUDMethod
-	def SetContentWithTbName_epd(self, table_epd):
-		size = f_dwread_epd(table_epd)
-		self.static_ln << size
-		self.static_offset << 0
-		self.static_cur_page << 0
-		self.static_num_pages << f_div(size+PAGE_NUMLINES-1, PAGE_NUMLINES)[0]
-
-		name_epd, dest_epd = EUDCreateVariables(2)
-		DoActions([
-			name_epd.SetNumber(table_epd),
-			name_epd.AddNumber(1),
-			dest_epd.SetNumber(EPD(self.static_data))
-		])
-		if EUDInfLoop()():
-			EUDBreakIf(size == 0)
-			self.writer.seekepd(dest_epd)
-			self.writer.write_strepd(f_dwread_epd(name_epd))
-			self.writer.write(0)
-			DoActions([
-				name_epd.AddNumber(2),
-				size.SubtractNumber(1),
-				dest_epd.AddNumber(LINESIZE // 4),
-			])
-		EUDEndInfLoop()
-
-		if EUDIf()(self.mode == 1):
-			self.update << 1
 		EUDEndIf()
 
 	@EUDTypedMethod([None, EUDFuncPtr(3, 0)])

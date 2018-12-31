@@ -1,7 +1,5 @@
 from eudplib import *
-from command import EUDCommand
 from utils import *
-from encoder import ReadNumber, ReadName
 
 _writer = EUDByteRW()
 
@@ -30,7 +28,6 @@ def decItem_String(offset, name, val):
 @EUDFunc
 def decItem_Command(offset, name, val):
     from command import EUDCommandPtr
-
     _writer.seekoffset(offset)
     _writer.write_strepd(name)
     _writer.write_strepd(EPD(makeText(" - ")))

@@ -98,7 +98,6 @@ def cmd_strcpy(dst, src):
 
 @EUDCommand([argEncNumber])
 def cmd_memoryview(offset):
-	from board import Board
 	bufs = EUDArray([EPD(Db(300)) for i in range(8)])
 	writer = EUDByteRW()
 	reader = EUDByteRW()
@@ -131,8 +130,6 @@ def cmd_memoryview(offset):
 @EUDCommand([argEncNumber])
 def cmd_memoryview_epd(epd):
 	offset = f_epd2ptr(epd)
-
-	from board import Board
 	bufs = EUDArray([EPD(Db(300)) for i in range(8)])
 	writer = EUDByteRW()
 	reader = EUDByteRW()
