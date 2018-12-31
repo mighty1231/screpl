@@ -2,5 +2,4 @@
 input: base.scx
 output: repl.scx
 
-[prepl.py]
-superuser: P2
+[euddraft_example.py]
