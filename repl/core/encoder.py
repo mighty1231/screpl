@@ -1,4 +1,5 @@
-from utils import *
+from eudplib import *
+from ..utils import EUDByteRW
 
 _reader = EUDByteRW()
 _writer = EUDByteRW()

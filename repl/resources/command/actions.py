@@ -1,6 +1,5 @@
 from eudplib import *
-from utils import *
-from enc_const import (
+from ..encoder.const import (
 	argEncNumber,
 	argEncCount,
 	argEncModifier,
@@ -14,21 +13,21 @@ from enc_const import (
 	argEncSwitchAction,
 	argEncSwitchState,
 )
-from enc_str import (
+from ..encoder.str import (
 	argEncUnit,
 	argEncLocation,
 	argEncAIScript,
 	argEncSwitch,
 	argEncString,
 )
-from command import EUDCommand
+from ...core.command import EUDCommand
+from ..table.tables import RegisterCommand
 # Note, 
 # 1. DisplayText ~ AlwaysDisplay
 # 2. UnitProperty is not able to be parsed
 # 3. Transmission.. trouble due to two string encoders.
 
 def register_all_actioncmds():
-	from tables import RegisterCommand
 
 	RegisterCommand('Victory', cmd_Victory)
 	RegisterCommand('Defeat', cmd_Defeat)

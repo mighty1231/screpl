@@ -1,11 +1,7 @@
-# This library should be imported during *TriggerExec
-# Otherwise, error happens - IndexError: list index out of range 
-
 from eudplib import *
-from encoder import ReadNumber, ReadString
-from table import SearchTable
-from utils import *
-from tables import (
+from ...core.encoder import ReadNumber, ReadString
+from ...core.table import SearchTable
+from ..table.tables import (
     tb_unit,
     tb_locSub,
     tb_swSub,
@@ -14,6 +10,7 @@ from tables import (
     tb_locMap,
     tb_swMap
 )
+from ...utils import f_strcmp_ptrepd
 
 tmpbuf = Db(150) # Temporarily store string
 tmpstrbuf = DBString(150)

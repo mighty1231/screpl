@@ -1,5 +1,6 @@
 from eudplib import *
-from utils import *
+
+from ..utils import EUDByteRW, makeEPDText
 
 _output_writer = EUDByteRW()
 RetDecoderPtr = EUDFuncPtr(1, 0)
@@ -7,9 +8,9 @@ RetDecoderPtr = EUDFuncPtr(1, 0)
 @EUDFunc
 def retDecBool(number):
 	if EUDIf()(number == 0):
-		_output_writer.write_str(makeText('False'))
+		_output_writer.write_strepd(makeEPDText('False'))
 	if EUDElse()():
-		_output_writer.write_str(makeText('True'))
+		_output_writer.write_strepd(makeEPDText('True'))
 	EUDEndIf()
 
 @EUDFunc

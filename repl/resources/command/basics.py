@@ -1,21 +1,20 @@
 from eudplib import *
-from utils import *
-from command import EUDCommand
-from table import (
-	SearchTable,
-	decItem_Command,
-	decItem_String,
-	decItem_StringDecimal
-)
-from tables import (
+from ...utils import makeEPDTextArray
+from ...core.command import EUDCommand
+from ...core.table import SearchTable
+from ...core.encoder import ReadName
+from ..table.tables import (
 	encoding_tables,
 	repl_commands,
 	RegisterCommand
 )
-from encoder import (
-	ReadName,
+from ...repl.board import Board
+from ..table.itemdecoder import (
+	decItem_Command,
+	decItem_String,
+	decItem_StringDecimal
 )
-from board import Board
+from ...utils import makeText, f_strcmp_ptrepd
 
 def register_basiccmds():
 	RegisterCommand('help', cmd_help)
@@ -44,10 +43,9 @@ def cmd_help():
 		'contents(table) - See contents in encoder tables',
 		'',
 	]
-	from board import Board
 	br = Board.GetInstance()
 	br.SetTitle(makeText('SC-REPL Manual'))
-	br.SetStaticContent(*makeTextEPDArray(help_text))
+	br.SetStaticContent(*makeEPDTextArray(help_text))
 	br.SetMode(1)
 
 @EUDCommand([])

@@ -2,13 +2,12 @@ from eudplib import *
 
 @EUDFunc
 def main():
-	from repl import beforeTriggerExec
-
+	from repl import REPL
 	if EUDInfLoop()():
 		# Turbo
 		DoActions(SetDeaths(203151, SetTo, 1, 0))
 
-		beforeTriggerExec()
+		REPL().execute()
 		RunTrigTrigger()
 		EUDDoEvents()
 	EUDEndInfLoop()

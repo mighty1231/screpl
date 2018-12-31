@@ -13,7 +13,7 @@ def makeText(msg):
 def makeEPDText(msg):
 	return EPD(makeText(msg))
 
-def makeTextEPDArray(txt):
+def makeEPDTextArray(txt):
 	lines = []
 	if type(txt) == str:
 		lines = txt.split('\n')

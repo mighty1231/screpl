@@ -1,6 +1,5 @@
 from eudplib import *
-from utils import *
-from enc_const import (
+from ..encoder.const import (
 	argEncNumber,
 	argEncCount,
 	argEncModifier,
@@ -14,18 +13,18 @@ from enc_const import (
 	argEncSwitchAction,
 	argEncSwitchState,
 )
-from enc_str import (
+from ..encoder.str import (
 	argEncUnit,
 	argEncLocation,
 	argEncAIScript,
 	argEncSwitch,
 	argEncString,
 )
-from decoder import retDecBool
-from command import EUDCommand
+from ...core.decoder import retDecBool
+from ...core.command import EUDCommand
+from ..table.tables import RegisterCommand
 
 def register_all_conditioncmds():
-	from tables import RegisterCommand
 
 	RegisterCommand('CountdownTimer', cmd_CountdownTimer)
 	RegisterCommand('Command', cmd_Command)

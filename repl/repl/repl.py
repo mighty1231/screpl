@@ -1,8 +1,13 @@
 from eudplib import *
-from utils import *
-from command import runCommand
-from board import Board
-from tables import repl_commands
+from ..utils import makeText
+from ..utils.utils import f_strlen
+from ..core.command import runCommand
+from .board import Board
+from ..resources.table.tables import repl_commands
+from ..resources.command.basics import register_basiccmds
+from ..resources.command.conditions import register_all_conditioncmds
+from ..resources.command.actions import register_all_actioncmds
+from ..resources.command.utils import register_utilcmds
 
 _repl = None
 
@@ -27,10 +32,6 @@ class REPL:
 		self.board = Board.GetInstance()
 
 		# these registering functions are python-functions
-		from cmd_basics import register_basiccmds
-		from cmd_conditions import register_all_conditioncmds
-		from cmd_actions import register_all_actioncmds
-		from cmd_util import register_utilcmds
 		register_basiccmds()
 		register_utilcmds()
 		register_all_conditioncmds()
@@ -158,10 +159,8 @@ class REPL:
 		i << self.prev_txtPtr
 		chat_off = 0x640B60 + 218 * i
 
-		_nextline = Forward()
 		if EUDInfLoop()():
 			EUDBreakIf(i == cur_txtPtr)
-
 			if EUDIf()(f_memcmp(chat_off, self.prefix, self.prefixlen) == 0):
 				self._execute_command(chat_off + (self.prefixlen + 2)) # 2 from (colorcode, spacebar)
 			EUDEndIf()
@@ -180,6 +179,3 @@ class REPL:
 		if EUDIf()(self.display == 1):
 			self.board.Display(self.playerId)
 		EUDEndIf()
-
-def beforeTriggerExec():
-	REPL(superuser = P1).execute()

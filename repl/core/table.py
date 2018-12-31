@@ -1,39 +1,4 @@
 from eudplib import *
-from utils import *
-
-_writer = EUDByteRW()
-
-@EUDFunc
-def decItem_StringDecimal(offset, name, val):
-    _writer.seekoffset(offset)
-    _writer.write_strepd(name)
-    _writer.write_strepd(EPD(makeText(': ')))
-    _writer.write_decimal(val)
-    _writer.write(0)
-
-@EUDFunc
-def decItem_StringHex(offset, name, val):
-    _writer.seekoffset(offset)
-    _writer.write_strepd(name)
-    _writer.write_strepd(EPD(makeText(': ')))
-    _writer.write_hex(val)
-    _writer.write(0)
-
-@EUDFunc
-def decItem_String(offset, name, val):
-    _writer.seekoffset(offset)
-    _writer.write_strepd(name)
-    _writer.write(0)
-
-@EUDFunc
-def decItem_Command(offset, name, val):
-    from command import EUDCommandPtr
-    _writer.seekoffset(offset)
-    _writer.write_strepd(name)
-    _writer.write_strepd(EPD(makeText(" - ")))
-    _writer.write_strepd(
-        EUDCommandPtr.cast(val)._doc_epd)
-    _writer.write(0)
 
 class ReferenceTable(EUDObject):
     '''
@@ -42,7 +7,7 @@ class ReferenceTable(EUDObject):
     However, these key-value pair are lazily collected.
 
     key_f transforms key before registered.
-    rt = ReferenceTable(key_transformer = makeText)
+    rt = ReferenceTable(key_transformer = makeEPDText)
     rt.AddPair("Hello", 3) # transforms "Hello" to EPD(Db())
 
     value_f works similar to key_f

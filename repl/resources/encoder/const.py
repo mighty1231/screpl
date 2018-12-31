@@ -1,11 +1,8 @@
-# This library should be imported during *TriggerExec
-# Otherwise, error happens - IndexError: list index out of range 
-
 from eudplib import *
-from encoder import ReadNumber, ReadName
-from table import SearchTable
-from utils import *
-from tables import (
+from ...core.encoder import ReadNumber, ReadName
+from ...core.table import SearchTable
+from ...utils import makeEPDText, f_strcmp_ptrepd
+from ..table.tables import (
     tb_Modifier,
     tb_AllyStatus,
     tb_Comparison,
@@ -37,7 +34,7 @@ def _makeConstEncoder(table):
 @EUDFunc
 def _EncodeCount(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadName(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
-        if EUDIf()(f_strcmp2(tmpbuf, makeText('All')) == 0):
+        if EUDIf()(f_strcmp_ptrepd(tmpbuf, makeEPDText('All')) == 0):
             f_dwwrite_epd(retval_epd, 0)
             EUDReturn(1)
         if EUDElse()():

@@ -1,9 +1,10 @@
 from eudplib import *
-from utils import *
 from eudplib.core.eudfunc.eudfptr import callFuncBody
-from encoder import ArgEncoderPtr, _read_until_delimiter, ReadName
-from decoder import RetDecoderPtr, _output_writer
-from table import SearchTable
+
+from ..utils import makeEPDText, f_strcmp_ptrepd
+from .encoder import ArgEncoderPtr, _read_until_delimiter, ReadName
+from .decoder import RetDecoderPtr, _output_writer
+from .table import SearchTable
 
 import inspect
 import functools
@@ -69,12 +70,12 @@ def encodeArguments():
 					EPD(_offset.getValueAddr()), \
 					EPD(_arg_storage)+i) == 1):
 				_encode_success << 0 # failed to encode argument
-				_output_writer.write_str(makeText(\
+				_output_writer.write_strepd(makeEPDText(\
 						'\x06Syntax Error: during encoding argument ['))
 				_output_writer.write_decimal(i)
-				_output_writer.write_str(makeText('] \x16'))
+				_output_writer.write_strepd(makeEPDText('] \x16'))
 				_output_writer.write_strn(_offset, 5)
-				_output_writer.write_str(makeText('...'))
+				_output_writer.write_strepd(makeEPDText('...'))
 				_output_writer.write(0)
 				EUDBreak()
 			EUDEndIf()
@@ -94,7 +95,7 @@ def decodeReturns():
 	if EUDInfLoop()():
 		EUDBreakIf(i == _retn)
 		if EUDIf()(i >= 1):
-			_output_writer.write_str(makeText(', '))
+			_output_writer.write_strepd(makeEPDText(', '))
 		EUDEndIf()
 
 		_ret_decoder_ptr = RetDecoderPtr.cast(_ret_decoders[i])
@@ -130,7 +131,7 @@ def createIndirectCaller(f, _caller_dict={}):
 				# print result to output buffer
 				decodeReturns()
 			else:
-				_output_writer.write_str(makeText('Success!'))
+				_output_writer.write_strepd(makeEPDText('Success!'))
 				_output_writer.write(0)
 		EUDEndIf()
 		caller_end = RawTrigger()

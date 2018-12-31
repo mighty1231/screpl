@@ -1,5 +1,5 @@
 from eudplib import *
-from utils import *
+from ..utils import EUDByteRW, makeText
 
 PAGE_NUMLINES = 8
 BUFSIZE = 500

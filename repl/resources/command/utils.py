@@ -1,20 +1,20 @@
 from eudplib import *
-from utils import *
-from command import EUDCommand
-from board import Board
-from tables import RegisterCommand, traced_objects
-from table import decItem_StringHex
-from enc_const import (
+from ...utils import makeText, EUDByteRW, f_epd2ptr
+from ...core.command import EUDCommand
+from ...core.decoder import retDecDecimal, retDecHex, retDecBinary
+from ...repl.board import Board
+from ..table.itemdecoder import decItem_StringHex
+from ..table.tables import RegisterCommand, traced_objects
+from ..encoder.const import (
 	argEncNumber,
 	argEncPlayer,
 	argEncResource,
 	argEncScore
 )
-from enc_str import (
+from ..encoder.str import (
 	argEncUnit,
 	argEncLocation,
 )
-from decoder import retDecDecimal, retDecHex, retDecBinary
 
 def register_utilcmds():
 	# EUDVariable

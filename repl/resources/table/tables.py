@@ -1,7 +1,4 @@
 from eudplib import *
-from utils import *
-from table import ReferenceTable
-from command import EUDCommandPtr
 from eudplib.core.rawtrigger.strdict import (
     DefUnitDict,
     DefAIScriptDict,
@@ -13,6 +10,9 @@ from eudplib.core.mapdata.stringmap import (
     locmap,
     swmap
 )
+from ...core.command import EUDCommandPtr
+from ...core.table import ReferenceTable
+from ...utils import makeEPDText
 
 # repl commands are stored
 repl_commands = ReferenceTable(key_f=makeEPDText)
