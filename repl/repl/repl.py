@@ -289,6 +289,7 @@ class REPL:
 			self.writer.seekepd(EPD(self.page.GetStringMemoryAddr()))
 			self.writer.write_strepd( \
 				EUDView.cast(self.view).get_bufepd(self.viewmem))
+			self.writer.write(0)
 		EUDEndIf()
 
 		# display
