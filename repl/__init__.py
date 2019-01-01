@@ -39,7 +39,8 @@ from .resources.encoder.str import (
 )
 from .resources.table.tables import (
 	RegisterCommand,
-	RegisterTraceObject
+	RegisterTraceObject,
+	RegisterVariable,
 )
 from .utils import (
 	makeText,

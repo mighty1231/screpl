@@ -12,3 +12,4 @@ from .table import (
 	tableDec_String,
 	tableDec_Command
 )
+from .variable import VariableView

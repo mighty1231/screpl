@@ -2,7 +2,7 @@ from eudplib import *
 from ...utils import makeEPDText, EUDByteRW, f_epd2ptr
 from ...core.command import EUDCommand
 from ...core.decoder import retDecDecimal, retDecHex, retDecBinary
-from ..table.tables import RegisterCommand, traced_objects
+from ..table.tables import RegisterCommand, traced_objects, traced_variables
 from ..encoder.const import (
 	argEncNumber,
 	argEncPlayer,
@@ -16,6 +16,7 @@ from ..encoder.str import (
 from ...view import (
 	StaticView,
 	TableView,
+	VariableView,
 	tableDec_StringHex
 )
 
@@ -39,6 +40,7 @@ def register_utilcmds():
 
 	# Special
 	RegisterCommand('objtrace', cmd_objtrace)
+	RegisterCommand('vartrace', cmd_vartrace)
 
 	# Extended Conditions
 	RegisterCommand('exCountdownTimer', cmd_ExCountdownTimer)
@@ -137,6 +139,18 @@ def cmd_objtrace():
 		EPD(traced_objects)
 	])
 	TableView.OpenView(EPD(arg))
+
+@EUDCommand([])
+def cmd_vartrace():
+	'''
+	get address table of marked EUDObjects with RegisterTraceObject
+	'''
+	arg = EUDArray([
+		makeEPDText("Variables"),
+		0,
+		EPD(traced_variables)
+	])
+	VariableView.OpenView(EPD(arg))
 
 @EUDCommand([], [retDecDecimal])
 def cmd_ExCountdownTimer():

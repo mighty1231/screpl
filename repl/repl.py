@@ -2,10 +2,7 @@ from eudplib import *
 from .utils.utils import f_strlen
 from .core.command import runCommand
 from .resources.table.tables import repl_commands
-from .resources.command.basics import register_basiccmds
-from .resources.command.conditions import register_all_conditioncmds
-from .resources.command.actions import register_all_actioncmds
-from .resources.command.utils import register_utilcmds
+from .resources.command import register_cmds
 from .view.view import GetCurrentView, TerminateCurrentView, EUDView
 from .utils import EUDByteRW, makeEPDText
 
@@ -56,10 +53,8 @@ class REPL:
 		self.viewmem = EUDVariable(0)
 
 		# these registering functions are python-functions
-		register_basiccmds()
-		register_utilcmds()
-		register_all_conditioncmds()
-		register_all_actioncmds()
+		register_cmds()
+
 
 	@EUDMethod
 	def update_view(self):

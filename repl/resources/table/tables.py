@@ -33,6 +33,11 @@ def RegisterTraceObject(name, var):
     # These objects are evaluated at Phase 1 of EUDPLIB - Collection Phase
 	traced_objects.AddPair(name, var)
 
+# used on variable trace
+traced_variables = ReferenceTable(key_f=makeEPDText)
+def RegisterVariable(name, var):
+    traced_variables.AddPair(name, EPD(var.getValueAddr()))
+
 # trigger strings/constants
 encoding_tables = ReferenceTable(key_f=makeEPDText, value_f=EPD)
 
