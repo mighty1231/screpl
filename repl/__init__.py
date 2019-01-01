@@ -15,7 +15,7 @@ from .core.table import (
 	SearchTable
 )
 
-from .repl import REPL, Board
+from .repl import REPL
 from .resources.encoder.const import (
 	argEncNumber,
 	argEncCount,

@@ -1,13 +1,13 @@
 from eudplib import *
-from ..utils.utils import f_strlen
-from ..core.command import runCommand
-from ..resources.table.tables import repl_commands
-from ..resources.command.basics import register_basiccmds
-from ..resources.command.conditions import register_all_conditioncmds
-from ..resources.command.actions import register_all_actioncmds
-from ..resources.command.utils import register_utilcmds
-from ..view.view import GetCurrentView, TerminateCurrentView, EUDView
-from ..utils import EUDByteRW, makeEPDText
+from .utils.utils import f_strlen
+from .core.command import runCommand
+from .resources.table.tables import repl_commands
+from .resources.command.basics import register_basiccmds
+from .resources.command.conditions import register_all_conditioncmds
+from .resources.command.actions import register_all_actioncmds
+from .resources.command.utils import register_utilcmds
+from .view.view import GetCurrentView, TerminateCurrentView, EUDView
+from .utils import EUDByteRW, makeEPDText
 
 _repl = None
 PAGE_NUMLINES = 8

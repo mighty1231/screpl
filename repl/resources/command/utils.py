@@ -1,9 +1,7 @@
 from eudplib import *
-from ...utils import makeText, EUDByteRW, f_epd2ptr
+from ...utils import makeEPDText, EUDByteRW, f_epd2ptr
 from ...core.command import EUDCommand
 from ...core.decoder import retDecDecimal, retDecHex, retDecBinary
-from ...repl.board import Board
-from ..table.itemdecoder import decItem_StringHex
 from ..table.tables import RegisterCommand, traced_objects
 from ..encoder.const import (
 	argEncNumber,
@@ -14,6 +12,11 @@ from ..encoder.const import (
 from ..encoder.str import (
 	argEncUnit,
 	argEncLocation,
+)
+from ...view import (
+	StaticView,
+	TableView,
+	tableDec_StringHex
 )
 
 def register_utilcmds():
@@ -33,7 +36,6 @@ def register_utilcmds():
 
 	# Memory view
 	RegisterCommand('mv', cmd_memoryview)
-	RegisterCommand('mvepd', cmd_memoryview_epd)
 
 	# Special
 	RegisterCommand('objtrace', cmd_objtrace)
@@ -98,77 +100,43 @@ def cmd_strcpy(dst, src):
 
 @EUDCommand([argEncNumber])
 def cmd_memoryview(offset):
-	bufs = EUDArray([EPD(Db(300)) for i in range(8)])
+	args = EUDArray([makeEPDText('Memory View'), 8] \
+		+ [EPD(Db(300)) for i in range(8)])
 	writer = EUDByteRW()
 	reader = EUDByteRW()
 	reader.seekoffset(offset)
 
 	i = EUDVariable()
-	i << 0
-	if EUDWhile()(i < 8):
-		writer.seekepd(bufs[i])
+	i << 2
+	if EUDWhile()(i < 8+2):
+		writer.seekepd(args[i])
 		writer.write_hex(offset)
-		writer.write_str(makeText(': '))
+		writer.write_strepd(makeEPDText(': '))
 
 		if EUDLoopN()(16):
 			writer.write_bytehex(reader.read())
 			writer.write(ord(' '))
 		EUDEndLoopN()
-		writer.write_str(makeText(' | '))
+		writer.write_strepd(makeEPDText(' | '))
 		writer.write_strn(offset, 16)
 		writer.write(0)
 
 		offset += 16
 		i += 1
 	EUDEndWhile()
-
-	br = Board.GetInstance()
-	br.SetTitle(makeText('Memory View'))
-	br.SetStaticContent(bufs, 8)
-	br.SetMode(1)
-
-@EUDCommand([argEncNumber])
-def cmd_memoryview_epd(epd):
-	offset = f_epd2ptr(epd)
-	bufs = EUDArray([EPD(Db(300)) for i in range(8)])
-	writer = EUDByteRW()
-	reader = EUDByteRW()
-	reader.seekoffset(offset)
-
-	i = EUDVariable()
-	i << 0
-	if EUDWhile()(i < 8):
-		writer.seekepd(bufs[i])
-		writer.write_hex(offset)
-		writer.write_str(makeText(': '))
-
-		if EUDLoopN()(16):
-			writer.write_bytehex(reader.read())
-			writer.write(ord(' '))
-		EUDEndLoopN()
-		writer.write_str(makeText(' | '))
-		writer.write_strn(offset, 16)
-		writer.write(0)
-
-		offset += 16
-		i += 1
-	EUDEndWhile()
-
-	br = Board.GetInstance()
-	br.SetTitle(makeText('Memory View'))
-	br.SetStaticContent(bufs, 8)
-	br.SetMode(1)
+	StaticView.OpenView(EPD(args))
 
 @EUDCommand([])
 def cmd_objtrace():
 	'''
 	get address table of marked EUDObjects with RegisterTraceObject
 	'''
-	br = Board.GetInstance()
-	br.SetTitle(makeText("Objects"))
-	br.SetContentWithTable_epd(EPD(traced_objects), decItem_StringHex)
-	br.SetMode(1)
-
+	arg = EUDArray([
+		makeEPDText("Objects"),
+		EUDFuncPtr(2, 0)(tableDec_StringHex),
+		EPD(traced_objects)
+	])
+	TableView.OpenView(EPD(arg))
 
 @EUDCommand([], [retDecDecimal])
 def cmd_ExCountdownTimer():

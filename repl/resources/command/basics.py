@@ -8,18 +8,22 @@ from ..table.tables import (
 	repl_commands,
 	RegisterCommand
 )
-from ...repl.board import Board
 from ..table.itemdecoder import (
 	decItem_Command,
 	decItem_String,
 	decItem_StringDecimal
 )
 from ...utils import makeText, makeEPDText, f_strcmp_ptrepd
-from ...view import StaticView, TableView, tableDec_Command
+from ...view import (
+	StaticView,
+	TableView,
+	tableDec_Command,
+	tableDec_String,
+	tableDec_StringDecimal
+)
 
 def register_basiccmds():
 	RegisterCommand("help", cmd_help)
-	RegisterCommand("help2", cmd_help2)
 	RegisterCommand("cmds", cmd_commands)
 	RegisterCommand("tables", cmd_encoders)
 	RegisterCommand("contents", cmd_contents)
@@ -27,30 +31,6 @@ def register_basiccmds():
 # Basic commands
 @EUDCommand([])
 def cmd_help():
-	help_text = [
-		'\x13SC-REPL ver 0.2',
-		'\x13Made by sixthMeat',
-		'',
-		'Key Inputs',
-		'- F7: Search previous page',
-		'- F8: Search next page',
-		'- F9: Toggle display',
-		'- Esc: Get back into REPL',
-		'',
-		'build in functions',
-		'help() - See manual',
-		'cmds() - See list of all commands',
-		'tables() - See list of encoder tables (Used in trigger)',
-		'contents(table) - See contents in encoder tables',
-		'',
-	]
-	br = Board.GetInstance()
-	br.SetTitle(makeText('SC-REPL Manual'))
-	br.SetStaticContent(*makeEPDTextArray(help_text))
-	br.SetMode(1)
-
-@EUDCommand([])
-def cmd_help2():
 	help_text = [
 		'\x13SC-REPL ver 0.2',
 		'\x13Made by sixthMeat',
@@ -84,10 +64,12 @@ def cmd_commands():
 
 @EUDCommand([])
 def cmd_encoders():
-	br = Board.GetInstance()
-	br.SetTitle(makeText('List of encoders'))
-	br.SetContentWithTable_epd(EPD(encoding_tables), decItem_String)
-	br.SetMode(1)
+	arg = EUDArray([
+		makeEPDText("List of encoders"),
+		EUDFuncPtr(2, 0)(tableDec_String),
+		EPD(encoding_tables)
+	])
+	TableView.OpenView(EPD(arg))
 
 @EUDFunc
 def argEncEncoderName(offset, delim, ref_offset_epd, retval_epd):
@@ -105,7 +87,10 @@ def cmd_contents(table_epd):
 	'''
 	see contents of table ex) contents(MapLocation)
 	'''
-	br = Board.GetInstance()
-	br.SetTitle(makeText('List'))
-	br.SetContentWithTable_epd(table_epd, decItem_StringDecimal)
-	br.SetMode(1)
+	arg = EUDArray([
+		makeEPDText("Contents"),
+		EUDFuncPtr(2, 0)(tableDec_StringDecimal),
+		0
+	])
+	arg[2] = table_epd
+	TableView.OpenView(EPD(arg))
