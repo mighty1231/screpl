@@ -2,18 +2,44 @@ from eudplib import *
 from ..resources.pool import getVarPool, getDbPool
 from .view import _view_writer, EUDView
 from ..utils import makeEPDText
+from ..core.command import EUDCommandPtr
 
 LINESIZE = 216
 PAGE_NUMCONTENTS = 8
 
-class StaticViewMembers(EUDStruct):
+@EUDFunc
+def tableDec_StringDecimal(name, val):
+    _view_writer.write_strepd(name)
+    _view_writer.write_strepd(makeEPDText(': '))
+    _view_writer.write_decimal(val)
+
+@EUDFunc
+def tableDec_StringHex(name, val):
+    _view_writer.write_strepd(name)
+    _view_writer.write_strepd(makeEPDText(': '))
+    _view_writer.write_hex(val)
+
+@EUDFunc
+def tableDec_String(name, val):
+    _view_writer.write_strepd(name)
+
+@EUDFunc
+def tableDec_Command(name, val):
+    _view_writer.write_strepd(name)
+    _view_writer.write_strepd(makeEPDText(" - "))
+    _view_writer.write_strepd(
+        EUDCommandPtr.cast(val)._doc_epd)
+
+
+class TableViewMembers(EUDStruct):
 	_fields_ = [
 		# epd-pointer to title
 		'title_epd',
 
 		# total lines
-		'ln',
-		'lines_epd',
+		'table_sz',
+		'table_epd',
+		('decoder', EUDFuncPtr(2, 0)),
 		'num_pages',
 
 		# buffer for current screen
@@ -25,35 +51,44 @@ class StaticViewMembers(EUDStruct):
 		'cur_page',
 	]
 
-varn = len(StaticViewMembers._fields_)
+varn = len(TableViewMembers._fields_)
 
 @EUDFunc
-def staticview_init(arr_epd):
+def tableview_init(arr_epd):
 	'''
-	epd-pointer of EUDArray:
-	title_epd, content_size(=N), content1, content2, ..., contentN
-	'''
-	members = StaticViewMembers.cast(getVarPool().alloc(varn))
+	epd-pointer of EUDArray: title_epd, decoder, table_epd
 
-	ln = f_dwread_epd(arr_epd + 1)
+	decoder is writing function with param (offset, key, value)
+
+	table_epd is epd-pointer of	ReferenceTable
+	table_sz(=N), key1, value1, key2, value2, ..., keyN, valueN
+	'''
+	members = TableViewMembers.cast(getVarPool().alloc(varn))
+
 	members.title_epd = f_dwread_epd(arr_epd)
+	members.decoder = f_dwread_epd(arr_epd + 1)
 
-	members.ln = ln
-	members.lines_epd = arr_epd + 2
-	members.num_pages = f_div(ln + PAGE_NUMCONTENTS - 1, \
+	# read table
+	table_epd = f_dwread_epd(arr_epd + 2)
+	table_sz = f_dwread_epd(table_epd)
+	members.num_pages = f_div(table_sz + PAGE_NUMCONTENTS - 1, \
 		PAGE_NUMCONTENTS)[0]
+	members.table_epd = table_epd
+	members.table_sz = table_sz
 
+	# screen buffer
 	members.screen_data_epd = getDbPool().alloc_epd(\
 		LINESIZE * (PAGE_NUMCONTENTS + 1))
 	members.update = 1
 
+	# variables for current state
 	members.offset = 0
 	members.cur_page = 0
 
 	EUDReturn(members)
 
-@EUDTypedFunc([StaticViewMembers, None])
-def staticview_keydown_callback(members, keycode):
+@EUDTypedFunc([TableViewMembers, None])
+def tableview_keydown_callback(members, keycode):
 	EUDSwitch(keycode)
 	if EUDSwitchCase()(0x76): # F7 - Prev Page
 		if EUDIfNot()(members.cur_page == 0):
@@ -71,12 +106,12 @@ def staticview_keydown_callback(members, keycode):
 		EUDBreak()
 	EUDEndSwitch()
 
-@EUDTypedFunc([StaticViewMembers, None])
-def staticview_execute_chat(members, offset):
+@EUDTypedFunc([TableViewMembers, None])
+def tableview_execute_chat(members, offset):
 	EUDReturn(0)
 
-@EUDTypedFunc([StaticViewMembers])
-def staticview_loop(members):
+@EUDTypedFunc([TableViewMembers])
+def tableview_loop(members):
 	# refresh
 	if EUDIf()(members.update == 1):
 		# title line
@@ -96,21 +131,24 @@ def staticview_loop(members):
 		cur, pageend, until = EUDCreateVariables(3)
 		cur << members.offset
 		pageend << members.offset + PAGE_NUMCONTENTS 
-		if EUDIf()(pageend >= members.ln):
-			until << members.ln
+		if EUDIf()(pageend >= members.table_sz):
+			until << members.table_sz
 		if EUDElse()():
 			until << pageend
 		EUDEndIf()
 
-		bufepd = members.lines_epd + cur
+		name_epd = members.table_epd + 2 * members.offset + 1
+		value_epd = name_epd + 1
+
 		if EUDInfLoop()():
 			EUDBreakIf(cur >= until)
-			_view_writer.write_strepd(f_dwread_epd(bufepd))
+			members.decoder(f_dwread_epd(name_epd), f_dwread_epd(value_epd))
 			_view_writer.write(ord('\n'))
 
 			DoActions([
 				cur.AddNumber(1),
-				bufepd.AddNumber(1)
+				name_epd.AddNumber(2),
+				value_epd.AddNumber(2),
 			])
 		EUDEndInfLoop()
 
@@ -121,26 +159,26 @@ def staticview_loop(members):
 			DoActions(cur.AddNumber(1))
 		EUDEndInfLoop()
 
-		_view_writer.write(0)
+		_view_writer.write(0) 
 		members.update = 0
 		EUDReturn(1)
 	EUDEndIf()
 	EUDReturn(0)
 
-@EUDTypedFunc([StaticViewMembers])
-def staticview_get_bufepd(members):
+@EUDTypedFunc([TableViewMembers])
+def tableview_get_bufepd(members):
 	EUDReturn(members.screen_data_epd)
 
-@EUDTypedFunc([StaticViewMembers])
-def staticview_destructor(members):
+@EUDTypedFunc([TableViewMembers])
+def tableview_destructor(members):
 	getDbPool().free_epd(members.screen_data_epd)
 	getVarPool().free(members)
 
-StaticView = EUDView(
-	staticview_init,
-	staticview_keydown_callback,
-	staticview_execute_chat,
-	staticview_loop,
-	staticview_get_bufepd,
-	staticview_destructor
+TableView = EUDView(
+	tableview_init,
+	tableview_keydown_callback,
+	tableview_execute_chat,
+	tableview_loop,
+	tableview_get_bufepd,
+	tableview_destructor
 )

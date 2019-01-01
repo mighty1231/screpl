@@ -1,7 +1,6 @@
 from eudplib import *
 from ..utils.utils import f_strlen
 from ..core.command import runCommand
-from .board import Board
 from ..resources.table.tables import repl_commands
 from ..resources.command.basics import register_basiccmds
 from ..resources.command.conditions import register_all_conditioncmds
@@ -31,7 +30,6 @@ class REPL:
 		assert 0 <= self.playerId < 8, "Superuser should be one of P1 ~ P8"
 		self.prefix = Db(26)
 		self.prefixlen = EUDVariable()
-		self.board = Board.GetInstance()
 
 		# Itself is a view
 		self.writer = EUDByteRW()

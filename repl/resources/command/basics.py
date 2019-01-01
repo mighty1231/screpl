@@ -15,7 +15,7 @@ from ..table.itemdecoder import (
 	decItem_StringDecimal
 )
 from ...utils import makeText, makeEPDText, f_strcmp_ptrepd
-from ...view import StaticView
+from ...view import StaticView, TableView, tableDec_Command
 
 def register_basiccmds():
 	RegisterCommand("help", cmd_help)
@@ -23,7 +23,6 @@ def register_basiccmds():
 	RegisterCommand("cmds", cmd_commands)
 	RegisterCommand("tables", cmd_encoders)
 	RegisterCommand("contents", cmd_contents)
-
 
 # Basic commands
 @EUDCommand([])
@@ -69,17 +68,19 @@ def cmd_help2():
 		'contents(table) - See contents in encoder tables',
 		'',
 	]
-	inp = EUDArray([
+	arg = EUDArray([
 		makeEPDText('SC-REPL manual'),
 		len(help_text)] + list(map(makeEPDText, help_text)))
-	StaticView.OpenView(EPD(inp))
+	StaticView.OpenView(EPD(arg))
 
 @EUDCommand([])
 def cmd_commands():
-	br = Board.GetInstance()
-	br.SetTitle(makeText("Commands"))
-	br.SetContentWithTable_epd(EPD(repl_commands), decItem_Command)
-	br.SetMode(1)
+	arg = EUDArray([
+		makeEPDText("Commands"),
+		EUDFuncPtr(2, 0)(tableDec_Command),
+		EPD(repl_commands)
+	])
+	TableView.OpenView(EPD(arg))
 
 @EUDCommand([])
 def cmd_encoders():
