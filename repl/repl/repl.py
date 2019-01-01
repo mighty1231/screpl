@@ -35,7 +35,7 @@ class REPL:
 
 		# Itself is a view
 		self.writer = EUDByteRW()
-		self.page = DBString(1024)
+		self.page = DBString(5000)
 		inittitle = u2b('SC-REPL, type help()')
 		self.title = Db(inittitle + bytes(100-len(inittitle)))
 		self.update = EUDVariable(1)
@@ -97,20 +97,22 @@ class REPL:
 				DoActions([
 					self.repl_top_index.SubtractNumber( \
 							PAGE_NUMLINES//2),
-					self.repl_cur_page.SubtractNumber(1)
+					self.repl_cur_page.SubtractNumber(1),
+					self.update.SetNumber(1)
 				])
-				self.update << 1
 			EUDEndIf()
+			EUDBreak()
 		if EUDSwitchCase()(0x77): # next page
 			if EUDIf()((self.repl_top_index+(PAGE_NUMLINES//2+1)). \
 						AtMost(self.repl_index)):
 				DoActions([
 					self.repl_top_index.AddNumber( \
 							PAGE_NUMLINES//2),
-					self.repl_cur_page.AddNumber(1)
+					self.repl_cur_page.AddNumber(1),
+					self.update.SetNumber(1)
 				])
-				self.update << 1
 			EUDEndIf()
+			EUDBreak()
 		EUDEndSwitch()
 
 	@EUDMethod
@@ -129,7 +131,7 @@ class REPL:
 			c2 = r2.read()
 			if EUDIf()([c2 == 1, c1 == 0]):
 				self.super_keydown_callback(keycode)
-				if EUDIf()(self.view == 0):
+				if EUDIf()(self.viewmem == 0):
 					self.keydown_callback(keycode)
 				if EUDElse()():
 					EUDView.cast(self.view).keydown_callback(self.viewmem, keycode)
@@ -224,6 +226,7 @@ class REPL:
 			self.writer.write(ord('\n'))
 			DoActions(cur.AddNumber(1))
 		EUDEndInfLoop()
+		self.writer.write(0)
 
 	@EUDMethod
 	def execute(self):
