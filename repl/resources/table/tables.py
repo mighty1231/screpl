@@ -21,6 +21,11 @@ def RegisterCommand(cmdname, command):
     # These objects are evaluated at Phase 1 of EUDPLIB - Collection Phase
 	repl_commands.AddPair(cmdname, EUDCommandPtr(command))
 
+# used on views
+views = ReferenceTable(key_f=makeEPDText)
+def RegisterView(viewname, view):
+    views.AddPair(viewname, view)
+
 # used on object trace
 traced_objects = ReferenceTable(key_f=makeEPDText)
 def RegisterTraceObject(name, var):

@@ -23,6 +23,13 @@ def makeEPDTextArray(txt):
 	ln = len(lines)
 	return EUDArray([EPD(makeText(line)) for line in lines]), ln
 
+def f_raiseError(txt):
+	DoActions([
+		SetCurrentPlayer(f_getuserplayerid()),
+		DisplayText(txt),
+		SetMemory(0, Add, 1),
+	])
+
 @EUDFunc
 def f_dbepd_print(epd):
 	a = DBString(1024)
