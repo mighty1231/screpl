@@ -1,9 +1,7 @@
 from eudplib import *
-from ..resources.pool.varpool import getVarPool
-from ..resources.pool.dbpool import getDbPool
+from ..resources.pool import getVarPool, getDbPool
 from .view import _view_writer, EUDView
-from ..utils import makeEPDText, f_dbepd_print
-from ..resources.table.tables import RegisterView
+from ..utils import makeEPDText
 
 LINESIZE = 216
 PAGE_NUMCONTENTS = 8

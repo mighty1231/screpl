@@ -9,14 +9,17 @@ class DbPool:
 		self.size = size
 		self.data = EUDArray([0 for _ in range(size)])
 		self.cur_epd = EUDVariable(EPD(self.data))
-		self.alloc_history = EUDStack()(200)
+		self.alloc_cnt = EUDVariable(0)
+		self.alloc_history = EUDArray(200)
 
 	@EUDMethod
 	def alloc_epd(self, sz):
 		ret = EUDVariable()
 		ret << self.cur_epd
 
-		self.alloc_history.push(self.cur_epd)
+		# push on history stack
+		self.alloc_history[self.alloc_cnt] = self.cur_epd
+		self.alloc_cnt += 1
 		self.cur_epd += sz
 		if EUDIf()(self.cur_epd >= (EPD(self.data) + self.size)):
 			f_raiseError("SC_REPL ERROR - DbPool.Alloc()")
@@ -25,12 +28,17 @@ class DbPool:
 
 	@EUDMethod
 	def free_epd(self, epd):
-		last_epd = self.alloc_history.pop()
-
+		# pop on history stack
+		self.alloc_cnt -= 1
+		last_epd = self.alloc_history[self.alloc_cnt]
 		if EUDIfNot()(epd == last_epd):
 			f_raiseError("SC_REPL ERROR - DbPool.Free()")
 		EUDEndIf()
 		self.cur_epd << last_epd
+
+	@EUDMethod
+	def print_status(self):
+		f_simpleprint(*(['dbpool', self.alloc_cnt]+[self.alloc_history[i] for i in range(10)]))
 
 
 def getDbPool():

@@ -7,8 +7,8 @@ from ..resources.command.basics import register_basiccmds
 from ..resources.command.conditions import register_all_conditioncmds
 from ..resources.command.actions import register_all_actioncmds
 from ..resources.command.utils import register_utilcmds
-from ..view.view import GetViewCount, GetCurrentView, TerminateCurrentView, EUDView
-from ..utils import EUDByteRW, makeEPDText, makeText
+from ..view.view import GetCurrentView, TerminateCurrentView, EUDView
+from ..utils import EUDByteRW, makeEPDText
 
 _repl = None
 PAGE_NUMLINES = 8
@@ -25,7 +25,7 @@ class REPL:
 
 		# superuser's name
 		# assert isinstance(superuser, str), 'must be string'
-		# self.prefix = makeText(superuser + ':')
+		# self.prefix = makeEPDText(EPD(superuser + ':'))
 		# self.prefixlen = len(superuser + ':')
 		self.playerId = EncodePlayer(superuser)
 		assert 0 <= self.playerId < 8, "Superuser should be one of P1 ~ P8"

@@ -5,7 +5,7 @@ def main():
 	from repl import REPL
 	if EUDInfLoop()():
 		# Turbo
-		DoActions(SetDeaths(203151, SetTo, 1, 0))
+		# DoActions(SetDeaths(203151, SetTo, 1, 0))
 
 		REPL().execute()
 		RunTrigTrigger()
