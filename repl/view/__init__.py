@@ -13,3 +13,4 @@ from .table import (
 	tableDec_Command
 )
 from .variable import VariableView
+from .unitarray import UnitArrayView

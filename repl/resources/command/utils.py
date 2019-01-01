@@ -17,7 +17,8 @@ from ...view import (
 	StaticView,
 	TableView,
 	VariableView,
-	tableDec_StringHex
+	tableDec_StringHex,
+	UnitArrayView
 )
 
 def register_utilcmds():
@@ -41,6 +42,9 @@ def register_utilcmds():
 	# Special
 	RegisterCommand('objtrace', cmd_objtrace)
 	RegisterCommand('vartrace', cmd_vartrace)
+
+	# Unit
+	RegisterCommand('units', cmd_unitarrayview)
 
 	# Extended Conditions
 	RegisterCommand('exCountdownTimer', cmd_ExCountdownTimer)
@@ -151,6 +155,13 @@ def cmd_vartrace():
 		EPD(traced_variables)
 	])
 	VariableView.OpenView(EPD(arg))
+
+@EUDCommand([])
+def cmd_unitarrayview():
+	'''
+	view for CUnit array
+	'''
+	UnitArrayView.OpenView(0)
 
 @EUDCommand([], [retDecDecimal])
 def cmd_ExCountdownTimer():

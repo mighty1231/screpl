@@ -254,7 +254,7 @@ class REPL:
 		if EUDInfLoop()():
 			EUDBreakIf(i == cur_txtPtr)
 			if EUDIf()(f_memcmp(chat_off, self.prefix, self.prefixlen) == 0):
-				new_chat_off = chat_off + (self.prefixlen + 2)
+				new_chat_off = chat_off + (self.prefixlen + 3)
 				if EUDIf()(self.viewmem == 0):
 					self._execute_command(new_chat_off) # 2 from (colorcode, spacebar)
 				if EUDElseIf()(EUDView.cast(self.view).execute_chat(self.viewmem, new_chat_off) == 0):

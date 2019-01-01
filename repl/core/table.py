@@ -97,6 +97,24 @@ def SearchTable(key, table_epd, compareFunc, retval_epd):
     EUDReturn(0)
 
 @EUDFunc
+def SearchTableInv(value, table_epd, retval_epd):
+    size = f_dwread_epd(table_epd)
+    k, v = table_epd + 1, table_epd + 2
+    if EUDInfLoop()():
+        EUDBreakIf(size == 0)
+        if EUDIf()(value == f_dwread_epd(v)): # Caution: 0
+            f_dwwrite_epd(retval_epd, f_dwread_epd(k))
+            EUDReturn(1)
+        EUDEndIf()
+        DoActions([
+            size.SubtractNumber(1),
+            k.AddNumber(2),
+            v.AddNumber(2),
+        ])
+    EUDEndInfLoop()
+    EUDReturn(0)
+
+@EUDFunc
 def PrintTable(table_epd):
     f_simpleprint('size:', f_dwread_epd(table_epd))
     f_dbepd_print(f_dwread_epd(table_epd+1))
