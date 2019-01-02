@@ -135,27 +135,27 @@ def createIndirectCaller(f):
 	return caller_start, caller_end
 
 def EUDCommand(arg_encoders, ret_decoders = [], *, traced=False):
-    def _EUDCommand(fdecl_func):
-        argspec = inspect.getargspec(fdecl_func)
-        argn = len(argspec[0])
-        ep_assert(
-            argspec[1] is None,
-            'No variadic arguments (*args) allowed for EUDCommand.'
-        )
-        ep_assert(
-            argspec[2] is None,
-            'No variadic keyword arguments (*kwargs) allowed for EUDCommand.'
-        )
+	def _EUDCommand(fdecl_func):
+		argspec = inspect.getargspec(fdecl_func)
+		argn = len(argspec[0])
+		ep_assert(
+			argspec[1] is None,
+			'No variadic arguments (*args) allowed for EUDCommand.'
+		)
+		ep_assert(
+			argspec[2] is None,
+			'No variadic keyword arguments (*kwargs) allowed for EUDCommand.'
+		)
 
-        ret = EUDCommandN(
-            argn, fdecl_func,
-            arg_encoders, ret_decoders,
-            traced=traced
-        )
-        functools.update_wrapper(ret, fdecl_func)
-        return ret
+		ret = EUDCommandN(
+			argn, fdecl_func,
+			arg_encoders, ret_decoders,
+			traced=traced
+		)
+		functools.update_wrapper(ret, fdecl_func)
+		return EUDCommandPtr(ret)
 
-    return _EUDCommand
+	return _EUDCommand
 
 class EUDCommandN(EUDFuncN):
 
@@ -186,25 +186,37 @@ class EUDCommandPtr(EUDStruct):
 		'_doc_epd',
 	]
 
-	def constructor(*args, **kwargs):
-		raise NotImplemented
+	def __init__(self, _from = None):
+		basetype = type(self)
+		fields = basetype._fields_
 
-	def constructor_static(self, f_init = None):
-		if f_init:
-			self.checkValidFunction(f_init)
-			f_idcstart, f_idcend = createIndirectCaller(f_init)
-			self._fstart = f_idcstart
-			self._fendnext_epd = EPD(f_idcend + 4)
-			self._doc_epd = f_init._doc_epd
+		# Fill fielddict
+		fielddict = {}
+		for index, nametype in enumerate(fields):
+			if isinstance(nametype, str):
+				fielddict[nametype] = (index, None)
+			else:
+				fielddict[nametype[0]] = (index, nametype[1])
+		self._fielddict = fielddict
+
+		if _from is not None:
+			if isinstance(_from, EUDCommandN):
+				self.checkValidFunction(_from)
+				f_idcstart, f_idcend = createIndirectCaller(_from)
+				ExprProxy.__init__(self, EUDVArray(3)(\
+						[f_idcstart, EPD(f_idcend + 4), _from._doc_epd]))
+				self._initialized = True
+			else: # EUDVariable things
+				ExprProxy.__init__(self, EUDVArray(3).cast(_from))
+				self._initialized = True
+		else:
+			ExprProxy.__init__(self, EUDVArray(3)([0] * len(fields)))
+			self.isPooled = False
+			self._initialized = True
 
 	@classmethod
 	def cast(cls, _from):
-		# Special casting rule: EUDCommandN → EUDCommandPtr
-		# I'm not sure it is right
-		if isinstance(_from, EUDCommandN):
-			return cls(_from)
-		else:
-			return cls(_from=_from)
+		return cls(_from=_from)
 
 	def checkValidFunction(self, f):
 		ep_assert(isinstance(f, EUDCommandN), "%s is not an EUDCommandN" % f)

@@ -19,7 +19,7 @@ repl_commands = ReferenceTable(key_f=makeEPDText)
 def RegisterCommand(cmdname, command):
     # Note: these register process is not Trigger.
     # These objects are evaluated at Phase 1 of EUDPLIB - Collection Phase
-	repl_commands.AddPair(cmdname, EUDCommandPtr(command))
+	repl_commands.AddPair(cmdname, command)
 
 # used on views
 views = ReferenceTable(key_f=makeEPDText)
