@@ -41,7 +41,7 @@ def DecodeAction(act_epd):
 
 		# Modifier
 		modname_epd = EUDVariable()
-		SearchTableInv(amount, tb_Modifier, EPD(modname_epd.getValueAddr()))
+		SearchTableInv(amount, EPD(tb_Modifier), EPD(modname_epd.getValueAddr()))
 		_view_writer.write_strepd(modname_epd)
 		_view_writer.write_strepd(makeEPDText(', '))
 
@@ -94,7 +94,7 @@ def DecodeCondition(cond_epd):
 
 		# Comparison
 		compname_epd = EUDVariable()
-		SearchTableInv(comparison, tb_Comparison, EPD(compname_epd.getValueAddr()))
+		SearchTableInv(comparison, EPD(tb_Comparison), EPD(compname_epd.getValueAddr()))
 		_view_writer.write_strepd(compname_epd)
 		_view_writer.write_strepd(makeEPDText(', '))
 
@@ -198,7 +198,7 @@ def triggerview_execute_chat(members, offset):
 	if EUDElseIf()(f_strcmp_ptrepd(offset, makeEPDText("?")) == 0):
 		args = EUDArray([
 			makeEPDText("TRIGGER VIEW"),
-			8,
+			9,
 			makeEPDText("Keycode"),
 			makeEPDText("F7: Go to left page"),
 			makeEPDText("F8: Go to right page"),
@@ -206,12 +206,18 @@ def triggerview_execute_chat(members, offset):
 			makeEPDText("Type"),
 			makeEPDText("?: get help"),
 			makeEPDText("R: refresh trigger"),
+			makeEPDText("next: set pointer to next trigger"),
 			makeEPDText("(ptr): set pointer to trigger"),
 		])
 		StaticView.OpenView(EPD(args))
 		EUDReturn(1)
 	if EUDElseIf()(f_strcmp_ptrepd(offset, makeEPDText("R")) == 0):
 		# @TODO refresh on demand
+		members.refresh_lines = 1
+		EUDReturn(1)
+	if EUDElseIf()(f_strcmp_ptrepd(offset, makeEPDText("next")) == 0):
+		members.offset = 0
+		members.ptr, members.epd = f_dwepdread_epd(members.epd + 1)
 		members.refresh_lines = 1
 		EUDReturn(1)
 	EUDEndIf()
@@ -241,6 +247,7 @@ def triggerview_loop(members):
 	curtrig_epd << epd + 8 // 4
 	if EUDLoopN()(16):
 		_view_writer.seekepd(curline_epd)
+		EUDBreakIf(f_bread_epd(curtrig_epd + 3, 3) == 0)
 		_view_writer.write_strepd(makeEPDText(' - '))
 		DecodeCondition(curtrig_epd)
 
@@ -257,6 +264,7 @@ def triggerview_loop(members):
 	curtrig_epd << epd + (8 + 16*20) // 4
 	if EUDLoopN()(64):
 		_view_writer.seekepd(curline_epd)
+		EUDBreakIf(f_bread_epd(curtrig_epd + 6, 2) == 0)
 		_view_writer.write_strepd(makeEPDText(' - '))
 		DecodeAction(curtrig_epd)
 
