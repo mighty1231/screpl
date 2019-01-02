@@ -81,11 +81,6 @@ def encodeArguments():
 		EUDEndInfLoop()
 	EUDEndIf()
 
-def fillArguments(f):
-	""" Copy values from common argument storage to f._args """
-	for i, farg in enumerate(f._fargs):
-		farg << _arg_storage[i]
-
 @EUDFunc
 def decodeReturns():
 	i = EUDVariable()
@@ -102,42 +97,42 @@ def decodeReturns():
 	EUDEndInfLoop()
 	_output_writer.write(0)
 
-def createIndirectCaller(f, _caller_dict={}):
+@cachedfunc
+def createIndirectCaller(f):
 	""" Create function caller using common argument/return storage """
 
 	# Cache function in _caller_dict. If uncached,
-	if f not in _caller_dict:
-		PushTriggerScope()
-		caller_start = NextTrigger()
+	PushTriggerScope()
+	caller_start = NextTrigger()
 
-		# set argument encoders
-		_argn << f._argn
-		for i, enc in enumerate(f.arg_encoders):
-			_arg_encoders[i] = ArgEncoderPtr(enc)
-		encodeArguments()
-		if EUDIf()(_encode_success == 1):
-			fillArguments(f)
-			callFuncBody(f._fstart, f._fend)
+	# set argument encoders
+	_argn << f._argn
+	for i, enc in enumerate(f.arg_encoders):
+		_arg_encoders[i] = enc
+	encodeArguments()
+	if EUDIf()(_encode_success == 1):
+		""" Copy values from common argument storage to f._args """
+		for i, farg in enumerate(f._fargs):
+			farg << _arg_storage[i]
+		callFuncBody(f._fstart, f._fend)
 
-			# set retval decoders
-			if f._retn:
-				_retn << f._retn
-				for i in range(f._retn):
-					_ret_decoders[i] = RetDecoderPtr(f.ret_decoders[i])
-					_ret_storage[i] = f._frets[i]
+		# set retval decoders
+		if f._retn:
+			_retn << f._retn
+			for i in range(f._retn):
+				_ret_decoders[i] = f.ret_decoders[i]
+				_ret_storage[i] = f._frets[i]
 
-				# print result to output buffer
-				decodeReturns()
-			else:
-				_output_writer.write_strepd(makeEPDText('Success!'))
-				_output_writer.write(0)
-		EUDEndIf()
-		caller_end = RawTrigger()
-		PopTriggerScope()
+			# print result to output buffer
+			decodeReturns()
+		else:
+			_output_writer.write_strepd(makeEPDText('Success!'))
+			_output_writer.write(0)
+	EUDEndIf()
+	caller_end = RawTrigger()
+	PopTriggerScope()
 
-		_caller_dict[f] = (caller_start, caller_end)
-
-	return _caller_dict[f]
+	return caller_start, caller_end
 
 def EUDCommand(arg_encoders, ret_decoders = [], *, traced=False):
     def _EUDCommand(fdecl_func):

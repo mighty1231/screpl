@@ -1,5 +1,5 @@
 from eudplib import *
-from ...core.encoder import ReadNumber, ReadString
+from ...core.encoder import ReadNumber, ReadString, ArgEncoderPtr
 from ...core.table import SearchTable
 from ..table.tables import (
     tb_unit,
@@ -16,7 +16,7 @@ tmpbuf = Db(150) # Temporarily store string
 tmpstrbuf = DBString(150)
 
 @EUDFunc
-def argEncUnit(offset, delim, ref_offset_epd, retval_epd):
+def _argEncUnit(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
@@ -30,7 +30,7 @@ def argEncUnit(offset, delim, ref_offset_epd, retval_epd):
     EUDReturn(0)
 
 @EUDFunc
-def argEncLocation(offset, delim, ref_offset_epd, retval_epd):
+def _argEncLocation(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
@@ -44,7 +44,7 @@ def argEncLocation(offset, delim, ref_offset_epd, retval_epd):
     EUDReturn(0)
 
 @EUDFunc
-def argEncAIScript(offset, delim, ref_offset_epd, retval_epd):
+def _argEncAIScript(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
@@ -56,7 +56,7 @@ def argEncAIScript(offset, delim, ref_offset_epd, retval_epd):
     EUDReturn(0)
 
 @EUDFunc
-def argEncSwitch(offset, delim, ref_offset_epd, retval_epd):
+def _argEncSwitch(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
@@ -70,7 +70,7 @@ def argEncSwitch(offset, delim, ref_offset_epd, retval_epd):
     EUDReturn(0)
 
 @EUDFunc
-def argEncString(offset, delim, ref_offset_epd, retval_epd):
+def _argEncString(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, \
@@ -87,3 +87,8 @@ def argEncString(offset, delim, ref_offset_epd, retval_epd):
     f_dwwrite_epd(ref_offset_epd, offset)
     EUDReturn(0)
 
+argEncUnit = ArgEncoderPtr(_argEncUnit)
+argEncLocation = ArgEncoderPtr(_argEncLocation)
+argEncAIScript = ArgEncoderPtr(_argEncAIScript)
+argEncSwitch = ArgEncoderPtr(_argEncSwitch)
+argEncString = ArgEncoderPtr(_argEncString)

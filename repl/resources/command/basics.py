@@ -2,7 +2,7 @@ from eudplib import *
 from ...utils import makeEPDTextArray
 from ...core.command import EUDCommand
 from ...core.table import SearchTable
-from ...core.encoder import ReadName
+from ...core.encoder import ReadName, ArgEncoderPtr
 from ..table.tables import (
 	encoding_tables,
 	repl_commands,
@@ -67,7 +67,7 @@ def cmd_encoders():
 	TableView.OpenView(EPD(arg))
 
 @EUDFunc
-def argEncEncoderName(offset, delim, ref_offset_epd, retval_epd):
+def _argEncEncoderName(offset, delim, ref_offset_epd, retval_epd):
 	tmpbuf = Db(150)
 	if EUDIf()(ReadName(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
 		if EUDIf()(SearchTable(tmpbuf, EPD(encoding_tables), f_strcmp_ptrepd, retval_epd) == 1):
@@ -77,7 +77,7 @@ def argEncEncoderName(offset, delim, ref_offset_epd, retval_epd):
 	f_dwwrite_epd(ref_offset_epd, offset)
 	EUDReturn(0)
 
-@EUDCommand([argEncEncoderName])
+@EUDCommand([ArgEncoderPtr(_argEncEncoderName)])
 def cmd_contents(table_epd):
 	'''
 	see contents of table ex) contents(MapLocation)

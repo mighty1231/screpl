@@ -1,5 +1,5 @@
 from eudplib import *
-from ...core.encoder import ReadNumber, ReadName
+from ...core.encoder import ReadNumber, ReadName, ArgEncoderPtr
 from ...core.table import SearchTable
 from ...utils import makeEPDText, f_strcmp_ptrepd
 from ..table.tables import (
@@ -44,15 +44,15 @@ def _EncodeCount(offset, delim, ref_offset_epd, retval_epd):
     EUDEndIf()
     EUDReturn(ReadNumber(offset, delim, ref_offset_epd, retval_epd))
 
-argEncNumber = ReadNumber
-argEncCount = _EncodeCount
-argEncModifier = _makeConstEncoder(tb_Modifier)
-argEncAllyStatus = _makeConstEncoder(tb_AllyStatus)
-argEncComparison = _makeConstEncoder(tb_Comparison)
-argEncOrder = _makeConstEncoder(tb_Order)
-argEncPlayer = _makeConstEncoder(tb_Player)
-argEncPropState = _makeConstEncoder(tb_PropState)
-argEncResource = _makeConstEncoder(tb_Resource)
-argEncScore = _makeConstEncoder(tb_Score)
-argEncSwitchAction = _makeConstEncoder(tb_SwitchAction)
-argEncSwitchState = _makeConstEncoder(tb_SwitchState)
+argEncNumber = ArgEncoderPtr(ReadNumber)
+argEncCount = ArgEncoderPtr(_EncodeCount)
+argEncModifier = ArgEncoderPtr(_makeConstEncoder(tb_Modifier))
+argEncAllyStatus = ArgEncoderPtr(_makeConstEncoder(tb_AllyStatus))
+argEncComparison = ArgEncoderPtr(_makeConstEncoder(tb_Comparison))
+argEncOrder = ArgEncoderPtr(_makeConstEncoder(tb_Order))
+argEncPlayer = ArgEncoderPtr(_makeConstEncoder(tb_Player))
+argEncPropState = ArgEncoderPtr(_makeConstEncoder(tb_PropState))
+argEncResource = ArgEncoderPtr(_makeConstEncoder(tb_Resource))
+argEncScore = ArgEncoderPtr(_makeConstEncoder(tb_Score))
+argEncSwitchAction = ArgEncoderPtr(_makeConstEncoder(tb_SwitchAction))
+argEncSwitchState = ArgEncoderPtr(_makeConstEncoder(tb_SwitchState))
