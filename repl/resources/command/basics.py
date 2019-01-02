@@ -8,11 +8,6 @@ from ..table.tables import (
 	repl_commands,
 	RegisterCommand
 )
-from ..table.itemdecoder import (
-	decItem_Command,
-	decItem_String,
-	decItem_StringDecimal
-)
 from ...utils import makeText, makeEPDText, f_strcmp_ptrepd
 from ...view import (
 	StaticView,
