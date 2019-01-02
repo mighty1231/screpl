@@ -18,7 +18,8 @@ from ...view import (
 	TableView,
 	VariableView,
 	tableDec_StringHex,
-	UnitArrayView
+	UnitArrayView,
+	TriggerView
 )
 
 def register_utilcmds():
@@ -45,6 +46,9 @@ def register_utilcmds():
 
 	# Unit
 	RegisterCommand('units', cmd_unitarrayview)
+
+	# Trigger
+	RegisterCommand('tv', cmd_triggerview)
 
 	# Extended Conditions
 	RegisterCommand('exCountdownTimer', cmd_ExCountdownTimer)
@@ -162,6 +166,13 @@ def cmd_unitarrayview():
 	view for CUnit array
 	'''
 	UnitArrayView.OpenView(0)
+
+@EUDCommand([argEncNumber])
+def cmd_triggerview(ptr):
+	'''
+	view for CUnit array
+	'''
+	TriggerView.OpenView(ptr)
 
 @EUDCommand([], [retDecDecimal])
 def cmd_ExCountdownTimer():

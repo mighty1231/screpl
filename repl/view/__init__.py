@@ -14,3 +14,4 @@ from .table import (
 )
 from .variable import VariableView
 from .unitarray import UnitArrayView
+from .trigger import TriggerView
