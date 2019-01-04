@@ -74,10 +74,26 @@ class EUDView(EUDStruct):
 		('dest', EUDFuncPtr(1, 0)),
 	]
 
-	def __init__(self, init, keydown_callback, execute_chat,
-			loop, get_bufepd, dest):
-		super().__init__(_from = EUDVArray(6)([init, keydown_callback,
-			execute_chat, loop, get_bufepd, dest]))
+	def __init__(self, *args):
+		if len(args) == 6:
+			# construct
+			init, keydown_callback, execute_chat, loop, get_bufepd, dest = args
+			init = EUDFuncPtr(1, 1)(init)
+			keydown_callback = EUDFuncPtr(2, 0)(keydown_callback)
+			execute_chat = EUDFuncPtr(2, 1)(execute_chat)
+			loop = EUDFuncPtr(1, 1)(loop)
+			get_bufepd = EUDFuncPtr(1, 1)(get_bufepd)
+			dest = EUDFuncPtr(1, 0)(dest)
+			super().__init__(_from = EUDVArray(6)([init, keydown_callback, execute_chat,
+				loop, get_bufepd, dest]))
+		else:
+			# cast
+			assert len(args) == 1
+			super().__init__(_from = args[0])
+
+	@classmethod
+	def cast(cls, _from):
+		return cls(_from)
 
 	@EUDMethod
 	def OpenView(self, _in):
