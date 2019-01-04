@@ -1,6 +1,4 @@
 from eudplib import *
-from utils import *
-from command import *
 
 def testCmdPtr():
 	from command import EUDCommand, EUDCommandPtr
@@ -53,10 +51,169 @@ def testLazy():
 	# f_simpleprint(SearchTable(3, EPD(f), compareInt, EPD(ret.getValueAddr())), ret)
 	f_simpleprint(SearchTable(3, EPD(f), compareInt, EPD(ret.getValueAddr())), ret)
 
+def testSelfMod():
+	a = NextTrigger()
+	nxt = Forward()
+
+	RawTrigger(
+		actions = [
+			CreateUnit(1, 0, "Anywhere", P1),
+			SetNextPtr(a, nxt)
+		]
+	)
+
+	DoActions(CreateUnit(1, "Terran Ghost", "Anywhere", P1)) # Not activated!
+
+	nxt << RawTrigger(
+			actions = CreateUnit(1, "Terran SCV", "Anywhere", P1)
+		)
+@EUDFunc
+def bpmain():
+	from repl import (REPL, EUDByteRW, EUDCommand,
+		argEncNumber, RegisterCommand, makeEPDText)
+	if EUDInfLoop()():
+		# Turbo
+		# DoActions(SetDeaths(203151, SetTo, 1, 0))
+
+		bpON = EUDVariable(1)
+
+		nxt = Forward()
+		DoActions(CreateUnit(1, 'Terran Marine', 'Anywhere', P1))
+		if EUDInfLoop()():
+			REPL().execute()
+			DoActions(CreateUnit(1, 'Terran SCV', 'Anywhere', P1))
+			f_simpleprint(bpON)
+			EUDJumpIf(bpON == 0, nxt)
+			EUDDoEvents()
+			DoActions(CreateUnit(1, 'Terran Ghost', 'Anywhere', P1))
+		EUDEndInfLoop()
+		nxt << NextTrigger()
+		DoActions(CreateUnit(1, 'Terran Firebat', 'Anywhere', P1))
+
+		RunTrigTrigger()
+		EUDDoEvents()
+	EUDEndInfLoop()
+
+	@EUDCommand([])
+	def toggleBP():
+		f_simpleprint('hello', bpON)
+		DoActions(SetMemoryX(bpON.getValueAddr(), Add, 1, 1))
+	RegisterCommand('abc', toggleBP)
+
+def findCommentedTrigger(breakpoints):
+	from repl import f_strcmp_ptrepd, makeEPDText
+	# Find trigger with action Comment("screpl_bp")
+	'''
+	Action class.
+
+	Memory layout.
+
+	 ======  ============= ========  ==========
+	 Offset  Field Name    Position  EPD Player
+	 ======  ============= ========  ==========
+	   +00   locid1         dword0   EPD(act)+0
+	   +04   strid          dword1   EPD(act)+1
+	   +08   wavid          dword2   EPD(act)+2
+	   +0C   time           dword3   EPD(act)+3
+	   +10   player1        dword4   EPD(act)+4
+	   +14   player2        dword5   EPD(act)+5
+	   +18   unitid         dword6   EPD(act)+6
+	   +1A   acttype
+	   +1B   amount
+	   +1C   flags          dword7   EPD(act)+7
+	   +1D   internal[3
+	 ======  ============= ========  ==========
+	'''
+
+	actmap = EPDOffsetMap((
+		('locid1', 0x00, 4),
+		('strid', 0x04, 4),
+		('wavid', 0x08, 4),
+		('time', 0x0C, 4),
+		('player1', 0x10, 4),
+		('player2', 0x14, 4),
+		('unitid', 0x18, 2),
+		('acttype', 0x1A, 1),
+		('amount', 0x1B, 1),
+		('flags', 0x1C, 2),
+		('eudx', 0x1E, 2),
+	))
+
+	# for i in range(8):
+	# 	f_simpleprint(hptr(TrigTriggerBegin(i)), hptr(TrigTriggerEnd(i)))
+	for pid in range(8):
+		# Loop over map trigger
+		getNxtTrigger = Forward()
+
+		trig_ptr = TrigTriggerBegin(pid)
+		trig_epd = EPD(trig_ptr)
+
+		trigend_ptr = TrigTriggerEnd(pid)
+
+		if EUDInfLoop()():
+			EUDBreakIf(trig_ptr == trigend_ptr)
+			EUDBreakIf(trig_ptr == 0)
+
+			# search act
+			act_epd = EUDVariable()
+			act_epd << trig_epd + (8 + 16*20)//4
+			if EUDLoopN()(64):
+				m = actmap(act_epd)
+
+				# Check it is comment trigger
+				if EUDIf()([m.acttype == 47]):
+					# search string
+					straddr = GetMapStringAddr(m.strid)
+					if EUDIf()(f_strcmp_ptrepd(straddr, makeEPDText("screpl_bp")) == 0):
+						breakpoints.push(trig_ptr)
+						EUDJump(getNxtTrigger)
+					EUDEndIf()
+
+				EUDEndIf()
+
+				act_epd += 32 // 4
+			EUDEndLoopN()
+
+			getNxtTrigger << NextTrigger()
+
+			# next trigger
+			p, e = f_dwepdread_epd(trig_epd + 1)
+			trig_ptr << p
+			trig_epd << e
+		EUDEndInfLoop()
+
+
 @EUDFunc
 def main():
+	from repl import REPL, EUDCommand, StaticView, RegisterCommand, makeEPDText, EUDByteRW
+	if EUDExecuteOnce()():
+		breakpoints = EUDStack()(30)
+		f_simpleprint(breakpoints.pos, breakpoints.data[0])
+	EUDEndExecuteOnce()
+	@EUDCommand([])
+	def cmd_openBPView():
+		arr = EUDArray([
+			makeEPDText("Breakpoints"),
+			30,
+		] + [EPD(Db(30)) for _ in range(30)])
+		i = EUDVariable()
+		i << 0
+		data = breakpoints.data
+		if EUDWhile()(i < 1):
+			writer = EUDByteRW()
+			writer.seekepd(arr[i+2])
+			writer.write_strepd(makeEPDText("bp "))
+			writer.write_hex(data[i])
+			writer.write(0)
+			i += 1
+		EUDEndWhile()
+		StaticView.OpenView(EPD(arr))
+	RegisterCommand("bp", cmd_openBPView)
+
+	findCommentedTrigger(breakpoints)
 	if EUDInfLoop()():
-		testLazy()
+		DoActions(SetDeaths(203151, SetTo, 1, 0))
+		REPL().execute()
 		EUDDoEvents()
 	EUDEndInfLoop()
 

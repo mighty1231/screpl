@@ -1,2 +1,2 @@
-from .varpool import getVarPool
-from .dbpool import getDbPool
+from .varpool import VarPool, getVarPool
+from .dbpool import DbPool, getDbPool

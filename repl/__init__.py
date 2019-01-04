@@ -42,6 +42,10 @@ from .resources.table.tables import (
 	RegisterTraceObject,
 	RegisterVariable,
 )
+from .resources.pool import (
+	DbPool,
+	VarPool
+)
 from .utils import (
 	makeText,
 	makeEPDText,
@@ -49,4 +53,12 @@ from .utils import (
 	f_epd2ptr,
 	f_strcmp_ptrepd,
 	EUDByteRW
+)
+from .view import (
+	EUDView,
+	StaticView,
+	TableView,
+	VariableView,
+	UnitArrayView,
+	TriggerView
 )
