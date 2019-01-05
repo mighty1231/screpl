@@ -1,6 +1,5 @@
 from eudplib import *
-from ..resources.pool import getVarPool, getDbPool
-from .view import _view_writer, EUDView
+from .view import _view_writer, EUDView, dbpool, varpool
 from ..utils import makeEPDText
 
 LINESIZE = 216
@@ -33,7 +32,7 @@ def staticview_init(arr_epd):
 	epd-pointer of EUDArray:
 	title_epd, content_size(=N), content1, content2, ..., contentN
 	'''
-	members = StaticViewMembers.cast(getVarPool().alloc(varn))
+	members = StaticViewMembers.cast(varpool.alloc(varn))
 
 	ln = f_dwread_epd(arr_epd + 1)
 	members.title_epd = f_dwread_epd(arr_epd)
@@ -43,7 +42,7 @@ def staticview_init(arr_epd):
 	members.num_pages = f_div(ln + PAGE_NUMCONTENTS - 1, \
 		PAGE_NUMCONTENTS)[0]
 
-	members.screen_data_epd = getDbPool().alloc_epd(\
+	members.screen_data_epd = dbpool.alloc_epd(\
 		LINESIZE * (PAGE_NUMCONTENTS + 1))
 	members.update = 1
 
@@ -133,8 +132,8 @@ def staticview_get_bufepd(members):
 
 @EUDTypedFunc([StaticViewMembers])
 def staticview_destructor(members):
-	getDbPool().free_epd(members.screen_data_epd)
-	getVarPool().free(members)
+	dbpool.free_epd(members.screen_data_epd)
+	varpool.free(members)
 
 StaticView = EUDView(
 	staticview_init,

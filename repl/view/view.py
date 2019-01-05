@@ -1,5 +1,6 @@
 from eudplib import *
 from ..utils import EUDByteRW, f_raiseError
+from ..core.pool import DbPool, VarPool
 
 '''
 EUDView lifecycle
@@ -17,6 +18,10 @@ _view_writer = EUDByteRW()
 _view_cnt = EUDVariable(0)
 _view_stack = EUDArray(VIEW_STACK_SIZE)
 _viewmem_stack = EUDArray(VIEW_STACK_SIZE)
+
+# resources for allocating EUDView
+dbpool = DbPool(300000)
+varpool = VarPool(300)
 
 def GetViewCount():
 	return _view_cnt

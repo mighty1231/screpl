@@ -1,6 +1,5 @@
 from eudplib import *
-from ..resources.pool import getVarPool, getDbPool
-from .view import _view_writer, EUDView
+from .view import _view_writer, EUDView, dbpool, varpool
 from ..utils import makeEPDText
 from ..core.command import EUDCommandPtr
 
@@ -63,7 +62,7 @@ def tableview_init(arr_epd):
 	table_epd is epd-pointer of	ReferenceTable
 	table_sz(=N), key1, value1, key2, value2, ..., keyN, valueN
 	'''
-	members = TableViewMembers.cast(getVarPool().alloc(varn))
+	members = TableViewMembers.cast(varpool.alloc(varn))
 
 	members.title_epd = f_dwread_epd(arr_epd)
 	members.decoder = f_dwread_epd(arr_epd + 1)
@@ -77,7 +76,7 @@ def tableview_init(arr_epd):
 	members.table_sz = table_sz
 
 	# screen buffer
-	members.screen_data_epd = getDbPool().alloc_epd(\
+	members.screen_data_epd = dbpool.alloc_epd(\
 		LINESIZE * (PAGE_NUMCONTENTS + 1))
 	members.update = 1
 
@@ -171,8 +170,8 @@ def tableview_get_bufepd(members):
 
 @EUDTypedFunc([TableViewMembers])
 def tableview_destructor(members):
-	getDbPool().free_epd(members.screen_data_epd)
-	getVarPool().free(members)
+	dbpool.free_epd(members.screen_data_epd)
+	varpool.free(members)
 
 TableView = EUDView(
 	tableview_init,

@@ -1,6 +1,5 @@
 from eudplib import *
-from ..resources.pool import getVarPool, getDbPool
-from .view import _view_writer, EUDView
+from .view import _view_writer, EUDView, dbpool, varpool
 from .static import StaticView
 from ..utils import makeEPDText, f_strcmp_ptrepd
 from ..core.table import ReferenceTable, SearchTableInv
@@ -146,14 +145,14 @@ varn = len(TriggerViewMembers._fields_)
 
 @EUDFunc
 def triggerview_init(ptr):
-	members = TriggerViewMembers.cast(getVarPool().alloc(varn))
+	members = TriggerViewMembers.cast(varpool.alloc(varn))
 	members.ptr = ptr
 	members.epd = EPD(ptr)
 
-	members.line_epd = getDbPool().alloc_epd( \
+	members.line_epd = dbpool.alloc_epd( \
 		LINESIZE * (1+16+1+64+1))
 
-	members.screen_data_epd = getDbPool().alloc_epd( \
+	members.screen_data_epd = dbpool.alloc_epd( \
 		LINESIZE * (PAGE_NUMCONTENTS + 1))
 	members.offset = 0
 	members.refresh_lines = 1
@@ -320,9 +319,9 @@ def triggerview_get_bufepd(members):
 
 @EUDTypedFunc([TriggerViewMembers])
 def triggerview_destructor(members):
-	getDbPool().free_epd(members.screen_data_epd)
-	getDbPool().free_epd(members.line_epd)
-	getVarPool().free(members)
+	dbpool.free_epd(members.screen_data_epd)
+	dbpool.free_epd(members.line_epd)
+	varpool.free(members)
 
 TriggerView = EUDView(
 	triggerview_init,

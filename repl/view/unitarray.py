@@ -1,6 +1,5 @@
 from eudplib import *
-from ..resources.pool import getVarPool, getDbPool
-from .view import _view_writer, EUDView
+from .view import _view_writer, EUDView, dbpool, varpool
 from .static import StaticView
 from ..utils import makeEPDText, f_strcmp_ptrepd
 from ..core.table import SearchTableInv
@@ -25,8 +24,8 @@ varn = len(UnitArrayViewMembers._fields_)
 
 @EUDFunc
 def unitarrayview_init(unused):
-	members = UnitArrayViewMembers.cast(getVarPool().alloc(varn))
-	members.screen_data_epd = getDbPool().alloc_epd( \
+	members = UnitArrayViewMembers.cast(varpool.alloc(varn))
+	members.screen_data_epd = dbpool.alloc_epd( \
 		LINESIZE * (PAGE_NUMCONTENTS + 1))
 
 	members.offset = 0
@@ -174,8 +173,8 @@ def unitarrayview_get_bufepd(members):
 
 @EUDTypedFunc([UnitArrayViewMembers])
 def unitarrayview_destructor(members):
-	getDbPool().free_epd(members.screen_data_epd)
-	getVarPool().free(members)
+	dbpool.free_epd(members.screen_data_epd)
+	varpool.free(members)
 
 UnitArrayView = EUDView(
 	unitarrayview_init,
