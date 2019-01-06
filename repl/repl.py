@@ -11,6 +11,8 @@ PAGE_NUMLINES = 8
 LINESIZE = 216
 REPLSIZE = 300
 
+repl_begin, repl_end = Forward(), Forward()
+
 class REPL:
 	def __init__(self, superuser = P1):
 		global _repl 
@@ -165,20 +167,17 @@ class REPL:
 		self.writer.seekepd(EPD(self.page.GetStringMemoryAddr()))
 
 		# Write title and page
-		self.writer.write_strepd(EPD(self.title))
-		self.writer.write_strepd(makeEPDText(' ( '))
-
-		# REPL mode
+		cur_pn = self.repl_cur_page + 1
 		if EUDIf()(self.repl_index == 0):
-			self.writer.write_decimal(0)
-		if EUDElse()():
-			self.writer.write_decimal(self.repl_cur_page + 1)
+			cur_pn << 0
 		EUDEndIf()
-		self.writer.write_strepd(makeEPDText(' / '))
-		self.writer.write_decimal(f_div(\
-			self.repl_index + (PAGE_NUMLINES//2-1), 
-			PAGE_NUMLINES//2)[0])
-		self.writer.write_strepd(makeEPDText(' )\n'))
+
+		self.writer.write_f("%E ( %D / %D )\n",
+			EPD(self.title),
+			cur_pn,
+			f_div(self.repl_index + (PAGE_NUMLINES//2-1),
+				PAGE_NUMLINES//2)[0]
+		)
 
 		# Write contents
 		cur, inputepd, outputepd, until, pageend = EUDCreateVariables(5)
@@ -197,13 +196,8 @@ class REPL:
 		if EUDInfLoop()():
 			EUDBreakIf(cur >= until)
 
-			self.writer.write_strepd(makeEPDText('\x1C>>> \x1D'))
-			self.writer.write_strepd(inputepd)
-			self.writer.write_strepd(makeEPDText('\n'))
-
-			self.writer.write(self.repl_outputcolor)
-			self.writer.write_strepd(outputepd)
-			self.writer.write_strepd(makeEPDText('\n'))
+			self.writer.write_f('\x1C>>> \x1D%E\n', inputepd)
+			self.writer.write_f('%C%E\n', self.repl_outputcolor, outputepd)
 
 			DoActions([
 				cur.AddNumber(1),
@@ -226,6 +220,8 @@ class REPL:
 		'''
 		Main part of REPL
 		'''
+		repl_begin << NextTrigger()
+
 		# update view
 		# view may be constructed before
 		self.update_view()
@@ -295,3 +291,5 @@ class REPL:
 
 			SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
 		EUDEndIf()
+
+		repl_end << RawTrigger()

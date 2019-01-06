@@ -14,6 +14,10 @@ from .core.table import (
 	ReferenceTable,
 	SearchTable
 )
+from .core.pool import (
+	DbPool,
+	VarPool
+)
 
 from .repl import REPL
 from .resources.encoder.const import (
@@ -41,10 +45,6 @@ from .resources.table.tables import (
 	RegisterCommand,
 	RegisterTraceObject,
 	RegisterVariable,
-)
-from .resources.pool import (
-	DbPool,
-	VarPool
 )
 from .utils import (
 	makeText,

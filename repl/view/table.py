@@ -115,16 +115,13 @@ def tableview_loop(members):
 	if EUDIf()(members.update == 1):
 		# title line
 		_view_writer.seekepd(members.screen_data_epd)
-		_view_writer.write_strepd(members.title_epd)
-		_view_writer.write_strepd(makeEPDText(' ( '))
-		if EUDIf()(members.num_pages == 0):
-			_view_writer.write_decimal(0)
-		if EUDElse()():
-			_view_writer.write_decimal(members.cur_page + 1)
+		cur_pn = members.cur_page + 1
+		if EUDIf()(members.num_pages) == 0:
+			cur_pn << 0
 		EUDEndIf()
-		_view_writer.write_strepd(makeEPDText(' / '))
-		_view_writer.write_decimal(members.num_pages)
-		_view_writer.write_strepd(makeEPDText(' )\n'))
+
+		_view_writer.write_f("%E ( %D / %D )\n", \
+			members.title_epd, cur_pn, members.num_pages)
 
 		# write contents
 		cur, pageend, until = EUDCreateVariables(3)

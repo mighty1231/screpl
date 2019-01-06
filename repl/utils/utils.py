@@ -415,3 +415,94 @@ class EUDByteRW:
 
 			DoActions(cnt.SubtractNumber(1))
 		EUDEndInfLoop()
+
+	def write_f(self, fmt, *args):
+		'''
+		Parse formatted string with python (not in-game)
+		  and write it with EUDVariable or ConstExpr
+
+		CAUTION: This does NOT make null end
+
+		Available formats:
+		 - %H: Write hexadecimal value starts with 0x
+		 - %D: Write decimal value
+		 - %S: Write string with ptr
+		 - %E: Write string with epd
+		 - %C: Write single character
+
+		Write %% to represent %
+		'''
+		# parse format and compare its argument count
+		#   with args
+		# ITEMS: list of tuples (format, arg)
+		items = []
+		pos = 0
+		argidx = 0
+		while pos < len(fmt):
+			if '%' not in fmt[pos:]:
+				items.append(('const', fmt[pos:]))
+				break
+			fmpos = fmt[pos:].index('%')
+
+			# push conststr before %
+			if fmpos > 0:
+				items.append(('const', fmt[pos:pos+fmpos]))
+				pos += fmpos
+
+			# get argument
+			if argidx >= len(args):
+				raise RuntimeError("Mismatch on count between " \
+					"format string and argument counton write_f")
+			curarg = args[argidx]
+			if fmt[pos+1] == '%':
+				items.append(('const', '%'))
+			elif fmt[pos+1] == 'H':
+				items.append(('H', curarg))
+				argidx += 1
+			elif fmt[pos+1] == 'D':
+				items.append(('D', curarg))
+				argidx += 1
+			elif fmt[pos+1] == 'S':
+				items.append(('S', curarg))
+				argidx += 1
+			elif fmt[pos+1] == 'E':
+				items.append(('E', curarg))
+				argidx += 1
+			elif fmt[pos+1] == 'C':
+				items.append(('C', curarg))
+				argidx += 1
+			else:
+				print(fmt[pos:])
+				raise RuntimeError("Unable to parse {}".format(fmt))
+			pos += 2
+		if len(args) != argidx:
+			raise RuntimeError("Mismatch on count between " \
+				"format string and argument counton write_f")
+
+		# Due to %%, several const string could be
+		#   located consecutively, so merge it
+		merged_items = [items[0]]
+		for fm, arg in items[1:]:
+			if fm == 'const' and merged_items[-1][0] == 'const':
+				merged_items[-1] = (merged_items[-1][0],
+						merged_items[-1][1] + arg)
+			else:
+				merged_items.append((fm, arg))
+
+		# Short constants are written with bytes, otherwise use makeEPDText
+		for fm, arg in merged_items:
+			if fm == 'const':
+				if len(arg) == 1:
+					self.write(ord(arg))
+				else:
+					self.write_strepd(makeEPDText(arg))
+			elif fm == 'H':
+				self.write_hex(arg)
+			elif fm == 'D':
+				self.write_decimal(arg)
+			elif fm == 'S':
+				self.write_str(arg)
+			elif fm == 'E':
+				self.write_strepd(arg)
+			elif fm == 'C':
+				self.write(arg)
