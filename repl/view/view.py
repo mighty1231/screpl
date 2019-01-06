@@ -1,5 +1,5 @@
 from eudplib import *
-from ..utils import EUDByteRW, f_raiseError
+from ..utils import EUDByteRW, f_raiseError, f_raiseWarning
 from ..core.pool import DbPool, VarPool
 
 '''
@@ -103,11 +103,16 @@ class EUDView(EUDStruct):
 	@EUDMethod
 	def OpenView(self, _in):
 		global _view_stack, _viewmem_stack, _view_cnt
-		mem = self.init(_in)
-		if EUDIf()(mem != 0):
-			# add
-			_view_stack[_view_cnt] = self
-			_viewmem_stack[_view_cnt] = mem
-			_view_cnt += 1
+		if EUDIf()(_view_cnt < VIEW_STACK_SIZE):
+			mem = self.init(_in)
+			if EUDIf()(mem != 0):
+				# add
+				_view_stack[_view_cnt] = self
+				_viewmem_stack[_view_cnt] = mem
+				_view_cnt += 1
+			EUDEndIf()
+		if EUDElse()():
+			f_raiseWarning("EUDView.OpenView() failed: no more spaces " \
+				"on EUDView stack")
 		EUDEndIf()
 

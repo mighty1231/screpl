@@ -30,6 +30,12 @@ def f_raiseError(txt):
 		SetMemory(0, Add, 1),
 	])
 
+def f_raiseWarning(txt):
+	DoActions([
+		SetCurrentPlayer(f_getuserplayerid()),
+		DisplayText(txt),
+	])
+
 @EUDFunc
 def f_dbepd_print(epd):
 	a = DBString(1024)
