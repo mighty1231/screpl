@@ -263,6 +263,11 @@ def bptest_main():
 		RegisterBPHere("Here!")
 		DoActions(KillUnit("Terran Battlecruiser", P1))
 
+		RegisterBPHere("??")
+		DoActions(CreateUnit(1, "Terran Science Vessel", "Anywhere", P1))
+		RegisterBPHere("Here!")
+		DoActions(KillUnit("Terran Science Vessel", P1))
+
 		RunTrigTrigger()
 		EUDDoEvents()
 	EUDEndInfLoop()

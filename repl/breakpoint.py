@@ -25,7 +25,7 @@ class BPItem(EUDStruct):
 		'breaked_trig_ptr',
 	]
 repl_end_hook = None
-repl_end_orig_nxt = EUDVariable()
+repl_end_orig_nxt = EUDVariable(0)
 jumper_orig_nxt = EUDVariable()
 
 # Single turnout trigger
@@ -37,8 +37,8 @@ def RegisterBPHere(name, cond = None):
 	# make hook for repl_end
 	if repl_end_hook == None:
 		# automatically set EUDCommands for Breakpoint
-		RegisterCommand('bpact', BPActivateHooks)
-		RegisterCommand('bpdeact', BPDeactivateHooks)
+		RegisterCommand('bpon', BPOn)
+		RegisterCommand('bpoff', BPOff)
 		RegisterCommand('bpcon', BPContinue)
 
 		if PushTriggerScope():
@@ -48,7 +48,8 @@ def RegisterBPHere(name, cond = None):
 				DoActions(SetNextPtr(jumper, repl_begin))
 				EUDJump(0x80000000)
 			if EUDElseIf()([bp_locked == 0, bp_trig_ptr >= 1]):
-				f_dwwrite_epd(EPD(jumper + 4), jumper_orig_nxt)
+				# continue
+				DoActions(SetNextPtr(jumper, jumper_orig_nxt))
 				tmp = EUDVariable()
 				tmp << bp_trig_ptr
 				bp_trig_ptr << 0
@@ -74,7 +75,7 @@ def RegisterBPHere(name, cond = None):
 			EUDIf()(cond)
 
 		# recover original loop
-		f_dwwrite_epd(EPD(empty_trig + 4), breaked_trig_ptr)
+		BPDeactivateHooks()
 
 		# set repl only mode
 		bp_locked << 1
@@ -88,7 +89,9 @@ def RegisterBPHere(name, cond = None):
 
 		# Make infinite loop on repl and pass it
 		# Similar to EUDDoEvents, but starting trigger is different
-		repl_end_orig_nxt << f_dwread_epd(EPD(repl_end + 4))
+		if EUDIf()(repl_end_orig_nxt == 0):
+			repl_end_orig_nxt << f_dwread_epd(EPD(repl_end + 4))
+		EUDEndIf()
 		jumper_orig_nxt << f_dwread_epd(EPD(jumper + 4))
 		DoActions([
 			SetNextPtr(repl_end, repl_end_hook),
@@ -110,12 +113,13 @@ def RegisterBPHere(name, cond = None):
 	]))
 	bp_table.AddPair(breaked_trig_ptr, struct)
 
-@EUDCommand([])
+@EUDFunc
 def BPActivateHooks():
 	global bp_table
 	i = EUDVariable()
 	i = f_dwread_epd(EPD(bp_table))
-	item_epd = EPD(bp_table) + 2
+	item_epd = EUDVariable()
+	item_epd << EPD(bp_table) + 2
 	if EUDWhile()(i >= 1):
 		item = BPItem.cast(f_dwread_epd(item_epd))
 
@@ -126,12 +130,13 @@ def BPActivateHooks():
 		i -= 1
 	EUDEndWhile()
 
-@EUDCommand([])
+@EUDFunc
 def BPDeactivateHooks():
 	global bp_table
 	i = EUDVariable()
 	i = f_dwread_epd(EPD(bp_table))
-	item_epd = EPD(bp_table) + 2
+	item_epd = EUDVariable()
+	item_epd << EPD(bp_table) + 2
 	if EUDWhile()(i >= 1):
 		item = BPItem.cast(f_dwread_epd(item_epd))
 
@@ -142,6 +147,16 @@ def BPDeactivateHooks():
 		i -= 1
 	EUDEndWhile()
 
+@EUDCommand([])
+def BPOn():
+	BPActivateHooks()
+
+@EUDCommand([])
+def BPOff():
+	global bp_locked
+	BPDeactivateHooks()
+	bp_locked << 0
+
 # "Stepinto" is difficult, since we can't track
 #   self_nextptr_modifying_trigger
 @EUDCommand([])
@@ -151,5 +166,6 @@ def BPContinue():
 
 	if EUDIf()(bp_locked == 1):
 		# set original loop mode
+		BPActivateHooks()
 		bp_locked << 0
 	EUDEndIf()
