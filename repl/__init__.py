@@ -20,6 +20,7 @@ from .core.pool import (
 )
 
 from .repl import REPL
+from .breakpoint import RegisterBPHere
 from .resources.encoder.const import (
 	argEncNumber,
 	argEncCount,

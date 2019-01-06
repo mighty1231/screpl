@@ -183,12 +183,46 @@ def findCommentedTrigger(breakpoints):
 		EUDEndInfLoop()
 
 
+@EUDTypedFunc([None, EUDFuncPtr(2, 0)])
+def installHook_epd(prev_trigptr, hook):
+	prev_trigepd = EPD(prev_trigptr)
+	f_simpleprint(hptr(prev_trigptr), prev_trigepd)
+	trig_ptr, trig_epd = f_dwepdread_epd(prev_trigepd + 1)
+
+	# function scope
+	if PushTriggerScope():
+		_start = NextTrigger()
+
+		# Recover original trigger loop
+		f_dwwrite_epd(prev_trigepd + 1, trig_ptr)
+
+		f_simpleprint("??")
+		# function hook
+		hook(trig_ptr, trig_epd)
+
+		_end = RawTrigger()
+	PopTriggerScope()
+
+	# patch hook
+	f_simpleprint("Patching...")
+	DoActions([
+		SetNextPtr(prev_trigptr, _start),
+		SetNextPtr(_end, trig_ptr)
+	])
+
+
+@EUDFunc
+def test(a, b):
+	f_simpleprint('in hook', hptr(a), b)
+
 @EUDFunc
 def main():
 	from repl import REPL, EUDCommand, StaticView, RegisterCommand, makeEPDText, EUDByteRW
 	if EUDExecuteOnce()():
 		breakpoints = EUDStack()(30)
+		findCommentedTrigger(breakpoints)
 		f_simpleprint(breakpoints.pos, breakpoints.data[0])
+		installHook_epd(breakpoints.data[0], test)
 	EUDEndExecuteOnce()
 	@EUDCommand([])
 	def cmd_openBPView():
@@ -210,14 +244,30 @@ def main():
 		StaticView.OpenView(EPD(arr))
 	RegisterCommand("bp", cmd_openBPView)
 
-	findCommentedTrigger(breakpoints)
 	if EUDInfLoop()():
 		DoActions(SetDeaths(203151, SetTo, 1, 0))
+		# REPL().execute()
+		RunTrigTrigger()
+		EUDDoEvents()
+	EUDEndInfLoop()
+
+@EUDFunc
+def bptest_main():
+	from repl import REPL, RegisterBPHere
+	if EUDInfLoop()():
+		# Turbo
+		DoActions(SetDeaths(203151, SetTo, 1, 0))
 		REPL().execute()
+
+		DoActions(CreateUnit(1, "Terran Battlecruiser", "Anywhere", P1))
+		RegisterBPHere("Here!")
+		DoActions(KillUnit("Terran Battlecruiser", P1))
+
+		RunTrigTrigger()
 		EUDDoEvents()
 	EUDEndInfLoop()
 
 from config import outfname
 LoadMap("base.scx")
-SaveMap(outfname, main)
+SaveMap(outfname, bptest_main)
 
