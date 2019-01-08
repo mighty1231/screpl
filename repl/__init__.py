@@ -18,6 +18,9 @@ from .core.pool import (
 	DbPool,
 	VarPool
 )
+from .core.display import (
+	ScrollView
+)
 
 from .repl import REPL
 from .breakpoint import RegisterBPHere
