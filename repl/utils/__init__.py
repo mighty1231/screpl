@@ -8,5 +8,5 @@ from .utils import (
 	f_strcmp2,
 	f_raiseError,
 	f_raiseWarning,
-	f_dbepd_print,
+	f_print_utf8_epd,
 )

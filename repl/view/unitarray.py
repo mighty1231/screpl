@@ -165,11 +165,12 @@ def unitarrayview_loop(members):
 	EUDEndInfLoop()
 
 	_view_writer.write(0)
-	EUDReturn(1)
+	EUDReturn()
 
 @EUDTypedFunc([UnitArrayViewMembers])
-def unitarrayview_get_bufepd(members):
-	EUDReturn(members.screen_data_epd)
+def unitarrayview_display(members):
+	# EUDReturn(members.screen_data_epd)
+	pass
 
 @EUDTypedFunc([UnitArrayViewMembers])
 def unitarrayview_destructor(members):
@@ -181,6 +182,6 @@ UnitArrayView = EUDView(
 	unitarrayview_keydown_callback,
 	unitarrayview_execute_chat,
 	unitarrayview_loop,
-	unitarrayview_get_bufepd,
+	unitarrayview_display,
 	unitarrayview_destructor
 )

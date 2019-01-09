@@ -117,8 +117,8 @@ def SearchTableInv(value, table_epd, retval_epd):
 @EUDFunc
 def PrintTable(table_epd):
     f_simpleprint('size:', f_dwread_epd(table_epd))
-    f_dbepd_print(f_dwread_epd(table_epd+1))
+    f_print_utf8_epd(f_dwread_epd(table_epd+1))
     f_simpleprint(hptr(f_dwread_epd(table_epd+2)))
-    # f_dbepd_print(table_epd+3)
+    # f_print_utf8_epd(table_epd+3)
 
     # f_simpleprint(hptr(f_dwread_epd(table_epd+4)))

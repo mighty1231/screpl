@@ -311,11 +311,12 @@ def triggerview_loop(members):
 	EUDEndInfLoop()
 
 	_view_writer.write(0)
-	EUDReturn(1)
+	EUDReturn()
 
 @EUDTypedFunc([TriggerViewMembers])
-def triggerview_get_bufepd(members):
-	EUDReturn(members.screen_data_epd)
+def triggerview_display(members):
+	# EUDReturn(members.screen_data_epd)
+	pass
 
 @EUDTypedFunc([TriggerViewMembers])
 def triggerview_destructor(members):
@@ -328,6 +329,6 @@ TriggerView = EUDView(
 	triggerview_keydown_callback,
 	triggerview_execute_chat,
 	triggerview_loop,
-	triggerview_get_bufepd,
+	triggerview_display,
 	triggerview_destructor
 )

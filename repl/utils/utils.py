@@ -37,13 +37,18 @@ def f_raiseWarning(txt):
 	])
 
 @EUDFunc
-def f_dbepd_print(epd):
-	a = DBString(1024)
+def f_print_utf8_epd(epd):
+	sp = EUDVariable(0)
+	strId = EncodeString("_" * 2048)
+	if EUDExecuteOnce()():
+		sp << GetMapStringAddr(strId)
+	EUDEndExecuteOnce()
+
 	writer = EUDByteRW()
-	writer.seekoffset(a.GetStringMemoryAddr())
+	writer.seekoffset(sp)
 	writer.write_strepd(epd)
 	writer.write(0)
-	a.Display()
+	DoActions(DisplayText(strId))
 
 @EUDFunc
 def f_print_memorytable(off):

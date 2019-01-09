@@ -66,13 +66,11 @@ class EUDView(EUDStruct):
 		# If the view is on foreground, invoked every loop
 		# update display in here!
 		# param 0: EUDVArray of members
-		# param 1: 1 if update of display needed
-		('loop', EUDFuncPtr(1, 1)),
+		('loop', EUDFuncPtr(1, 0)),
 
-		# pointer to function that returns display buffer
+		# pointer to displaying function
 		# param 0: EUDVArray of members
-		# ret 0: EPD-Pointer of text buffer
-		('get_bufepd', EUDFuncPtr(1, 1)),
+		('display', EUDFuncPtr(1, 0)),
 
 		# pointer to destructor
 		# param 0: EUDVArray of members
@@ -82,15 +80,15 @@ class EUDView(EUDStruct):
 	def __init__(self, *args):
 		if len(args) == 6:
 			# construct
-			init, keydown_callback, execute_chat, loop, get_bufepd, dest = args
+			init, keydown_callback, execute_chat, loop, display, dest = args
 			init = EUDFuncPtr(1, 1)(init)
 			keydown_callback = EUDFuncPtr(2, 0)(keydown_callback)
 			execute_chat = EUDFuncPtr(2, 1)(execute_chat)
-			loop = EUDFuncPtr(1, 1)(loop)
-			get_bufepd = EUDFuncPtr(1, 1)(get_bufepd)
+			loop = EUDFuncPtr(1, 0)(loop)
+			display = EUDFuncPtr(1, 0)(display)
 			dest = EUDFuncPtr(1, 0)(dest)
 			super().__init__(_from = EUDVArray(6)([init, keydown_callback, execute_chat,
-				loop, get_bufepd, dest]))
+				loop, display, dest]))
 		else:
 			# cast
 			assert len(args) == 1
