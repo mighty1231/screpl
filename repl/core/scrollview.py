@@ -39,7 +39,8 @@ class ScrollView(EUDStruct):
 					# fill epd_lines
 					buf_epd = _textPool.alloc_epd(lcnt * LINESIZE)
 					dest_epd = self.epd_lines
-					i = EUDVariable(0)
+					i = EUDVariable()
+					i << 0
 					if EUDWhile()(i < lcnt):
 						f_dwwrite_epd(dest_epd, buf_epd)
 						DoActions([
