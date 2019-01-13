@@ -87,8 +87,8 @@ class EUDView(EUDStruct):
 			loop = EUDFuncPtr(1, 0)(loop)
 			display = EUDFuncPtr(1, 0)(display)
 			dest = EUDFuncPtr(1, 0)(dest)
-			super().__init__(_from = EUDVArray(6)([init, keydown_callback, execute_chat,
-				loop, display, dest]))
+			super().__init__(_from = EUDVArray(6)([init, keydown_callback,
+				execute_chat, loop, display, dest]))
 		else:
 			# cast
 			assert len(args) == 1
@@ -110,7 +110,7 @@ class EUDView(EUDStruct):
 				_view_cnt += 1
 			EUDEndIf()
 		if EUDElse()():
-			f_raiseWarning("EUDView.OpenView() failed: no more spaces " \
-				"on EUDView stack")
+			f_raiseWarning("EUDView.OpenView() failed: " \
+				"no more spaces on EUDView stack")
 		EUDEndIf()
 

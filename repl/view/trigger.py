@@ -1,9 +1,10 @@
 from eudplib import *
 from .view import _view_writer, EUDView, dbpool, varpool
 from .static import StaticView
-from ..utils import makeEPDText, f_strcmp_ptrepd
+from ..utils import makeEPDText, f_strcmp_ptrepd, f_print_utf8_epd
 from ..core.table import ReferenceTable, SearchTableInv
 from ..core.encoder import ReadName, ReadNumber
+from ..core.scrollview import ScrollView
 from ..resources.table.tables import tb_Modifier, tb_Comparison
 
 '''
@@ -48,7 +49,7 @@ def DecodeAction(act_epd):
 		_view_writer.write_decimal(player2)
 		_view_writer.write_strepd(makeEPDText(')'))
 	if EUDElse()():
-		_view_writer.write_strepd(makeEPDText('Action('))
+		_view_writer.write_strepd(makeEPDText('Condition('))
 		_view_writer.write_decimal(locid1)
 		_view_writer.write_strepd(makeEPDText(', '))
 		_view_writer.write_decimal(strid)
@@ -130,33 +131,62 @@ class TriggerViewMembers(EUDStruct):
 		'ptr',
 		'epd',
 
-		# for trigger lines
-		# intermediate buffer between trigger and screen buffer
-		'line_cnt',
-		'line_epd',
-		'refresh_lines',
-
-		# buffer for current screen
-		'screen_data_epd',
-		'offset',
+		('scrollview', ScrollView),
 	]
 
 varn = len(TriggerViewMembers._fields_)
+
+@EUDTypedFunc([TriggerViewMembers])
+def _update_view(members):
+	line = EUDVariable()
+	line << 0
+
+	sv = members.scrollview
+	_view_writer.seekepd(sv.GetEPDLine(line))
+	_view_writer.write_f("Conditions%C", 0)
+	line += 1
+
+	# conditions
+	cur_epd = members.epd + 8 // 4
+	if EUDLoopN()(16):
+		# check condtype = 0
+		EUDBreakIf(MemoryXEPD(cur_epd + 3, Exactly, 0, 0xFF000000))
+		_view_writer.seekepd(sv.GetEPDLine(line))
+		_view_writer.write_strepd(makeEPDText(' - '))
+		DecodeCondition(cur_epd)
+
+		line += 1
+		cur_epd += 20 // 4
+	EUDEndLoopN()
+
+	# actions
+	_view_writer.seekepd(sv.GetEPDLine(line))
+	_view_writer.write_f("Actions%C", 0)
+	line += 1
+	cur_epd << members.epd + (8 + 16*20) // 4
+	if EUDLoopN()(64):
+		# check acttype = 0
+		EUDBreakIf(MemoryXEPD(cur_epd + 6, Exactly, 0, 0xFF0000))
+		_view_writer.seekepd(sv.GetEPDLine(line))
+		_view_writer.write_strepd(makeEPDText(' - '))
+		DecodeAction(cur_epd)
+
+		line += 1
+		cur_epd += 32 // 4
+	EUDEndLoopN()
+
+	_view_writer.seekepd(sv.GetEPDLine(line))
+	_view_writer.write_f("END%C", 0)
+	sv.SetDispLineCnt(line + 1)
+	sv.offset = 0
 
 @EUDFunc
 def triggerview_init(ptr):
 	members = TriggerViewMembers.cast(varpool.alloc(varn))
 	members.ptr = ptr
 	members.epd = EPD(ptr)
-
-	members.line_epd = dbpool.alloc_epd( \
-		LINESIZE * (1+16+1+64+1))
-
-	members.screen_data_epd = dbpool.alloc_epd( \
-		LINESIZE * (PAGE_NUMCONTENTS + 1))
-	members.offset = 0
-	members.refresh_lines = 1
-
+	members.scrollview = ScrollView(1+16+1+64+1)
+	_update_view(members)
 	EUDReturn(members)
 
 @EUDTypedFunc([TriggerViewMembers, None])
@@ -164,18 +194,13 @@ def triggerview_keydown_callback(members, keycode):
 	# @TODO
 	EUDSwitch(keycode)
 	if EUDSwitchCase()(0x76): # F7 - Prev Page
-		if EUDIf()(members.offset >= PAGE_NUMCONTENTS):
-			members.offset -= PAGE_NUMCONTENTS
-		if EUDElse()():
-			members.offset = 0
-		EUDEndIf()
+		members.scrollview.SetPrevPage()
 		EUDBreak()
 	if EUDSwitchCase()(0x77): # F8 - Next Page
-		if EUDIf()(members.offset <= members.line_cnt - PAGE_NUMCONTENTS):
-			members.offset += PAGE_NUMCONTENTS
-		if EUDElse()():
-			members.offset = members.line_cnt - 1
-		EUDEndIf()
+		members.scrollview.SetNextPage()
+		EUDBreak()
+	if EUDSwitchCase()(82): # R - Refresh
+		_update_view(members)
 		EUDBreak()
 	EUDEndSwitch()
 
@@ -189,139 +214,58 @@ def triggerview_execute_chat(members, offset):
 		if EUDIf()(new_ptr.ExactlyX(0, 0b11)): # check normal trigger pointer
 			members.ptr = new_ptr
 			members.epd = EPD(new_ptr)
-			members.offset = 0
+			_update_view(members)
 			EUDReturn(1)
 		if EUDElse()():
 			EUDReturn(0)
 		EUDEndIf()
 	if EUDElseIf()(f_strcmp_ptrepd(offset, makeEPDText("?")) == 0):
 		args = EUDArray([
-			makeEPDText("TRIGGER VIEW"),
+			makeEPDText("TRIGGER VIEW - Manual"),
 			9,
 			makeEPDText("Keycode"),
 			makeEPDText("F7: Go to left page"),
 			makeEPDText("F8: Go to right page"),
+			makeEPDText("R: Refresh trigger"),
 			makeEPDText(""),
 			makeEPDText("Type"),
 			makeEPDText("?: get help"),
-			makeEPDText("R: refresh trigger"),
-			makeEPDText("next: set pointer to next trigger"),
-			makeEPDText("(ptr): set pointer to trigger"),
+			makeEPDText("next: explore next trigger"),
+			makeEPDText("##: set pointer address of trigger to ##"),
 		])
 		StaticView.OpenView(EPD(args))
 		EUDReturn(1)
-	if EUDElseIf()(f_strcmp_ptrepd(offset, makeEPDText("R")) == 0):
-		# @TODO refresh on demand
-		members.refresh_lines = 1
-		EUDReturn(1)
 	if EUDElseIf()(f_strcmp_ptrepd(offset, makeEPDText("next")) == 0):
-		members.offset = 0
 		members.ptr, members.epd = f_dwepdread_epd(members.epd + 1)
-		members.refresh_lines = 1
+		_update_view(members)
 		EUDReturn(1)
 	EUDEndIf()
 	EUDReturn(0)
 
 @EUDTypedFunc([TriggerViewMembers])
 def triggerview_loop(members):
-	# title line
-	ptr = members.ptr
-	epd = members.epd
-	line_cnt = members.line_cnt
-	line_epd = members.line_epd
-	refresh_lines = members.refresh_lines
-	screen_data_epd = members.screen_data_epd
-	offset = members.offset
-
-	# write on line buffer
-	curline_epd, curtrig_epd = EUDCreateVariables(2)
-	curline_epd << line_epd
-	line_cnt << 0
-	# write conditions
-	_view_writer.seekepd(curline_epd)
-	_view_writer.write_strepd(makeEPDText('CONDITIONS'))
-	_view_writer.write(0)
-	line_cnt += 1
-	curline_epd += LINESIZE // 4
-	curtrig_epd << epd + 8 // 4
-	if EUDLoopN()(16):
-		_view_writer.seekepd(curline_epd)
-		EUDBreakIf(f_bread_epd(curtrig_epd + 3, 3) == 0)
-		_view_writer.write_strepd(makeEPDText(' - '))
-		DecodeCondition(curtrig_epd)
-
-		line_cnt += 1
-		curline_epd += LINESIZE // 4
-		curtrig_epd += 20 // 4
-	EUDEndLoopN()
-	# write actions
-	_view_writer.seekepd(curline_epd)
-	_view_writer.write_strepd(makeEPDText('ACTIONS'))
-	_view_writer.write(0)
-	line_cnt += 1
-	curline_epd += LINESIZE // 4
-	curtrig_epd << epd + (8 + 16*20) // 4
-	if EUDLoopN()(64):
-		_view_writer.seekepd(curline_epd)
-		EUDBreakIf(f_bread_epd(curtrig_epd + 6, 2) == 0)
-		_view_writer.write_strepd(makeEPDText(' - '))
-		DecodeAction(curtrig_epd)
-
-		line_cnt += 1
-		curline_epd += LINESIZE // 4
-		curtrig_epd += 32 // 4
-	EUDEndLoopN()
-	# @TODO write flags
-	# omit!
-
-	# write on printing buffer
-	_view_writer.seekepd(members.screen_data_epd)
-	_view_writer.write_strepd(makeEPDText('Trigger View, type "?" for help, ptr = '))
-	_view_writer.write_hex(ptr)
-	_view_writer.write_strepd(makeEPDText(', next_ptr = '))
-	_view_writer.write_hex(f_dwread_epd(epd+1))
-	_view_writer.write_strepd(makeEPDText(', line = '))
-	_view_writer.write_decimal(offset)
-	_view_writer.write_strepd(makeEPDText('\n'))
-	until = EUDVariable()
-	pageend = offset + PAGE_NUMCONTENTS
-	if EUDIf()(pageend >= line_cnt):
-		until << line_cnt
-	if EUDElse()():
-		until << pageend
-	EUDEndIf()
-
-	line_epd += (offset * (LINESIZE // 4))
-	if EUDInfLoop()():
-		EUDBreakIf(offset >= until)
-		_view_writer.write_strepd(line_epd)
-		_view_writer.write(ord('\n'))
-
-		DoActions([
-			offset.AddNumber(1),
-			line_epd.AddNumber(LINESIZE // 4),
-		])
-	EUDEndInfLoop()
-
-	# make empty lines
-	if EUDInfLoop()():
-		EUDBreakIf(offset >= pageend)
-		_view_writer.write(ord('\n'))
-		DoActions(offset.AddNumber(1))
-	EUDEndInfLoop()
-
-	_view_writer.write(0)
-	EUDReturn()
+	pass
 
 @EUDTypedFunc([TriggerViewMembers])
 def triggerview_display(members):
 	# EUDReturn(members.screen_data_epd)
-	pass
+	ptr = members.ptr
+	epd = members.epd
+	sv = members.scrollview
+
+	title_epd = EPD(Db(218))
+	_view_writer.seekepd(title_epd)
+	_view_writer.write_f('Trigger View, type "?" for help. '\
+			'ptr = %H, next = %H, line = %D%C',
+			ptr, f_dwread_epd(epd+1), sv.offset, 0)
+
+	f_print_utf8_epd(title_epd)
+
+	members.scrollview.Display()
 
 @EUDTypedFunc([TriggerViewMembers])
 def triggerview_destructor(members):
-	dbpool.free_epd(members.screen_data_epd)
-	dbpool.free_epd(members.line_epd)
+	members.scrollview.Destruct()
 	varpool.free(members)
 
 TriggerView = EUDView(

@@ -153,12 +153,7 @@ def cmd_vartrace():
 	'''
 	get address table of marked EUDObjects with RegisterTraceObject
 	'''
-	arg = EUDArray([
-		makeEPDText("Variables"),
-		0,
-		EPD(traced_variables)
-	])
-	VariableView.OpenView(EPD(arg))
+	VariableView.OpenView(EPD(traced_variables))
 
 @EUDCommand([])
 def cmd_unitarrayview():
@@ -170,7 +165,7 @@ def cmd_unitarrayview():
 @EUDCommand([argEncNumber])
 def cmd_triggerview(ptr):
 	'''
-	view for CUnit array
+	view for trigger
 	'''
 	TriggerView.OpenView(ptr)
 

@@ -1,6 +1,6 @@
 from eudplib import *
-from .view import _view_writer, EUDView, dbpool, varpool
-from ..utils import makeEPDText, f_print_utf8_epd
+from .view import _view_writer, EUDView, varpool
+from ..utils import f_print_utf8_epd
 from ..core.scrollview import ScrollView
 
 class StaticViewMembers(EUDStruct):
@@ -33,7 +33,6 @@ def staticview_keydown_callback(members, keycode):
 		EUDBreak()
 	if EUDSwitchCase()(0x77): # F8 - Next Page
 		members.scrollview.SetNextPage()
-		EUDBreak()
 	EUDEndSwitch()
 
 @EUDTypedFunc([StaticViewMembers, None])
