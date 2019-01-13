@@ -41,17 +41,35 @@ def RegisterVariable(name, var):
 # trigger strings/constants
 encoding_tables = ReferenceTable(key_f=makeEPDText, value_f=EPD)
 
-tb_unit = ReferenceTable(DefUnitDict.items(), [(encoding_tables, "Unit")], key_f=makeEPDText)
-tb_locSub = ReferenceTable(DefLocationDict.items(), [(encoding_tables, "LocationSub")], key_f=makeEPDText)
-tb_swSub = ReferenceTable(DefSwitchDict.items(), [(encoding_tables, "SwitchSub")], key_f=makeEPDText)
+tb_unit = ReferenceTable(
+    DefUnitDict.items(),
+    [(encoding_tables, "Unit")],
+    key_f=makeEPDText, sortkey_f=lambda k,v:k)
+tb_locSub = ReferenceTable(
+    DefLocationDict.items(),
+    [(encoding_tables, "LocationSub")],
+    key_f=makeEPDText, sortkey_f=lambda k,v:k)
+tb_swSub = ReferenceTable(
+    DefSwitchDict.items(),
+    [(encoding_tables, "SwitchSub")],
+    key_f=makeEPDText, sortkey_f=lambda k,v:k)
 tb_ai = ReferenceTable(
-        list(map(lambda a:(a[0], b2i4(a[1])), DefAIScriptDict.items())),
-        [(encoding_tables, "AIScript")], key_f=makeEPDText)
+    list(map(lambda a:(a[0], b2i4(a[1])), DefAIScriptDict.items())),
+    [(encoding_tables, "AIScript")],
+    key_f=makeEPDText, sortkey_f=lambda k,v:k)
 
-tb_unitMap = ReferenceTable(unitmap._s2id.items(), [(encoding_tables, "MapUnit")], key_f=makeEPDText)
+tb_unitMap = ReferenceTable(
+    unitmap._s2id.items(),
+    [(encoding_tables, "MapUnit")],
+    key_f=makeEPDText, sortkey_f=lambda k,v:k)
 tb_locMap = ReferenceTable(
-    list(map(lambda a:(a[0], a[1]+1), locmap._s2id.items())), [(encoding_tables, "MapLocation")], key_f=makeEPDText)
-tb_swMap = ReferenceTable(swmap._s2id.items(), [(encoding_tables, "MapSwitch")], key_f=makeEPDText)
+    list(map(lambda a:(a[0], a[1]+1), locmap._s2id.items())),
+    [(encoding_tables, "MapLocation")],
+    key_f=makeEPDText, sortkey_f=lambda k,v:k)
+tb_swMap = ReferenceTable(
+    swmap._s2id.items(),
+    [(encoding_tables, "MapSwitch")],
+    key_f=makeEPDText, sortkey_f=lambda k,v:k)
 
 tb_Modifier = ReferenceTable([
     ("SetTo", EncodeModifier(SetTo)),

@@ -16,12 +16,18 @@ class ReferenceTable(EUDObject):
             initdict=[], 
             ref_by = [],
             key_f = lambda k:k,
-            value_f = lambda v:v
+            value_f = lambda v:v,
+            sortkey_f = lambda k,v:0,
         ):
         super().__init__()
         self._dict = []
         self.key_f = key_f
         self.value_f = value_f
+        self.sortkey_f = sortkey_f
+
+        # Save transformed objects
+        self._keys = []
+        self._values = []
 
         # Added on parents lazily
         self._ref_by = ref_by
@@ -35,13 +41,19 @@ class ReferenceTable(EUDObject):
 
     def AddPair(self, key, value):
         # duplicate check
-        key = self.key_f(key)
         for k, v in self._dict:
             if k == key:
-                raise RuntimeError
-        value = self.value_f(value)
-        ep_assert(IsConstExpr(key), 'Invalid item {}'.format(key))
-        ep_assert(IsConstExpr(value), 'Invalid item {}'.format(value))
+                raise RuntimeError('Duplicate of key {}'.format(k))
+
+        # Record original key & value + transformed key & value
+        key_tr = self.key_f(key)
+        value_tr = self.value_f(value)
+
+        ep_assert(IsConstExpr(key_tr), 'Invalid key {}'.format(key))
+        ep_assert(IsConstExpr(value_tr), 'Invalid value {}'.format(value))
+
+        self._keys.append(key_tr)
+        self._values.append(value_tr)
         self._dict.append((key, value))
 
     def AddPairLazily(self, key, value):
@@ -66,15 +78,18 @@ class ReferenceTable(EUDObject):
         return 4 + 8 * len(self._dict)
 
     def CollectDependency(self, emitbuffer):
-        for key, value in self._dict:
-            if key is not int:
-                emitbuffer.WriteDword(key)
-            if value is not int:
-                emitbuffer.WriteDword(value)
+        for key_tr in self._keys:
+            if key_tr is not int:
+                emitbuffer.WriteDword(key_tr)
+        for value_tr in self._values:
+            if value_tr is not int:
+                emitbuffer.WriteDword(value_tr)
 
     def WritePayload(self, emitbuffer):
         emitbuffer.WriteDword(len(self._dict))
-        for key, value in self._dict:
+        tuples = sorted(zip(self._keys, self._values, self._dict),
+            key=lambda kvd:self.sortkey_f(kvd[2][0], kvd[2][1]))
+        for key, value, item in tuples:
             emitbuffer.WriteDword(key)
             emitbuffer.WriteDword(value)
 
