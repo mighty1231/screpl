@@ -168,14 +168,16 @@ class ScrollView(EUDStruct):
 
 	@EUDMethod
 	def SetOffset(self, offset):
-		if EUDIf()(offset <= 0x7FFFFFFF):
+		if EUDIf()(self.disp_lcnt <= self.lines_per_page):
+			self.offset = 0
+		if EUDElseIf()(offset > 0x80000000):
+			self.offset = 0
+		if EUDElse()():
 			if EUDIfNot()(offset >= self.disp_lcnt - self.lines_per_page):
 				self.offset = offset
 			if EUDElse()():
 				self.offset = self.disp_lcnt - self.lines_per_page
 			EUDEndIf()
-		if EUDElse()():
-			self.offset = 0
 		EUDEndIf()
 
 	def SetNextPage(self):
