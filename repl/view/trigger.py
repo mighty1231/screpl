@@ -34,6 +34,38 @@ def _update_view(members):
 	line << 0
 
 	sv = members.scrollview
+
+	# trigger flags
+	# https://github.com/bwapi/bwapi/blob/master/bwapi/BWAPI/Source/BW/Triggers.h
+	flags = f_dwread_epd(members.epd + (8 + 16*20 + 64*32) // 4)
+	_view_writer.seekepd(sv.GetEPDLine(line))
+	_view_writer.write_f("Flags [ ")
+	if EUDIf()(flags.ExactlyX(0x01, 0x01)):
+		_view_writer.write_f("ExecuteActions(actindex=%D) ",
+			f_bread_epd(members.epd + (8 + 16*20 + 64*32 + 4 + 27) // 4, 3))
+	EUDEndIf()
+	if EUDIf()(flags.ExactlyX(0x02, 0x02)):
+		_view_writer.write_f("IgnoreDefeat ")
+	EUDEndIf()
+	if EUDIf()(flags.ExactlyX(0x04, 0x04)):
+		_view_writer.write_f("PreserveTrigger ")
+	EUDEndIf()
+	if EUDIf()(flags.ExactlyX(0x08, 0x08)):
+		_view_writer.write_f("IgnoreExecution ")
+	EUDEndIf()
+	if EUDIf()(flags.ExactlyX(0x10, 0x10)):
+		_view_writer.write_f("SkipUIActions ")
+	EUDEndIf()
+	if EUDIf()(flags.ExactlyX(0x20, 0x20)):
+		_view_writer.write_f("PausedGame ")
+	EUDEndIf()
+	if EUDIf()(flags.ExactlyX(0x40, 0x40)):
+		_view_writer.write_f("DisableWaitSkip ")
+	EUDEndIf()
+	_view_writer.write(ord("]"))
+	_view_writer.write(0)
+	line += 1
+
 	_view_writer.seekepd(sv.GetEPDLine(line))
 	_view_writer.write_f("Conditions%C", 0)
 	line += 1
@@ -77,7 +109,7 @@ def triggerview_init(ptr):
 	members = TriggerViewMembers.cast(varpool.alloc(varn))
 	members.ptr = ptr
 	members.epd = EPD(ptr)
-	members.scrollview = ScrollView(1+16+1+64+1)
+	members.scrollview = ScrollView(1+1+16+1+64+1)
 	_update_view(members)
 	EUDReturn(members)
 
@@ -95,8 +127,12 @@ def triggerview_keydown_callback(members, keycode):
 		_update_view(members)
 		EUDBreak()
 	if EUDSwitchCase()(78): # N - Next trigger
-		members.ptr, members.epd = f_dwepdread_epd(members.epd + 1)
-		_update_view(members)
+		ptr, epd = f_dwepdread_epd(members.epd + 1)
+		if EUDIf()([ptr <= 0x7FFFFFFF]):
+			members.ptr = ptr
+			members.epd = epd
+			_update_view(members)
+		EUDEndIf()
 		EUDBreak()
 	EUDEndSwitch()
 

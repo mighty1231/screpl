@@ -334,7 +334,25 @@ def trigviewtest_main():
 
 		a = RawTrigger(conditions = MemoryX(0x58A364, AtMost, 255, 0xFF),
 			actions = SetMemoryX(0x58A364, Add, 1, 0xFF))
+		b = RawTrigger(
+			actions = [
+				SetMemoryX(0x58A368, Add, 1, 0xFF),
+				Wait(2000),
+				SetMemoryX(0x58A368, Add, 2, 0xFF),
+				Wait(2000),
+				SetMemoryX(0x58A368, Add, 3, 0xFF),
+				Wait(2000),
+				SetMemoryX(0x58A368, Add, 4, 0xFF),
+				Wait(2000),
+				SetMemoryX(0x58A368, Add, 5, 0xFF),
+				Wait(2000),
+				SetMemoryX(0x58A368, Add, 6, 0xFF),
+				Wait(2000),
+				SetMemoryX(0x58A368, Add, 7, 0xFF),
+				Wait(2000),
+			])
 		RegisterTraceObject("trig", a)
+		RegisterTraceObject("b", b)
 		RunTrigTrigger()
 		EUDDoEvents()
 	EUDEndInfLoop()
