@@ -5,6 +5,12 @@ from ..utils import EUDByteRW, makeEPDText
 _output_writer = EUDByteRW()
 RetDecoderPtr = EUDFuncPtr(1, 0)
 
+def setOffset(offset):
+	_output_writer.seekoffset(offset)
+
+def setEPD(epd):
+	_output_writer.seekepd(epd)
+
 @EUDFunc
 def _retDecBool(number):
 	if EUDIf()(number == 0):

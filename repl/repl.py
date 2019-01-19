@@ -275,10 +275,6 @@ class REPL:
 		if EUDElse()():
 			# VIEW
 			EUDView.cast(self.view).loop(self.viewmem)
-			self.writer.seekepd(EPD(self.page.GetStringMemoryAddr()))
-			self.writer.write_strepd( \
-				EUDView.cast(self.view).get_bufepd(self.viewmem))
-			self.writer.write(0)
 		EUDEndIf()
 
 		# display
@@ -287,7 +283,12 @@ class REPL:
 			txtPtr = f_dwread_epd(EPD(0x640B58))
 
 			f_setcurpl(EncodePlayer(self.playerId))
-			self.page.Display()
+
+			if EUDIf()(self.viewmem == 0):
+				self.page.Display()
+			if EUDElse()():
+				EUDView.cast(self.view).display(self.viewmem)
+			EUDEndIf()
 
 			SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
 		EUDEndIf()

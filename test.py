@@ -252,6 +252,29 @@ def main():
 	EUDEndInfLoop()
 
 @EUDFunc
+def casttest():
+	a = DBString("4erwr")
+	a.Display() # 4erwr
+	b = DBString.cast(a)
+	b.Display() # 4erwr
+	c = DBString.cast(Db(b'abcdefghij\0'))
+	c.Display() # efghij
+
+	vvv = EUDVariable(Db(b'abcdefghij\0'))
+	d = DBString.cast(vvv)
+	d.Display() # efghij
+
+	f = EUDVariable(Db(b'\x02\x00\x08\x00\x0D\x00abcd\0efb\0'))
+	DoActions([
+		SetMemory(0x5993D4, Add, f),
+		DisplayText(0),
+		DisplayText(1),
+		DisplayText(2),
+		SetMemory(0x5993D4, Subtract, f),
+	])
+
+
+@EUDFunc
 def bptest_main():
 	from repl import REPL, RegisterBPHere
 	if EUDInfLoop()():
@@ -272,7 +295,52 @@ def bptest_main():
 		EUDDoEvents()
 	EUDEndInfLoop()
 
+@EUDFunc
+def svtest_main():
+	import repl
+	if EUDInfLoop()():
+		# Turbo
+		# DoActions(SetDeaths(203151, SetTo, 1, 0))
+
+		if EUDExecuteOnce()():
+			sv = repl.core.scrollview.ScrollView("hi\nhelp!\nhoohoo\n" + '\n'.join([str(i) for i in range(100)]))
+		EUDEndExecuteOnce()
+		print(sv)
+
+		sv.SetNextPage()
+		v = EUDVariable()
+		v << 0
+		for cur, line_epd in sv.PageLoop():
+			v += cur
+
+		txtPtr = f_dwread_epd(EPD(0x640B58))
+		sv.Display()
+		f_simpleprint("v = ", v)
+		SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
+
+		# RunTrigTrigger()
+		EUDDoEvents()
+	EUDEndInfLoop()
+
+@EUDFunc
+def trigviewtest_main():
+	from repl import REPL, RegisterTraceObject
+
+
+	if EUDInfLoop()():
+		# Turbo
+		DoActions(SetDeaths(203151, SetTo, 1, 0))
+		REPL().execute()
+
+		a = RawTrigger(conditions = MemoryX(0x58A364, AtMost, 255, 0xFF),
+			actions = SetMemoryX(0x58A364, Add, 1, 0xFF))
+		RegisterTraceObject("trig", a)
+		RunTrigTrigger()
+		EUDDoEvents()
+	EUDEndInfLoop()
+
+
 from config import outfname
 LoadMap("base.scx")
-SaveMap(outfname, bptest_main)
+SaveMap(outfname, trigviewtest_main)
 

@@ -55,11 +55,4 @@ from .utils import (
 	f_strcmp_ptrepd,
 	EUDByteRW
 )
-from .view import (
-	EUDView,
-	StaticView,
-	TableView,
-	VariableView,
-	UnitArrayView,
-	TriggerView
-)
+from .view import *
