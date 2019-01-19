@@ -6,6 +6,9 @@ from ..core.table import ReferenceTable, SearchTableInv
 from ..core.encoder import ReadName, ReadNumber
 from ..core.scrollview import ScrollView
 from ..resources.table.tables import tb_Modifier, tb_Comparison
+from ..resources.decoder.trigcond import dec_Condition
+from ..resources.decoder.trigact import dec_Action
+from ..core.decoder import setOffset, setEPD
 
 '''
 Trigger
@@ -153,7 +156,8 @@ def _update_view(members):
 		EUDBreakIf(MemoryXEPD(cur_epd + 3, Exactly, 0, 0xFF000000))
 		_view_writer.seekepd(sv.GetEPDLine(line))
 		_view_writer.write_strepd(makeEPDText(' - '))
-		DecodeCondition(cur_epd)
+		setOffset(_view_writer.getoffset())
+		dec_Condition(cur_epd)
 
 		line += 1
 		cur_epd += 20 // 4
@@ -169,7 +173,8 @@ def _update_view(members):
 		EUDBreakIf(MemoryXEPD(cur_epd + 6, Exactly, 0, 0xFF0000))
 		_view_writer.seekepd(sv.GetEPDLine(line))
 		_view_writer.write_strepd(makeEPDText(' - '))
-		DecodeAction(cur_epd)
+		setOffset(_view_writer.getoffset())
+		dec_Action(cur_epd)
 
 		line += 1
 		cur_epd += 32 // 4
@@ -202,6 +207,10 @@ def triggerview_keydown_callback(members, keycode):
 	if EUDSwitchCase()(82): # R - Refresh
 		_update_view(members)
 		EUDBreak()
+	if EUDSwitchCase()(78): # R - Refresh
+		members.ptr, members.epd = f_dwepdread_epd(members.epd + 1)
+		_update_view(members)
+		EUDBreak()
 	EUDEndSwitch()
 
 @EUDTypedFunc([TriggerViewMembers, None])
@@ -227,17 +236,13 @@ def triggerview_execute_chat(members, offset):
 			makeEPDText("F7: Go to left page"),
 			makeEPDText("F8: Go to right page"),
 			makeEPDText("R: Refresh trigger"),
+			makeEPDText("N: Goto next trigger"),
 			makeEPDText(""),
 			makeEPDText("Type"),
 			makeEPDText("?: get help"),
-			makeEPDText("next: explore next trigger"),
 			makeEPDText("##: set pointer address of trigger to ##"),
 		])
 		StaticView.OpenView(EPD(args))
-		EUDReturn(1)
-	if EUDElseIf()(f_strcmp_ptrepd(offset, makeEPDText("next")) == 0):
-		members.ptr, members.epd = f_dwepdread_epd(members.epd + 1)
-		_update_view(members)
 		EUDReturn(1)
 	EUDEndIf()
 	EUDReturn(0)
