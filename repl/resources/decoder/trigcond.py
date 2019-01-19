@@ -1,5 +1,5 @@
 from eudplib import *
-from ...core.decoder import _output_writer
+from ...view.view import _view_writer
 from ..table.tables import (
     tb_Modifier,
     tb_AllyStatus,
@@ -59,7 +59,7 @@ def dec_Condition(epd):
 	if EUDIf()([condtype >= 1, condtype < 24]):
 		EUDFuncPtr(1, 0).cast(conditions[condtype])(epd)
 	if EUDElse()():
-		_output_writer.write_f("Condition(%D, %D, %D, %D, %D, %D, %D, %D, %D)",
+		_view_writer.write_f("Condition(%D, %D, %D, %D, %D, %D, %D, %D, %D)",
 			cond.locid,
 			cond.player,
 			cond.amount,
@@ -71,148 +71,148 @@ def dec_Condition(epd):
 			cond.internal,
 		)
 	EUDEndIf()
-	_output_writer.write(0)
+	_view_writer.write(0)
 
 @EUDFunc
 def dec_CountdownTimer(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("CountdownTimer(")
+	_view_writer.write_f("CountdownTimer(")
 	writeConstant(EPD(tb_Comparison), m.comparison)
-	_output_writer.write_f(", ")
-	_output_writer.write_decimal(m.amount)
-	_output_writer.write_f(")")
+	_view_writer.write_f(", ")
+	_view_writer.write_decimal(m.amount)
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_Command(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("Command(")
+	_view_writer.write_f("Command(")
 	writeConstant(EPD(tb_Player), m.player)
-	_output_writer.write_f(", ")
+	_view_writer.write_f(", ")
 	writeConstant(EPD(tb_Comparison), m.comparison)
-	_output_writer.write_f(", ")
-	_output_writer.write_decimal(m.amount)
-	_output_writer.write_f(", ")
+	_view_writer.write_f(", ")
+	_view_writer.write_decimal(m.amount)
+	_view_writer.write_f(", ")
 	writeUnit(m.unitid)
-	_output_writer.write_f(")")
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_Bring(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("Bring(")
+	_view_writer.write_f("Bring(")
 	writeConstant(EPD(tb_Player), m.player)
-	_output_writer.write_f(", ")
+	_view_writer.write_f(", ")
 	writeConstant(EPD(tb_Comparison), m.comparison)
-	_output_writer.write_f(", ")
-	_output_writer.write_decimal(m.amount)
-	_output_writer.write_f(", ")
+	_view_writer.write_f(", ")
+	_view_writer.write_decimal(m.amount)
+	_view_writer.write_f(", ")
 	writeUnit(m.unitid)
-	_output_writer.write_f(", ")
+	_view_writer.write_f(", ")
 	writeLocation(m.locid)
-	_output_writer.write_f(")")
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_Accumulate(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("Accumulate(")
+	_view_writer.write_f("Accumulate(")
 	writeConstant(EPD(tb_Player), m.player)
-	_output_writer.write_f(", ")
+	_view_writer.write_f(", ")
 	writeConstant(EPD(tb_Comparison), m.comparison)
-	_output_writer.write_f(", ")
-	_output_writer.write_decimal(m.amount)
-	_output_writer.write_f(", ")
+	_view_writer.write_f(", ")
+	_view_writer.write_decimal(m.amount)
+	_view_writer.write_f(", ")
 	writeConstant(EPD(tb_Resource), m.restype)
-	_output_writer.write_f(")")
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_Kills(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("Kills(")
+	_view_writer.write_f("Kills(")
 	writeConstant(EPD(tb_Player), m.player)
-	_output_writer.write_f(", ")
+	_view_writer.write_f(", ")
 	writeConstant(EPD(tb_Comparison), m.comparison)
-	_output_writer.write_f(", ")
-	_output_writer.write_decimal(m.amount)
-	_output_writer.write_f(", ")
+	_view_writer.write_f(", ")
+	_view_writer.write_decimal(m.amount)
+	_view_writer.write_f(", ")
 	writeUnit(m.unitid)
-	_output_writer.write_f(")")
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_CommandMost(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("CommandMost(")
+	_view_writer.write_f("CommandMost(")
 	writeUnit(m.unitid)
-	_output_writer.write_f(")")
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_CommandMostAt(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("CommandMostAt(")
+	_view_writer.write_f("CommandMostAt(")
 	writeUnit(m.unitid)
-	_output_writer.write_f(", ")
+	_view_writer.write_f(", ")
 	writeLocation(m.locid)
-	_output_writer.write_f(")")
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_MostKills(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("MostKills(")
+	_view_writer.write_f("MostKills(")
 	writeUnit(m.unitid)
-	_output_writer.write_f(")")
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_HighestScore(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("HighestScore(")
+	_view_writer.write_f("HighestScore(")
 	writeConstant(EPD(tb_Score), m.restype)
-	_output_writer.write_f(")")
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_MostResources(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("MostResources(")
+	_view_writer.write_f("MostResources(")
 	writeConstant(EPD(tb_Resource), m.restype)
-	_output_writer.write_f(")")
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_Switch(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("Switch(")
+	_view_writer.write_f("Switch(")
 	writeSwitch(m.restype)
-	_output_writer.write_f(", ")
+	_view_writer.write_f(", ")
 	writeConstant(EPD(tb_SwitchState), m.comparison)
-	_output_writer.write_f(")")
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_ElapsedTime(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("ElapsedTime(")
+	_view_writer.write_f("ElapsedTime(")
 	writeConstant(EPD(tb_Comparison), m.comparison)
-	_output_writer.write_f(", ")
-	_output_writer.write_decimal(m.amount)
-	_output_writer.write_f(")")
+	_view_writer.write_f(", ")
+	_view_writer.write_decimal(m.amount)
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_Opponents(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("Opponents(")
+	_view_writer.write_f("Opponents(")
 	writeConstant(EPD(tb_Player), m.player)
-	_output_writer.write_f(", ")
+	_view_writer.write_f(", ")
 	writeConstant(EPD(tb_Comparison), m.comparison)
-	_output_writer.write_f(", ")
-	_output_writer.write_decimal(m.amount)
-	_output_writer.write_f(")")
+	_view_writer.write_f(", ")
+	_view_writer.write_decimal(m.amount)
+	_view_writer.write_f(")")
 
 
 @EUDFunc
@@ -226,89 +226,89 @@ def dec_Deaths(epd):
 			[m.internal == 0x4353])):
 		# check EUDX
 		if EUDIf()(m.internal == 0x4353): # eudx
-			_output_writer.write_f("MemoryX(%H, ",
+			_view_writer.write_f("MemoryX(%H, ",
 				0x58A364 + 4*m.player + 48*m.unitid)
 			writeConstant(EPD(tb_Comparison), m.comparison)
-			_output_writer.write_f(", %H(=%D), %H)", m.amount, m.amount, m.locid)
+			_view_writer.write_f(", %H(=%D), %H)", m.amount, m.amount, m.locid)
 		if EUDElse()():
-			_output_writer.write_f("Memory(%H, ",
+			_view_writer.write_f("Memory(%H, ",
 				0x58A364 + 4*m.player + 48*m.unitid)
 			writeConstant(EPD(tb_Comparison), m.comparison)
-			_output_writer.write_f(", %H(=%D))", m.amount, m.amount)
+			_view_writer.write_f(", %H(=%D))", m.amount, m.amount)
 		EUDEndIf()
 	if EUDElse()():
-		_output_writer.write_f("Deaths(")
+		_view_writer.write_f("Deaths(")
 		writeConstant(EPD(tb_Player), m.player)
-		_output_writer.write_f(", ")
+		_view_writer.write_f(", ")
 		writeConstant(EPD(tb_Comparison), m.comparison)
-		_output_writer.write_f(", ")
-		_output_writer.write_decimal(m.amount)
-		_output_writer.write_f(", ")
+		_view_writer.write_f(", ")
+		_view_writer.write_decimal(m.amount)
+		_view_writer.write_f(", ")
 		writeUnit(m.unitid)
-		_output_writer.write_f(")")
+		_view_writer.write_f(")")
 	EUDEndIf()
 
 
 @EUDFunc
 def dec_CommandLeast(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("CommandLeast(")
+	_view_writer.write_f("CommandLeast(")
 	writeUnit(m.unitid)
-	_output_writer.write_f(")")
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_CommandLeastAt(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("CommandLeastAt(")
+	_view_writer.write_f("CommandLeastAt(")
 	writeUnit(m.unitid)
-	_output_writer.write_f(", ")
+	_view_writer.write_f(", ")
 	writeLocation(m.locid)
-	_output_writer.write_f(")")
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_LeastKills(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("LeastKills(")
+	_view_writer.write_f("LeastKills(")
 	writeUnit(m.unitid)
-	_output_writer.write_f(")")
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_LowestScore(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("LowestScore(")
+	_view_writer.write_f("LowestScore(")
 	writeConstant(EPD(tb_Score), m.restype)
-	_output_writer.write_f(")")
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_LeastResources(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("LeastResources(")
+	_view_writer.write_f("LeastResources(")
 	writeConstant(EPD(tb_Resource), m.restype)
-	_output_writer.write_f(")")
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_Score(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("Score(")
+	_view_writer.write_f("Score(")
 	writeConstant(EPD(tb_Player), m.player)
-	_output_writer.write_f(", ")
+	_view_writer.write_f(", ")
 	writeConstant(EPD(tb_Score), m.restype)
-	_output_writer.write_f(", ")
+	_view_writer.write_f(", ")
 	writeConstant(EPD(tb_Comparison), m.comparison)
-	_output_writer.write_f(", ")
-	_output_writer.write_decimal(m.amount)
-	_output_writer.write_f(")")
+	_view_writer.write_f(", ")
+	_view_writer.write_decimal(m.amount)
+	_view_writer.write_f(")")
 
 
 @EUDFunc
 def dec_Always(epd):
-	_output_writer.write_f("Always()")
+	_view_writer.write_f("Always()")
 
 @EUDFunc
 def dec_Never(epd):
-	_output_writer.write_f("Never()")
+	_view_writer.write_f("Never()")

@@ -6,7 +6,7 @@ from ..core.encoder import ReadNumber
 from ..core.scrollview import ScrollView
 from ..resources.decoder.trigcond import dec_Condition
 from ..resources.decoder.trigact import dec_Action
-from ..core.decoder import setOffset, setEPD
+from ..core.decoder import setOffset
 
 '''
 Trigger
@@ -45,7 +45,6 @@ def _update_view(members):
 		EUDBreakIf(MemoryXEPD(cur_epd + 3, Exactly, 0, 0xFF000000))
 		_view_writer.seekepd(sv.GetEPDLine(line))
 		_view_writer.write_strepd(makeEPDText(' - '))
-		setOffset(_view_writer.getoffset())
 		dec_Condition(cur_epd)
 
 		line += 1
@@ -62,7 +61,6 @@ def _update_view(members):
 		EUDBreakIf(MemoryXEPD(cur_epd + 6, Exactly, 0, 0xFF0000))
 		_view_writer.seekepd(sv.GetEPDLine(line))
 		_view_writer.write_strepd(makeEPDText(' - '))
-		setOffset(_view_writer.getoffset())
 		dec_Action(cur_epd)
 
 		line += 1
@@ -105,11 +103,14 @@ def triggerview_keydown_callback(members, keycode):
 @EUDTypedFunc([TriggerViewMembers, None])
 def triggerview_execute_chat(members, offset):
 	# ? -> open view for help
-	# (number) -> set index to it (offset = 0 if index = 0 else 1700 - index)
+	# ## -> set pointer address of trigger to ##
 	new_ptr = EUDVariable()
 	if EUDIf()(ReadNumber(offset, 0, EPD(offset.getValueAddr()), \
 			EPD(new_ptr.getValueAddr())) == 1):
-		if EUDIf()(new_ptr.ExactlyX(0, 0b11)): # check normal trigger pointer
+		# Basic check normal trigger pointer
+		if EUDIf()([
+				new_ptr.ExactlyX(0, 0b11),
+				new_ptr <= 0x7FFFFFFF]):
 			members.ptr = new_ptr
 			members.epd = EPD(new_ptr)
 			_update_view(members)
