@@ -59,17 +59,25 @@ def dec_Condition(epd):
 	if EUDIf()([condtype >= 1, condtype < 24]):
 		EUDFuncPtr(1, 0).cast(conditions[condtype])(epd)
 	if EUDElse()():
-		_view_writer.write_f("Condition(%D, %D, %D, %D, %D, %D, %D, %D, %D)",
+		_view_writer.write_f("Condition(%D, %D, %D, %D, %D, %D, %D)",
 			cond.locid,
 			cond.player,
 			cond.amount,
 			cond.unitid,
 			cond.comparison,
-			cond.condtype,
+			condtype,
 			cond.restype,
-			cond.flags,
-			cond.internal,
 		)
+	EUDEndIf()
+	flags = cond.flags
+	if EUDIf()(flags.ExactlyX(1, 1)):
+		_view_writer.write_f(' WaitExecute')
+	EUDEndIf()
+	if EUDIf()(flags.ExactlyX(2, 2)):
+		_view_writer.write_f(' IgnoreExecution')
+	EUDEndIf()
+	if EUDIf()(flags.ExactlyX(4, 4)):
+		_view_writer.write_f(' AlwaysDisplay')
 	EUDEndIf()
 	_view_writer.write(0)
 

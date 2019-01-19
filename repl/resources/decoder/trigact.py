@@ -95,7 +95,7 @@ def dec_Action(epd):
 	if EUDIf()([acttype >= 1, acttype < 58]):
 		EUDFuncPtr(1, 0).cast(actions[acttype])(epd)
 	if EUDElse()():
-		_view_writer.write_f("Action(%D, %D, %D, %D, %D, %D, %D, %D, %D, %D, %D)",
+		_view_writer.write_f("Action(%D, %D, %D, %D, %D, %D, %D, %D, %D)",
 			act.locid1,
 			act.strid,
 			act.wavid,
@@ -105,9 +105,17 @@ def dec_Action(epd):
 			act.unitid,
 			act.acttype,
 			act.amount,
-			act.flags,
-			act.internal,
 		)
+	EUDEndIf()
+	flags = act.flags
+	if EUDIf()(flags.ExactlyX(1, 1)):
+		_view_writer.write_f(' WaitExecute')
+	EUDEndIf()
+	if EUDIf()(flags.ExactlyX(2, 2)):
+		_view_writer.write_f(' IgnoreExecution')
+	EUDEndIf()
+	if EUDIf()(flags.ExactlyX(4, 4)):
+		_view_writer.write_f(' AlwaysDisplay')
 	EUDEndIf()
 	_view_writer.write(0)
 
@@ -154,8 +162,6 @@ def dec_Transmission(epd):
 	_view_writer.write_decimal(m.time)
 	_view_writer.write_f(", ")
 	writeString(m.strid)
-	_view_writer.write_f(", ")
-	_view_writer.write_decimal(m.flags)
 	_view_writer.write_f(")")
 
 
@@ -172,8 +178,6 @@ def dec_DisplayText(epd):
 	m = _actmap(epd)
 	_view_writer.write_f("DisplayText(")
 	writeString(m.strid)
-	_view_writer.write_f(", ")
-	_view_writer.write_decimal(m.flags)
 	_view_writer.write_f(")")
 
 
