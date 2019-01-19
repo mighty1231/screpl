@@ -218,15 +218,35 @@ def dec_Opponents(epd):
 @EUDFunc
 def dec_Deaths(epd):
 	m = _condmap(epd)
-	_output_writer.write_f("Deaths(")
-	writeConstant(EPD(tb_Player), m.player)
-	_output_writer.write_f(", ")
-	writeConstant(EPD(tb_Comparison), m.comparison)
-	_output_writer.write_f(", ")
-	_output_writer.write_decimal(m.amount)
-	_output_writer.write_f(", ")
-	writeUnit(m.unitid)
-	_output_writer.write_f(")")
+
+	# consider EUD
+	if EUDIf()(EUDOr(
+			[m.player >= 27, m.unitid < 228],
+			[m.player < 12, m.unitid >= 228],
+			[m.internal == 0x4353])):
+		# check EUDX
+		if EUDIf()(m.internal == 0x4353): # eudx
+			_output_writer.write_f("MemoryX(%H, ",
+				0x58A364 + 4*m.player + 48*m.unitid)
+			writeConstant(EPD(tb_Comparison), m.comparison)
+			_output_writer.write_f(", %H(=%D), %H)", m.amount, m.amount, m.locid)
+		if EUDElse()():
+			_output_writer.write_f("Memory(%H, ",
+				0x58A364 + 4*m.player + 48*m.unitid)
+			writeConstant(EPD(tb_Comparison), m.comparison)
+			_output_writer.write_f(", %H(=%D))", m.amount, m.amount)
+		EUDEndIf()
+	if EUDElse()():
+		_output_writer.write_f("Deaths(")
+		writeConstant(EPD(tb_Player), m.player)
+		_output_writer.write_f(", ")
+		writeConstant(EPD(tb_Comparison), m.comparison)
+		_output_writer.write_f(", ")
+		_output_writer.write_decimal(m.amount)
+		_output_writer.write_f(", ")
+		writeUnit(m.unitid)
+		_output_writer.write_f(")")
+	EUDEndIf()
 
 
 @EUDFunc

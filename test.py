@@ -322,7 +322,25 @@ def svtest_main():
 		EUDDoEvents()
 	EUDEndInfLoop()
 
+@EUDFunc
+def trigviewtest_main():
+	from repl import REPL, RegisterTraceObject
+
+
+	if EUDInfLoop()():
+		# Turbo
+		DoActions(SetDeaths(203151, SetTo, 1, 0))
+		REPL().execute()
+
+		a = RawTrigger(conditions = MemoryX(0x58A364, AtMost, 255, 0xFF),
+			actions = SetMemoryX(0x58A364, Add, 1, 0xFF))
+		RegisterTraceObject("trig", a)
+		RunTrigTrigger()
+		EUDDoEvents()
+	EUDEndInfLoop()
+
+
 from config import outfname
 LoadMap("base.scx")
-SaveMap(outfname, svtest_main)
+SaveMap(outfname, trigviewtest_main)
 
