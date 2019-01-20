@@ -12,7 +12,6 @@ bp_locked = EUDVariable(0)
 # Instances used during break time
 bp_cp = EUDVariable()
 bp_trig_ptr = EUDVariable()
-bp_trig_epd = EUDVariable()
 
 
 bp_table = ReferenceTable()
@@ -35,7 +34,7 @@ def RegisterBPHere(name, cond = None):
 	empty_trig = RawTrigger()
 
 	# make hook for repl_end
-	if repl_end_hook == None:
+	if repl_end_hook is None:
 		# automatically set EUDCommands for Breakpoint
 		RegisterCommand('bpon', BPOn)
 		RegisterCommand('bpoff', BPOff)
@@ -71,7 +70,7 @@ def RegisterBPHere(name, cond = None):
 		DoActions(SetNextPtr(empty_trig, breaked_trig_ptr))
 
 		# Conditional breakpoint
-		if cond != None:
+		if cond is not None:
 			EUDIf()(cond)
 
 		# recover original loop
@@ -81,7 +80,6 @@ def RegisterBPHere(name, cond = None):
 		bp_locked << 1
 		bp_cp << f_getcurpl()
 		bp_trig_ptr << breaked_trig_ptr
-		bp_trig_epd << EPD(breaked_trig_ptr)
 
 		# Uses triggerview temporarily
 		# @TODO make BPView

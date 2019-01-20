@@ -1,6 +1,5 @@
 from eudplib import *
 from .view import _view_writer, EUDView, varpool
-from ..utils import f_print_utf8_epd
 from ..core.command import EUDCommandPtr
 from ..core.table import ReferenceTable
 from ..core.scrollview import ScrollView

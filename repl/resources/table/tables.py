@@ -10,7 +10,6 @@ from eudplib.core.mapdata.stringmap import (
     locmap,
     swmap
 )
-from ...core.command import EUDCommandPtr
 from ...core.table import ReferenceTable
 from ...utils import makeEPDText
 

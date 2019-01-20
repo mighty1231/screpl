@@ -1,4 +1,3 @@
-from .core.command import EUDCommand
 from .core.encoder import (
 	ReadNumber,
 	ReadName,
@@ -19,8 +18,6 @@ from .core.pool import (
 	VarPool
 )
 
-from .repl import REPL
-from .breakpoint import RegisterBPHere
 from .resources.encoder.const import (
 	argEncNumber,
 	argEncCount,
@@ -55,4 +52,5 @@ from .utils import (
 	f_strcmp_ptrepd,
 	EUDByteRW
 )
-from .view import *
+from .repl import REPL
+from .breakpoint import RegisterBPHere

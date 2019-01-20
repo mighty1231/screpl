@@ -1,5 +1,4 @@
 from eudplib import *
-from ...utils import makeEPDTextArray
 from ...core.command import EUDCommand
 from ...core.table import SearchTable
 from ...core.encoder import ReadName, ArgEncoderPtr
@@ -8,7 +7,7 @@ from ..table.tables import (
 	repl_commands,
 	RegisterCommand
 )
-from ...utils import makeText, makeEPDText, f_strcmp_ptrepd
+from ...utils import f_strcmp_ptrepd, makeEPDText
 from ...view import (
 	StaticView,
 	TableView,

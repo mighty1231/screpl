@@ -4,7 +4,6 @@ from .view import (
 	GetViewCount
 )
 
-from .static import StaticView
 from .table import (
 	TableView,
 	tableDec_StringDecimal,
@@ -12,6 +11,9 @@ from .table import (
 	tableDec_String,
 	tableDec_Command
 )
+
+from .static import StaticView
 from .variable import VariableView
 from .unitarray import UnitArrayView
 from .trigger import TriggerView
+

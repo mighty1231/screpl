@@ -6,7 +6,6 @@ from ..core.encoder import ReadNumber
 from ..core.scrollview import ScrollView
 from ..resources.decoder.trigcond import dec_Condition
 from ..resources.decoder.trigact import dec_Action
-from ..core.decoder import setOffset
 
 '''
 Trigger
@@ -115,7 +114,6 @@ def triggerview_init(ptr):
 
 @EUDTypedFunc([TriggerViewMembers, None])
 def triggerview_keydown_callback(members, keycode):
-	# @TODO
 	EUDSwitch(keycode)
 	if EUDSwitchCase()(0x76): # F7 - Prev Page
 		members.scrollview.SetPrevPage()
