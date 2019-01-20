@@ -1,5 +1,5 @@
 from eudplib import *
-from ...view.view import _view_writer
+from ...core.view import _view_writer
 from ..table.tables import (
     tb_Modifier,
     tb_AllyStatus,

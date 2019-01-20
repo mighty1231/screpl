@@ -1,14 +1,14 @@
 from eudplib import *
-from .view import _view_writer, EUDView, varpool
-from ..core.scrollview import ScrollView
-from ..core.table import ReferenceTable
-from ..utils import f_epd2ptr, EPDConstString
 from .static import (
 	staticview_keydown_callback,
 	staticview_execute_chat,
 	staticview_display,
 	staticview_destructor
 )
+from ..core.scrollview import ScrollView
+from ..core.table import ReferenceTable
+from ..core.view import _view_writer, EUDView, varpool
+from ..utils import f_epd2ptr, EPDConstString
 
 class VariableViewMembers(EUDStruct):
 	_fields_ = [

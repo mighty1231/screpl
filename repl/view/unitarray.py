@@ -1,9 +1,9 @@
 from eudplib import *
-from .view import _view_writer, EUDView, varpool
 from .static import StaticView
 from ..utils import EPDConstString, f_strcmp_ptrepd, f_print_utf8_epd
 from ..core.encoder import ReadNumber
 from ..core.scrollview import ScrollView
+from ..core.view import _view_writer, EUDView, varpool
 
 class UnitArrayViewMembers(EUDStruct):
 	_fields_ = [

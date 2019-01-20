@@ -1,6 +1,5 @@
 from eudplib import *
-
-from ..utils import EUDByteRW, EPDConstString
+from ..utils import EPDConstString, EUDByteRW
 
 _output_writer = EUDByteRW()
 RetDecoderPtr = EUDFuncPtr(1, 0)

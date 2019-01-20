@@ -1,6 +1,6 @@
 from eudplib import *
 from .pool import DbPool, VarPool
-from ..utils import EUDByteRW, EPDConstString
+from ..utils import EPDConstString, EUDByteRW
 
 _textPool = DbPool(300000)
 _varPool = VarPool(600)

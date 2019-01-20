@@ -1,10 +1,9 @@
 from eudplib import *
-from .utils.utils import f_strlen
+from .utils import EUDByteRW, f_strlen
 from .core.command import runCommand
+from .core.view import GetCurrentView, TerminateCurrentView, EUDView
 from .resources.table.tables import repl_commands
 from .resources.command import register_cmds
-from .view.view import GetCurrentView, TerminateCurrentView, EUDView
-from .utils import EUDByteRW
 
 _repl = None
 PAGE_NUMLINES = 8

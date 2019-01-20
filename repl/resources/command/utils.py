@@ -1,5 +1,5 @@
 from eudplib import *
-from ...utils import EUDByteRW, EPDConstString
+from ...utils import EPDConstString, EUDByteRW
 from ...core.command import EUDCommand
 from ...core.decoder import retDecDecimal, retDecHex, retDecBinary
 from ..table.tables import RegisterCommand, traced_objects, traced_variables

@@ -1,6 +1,6 @@
 from eudplib import *
 from ...core.table import SearchTableInv
-from ...view.view import _view_writer
+from ...core.view import _view_writer
 from ..table.tables import (
     tb_unit,
     tb_locSub,

@@ -1,8 +1,4 @@
 from eudplib import *
-from .view import _view_writer, EUDView, varpool
-from ..core.command import EUDCommandPtr
-from ..core.table import ReferenceTable
-from ..core.scrollview import ScrollView
 from .static import (
 	StaticViewMembers,
 	staticview_keydown_callback,
@@ -11,6 +7,10 @@ from .static import (
 	staticview_display,
 	staticview_destructor,
 )
+from ..core.command import EUDCommandPtr
+from ..core.table import ReferenceTable
+from ..core.scrollview import ScrollView
+from ..core.view import _view_writer, EUDView, varpool
 
 @EUDFunc
 def tableDec_StringDecimal(name, val):

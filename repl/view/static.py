@@ -1,7 +1,7 @@
 from eudplib import *
-from .view import _view_writer, EUDView, varpool
 from ..utils import f_print_utf8_epd
 from ..core.scrollview import ScrollView
+from ..core.view import _view_writer, EUDView, varpool
 
 class StaticViewMembers(EUDStruct):
 	_fields_ = [

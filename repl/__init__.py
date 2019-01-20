@@ -17,7 +17,6 @@ from .core.pool import (
 	DbPool,
 	VarPool
 )
-
 from .resources.encoder.const import (
 	argEncNumber,
 	argEncCount,
@@ -45,12 +44,12 @@ from .resources.table.tables import (
 	RegisterVariable,
 )
 from .utils import (
+	EUDByteRW,
 	ConstString,
 	EPDConstString,
 	EPDConstStringArray,
 	f_epd2ptr,
 	f_strcmp_ptrepd,
-	EUDByteRW
 )
 from .repl import REPL
 from .breakpoint import RegisterBPHere

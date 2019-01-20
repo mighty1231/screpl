@@ -1,6 +1,6 @@
 from eudplib import *
 from ..utils import EUDByteRW, f_raiseError, f_raiseWarning
-from ..core.pool import DbPool, VarPool
+from .pool import DbPool, VarPool
 
 '''
 EUDView lifecycle

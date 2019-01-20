@@ -1,9 +1,12 @@
+from .conststring import (
+	EPDConstString,
+	ConstString,
+	EPDConstStringArray,
+)
+from .eudbyterw import EUDByteRW
 from .utils import (
-	EPDConstString, 
-	ConstString, 
-	EUDByteRW, 
-	EPDConstStringArray, 
 	f_strcmp_ptrepd,
+	f_strlen,
 	f_epd2ptr,
 	f_strcmp2,
 	f_raiseError,
