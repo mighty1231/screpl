@@ -324,7 +324,7 @@ def svtest_main():
 
 @EUDFunc
 def trigviewtest_main():
-	from repl import REPL, RegisterTraceObject
+	from repl import REPL, RegisterTraceObject, RegisterVariable
 
 
 	if EUDInfLoop()():
@@ -351,6 +351,8 @@ def trigviewtest_main():
 				SetMemoryX(0x58A368, Add, 7, 0xFF),
 				Wait(2000),
 			])
+		v = f_dwread(0x58A364)
+		RegisterVariable("58a364", v)
 		RegisterTraceObject("trig", a)
 		RegisterTraceObject("b", b)
 		RunTrigTrigger()

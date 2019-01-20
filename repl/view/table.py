@@ -2,6 +2,7 @@ from eudplib import *
 from .view import _view_writer, EUDView, varpool
 from ..utils import f_print_utf8_epd
 from ..core.command import EUDCommandPtr
+from ..core.table import ReferenceTable
 from ..core.scrollview import ScrollView
 from .static import (
 	StaticViewMembers,
@@ -54,22 +55,12 @@ def tableview_init(arr_epd):
 	table_sz = f_dwread_epd(table_epd)
 	scrollview = ScrollView(table_sz)
 
-	cur = EUDVariable()
-	name_epd = table_epd + 1
-	value_epd = table_epd + 2
-	cur << 0
-	if EUDInfLoop()():
-		EUDBreakIf(cur >= table_sz)
+	def table_iter(cur, name_epd, value_epd):
 		_view_writer.seekepd(scrollview.GetEPDLine(cur))
 		decoder(f_dwread_epd(name_epd), f_dwread_epd(value_epd))
 		_view_writer.write(0)
 
-		DoActions([
-			cur.AddNumber(1),
-			name_epd.AddNumber(2),
-			value_epd.AddNumber(2),
-		])
-	EUDEndInfLoop()
+	ReferenceTable.Iter(table_epd, table_iter)
 	members.scrollview = scrollview
 	EUDReturn(members)
 

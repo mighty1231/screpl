@@ -93,47 +93,45 @@ class ReferenceTable(EUDObject):
             emitbuffer.WriteDword(key)
             emitbuffer.WriteDword(value)
 
+    @staticmethod
+    def Iter(table_epd, func):
+        '''
+        func receives i, key_epd, value_epd and do something
+        '''
+        i = EUDVariable()
+        k_epd = table_epd + 1
+        v_epd = table_epd + 2
+        i << 0
+        if EUDInfLoop()():
+            EUDBreakIf(MemoryEPD(table_epd, AtMost, i))
+            func(i, k_epd, v_epd)
+            DoActions([
+                i.AddNumber(1),
+                k_epd.AddNumber(2),
+                v_epd.AddNumber(2)
+            ])
+        EUDEndInfLoop()
+
+    @staticmethod
+    def GetSize(table_epd):
+        return f_dwread_epd(table_epd)
+
 @EUDTypedFunc([None, None, EUDFuncPtr(2, 1), None], [None])
 def SearchTable(key, table_epd, compareFunc, retval_epd):
-    size = f_dwread_epd(table_epd)
-    k, v = table_epd + 1, table_epd + 2
-    if EUDInfLoop()():
-        EUDBreakIf(size == 0)
+    def func(i, k, v):
         if EUDIf()(compareFunc(key, f_dwread_epd(k)) == 0): # Caution: 0
             f_dwwrite_epd(retval_epd, f_dwread_epd(v))
             EUDReturn(1)
         EUDEndIf()
-        DoActions([
-            size.SubtractNumber(1),
-            k.AddNumber(2),
-            v.AddNumber(2),
-        ])
-    EUDEndInfLoop()
+    ReferenceTable.Iter(table_epd, func)
     EUDReturn(0)
 
 @EUDFunc
 def SearchTableInv(value, table_epd, retval_epd):
-    size = f_dwread_epd(table_epd)
-    k, v = table_epd + 1, table_epd + 2
-    if EUDInfLoop()():
-        EUDBreakIf(size == 0)
-        if EUDIf()(value == f_dwread_epd(v)): # Caution: 0
+    def func(i, k, v):
+        if EUDIf()(MemoryEPD(v, Exactly, value)): # Caution: 0
             f_dwwrite_epd(retval_epd, f_dwread_epd(k))
             EUDReturn(1)
         EUDEndIf()
-        DoActions([
-            size.SubtractNumber(1),
-            k.AddNumber(2),
-            v.AddNumber(2),
-        ])
-    EUDEndInfLoop()
+    ReferenceTable.Iter(table_epd, func)
     EUDReturn(0)
-
-@EUDFunc
-def PrintTable(table_epd):
-    f_simpleprint('size:', f_dwread_epd(table_epd))
-    f_print_utf8_epd(f_dwread_epd(table_epd+1))
-    f_simpleprint(hptr(f_dwread_epd(table_epd+2)))
-    # f_print_utf8_epd(table_epd+3)
-
-    # f_simpleprint(hptr(f_dwread_epd(table_epd+4)))

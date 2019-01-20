@@ -1,6 +1,7 @@
 from eudplib import *
 from .view import _view_writer, EUDView, varpool
 from ..core.scrollview import ScrollView
+from ..core.table import ReferenceTable
 from ..utils import f_epd2ptr, makeEPDText
 from .static import (
 	staticview_keydown_callback,
@@ -31,31 +32,29 @@ def variableview_init(table_epd):
 	members.title_epd = makeEPDText("Variables")
 
 	# read table
-	table_epd = f_dwread_epd(table_epd + 1)
-	table_sz = f_dwread_epd(table_epd)
+	table_sz = ReferenceTable.GetSize(table_epd)
 	scrollview = ScrollView(table_sz)
 
 	members.table_epd = table_epd
+	members.scrollview = scrollview
 
 	EUDReturn(members)
 
 @EUDTypedFunc([VariableViewMembers])
 def variableview_loop(members):
-	if EUDIfNot()(members.scrollview.disp_lcnt == 0):
-		for i, line_epd in members.scrollview.PageLoop():
-			_view_writer.seekepd(line_epd)
-			key_epd = members.table_epd + 2*i + 1
-			value_epd = key_epd + 1
-			variable_epd = f_dwread_epd(value_epd)
-			variable_value = f_dwread_epd(variable_epd)
-			_view_writer.write_f("%E (addr = %H): %H = %D%C",
-				f_dwread_epd(key_epd),
-				f_epd2ptr(variable_epd),
-				variable_value,
-				variable_value,
+	scrollview = members.scrollview
+	def table_iter(cur, name_epd, value_epd):
+		_view_writer.seekepd(scrollview.GetEPDLine(cur))
+		varaddr_epd = f_dwread_epd(value_epd)
+		var_value = f_dwread_epd(varaddr_epd)
+		_view_writer.write_f("%E (addr = %H): %H = %D%C",
+				f_dwread_epd(name_epd),
+				f_epd2ptr(varaddr_epd),
+				var_value,
+				var_value,
 				0
 			)
-	EUDEndIf()
+	ReferenceTable.Iter(members.table_epd, table_iter)
 
 
 VariableView = EUDView(

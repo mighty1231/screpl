@@ -89,40 +89,6 @@ class ScrollView(EUDStruct):
 	def SetDispLineCnt(self, cnt):
 		self.disp_lcnt = cnt
 
-	def PageLoop(self):
-		blockname = 'pageloop'
-		EUDCreateBlock(blockname, self)
-
-		if EUDIf()(self.disp_lcnt == 0):
-			f_raiseError("Avoid loop on page with no items")
-		EUDEndIf()
-
-		cur, pageend, until = EUDCreateVariables(3)
-		cur << self.offset
-		pageend << self.offset + self.lines_per_page
-		if EUDIf()(pageend >= self.disp_lcnt):
-			until << self.disp_lcnt
-		if EUDElse()():
-			until << pageend
-		EUDEndIf()
-
-		line_epd = self.epd_lines + cur
-		if EUDInfLoop()():
-			EUDBreakIf(cur >= until)
-			yield cur, f_dwread_epd(line_epd)
-			EUDSetContinuePoint()
-
-			DoActions([
-				cur.AddNumber(1),
-				line_epd.AddNumber(1)
-			])
-		EUDEndInfLoop()
-
-		ep_assert(
-			EUDPopBlock(blockname)[1] is self,
-			'pageloop mismatch'
-		)
-
 	@EUDMethod
 	def Display(self):
 		# print offset ~ offset + lines_per_page - 1
