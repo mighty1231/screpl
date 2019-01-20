@@ -1,7 +1,7 @@
 from eudplib import *
 from .view import _view_writer, EUDView, varpool
 from .static import StaticView
-from ..utils import makeEPDText, f_strcmp_ptrepd, f_print_utf8_epd
+from ..utils import EPDConstString, f_strcmp_ptrepd, f_print_utf8_epd
 from ..core.encoder import ReadNumber
 from ..core.scrollview import ScrollView
 from ..resources.decoder.trigcond import dec_Condition
@@ -75,7 +75,7 @@ def _update_view(members):
 		# check condtype = 0
 		EUDBreakIf(MemoryXEPD(cur_epd + 3, Exactly, 0, 0xFF000000))
 		_view_writer.seekepd(sv.GetEPDLine(line))
-		_view_writer.write_strepd(makeEPDText(' - '))
+		_view_writer.write_strepd(EPDConstString(' - '))
 		dec_Condition(cur_epd)
 
 		line += 1
@@ -91,7 +91,7 @@ def _update_view(members):
 		# check acttype = 0
 		EUDBreakIf(MemoryXEPD(cur_epd + 6, Exactly, 0, 0xFF0000))
 		_view_writer.seekepd(sv.GetEPDLine(line))
-		_view_writer.write_strepd(makeEPDText(' - '))
+		_view_writer.write_strepd(EPDConstString(' - '))
 		dec_Action(cur_epd)
 
 		line += 1
@@ -152,19 +152,19 @@ def triggerview_execute_chat(members, offset):
 		if EUDElse()():
 			EUDReturn(0)
 		EUDEndIf()
-	if EUDElseIf()(f_strcmp_ptrepd(offset, makeEPDText("?")) == 0):
+	if EUDElseIf()(f_strcmp_ptrepd(offset, EPDConstString("?")) == 0):
 		args = EUDArray([
-			makeEPDText("TRIGGER VIEW - Manual"),
+			EPDConstString("TRIGGER VIEW - Manual"),
 			9,
-			makeEPDText("Keycode"),
-			makeEPDText("F7: Go to left page"),
-			makeEPDText("F8: Go to right page"),
-			makeEPDText("R: Refresh trigger"),
-			makeEPDText("N: Goto next trigger"),
-			makeEPDText(""),
-			makeEPDText("Type"),
-			makeEPDText("?: get help"),
-			makeEPDText("##: set pointer address of trigger to ##"),
+			EPDConstString("Keycode"),
+			EPDConstString("F7: Go to left page"),
+			EPDConstString("F8: Go to right page"),
+			EPDConstString("R: Refresh trigger"),
+			EPDConstString("N: Goto next trigger"),
+			EPDConstString(""),
+			EPDConstString("Type"),
+			EPDConstString("?: get help"),
+			EPDConstString("##: set pointer address of trigger to ##"),
 		])
 		StaticView.OpenView(EPD(args))
 		EUDReturn(1)

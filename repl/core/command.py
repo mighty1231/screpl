@@ -1,7 +1,7 @@
 from eudplib import *
 from eudplib.core.eudfunc.eudfptr import callFuncBody
 
-from ..utils import makeEPDText, f_strcmp_ptrepd
+from ..utils import EPDConstString, f_strcmp_ptrepd
 from .encoder import ArgEncoderPtr, _read_until_delimiter, ReadName
 from .decoder import RetDecoderPtr, _output_writer
 from .table import SearchTable
@@ -39,12 +39,12 @@ def runCommand(txtptr, cmdtable_epd, ref_stdout_epd):
 			func(txtptr, ref_stdout_epd)
 		if EUDElse()():
 			_output_writer.seekepd(ref_stdout_epd)
-			_output_writer.write_strepd(makeEPDText('\x06Failed to read function name'))
+			_output_writer.write_strepd(EPDConstString('\x06Failed to read function name'))
 			_output_writer.write(0)
 		EUDEndIf()
 	if EUDElse()():
 		_output_writer.seekepd(ref_stdout_epd)
-		_output_writer.write_strepd(makeEPDText('\x06Failed to read command'))
+		_output_writer.write_strepd(EPDConstString('\x06Failed to read command'))
 		_output_writer.write(0)
 	EUDEndIf()
 
@@ -68,12 +68,12 @@ def encodeArguments():
 					EPD(_offset.getValueAddr()), \
 					EPD(_arg_storage)+i) == 1):
 				_encode_success << 0 # failed to encode argument
-				_output_writer.write_strepd(makeEPDText(\
+				_output_writer.write_strepd(EPDConstString(\
 						'\x06Syntax Error: during encoding argument ['))
 				_output_writer.write_decimal(i)
-				_output_writer.write_strepd(makeEPDText('] \x16'))
+				_output_writer.write_strepd(EPDConstString('] \x16'))
 				_output_writer.write_strn(_offset, 5)
-				_output_writer.write_strepd(makeEPDText('...'))
+				_output_writer.write_strepd(EPDConstString('...'))
 				_output_writer.write(0)
 				EUDBreak()
 			EUDEndIf()
@@ -88,7 +88,7 @@ def decodeReturns():
 	if EUDInfLoop()():
 		EUDBreakIf(i == _retn)
 		if EUDIf()(i >= 1):
-			_output_writer.write_strepd(makeEPDText(', '))
+			_output_writer.write_strepd(EPDConstString(', '))
 		EUDEndIf()
 
 		_ret_decoder_ptr = RetDecoderPtr.cast(_ret_decoders[i])
@@ -126,7 +126,7 @@ def createIndirectCaller(f):
 			# print result to output buffer
 			decodeReturns()
 		else:
-			_output_writer.write_strepd(makeEPDText('Success!'))
+			_output_writer.write_strepd(EPDConstString('Success!'))
 			_output_writer.write(0)
 	EUDEndIf()
 	caller_end = RawTrigger()
@@ -177,7 +177,7 @@ class EUDCommandN(EUDFuncN):
 			assert '\n' not in doc, "document should be one-line"
 		else:
 			doc = ', '.join(inspect.getargspec(func)[0])
-		self._doc_epd = makeEPDText(doc)
+		self._doc_epd = EPDConstString(doc)
 
 class EUDCommandPtr(EUDStruct):
 	_fields_ = [

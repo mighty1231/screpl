@@ -1,7 +1,7 @@
 from eudplib import *
 from .view import _view_writer, EUDView, varpool
 from .static import StaticView
-from ..utils import makeEPDText, f_strcmp_ptrepd, f_print_utf8_epd
+from ..utils import EPDConstString, f_strcmp_ptrepd, f_print_utf8_epd
 from ..core.encoder import ReadNumber
 from ..core.scrollview import ScrollView
 
@@ -74,17 +74,17 @@ def unitarrayview_execute_chat(members, offset):
 			members.offset = 1692
 		EUDEndIf()
 		EUDReturn(1)
-	if EUDElseIf()(f_strcmp_ptrepd(offset, makeEPDText("?")) == 0):
+	if EUDElseIf()(f_strcmp_ptrepd(offset, EPDConstString("?")) == 0):
 		args = EUDArray([
-			makeEPDText("UNITARRAY VIEW - Manual"),
+			EPDConstString("UNITARRAY VIEW - Manual"),
 			7,
-			makeEPDText("Keycode"),
-			makeEPDText("F7: Go to smaller offset"),
-			makeEPDText("F8: Go to bigger offset"),
-			makeEPDText(""),
-			makeEPDText("Type"),
-			makeEPDText("?: get help"),
-			makeEPDText("##: go to 0x59CCA8 + 336 * ##"),
+			EPDConstString("Keycode"),
+			EPDConstString("F7: Go to smaller offset"),
+			EPDConstString("F8: Go to bigger offset"),
+			EPDConstString(""),
+			EPDConstString("Type"),
+			EPDConstString("?: get help"),
+			EPDConstString("##: go to 0x59CCA8 + 336 * ##"),
 		])
 		StaticView.OpenView(EPD(args))
 		EUDReturn(1)

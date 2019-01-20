@@ -23,7 +23,7 @@ class REPL:
 
 		# superuser's name
 		# assert isinstance(superuser, str), 'must be string'
-		# self.prefix = makeEPDText(EPD(superuser + ':'))
+		# self.prefix = EPDConstString(EPD(superuser + ':'))
 		# self.prefixlen = len(superuser + ':')
 		self.playerId = EncodePlayer(superuser)
 		assert 0 <= self.playerId < 8, "Superuser should be one of P1 ~ P8"

@@ -1,7 +1,7 @@
 from eudplib import *
 from ...core.encoder import ReadNumber, ReadName, ArgEncoderPtr
 from ...core.table import SearchTable
-from ...utils import makeEPDText, f_strcmp_ptrepd
+from ...utils import EPDConstString, f_strcmp_ptrepd
 from ..table.tables import (
     tb_Modifier,
     tb_AllyStatus,
@@ -34,7 +34,7 @@ def _makeConstEncoder(table):
 @EUDFunc
 def _EncodeCount(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadName(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
-        if EUDIf()(f_strcmp_ptrepd(tmpbuf, makeEPDText('All')) == 0):
+        if EUDIf()(f_strcmp_ptrepd(tmpbuf, EPDConstString('All')) == 0):
             f_dwwrite_epd(retval_epd, 0)
             EUDReturn(1)
         if EUDElse()():

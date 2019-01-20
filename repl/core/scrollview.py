@@ -1,6 +1,6 @@
 from eudplib import *
 from .pool import DbPool, VarPool
-from ..utils import EUDByteRW, makeEPDText
+from ..utils import EUDByteRW, EPDConstString
 
 _textPool = DbPool(300000)
 _varPool = VarPool(600)
@@ -57,7 +57,7 @@ class ScrollView(EUDStruct):
 					self._allocated = 0
 					self.lines_per_page = lines_per_page
 
-					arr = [makeEPDText(line) for line in text.split('\n')]
+					arr = [EPDConstString(line) for line in text.split('\n')]
 					self.max_lcnt = len(arr)
 					self.disp_lcnt = len(arr)
 					self.epd_lines = EPD(EUDArray(arr))

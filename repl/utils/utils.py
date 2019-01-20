@@ -1,19 +1,19 @@
 from eudplib import *
 
-def makeText(msg):
-	if not hasattr(makeText, 'textdict'):
-		makeText.textdict = {}
-	textdict = makeText.textdict
+def ConstString(msg):
+	if not hasattr(ConstString, 'textdict'):
+		ConstString.textdict = {}
+	textdict = ConstString.textdict
 	try:
 		return textdict[msg]
 	except KeyError:
 		textdict[msg] = Db(u2b(msg) + b'\0')
 		return textdict[msg]
 
-def makeEPDText(msg):
-	return EPD(makeText(msg))
+def EPDConstString(msg):
+	return EPD(ConstString(msg))
 
-def makeEPDTextArray(txt):
+def EPDConstStringArray(txt):
 	lines = []
 	if type(txt) == str:
 		lines = txt.split('\n')
@@ -21,7 +21,7 @@ def makeEPDTextArray(txt):
 		for line in txt:
 			lines += line.split('\n')
 	ln = len(lines)
-	return EUDArray([EPD(makeText(line)) for line in lines]), ln
+	return EUDArray([EPDConstString(line) for line in lines]), ln
 
 def f_raiseError(txt):
 	DoActions([
@@ -56,7 +56,7 @@ def f_print_memorytable(off):
 	a = DBString(100)
 	writer = EUDByteRW()
 	writer.seekoffset(a.GetStringMemoryAddr())
-	writer.write_strepd(EPD(makeText(' - ')))
+	writer.write_strepd(EPDConstString('- '))
 	writer.write_memoryTable(off, 8)
 	writer.write_strn(off, 8)
 	writer.write(0)
@@ -73,7 +73,7 @@ def f_print_memorytable_epd(epd):
 	a = DBString(100)
 	writer = EUDByteRW()
 	writer.seekoffset(a.GetStringMemoryAddr())
-	writer.write_strepd(EPD(makeText(' - ')))
+	writer.write_strepd(EPDConstString('- '))
 	writer.write_memoryTable(off, 8)
 	writer.write_strn(off, 8)
 	writer.write(0)
@@ -422,7 +422,7 @@ class EUDByteRW:
 			b = reader.read()
 
 			self.write_bytehex(b)
-			self.write_str(makeText(' '))
+			self.write_str(ConstString(' '))
 
 			DoActions(cnt.SubtractNumber(1))
 		EUDEndInfLoop()
@@ -500,13 +500,13 @@ class EUDByteRW:
 			else:
 				merged_items.append((fm, arg))
 
-		# Short constants are written with bytes, otherwise use makeEPDText
+		# Short constants are written with bytes, otherwise use EPDConstString
 		for fm, arg in merged_items:
 			if fm == 'const':
 				if len(arg) == 1:
 					self.write(ord(arg))
 				else:
-					self.write_strepd(makeEPDText(arg))
+					self.write_strepd(EPDConstString(arg))
 			elif fm == 'H':
 				self.write_hex(arg)
 			elif fm == 'D':

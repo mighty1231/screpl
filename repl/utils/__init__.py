@@ -1,8 +1,8 @@
 from .utils import (
-	makeEPDText, 
-	makeText, 
+	EPDConstString, 
+	ConstString, 
 	EUDByteRW, 
-	makeEPDTextArray, 
+	EPDConstStringArray, 
 	f_strcmp_ptrepd,
 	f_epd2ptr,
 	f_strcmp2,

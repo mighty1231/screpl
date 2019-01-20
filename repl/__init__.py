@@ -45,9 +45,9 @@ from .resources.table.tables import (
 	RegisterVariable,
 )
 from .utils import (
-	makeText,
-	makeEPDText,
-	makeEPDTextArray,
+	ConstString,
+	EPDConstString,
+	EPDConstStringArray,
 	f_epd2ptr,
 	f_strcmp_ptrepd,
 	EUDByteRW

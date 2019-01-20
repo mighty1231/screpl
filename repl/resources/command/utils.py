@@ -1,5 +1,5 @@
 from eudplib import *
-from ...utils import EUDByteRW, makeEPDText
+from ...utils import EUDByteRW, EPDConstString
 from ...core.command import EUDCommand
 from ...core.decoder import retDecDecimal, retDecHex, retDecBinary
 from ..table.tables import RegisterCommand, traced_objects, traced_variables
@@ -110,7 +110,7 @@ def cmd_strcpy(dst, src):
 
 @EUDCommand([argEncNumber])
 def cmd_memoryview(offset):
-	args = EUDArray([makeEPDText('Memory View'), 8] \
+	args = EUDArray([EPDConstString('Memory View'), 8] \
 		+ [EPD(Db(300)) for i in range(8)])
 	writer = EUDByteRW()
 	reader = EUDByteRW()
@@ -121,13 +121,13 @@ def cmd_memoryview(offset):
 	if EUDWhile()(i < 8+2):
 		writer.seekepd(args[i])
 		writer.write_hex(offset)
-		writer.write_strepd(makeEPDText(': '))
+		writer.write_strepd(EPDConstString(': '))
 
 		if EUDLoopN()(16):
 			writer.write_bytehex(reader.read())
 			writer.write(ord(' '))
 		EUDEndLoopN()
-		writer.write_strepd(makeEPDText(' | '))
+		writer.write_strepd(EPDConstString(' | '))
 		writer.write_strn(offset, 16)
 		writer.write(0)
 
@@ -142,7 +142,7 @@ def cmd_objtrace():
 	get address table of marked EUDObjects with RegisterTraceObject
 	'''
 	arg = EUDArray([
-		makeEPDText("Objects"),
+		EPDConstString("Objects"),
 		EUDFuncPtr(2, 0)(tableDec_StringHex),
 		EPD(traced_objects)
 	])

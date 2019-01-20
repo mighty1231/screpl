@@ -2,7 +2,7 @@ from eudplib import *
 from .view import _view_writer, EUDView, varpool
 from ..core.scrollview import ScrollView
 from ..core.table import ReferenceTable
-from ..utils import f_epd2ptr, makeEPDText
+from ..utils import f_epd2ptr, EPDConstString
 from .static import (
 	staticview_keydown_callback,
 	staticview_execute_chat,
@@ -29,7 +29,7 @@ def variableview_init(table_epd):
 	table_sz(=N), key1, value1, key2, value2, ..., keyN, valueN
 	'''
 	members = VariableViewMembers.cast(varpool.alloc(varn))
-	members.title_epd = makeEPDText("Variables")
+	members.title_epd = EPDConstString("Variables")
 
 	# read table
 	table_sz = ReferenceTable.GetSize(table_epd)

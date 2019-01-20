@@ -8,12 +8,12 @@ def testCmdPtr():
 	def cmd_SetMemory2(memory, modifier, value):
 		DoActions(SetMemory(memory, modifier, value))
 
-	EUDCommandPtr(cmd_SetMemory2)(makeText('0x57F0F0, SetTo, 1)'))
-	EUDCommandPtr(cmd_SetMemory2)(makeText('0x57F0F0, Add, 341)'))
+	EUDCommandPtr(cmd_SetMemory2)(ConstString('0x57F0F0, SetTo, 1)'))
+	EUDCommandPtr(cmd_SetMemory2)(ConstString('0x57F0F0, Add, 341)'))
 
 def testReadName():
 	from encoder import ReadName
-	db = makeText('abcdefgh_b,')
+	db = ConstString('abcdefgh_b,')
 	ret = DBString(150)
 	ptr = EUDVariable()
 	ct.f_printAll(readn, ReadName(db, ord(','), EPD(ptr.getValueAddr()), EPD(ret)+1))
@@ -70,7 +70,7 @@ def testSelfMod():
 @EUDFunc
 def bpmain():
 	from repl import (REPL, EUDByteRW, EUDCommand,
-		argEncNumber, RegisterCommand, makeEPDText)
+		argEncNumber, RegisterCommand, EPDConstString)
 	if EUDInfLoop()():
 		# Turbo
 		# DoActions(SetDeaths(203151, SetTo, 1, 0))
@@ -101,7 +101,7 @@ def bpmain():
 	RegisterCommand('abc', toggleBP)
 
 def findCommentedTrigger(breakpoints):
-	from repl import f_strcmp_ptrepd, makeEPDText
+	from repl import f_strcmp_ptrepd, EPDConstString
 	# Find trigger with action Comment("screpl_bp")
 	'''
 	Action class.
@@ -164,7 +164,7 @@ def findCommentedTrigger(breakpoints):
 				if EUDIf()([m.acttype == 47]):
 					# search string
 					straddr = GetMapStringAddr(m.strid)
-					if EUDIf()(f_strcmp_ptrepd(straddr, makeEPDText("screpl_bp")) == 0):
+					if EUDIf()(f_strcmp_ptrepd(straddr, EPDConstString("screpl_bp")) == 0):
 						breakpoints.push(trig_ptr)
 						EUDJump(getNxtTrigger)
 					EUDEndIf()
@@ -217,7 +217,7 @@ def test(a, b):
 
 @EUDFunc
 def main():
-	from repl import REPL, EUDCommand, StaticView, RegisterCommand, makeEPDText, EUDByteRW
+	from repl import REPL, EUDCommand, StaticView, RegisterCommand, EPDConstString, EUDByteRW
 	if EUDExecuteOnce()():
 		breakpoints = EUDStack()(30)
 		findCommentedTrigger(breakpoints)
@@ -227,7 +227,7 @@ def main():
 	@EUDCommand([])
 	def cmd_openBPView():
 		arr = EUDArray([
-			makeEPDText("Breakpoints"),
+			EPDConstString("Breakpoints"),
 			30,
 		] + [EPD(Db(30)) for _ in range(30)])
 		i = EUDVariable()
@@ -236,7 +236,7 @@ def main():
 		if EUDWhile()(i < 1):
 			writer = EUDByteRW()
 			writer.seekepd(arr[i+2])
-			writer.write_strepd(makeEPDText("bp "))
+			writer.write_strepd(EPDConstString("bp "))
 			writer.write_hex(data[i])
 			writer.write(0)
 			i += 1

@@ -5,7 +5,7 @@ from .repl import repl_begin, repl_end
 from .core.table import ReferenceTable
 from .core.command import EUDCommand
 from .resources.table.tables import RegisterCommand
-from .utils import makeEPDText
+from .utils import EPDConstString
 
 bp_locked = EUDVariable(0)
 
@@ -104,7 +104,7 @@ def RegisterBPHere(name, cond = None):
 
 	# register
 	struct = BPItem(_from = EUDVArray(4)([
-			makeEPDText(name),
+			EPDConstString(name),
 			EPD(empty_trig),
 			callback_ptr,
 			breaked_trig_ptr

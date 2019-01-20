@@ -7,7 +7,7 @@ from ..table.tables import (
 	repl_commands,
 	RegisterCommand
 )
-from ...utils import f_strcmp_ptrepd, makeEPDText
+from ...utils import f_strcmp_ptrepd, EPDConstString
 from ...view import (
 	StaticView,
 	TableView,
@@ -43,14 +43,14 @@ def cmd_help():
 		'',
 	]
 	arg = EUDArray([
-		makeEPDText('SC-REPL manual'),
-		len(help_text)] + list(map(makeEPDText, help_text)))
+		EPDConstString('SC-REPL manual'),
+		len(help_text)] + list(map(EPDConstString, help_text)))
 	StaticView.OpenView(EPD(arg))
 
 @EUDCommand([])
 def cmd_commands():
 	arg = EUDArray([
-		makeEPDText("Commands"),
+		EPDConstString("Commands"),
 		EUDFuncPtr(2, 0)(tableDec_Command),
 		EPD(repl_commands)
 	])
@@ -59,7 +59,7 @@ def cmd_commands():
 @EUDCommand([])
 def cmd_encoders():
 	arg = EUDArray([
-		makeEPDText("List of encoders"),
+		EPDConstString("List of encoders"),
 		EUDFuncPtr(2, 0)(tableDec_String),
 		EPD(encoding_tables)
 	])
@@ -82,7 +82,7 @@ def cmd_contents(table_epd):
 	see contents of table ex) contents(MapLocation)
 	'''
 	arg = EUDArray([
-		makeEPDText("Contents"),
+		EPDConstString("Contents"),
 		EUDFuncPtr(2, 0)(tableDec_StringDecimal),
 		0
 	])

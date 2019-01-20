@@ -7,7 +7,7 @@ class ReferenceTable(EUDObject):
     However, these key-value pair are lazily collected.
 
     key_f transforms key before registered.
-    rt = ReferenceTable(key_transformer = makeEPDText)
+    rt = ReferenceTable(key_transformer = EPDConstString)
     rt.AddPair("Hello", 3) # transforms "Hello" to EPD(Db())
 
     value_f works similar to key_f
