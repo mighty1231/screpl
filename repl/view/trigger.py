@@ -15,6 +15,20 @@ Trigger
       BYTE      bExecuteFor[PlayerGroups::Max];
       BYTE      bCurrentActionIndex;
 '''
+class PayloadSizeObj(EUDObject):
+	def GetDataSize(self):
+		return 4
+
+	def CollectDependency(self, emitbuffer):
+		pass
+
+	def WritePayload(self, emitbuffer):
+		from eudplib.core.allocator.payload import _payload_size
+		print('payload size', _payload_size)
+		emitbuffer.WriteDword(_payload_size)
+
+str_sect, str_size = EUDCreateVariables(2)
+psobj = PayloadSizeObj()
 
 class TriggerViewMembers(EUDStruct):
 	_fields_ = [
@@ -185,8 +199,18 @@ def triggerview_display(members):
 	title_epd = EPD(Db(218))
 	_view_writer.seekepd(title_epd)
 	_view_writer.write_f('Trigger View, type "?" for help. '\
-			'ptr = %H, next = %H, line = %D%C',
-			ptr, f_dwread_epd(epd+1), sv.offset, 0)
+			'ptr = %H, next = %H, line = %D',
+			ptr, f_dwread_epd(epd+1), sv.offset)
+
+	if EUDExecuteOnce()():
+		str_sect = f_dwread_epd(EPD(0x5993D4))
+		str_size = f_dwread_epd(EPD(psobj))
+	EUDEndExecuteOnce()
+	if EUDIf()([str_sect <= ptr, ptr <= str_sect + str_size]):
+		_view_writer.write_f(', type = STR%C', 0)
+	if EUDElse()():
+		_view_writer.write_f(', type = TRIG%C', 0)
+	EUDEndIf()
 
 	f_print_utf8_epd(title_epd)
 
