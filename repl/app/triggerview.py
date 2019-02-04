@@ -1,11 +1,23 @@
 from eudplib import *
-from .static import StaticView
-from ..utils import EPDConstString, f_strcmp_ptrepd, f_print_utf8_epd
+from ..core.command import EUDCommand, registerCommand
 from ..core.encoder import ReadNumber
 from ..core.scrollview import ScrollView
 from ..core.view import _view_writer, EUDView, varpool
-from ..resources.decoder.trigcond import dec_Condition
-from ..resources.decoder.trigact import dec_Action
+from ..resources.encoder.const import argEncNumber
+from ..view.static import StaticView
+from ..utils import EPDConstString, f_strcmp_ptrepd, f_print_utf8_epd
+from .trigtok.trigcond import dec_Condition
+from .trigtok.trigact import dec_Action
+
+def registerTriggerView():
+	@EUDCommand([argEncNumber])
+	def cmd_triggerview(ptr):
+		'''
+		tv(PTR) - open TriggerView with given pointer(=PTR) of trigger
+		'''
+		TriggerView.OpenView(ptr)
+
+	registerCommand('tv', cmd_triggerview)
 
 '''
 Trigger
@@ -24,11 +36,7 @@ class PayloadSizeObj(EUDObject):
 
 	def WritePayload(self, emitbuffer):
 		from eudplib.core.allocator.payload import _payload_size
-		print('payload size', _payload_size)
 		emitbuffer.WriteDword(_payload_size)
-
-str_sect, str_size = EUDCreateVariables(2)
-psobj = PayloadSizeObj()
 
 class TriggerViewMembers(EUDStruct):
 	_fields_ = [
@@ -191,7 +199,6 @@ def triggerview_loop(members):
 
 @EUDTypedFunc([TriggerViewMembers])
 def triggerview_display(members):
-	# EUDReturn(members.screen_data_epd)
 	ptr = members.ptr
 	epd = members.epd
 	sv = members.scrollview
@@ -204,7 +211,7 @@ def triggerview_display(members):
 
 	if EUDExecuteOnce()():
 		str_sect = f_dwread_epd(EPD(0x5993D4))
-		str_size = f_dwread_epd(EPD(psobj))
+		str_size = f_dwread_epd(EPD(PayloadSizeObj()))
 	EUDEndExecuteOnce()
 	if EUDIf()([str_sect <= ptr, ptr <= str_sect + str_size]):
 		_view_writer.write_f(', type = STR%C', 0)

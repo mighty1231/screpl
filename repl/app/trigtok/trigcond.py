@@ -1,6 +1,6 @@
 from eudplib import *
 from ...core.view import _view_writer
-from ..table.tables import (
+from ...resources.table.tables import (
     tb_Modifier,
     tb_AllyStatus,
     tb_Comparison,

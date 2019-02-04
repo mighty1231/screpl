@@ -12,11 +12,7 @@ from ..encoder.str import (
 	argEncUnit,
 	argEncLocation,
 )
-from ...view import (
-	StaticView,
-	TableView,
-	TriggerView
-)
+from ...view import StaticView
 
 def register_utilcmds():
 	# EUDVariable
@@ -35,9 +31,6 @@ def register_utilcmds():
 
 	# Memory view
 	registerCommand('mv', cmd_memoryview)
-
-	# Trigger
-	registerCommand('tv', cmd_triggerview)
 
 	# Extended Conditions
 	registerCommand('exCountdownTimer', cmd_ExCountdownTimer)
@@ -124,13 +117,6 @@ def cmd_memoryview(offset):
 		i += 1
 	EUDEndWhile()
 	StaticView.OpenView(EPD(args))
-
-@EUDCommand([argEncNumber])
-def cmd_triggerview(ptr):
-	'''
-	view for trigger
-	'''
-	TriggerView.OpenView(ptr)
 
 @EUDCommand([], [retDecDecimal])
 def cmd_ExCountdownTimer():

@@ -6,7 +6,8 @@ from .resources.command import register_cmds
 from .app import (
 	registerObjTrace,
 	registerVarTrace,
-	registerUnitArray
+	registerUnitArray,
+	registerTriggerView
 )
 
 _repl = None
@@ -62,6 +63,7 @@ class REPL:
 		registerObjTrace()
 		registerVarTrace()
 		registerUnitArray()
+		registerTriggerView()
 
 
 	@EUDMethod

@@ -7,3 +7,4 @@ from .vartrace import (
 	traceVariable
 )
 from .unitarray import registerUnitArray
+from .triggerview import registerTriggerView

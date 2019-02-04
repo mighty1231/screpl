@@ -121,7 +121,7 @@ def unitarrayview_loop(members):
 		if EUDIf()(MemoryXEPD(unit_epd + (0x4D // 4), Exactly, 0, 0xFF00)):
 			_view_writer.write_f("Dead%C", 0)
 		if EUDElse()():
-			from ..resources.decoder.common import writeUnit
+			from .trigtok.common import writeUnit
 			_view_writer.write_f("player = P%D unit = ",
 				f_bread_epd(unit_epd + 0x4C // 4, 0) + 1)
 			writeUnit(f_wread_epd(unit_epd + (0x64 // 4), 0))

@@ -7,4 +7,3 @@ from .table import (
 )
 
 from .static import StaticView
-from .trigger import TriggerView

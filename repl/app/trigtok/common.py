@@ -1,7 +1,7 @@
 from eudplib import *
 from ...core.referencetable import SearchTableInv
 from ...core.view import _view_writer
-from ..table.tables import (
+from ...resources.table.tables import (
     tb_unit,
     tb_locSub,
     tb_swSub,

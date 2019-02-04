@@ -1,6 +1,6 @@
 from eudplib import *
 from eudplib.maprw.injector.mainloop import jumper
-from .view import TriggerView
+from .app.triggerview import TriggerView
 from .repl import repl_begin, repl_end
 from .core.referencetable import ReferenceTable
 from .core.command import EUDCommand, registerCommand
