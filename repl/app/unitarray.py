@@ -1,9 +1,21 @@
 from eudplib import *
-from .static import StaticView
-from ..utils import EPDConstString, f_strcmp_ptrepd, f_print_utf8_epd
+from ..core.referencetable import ReferenceTable
+from ..core.command import EUDCommand, registerCommand
 from ..core.encoder import ReadNumber
 from ..core.scrollview import ScrollView
 from ..core.view import _view_writer, EUDView, varpool
+from ..view.static import StaticView
+from ..utils import EPDConstString, f_strcmp_ptrepd, f_print_utf8_epd
+
+def registerUnitArray():
+	@EUDCommand([])
+	def cmd_unitarrayview():
+		'''
+		view for CUnit array
+		'''
+		UnitArrayView.OpenView(0)
+
+	registerCommand('unitarray', cmd_unitarrayview)
 
 class UnitArrayViewMembers(EUDStruct):
 	_fields_ = [

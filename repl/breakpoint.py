@@ -2,9 +2,8 @@ from eudplib import *
 from eudplib.maprw.injector.mainloop import jumper
 from .view import TriggerView
 from .repl import repl_begin, repl_end
-from .core.table import ReferenceTable
-from .core.command import EUDCommand
-from .resources.table.tables import RegisterCommand
+from .core.referencetable import ReferenceTable
+from .core.command import EUDCommand, registerCommand
 from .utils import EPDConstString
 
 bp_locked = EUDVariable(0)
@@ -36,9 +35,9 @@ def RegisterBPHere(name, cond = None):
 	# make hook for repl_end
 	if repl_end_hook is None:
 		# automatically set EUDCommands for Breakpoint
-		RegisterCommand('bpon', BPOn)
-		RegisterCommand('bpoff', BPOff)
-		RegisterCommand('bpcon', BPContinue)
+		registerCommand('bpon', BPOn)
+		registerCommand('bpoff', BPOff)
+		registerCommand('bpcon', BPContinue)
 
 		if PushTriggerScope():
 			repl_end_hook = NextTrigger()

@@ -4,7 +4,7 @@ from eudplib.core.eudfunc.eudfptr import callFuncBody
 from ..utils import EPDConstString, f_strcmp_ptrepd
 from .encoder import ArgEncoderPtr, _read_until_delimiter, ReadName
 from .decoder import RetDecoderPtr, _output_writer
-from .table import SearchTable
+from .referencetable import ReferenceTable, SearchTable
 
 import inspect
 import functools
@@ -24,6 +24,11 @@ _ret_storage = EUDArray(_MAXRETCNT)
 # Used as global variable during parsing iteratively
 _offset = EUDVariable()
 _encode_success = EUDVariable()
+
+# repl commands are stored
+_repl_commands = ReferenceTable(key_f=EPDConstString)
+def registerCommand(cmdname, command):
+	_repl_commands.AddPair(cmdname, command)
 
 @EUDFunc
 def runCommand(txtptr, cmdtable_epd, ref_stdout_epd):

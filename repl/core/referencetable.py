@@ -2,7 +2,7 @@ from eudplib import *
 
 class ReferenceTable(EUDObject):
     '''
-    Same with EUDArray with contents
+    Same as EUDArray with contents =
         size(=N), key 1, value 1, key 2, value 2, ..., key N, value N
     However, these key-value pair are lazily collected.
 

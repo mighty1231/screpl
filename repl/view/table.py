@@ -8,7 +8,7 @@ from .static import (
 	staticview_destructor,
 )
 from ..core.command import EUDCommandPtr
-from ..core.table import ReferenceTable
+from ..core.referencetable import ReferenceTable
 from ..core.scrollview import ScrollView
 from ..core.view import _view_writer, EUDView, varpool
 

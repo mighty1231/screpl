@@ -1,14 +1,30 @@
 from eudplib import *
-from .static import (
+from ..core.referencetable import ReferenceTable
+from ..core.command import EUDCommand, registerCommand
+from ..utils import f_epd2ptr, EPDConstString
+from ..view.static import (
 	staticview_keydown_callback,
 	staticview_execute_chat,
 	staticview_display,
 	staticview_destructor
 )
 from ..core.scrollview import ScrollView
-from ..core.table import ReferenceTable
 from ..core.view import _view_writer, EUDView, varpool
-from ..utils import f_epd2ptr, EPDConstString
+
+traced_variables = ReferenceTable(key_f=EPDConstString)
+
+def registerVarTrace():
+	@EUDCommand([])
+	def cmd_vartrace():
+		'''
+		get address table of marked EUDObjects with RegisterTraceObject
+		'''
+		VariableView.OpenView(EPD(traced_variables))
+
+	registerCommand('vartrace', cmd_vartrace)
+
+def traceVariable(name, var):
+    traced_variables.AddPair(name, EPD(var.getValueAddr()))
 
 class VariableViewMembers(EUDStruct):
 	_fields_ = [
@@ -20,7 +36,6 @@ class VariableViewMembers(EUDStruct):
 	]
 
 varn = len(VariableViewMembers._fields_)
-
 
 @EUDFunc
 def variableview_init(table_epd):
@@ -55,7 +70,6 @@ def variableview_loop(members):
 				0
 			)
 	ReferenceTable.Iter(members.table_epd, table_iter)
-
 
 VariableView = EUDView(
 	variableview_init,

@@ -1,6 +1,6 @@
 from eudplib import *
 from ...core.encoder import ReadNumber, ReadName, ArgEncoderPtr
-from ...core.table import SearchTable
+from ...core.referencetable import SearchTable
 from ...utils import EPDConstString, f_strcmp_ptrepd
 from ..table.tables import (
     tb_Modifier,

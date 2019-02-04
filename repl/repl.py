@@ -1,9 +1,13 @@
 from eudplib import *
 from .utils import EUDByteRW, f_strlen
-from .core.command import runCommand
+from .core.command import _repl_commands, runCommand
 from .core.view import GetCurrentView, TerminateCurrentView, EUDView
-from .resources.table.tables import repl_commands
 from .resources.command import register_cmds
+from .app import (
+	registerObjTrace,
+	registerVarTrace,
+	registerUnitArray
+)
 
 _repl = None
 PAGE_NUMLINES = 8
@@ -55,6 +59,9 @@ class REPL:
 
 		# these registering functions are python-functions
 		register_cmds()
+		registerObjTrace()
+		registerVarTrace()
+		registerUnitArray()
 
 
 	@EUDMethod
@@ -145,7 +152,7 @@ class REPL:
 		self.writer.seekepd(self.repl_inputEPDPtr)
 		self.writer.write_str(offset)
 		self.writer.write(0)
-		runCommand(offset, EPD(repl_commands), self.repl_outputEPDPtr)
+		runCommand(offset, EPD(_repl_commands), self.repl_outputEPDPtr)
 		quot, mod = f_div(self.repl_index, PAGE_NUMLINES // 2)
 		self.repl_top_index << self.repl_index - mod
 		self.repl_cur_page << quot

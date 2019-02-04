@@ -1,11 +1,9 @@
 from eudplib import *
-from ...core.command import EUDCommand
-from ...core.table import SearchTable
+from ...core.command import EUDCommand, registerCommand, _repl_commands
+from ...core.referencetable import SearchTable
 from ...core.encoder import ReadName, ArgEncoderPtr
 from ..table.tables import (
 	encoding_tables,
-	repl_commands,
-	RegisterCommand
 )
 from ...utils import f_strcmp_ptrepd, EPDConstString
 from ...view import (
@@ -17,10 +15,10 @@ from ...view import (
 )
 
 def register_basiccmds():
-	RegisterCommand("help", cmd_help)
-	RegisterCommand("cmds", cmd_commands)
-	RegisterCommand("tables", cmd_encoders)
-	RegisterCommand("contents", cmd_contents)
+	registerCommand("help", cmd_help)
+	registerCommand("cmds", cmd_commands)
+	registerCommand("tables", cmd_encoders)
+	registerCommand("contents", cmd_contents)
 
 # Basic commands
 @EUDCommand([])
@@ -52,7 +50,7 @@ def cmd_commands():
 	arg = EUDArray([
 		EPDConstString("Commands"),
 		EUDFuncPtr(2, 0)(tableDec_Command),
-		EPD(repl_commands)
+		EPD(_repl_commands)
 	])
 	TableView.OpenView(EPD(arg))
 

@@ -10,32 +10,13 @@ from eudplib.core.mapdata.stringmap import (
     locmap,
     swmap
 )
-from ...core.table import ReferenceTable
+from ...core.referencetable import ReferenceTable
 from ...utils import EPDConstString
-
-# repl commands are stored
-repl_commands = ReferenceTable(key_f=EPDConstString)
-def RegisterCommand(cmdname, command):
-    # Note: these register process is not Trigger.
-    # These objects are evaluated at Phase 1 of EUDPLIB - Collection Phase
-	repl_commands.AddPair(cmdname, command)
 
 # used on views
 views = ReferenceTable(key_f=EPDConstString)
 def RegisterView(viewname, view):
     views.AddPair(viewname, view)
-
-# used on object trace
-traced_objects = ReferenceTable(key_f=EPDConstString)
-def RegisterTraceObject(name, var):
-    # Note: these register process is not Trigger.
-    # These objects are evaluated at Phase 1 of EUDPLIB - Collection Phase
-	traced_objects.AddPair(name, var)
-
-# used on variable trace
-traced_variables = ReferenceTable(key_f=EPDConstString)
-def RegisterVariable(name, var):
-    traced_variables.AddPair(name, EPD(var.getValueAddr()))
 
 # trigger strings/constants
 encoding_tables = ReferenceTable(key_f=EPDConstString, value_f=EPD)

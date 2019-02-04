@@ -1,3 +1,7 @@
+from .core.command import (
+	EUDCommand,
+	registerCommand,
+)
 from .core.encoder import (
 	ReadNumber,
 	ReadName,
@@ -9,7 +13,7 @@ from .core.decoder import (
 	retDecDecimal,
 	retDecHex
 )
-from .core.table import (
+from .core.referencetable import (
 	ReferenceTable,
 	SearchTable
 )
@@ -38,10 +42,12 @@ from .resources.encoder.str import (
 	argEncSwitch,
 	argEncString
 )
-from .resources.table.tables import (
-	RegisterCommand,
-	RegisterTraceObject,
-	RegisterVariable,
+from .app import (
+	traceObject,
+	registerObjTrace,
+	traceVariable,
+	registerVarTrace,
+	registerUnitArray
 )
 from .utils import (
 	EUDByteRW,

@@ -7,7 +7,4 @@ from .table import (
 )
 
 from .static import StaticView
-from .variable import VariableView
-from .unitarray import UnitArrayView
 from .trigger import TriggerView
-

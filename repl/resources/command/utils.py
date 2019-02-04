@@ -1,8 +1,7 @@
 from eudplib import *
 from ...utils import EPDConstString, EUDByteRW
-from ...core.command import EUDCommand
+from ...core.command import EUDCommand, registerCommand
 from ...core.decoder import retDecDecimal, retDecHex, retDecBinary
-from ..table.tables import RegisterCommand, traced_objects, traced_variables
 from ..encoder.const import (
 	argEncNumber,
 	argEncPlayer,
@@ -16,50 +15,40 @@ from ..encoder.str import (
 from ...view import (
 	StaticView,
 	TableView,
-	VariableView,
-	tableDec_StringHex,
-	UnitArrayView,
 	TriggerView
 )
 
 def register_utilcmds():
 	# EUDVariable
-	RegisterCommand('mul', cmd_mul)
-	RegisterCommand('div', cmd_div)
+	registerCommand('mul', cmd_mul)
+	registerCommand('div', cmd_div)
 
 	# Memory manipulation
-	RegisterCommand('dwread', cmd_dwread)
-	RegisterCommand('wread', cmd_wread)
-	RegisterCommand('bread', cmd_bread)
-	RegisterCommand('dwwrite', cmd_dwwrite)
-	RegisterCommand('wwrite', cmd_wwrite)
-	RegisterCommand('bwrite', cmd_bwrite)
-	RegisterCommand('memcpy', cmd_memcpy)
-	RegisterCommand('strcpy', cmd_strcpy)
+	registerCommand('dwread', cmd_dwread)
+	registerCommand('wread', cmd_wread)
+	registerCommand('bread', cmd_bread)
+	registerCommand('dwwrite', cmd_dwwrite)
+	registerCommand('wwrite', cmd_wwrite)
+	registerCommand('bwrite', cmd_bwrite)
+	registerCommand('memcpy', cmd_memcpy)
+	registerCommand('strcpy', cmd_strcpy)
 
 	# Memory view
-	RegisterCommand('mv', cmd_memoryview)
-
-	# Special
-	RegisterCommand('objtrace', cmd_objtrace)
-	RegisterCommand('vartrace', cmd_vartrace)
-
-	# Unit
-	RegisterCommand('units', cmd_unitarrayview)
+	registerCommand('mv', cmd_memoryview)
 
 	# Trigger
-	RegisterCommand('tv', cmd_triggerview)
+	registerCommand('tv', cmd_triggerview)
 
 	# Extended Conditions
-	RegisterCommand('exCountdownTimer', cmd_ExCountdownTimer)
-	RegisterCommand('exCommand', cmd_ExCommand)
-	RegisterCommand('exBring', cmd_ExBring)
-	RegisterCommand('exAccumulate', cmd_ExAccumulate)
-	RegisterCommand('exKills', cmd_ExKills)
-	RegisterCommand('exElapsedTime', cmd_ExElapsedTime)
-	RegisterCommand('exOpponents', cmd_ExOpponents)
-	RegisterCommand('exDeaths', cmd_ExDeaths)
-	RegisterCommand('exScore', cmd_ExScore)
+	registerCommand('exCountdownTimer', cmd_ExCountdownTimer)
+	registerCommand('exCommand', cmd_ExCommand)
+	registerCommand('exBring', cmd_ExBring)
+	registerCommand('exAccumulate', cmd_ExAccumulate)
+	registerCommand('exKills', cmd_ExKills)
+	registerCommand('exElapsedTime', cmd_ExElapsedTime)
+	registerCommand('exOpponents', cmd_ExOpponents)
+	registerCommand('exDeaths', cmd_ExDeaths)
+	registerCommand('exScore', cmd_ExScore)
 
 @EUDCommand([argEncNumber, argEncNumber], \
 		[retDecDecimal, retDecHex])
@@ -135,32 +124,6 @@ def cmd_memoryview(offset):
 		i += 1
 	EUDEndWhile()
 	StaticView.OpenView(EPD(args))
-
-@EUDCommand([])
-def cmd_objtrace():
-	'''
-	get address table of marked EUDObjects with RegisterTraceObject
-	'''
-	arg = EUDArray([
-		EPDConstString("Objects"),
-		EUDFuncPtr(2, 0)(tableDec_StringHex),
-		EPD(traced_objects)
-	])
-	TableView.OpenView(EPD(arg))
-
-@EUDCommand([])
-def cmd_vartrace():
-	'''
-	get address table of marked EUDObjects with RegisterTraceObject
-	'''
-	VariableView.OpenView(EPD(traced_variables))
-
-@EUDCommand([])
-def cmd_unitarrayview():
-	'''
-	view for CUnit array
-	'''
-	UnitArrayView.OpenView(0)
 
 @EUDCommand([argEncNumber])
 def cmd_triggerview(ptr):

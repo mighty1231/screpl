@@ -1,6 +1,6 @@
 from eudplib import *
 from ...core.encoder import ReadNumber, ReadString, ArgEncoderPtr
-from ...core.table import SearchTable
+from ...core.referencetable import SearchTable
 from ..table.tables import (
     tb_unit,
     tb_locSub,

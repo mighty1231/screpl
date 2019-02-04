@@ -286,6 +286,7 @@ def bptest_main():
 		RegisterBPHere("Here!")
 		DoActions(KillUnit("Terran Battlecruiser", P1))
 
+		EUDDoEvents()
 		RegisterBPHere("??")
 		DoActions(CreateUnit(1, "Terran Science Vessel", "Anywhere", P1))
 		RegisterBPHere("Here!")
@@ -324,8 +325,7 @@ def svtest_main():
 
 @EUDFunc
 def trigviewtest_main():
-	from repl import REPL, RegisterTraceObject, RegisterVariable
-
+	from repl import REPL, traceObject, traceVariable
 
 	if EUDInfLoop()():
 		# Turbo
@@ -352,9 +352,9 @@ def trigviewtest_main():
 				Wait(2000),
 			])
 		v = f_dwread(0x58A364)
-		RegisterVariable("58a364", v)
-		RegisterTraceObject("trig", a)
-		RegisterTraceObject("b", b)
+		traceVariable("58a364", v)
+		traceObject("trig", a)
+		traceObject("b", b)
 		RunTrigTrigger()
 		EUDDoEvents()
 	EUDEndInfLoop()
