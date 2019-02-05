@@ -192,32 +192,19 @@ class EUDCommandPtr(EUDStruct):
 	]
 
 	def __init__(self, _from = None):
-		basetype = type(self)
-		fields = basetype._fields_
-
-		# Fill fielddict
-		fielddict = {}
-		for index, nametype in enumerate(fields):
-			if isinstance(nametype, str):
-				fielddict[nametype] = (index, None)
-			else:
-				fielddict[nametype[0]] = (index, nametype[1])
-		self._fielddict = fielddict
-
-		if _from is not None:
-			if isinstance(_from, EUDCommandN):
-				self.checkValidFunction(_from)
-				f_idcstart, f_idcend = createIndirectCaller(_from)
-				ExprProxy.__init__(self, EUDVArray(3)(\
-						[f_idcstart, EPD(f_idcend + 4), _from._doc_epd]))
-				self._initialized = True
-			else: # EUDVariable things
-				ExprProxy.__init__(self, EUDVArray(3).cast(_from))
-				self._initialized = True
+		if _from is not None and isinstance(_from, EUDCommandN):
+			# Statically generate with EUDCommandN
+			self.checkValidFunction(_from)
+			f_idcstart, f_idcend = createIndirectCaller(_from)
+			super().__init__(_from = EUDVArray(3)([
+				f_idcstart,
+				EPD(f_idcend + 4),
+				_from._doc_epd
+			]))
 		else:
-			ExprProxy.__init__(self, EUDVArray(3)([0] * len(fields)))
-			self.isPooled = False
-			self._initialized = True
+			# Cast from EUDVariable or ConstExpr
+			super().__init__(_from = _from)
+
 
 	@classmethod
 	def cast(cls, _from):
