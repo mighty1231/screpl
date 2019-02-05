@@ -34,6 +34,8 @@ class ScrollView(EUDStruct):
 
 					self.max_lcnt = lcnt
 					self.disp_lcnt = lcnt
+					if isinstance(lcnt, EUDVariable):
+						EUDIf()(lcnt >= 1)
 					self.epd_lines = _textPool.alloc_epd(4 * lcnt)
 
 					# fill epd_lines
@@ -41,14 +43,17 @@ class ScrollView(EUDStruct):
 					dest_epd = self.epd_lines
 					i = EUDVariable()
 					i << 0
-					if EUDWhile()(i < lcnt):
+					if EUDInfLoop()():
+						EUDBreakIf(i >= lcnt)
 						f_dwwrite_epd(dest_epd, buf_epd)
 						DoActions([
 							i.AddNumber(1),
 							dest_epd.AddNumber(1),
 							buf_epd.AddNumber(LINESIZE // 4)
 						])
-					EUDEndWhile()
+					EUDEndInfLoop()
+					if isinstance(lcnt, EUDVariable):
+						EUDEndIf()
 
 					self.offset = 0
 				elif isinstance(args[0], str):
@@ -77,7 +82,7 @@ class ScrollView(EUDStruct):
 
 	@EUDMethod
 	def Destruct(self):
-		if EUDIf()(self._allocated == 1):
+		if EUDIf()([self._allocated.Exactly(1), self.max_lcnt.AtLeast(1)]):
 			_textPool.free_epd(f_dwread_epd(self.epd_lines))
 			_textPool.free_epd(self.epd_lines)
 		EUDEndIf()
