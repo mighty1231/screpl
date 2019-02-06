@@ -2,7 +2,12 @@ from eudplib import *
 from .utils import EUDByteRW, f_strlen
 from .core.command import _repl_commands, runCommand
 from .core.view import GetCurrentView, TerminateCurrentView, EUDView
-from .resources.command import register_cmds
+from .resources.command import (
+	registerBasicCmds,
+	registerConditionCmds,
+	registerActionCmds,
+	registerUtilCmds
+)
 from .app import (
 	registerObjTrace,
 	registerVarTrace,
@@ -18,17 +23,13 @@ REPLSIZE = 300
 repl_begin, repl_end = Forward(), Forward()
 
 class REPL:
-	def __init__(self, superuser = P1):
+	def __init__(self, superuser = P1, modules = None):
 		global _repl 
 		assert _repl == None, "REPL instance should be unique"
 		_repl = self
 
 		self.display = EUDVariable(1)
 
-		# superuser's name
-		# assert isinstance(superuser, str), 'must be string'
-		# self.prefix = EPDConstString(EPD(superuser + ':'))
-		# self.prefixlen = len(superuser + ':')
 		self.playerId = EncodePlayer(superuser)
 		assert 0 <= self.playerId < 8, "Superuser should be one of P1 ~ P8"
 		self.prefix = Db(26)
@@ -37,8 +38,7 @@ class REPL:
 		# Itself is a view
 		self.writer = EUDByteRW()
 		self.page = DBString(5000)
-		inittitle = u2b('SC-REPL, type help()')
-		self.title = Db(inittitle + bytes(100-len(inittitle)))
+		self.title = Db(b'SC-REPL, type help()\0')
 		self.update = EUDVariable(1)
 		self.repl_input = Db(LINESIZE*REPLSIZE)
 		self.repl_output = Db(LINESIZE*REPLSIZE)
@@ -58,12 +58,32 @@ class REPL:
 		self.view = EUDVariable(0)
 		self.viewmem = EUDVariable(0)
 
-		# these registering functions are python-functions
-		register_cmds()
-		registerObjTrace()
-		registerVarTrace()
-		registerUnitArray()
-		registerTriggerView()
+		default_modules = [
+			'Basic', 'Condition', 'Action', 'Util',
+			'ObjTrace', 'VarTrace', 'UnitArray', 'TriggerView',
+		]
+		if modules is None:
+			modules = default_modules
+		for k in modules:
+			if k not in modules:
+				raise RuntimeError("Unknown key: {}".format(k))
+
+		if 'Basic' in modules:
+			registerBasicCmds()
+		if 'Condition' in modules:
+			registerConditionCmds()
+		if 'Action' in modules:
+			registerActionCmds()
+		if 'Util' in modules:
+			registerUtilCmds()
+		if 'ObjTrace' in modules:
+			registerObjTrace()
+		if 'VarTrace' in modules:
+			registerVarTrace()
+		if 'UnitArray' in modules:
+			registerUnitArray()
+		if 'TriggerView' in modules:
+			registerTriggerView()
 
 
 	@EUDMethod

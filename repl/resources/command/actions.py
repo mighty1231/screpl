@@ -26,7 +26,7 @@ from ...core.command import EUDCommand, registerCommand
 # 2. UnitProperty is not able to be parsed
 # 3. Transmission.. trouble due to two string encoders.
 
-def register_all_actioncmds():
+def registerActionCmds():
 
 	registerCommand('Victory', cmd_Victory)
 	registerCommand('Defeat', cmd_Defeat)

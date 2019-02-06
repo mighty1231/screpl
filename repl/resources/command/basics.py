@@ -14,7 +14,7 @@ from ...view import (
 	tableDec_StringDecimal
 )
 
-def register_basiccmds():
+def registerBasicCmds():
 	registerCommand("help", cmd_help)
 	registerCommand("cmds", cmd_commands)
 	registerCommand("tables", cmd_encoders)

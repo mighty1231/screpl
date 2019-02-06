@@ -14,7 +14,7 @@ from ..encoder.str import (
 )
 from ...view import StaticView
 
-def register_utilcmds():
+def registerUtilCmds():
 	# EUDVariable
 	registerCommand('mul', cmd_mul)
 	registerCommand('div', cmd_div)

@@ -23,7 +23,7 @@ from ..encoder.str import (
 from ...core.decoder import retDecBool
 from ...core.command import EUDCommand, registerCommand
 
-def register_all_conditioncmds():
+def registerConditionCmds():
 
 	registerCommand('CountdownTimer', cmd_CountdownTimer)
 	registerCommand('Command', cmd_Command)
