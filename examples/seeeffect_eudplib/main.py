@@ -3,7 +3,7 @@ from eudplib import *
 @EUDFunc
 def main():
 	from repl import (
-		REPL, EUDCommand, argEncNumber, argEncUnit, RegisterCommand
+		REPL, EUDCommand, argEncNumber, argEncUnit, registerCommand
 	)
 	if EUDInfLoop()():
 		# Turbo
@@ -26,7 +26,7 @@ def main():
 			COUNT << n
 
 		# Register command for REPL
-		RegisterCommand("effect", SeeEffect)
+		registerCommand("effect", SeeEffect)
 
 		# run map trigger and end trigger end trigger loop
 		RunTrigTrigger()

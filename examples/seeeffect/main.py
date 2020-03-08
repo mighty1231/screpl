@@ -2,7 +2,7 @@ from eudplib import *
 
 def beforeTriggerExec():
 	from repl import (
-		REPL, EUDCommand, argEncNumber, argEncUnit, RegisterCommand
+		REPL, EUDCommand, argEncNumber, argEncUnit, registerCommand
 	)
 
 	DoActions(SetDeaths(203151, SetTo, 1, 0))
@@ -23,4 +23,4 @@ def beforeTriggerExec():
 		COUNT << n
 
 	# Register command for REPL
-	RegisterCommand("effect", SeeEffect)
+	registerCommand("effect", SeeEffect)
