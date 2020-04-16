@@ -3,6 +3,10 @@ from eudplib import *
 from ..core.app import Application, getApplicationManager
 from ..util import EPDConstStringArray
 
+_title_epd = EUDVariable(EPDConstString("Title"))
+_epdarray = EUDVariable(EPDConstString("Hello World!"))
+_linecount = EUDVariable(1)
+
 class StaticApplication(Application):
     _fields_ = [
         "title_epd",
@@ -13,11 +17,18 @@ class StaticApplication(Application):
         "lines_per_page",
         "offset", # line number
     ]
+
+    @staticmethod
+    def setContent(title, content):
+        _title_epd << EPDConstString(title)
+        epdarray, linecount = EPDConstStringArray(content)
+        _epdarray << epdarray
+        _linecount << linecount
+
     def init(self):
-        self.title_epd = EPDConstString("Title")
-        epdarray, linecount = EPDConstStringArray("Hello World!")
-        self.linecount = linecount
-        self.content_epd = epdarray
+        self.title_epd = _title_epd
+        self.linecount = _linecount
+        self.content_epd = _epdarray
         self.lines_per_page = 8
         self.offset = 0
 
@@ -41,9 +52,9 @@ class StaticApplication(Application):
         # F7 - previous page
         # F8 - next page
         manager = getApplicationManager()
-        if EUDIf()(manager.keyDown("F7")):
+        if EUDIf()(manager.keyPress("F7")):
             self.setOffset(self.offset - self.lines_per_page)
-        if EUDElseIf()(manager.keyDown("F8")):
+        if EUDElseIf()(manager.keyPress("F8")):
             self.setOffset(self.offset + self.lines_per_page)
         EUDEndIf()
 

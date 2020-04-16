@@ -39,6 +39,7 @@ class AppManager:
 
         self.keystates = EPD(Db(0x100 * 4))
         self.keystates_sub = EPD(Db(0x100 * 4))
+        self.openApplication(REPL)
 
     def allocVariable(self, count):
         return self.varpool.alloc(count)
@@ -57,18 +58,19 @@ class AppManager:
         return self.current_app_instance
 
     def openApplication(self, app):
+        # @TODO decide the moment when new app emerges
         app.initialize()
         assert issubclass(app, Application)
         if EUDIf()(self.app_cnt < AppManager._APP_MAX_COUNT_):
             self.current_app_instance._methodptr << app._methodarray_
             self.current_app_instance._memberptr << self.allocVariable(len(app._fields_) + 1)
+            self.current_app_instance._cmdtable_epd << EPD(app._cmdtable_)
             self.current_app_instance._update()
+            self.current_app_instance.cmd_output_epd = 0
 
             self.app_method_stack[self.app_cnt] = self.current_app_instance._methodptr
             self.app_member_stack[self.app_cnt] = self.current_app_instance._memberptr
-
-            self.current_app_cmdtable_epd << EPD(app._cmdtable_)
-            self.app_cmdtable_stack[self.app_cnt] = self.current_app_cmdtable_epd
+            self.app_cmdtable_stack[self.app_cnt] = self.current_app_instance._cmdtable_epd
 
             self.app_cnt += 1
 
@@ -88,7 +90,7 @@ class AppManager:
         self.freeVariable(self.current_app_instance._memberptr)
         self.current_app_instance._methodptr << self.app_method_stack[self.app_cnt]
         self.current_app_instance._memberptr << self.app_member_stack[self.app_cnt]
-        self.current_app_cmdtable_epd << self.app_cmdtable_stack[self.app_cnt]
+        self.current_app_instance._cmdtable_epd << self.app_cmdtable_stack[self.app_cnt]
         self.current_app_instance._update()
 
     def updateKeyState(self):
@@ -222,11 +224,7 @@ class AppManager:
                 new_chat_off = chat_off + (prefixlen + 3)
 
                 # run AppCommand on foreground app
-                runAppCommand(
-                    new_chat_off,
-                    self.current_app_cmdtable_epd,
-                    self.current_app_instance.cmd_output_epd
-                )
+                self.current_app_instance.chatCallback(new_chat_off)
             EUDEndIf()
             if EUDIf()(i == 10):
                 i << 0

@@ -37,6 +37,7 @@ class _AppMethod:
 
     def initialize(self, cls, index):
         if self.index != -1:
+            assert self.index == index
             return
 
         def call_inner(*args):

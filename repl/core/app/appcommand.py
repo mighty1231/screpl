@@ -18,7 +18,8 @@ _ref_stdout_epd = EUDVariable()
 
 
 @EUDFunc
-def _runAppCommand(cmdtable_epd):
+def _runAppCommand():
+    cmdtable_epd = getApplicationManager().getCurrentAppInstance()._cmdtable_epd
     funcname = Db(50)
     _output_writer.seekepd(_ref_stdout_epd)
 
@@ -44,10 +45,10 @@ def _runAppCommand(cmdtable_epd):
         _output_writer.write(0)
     EUDEndIf()
 
-def runAppCommand(txtptr, cmdtable_epd, ref_stdout_epd):
+def runAppCommand(txtptr, ref_stdout_epd):
     _offset << txtptr
     _ref_stdout_epd << ref_stdout_epd
-    _runAppCommand(cmdtable_epd)
+    _runAppCommand()
 
 class _AppCommand:
     def __init__(self, arg_encoders, func, *, traced):
@@ -70,12 +71,11 @@ class _AppCommand:
 
         self.traced = traced
 
-    def getFuncPtr(self):
-        assert self.funcptr is not None
-        return self.funcptr
+        self.cls = None
 
     def initialize(self, cls):
-        if self.funcptr is not None:
+        if self.cls is not None:
+            assert cls == self.cls
             return
 
         def call_inner():
@@ -95,8 +95,8 @@ class _AppCommand:
             EUDEndIf()
 
             instance._cls = prev_cls
-            return ret
 
+        self.cls = cls
         self.funcn = EUDTypedFuncN(
             0, call_inner, self.func, [], [],
             traced=self.traced)

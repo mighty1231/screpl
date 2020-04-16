@@ -90,7 +90,6 @@ class _Application_Metaclass(type):
             if isinstance(v, AppCommand):
                 assert not methods.hasKey(k), "A key %s is already defined as a method" % k
                 assert not fields.hasKey(k), "A key %s is already defined as a field" % k
-                v.setClass(cls)
                 if commands.hasKey(k):
                     commands.replace(k, v)
                 else:
@@ -110,8 +109,8 @@ class _Application_Metaclass(type):
                     methods.append(k, v)
 
         # fields for the cases that a child newly defined field
-        if pcls == object or id(cls._fields_) != id(pcls._fields_):
-            for f in cls._fields_:
+        if pcls == object or id(cls.fields) != id(pcls.fields):
+            for f in cls.fields:
                 assert not commands.hasKey(f), "A key %s is already defined as a command" % f
                 assert not methods.hasKey(f), "A key %s is already defined as a method" % f
                 assert not fields.hasKey(f), "A key %s is already defined as a field" % f
@@ -139,16 +138,17 @@ class ApplicationInstance:
       item #i: instance field [i+1]
     '''
     _attributes_ = ['_cls', '_memberptr', '_methodptr',
-            '_ivarr', '_mvarr' '_update']
+            '_ivarr', '_mvarr', '_cmdtable_epd', '_update']
     def __init__(self):
         self._cls = None
         self._memberptr = EUDVariable()
         self._methodptr = EUDVariable()
-        self._ivarr, self._mvarr = None, None
+        self._ivarr, self._mvarr = EUDVArray(0)(), EUDVArray(0)()
+        self._cmdtable_epd = EUDVariable()
 
     def _update(self):
-        self._ivarr = EUDVArray(0).cast(self._memberptr)
-        self._mvarr = EUDVArray(0).cast(self._methodptr)
+        self._ivarr << self._memberptr
+        self._mvarr << self._methodptr
 
     def __getattr__(self, name):
         if name in self._cls._commands_:
@@ -178,40 +178,40 @@ class ApplicationInstance:
 
 # default application
 class Application(metaclass=_Application_Metaclass):
-    _fields_ = ["cmd_output_epd"]
+    fields = ["cmd_output_epd"]
     def init(self):
-        pass
+        self.cmd_output_epd = 0
 
     def destruct(self):
         pass
 
-    def chatCallback(self, chat):
-        return 1
-
-    def keyCallback(self):
-        return 1
+    def chatCallback(self, offset):
+        runAppCommand(
+            offset,
+            self.cmd_output_epd
+        )
 
     def loop(self):
-        ''' loop() called once in a single frame '''
+        ''' loop() called exactly once in every frame '''
         pass
 
     def print(self, writer):
+        ''' called once in a frame that invoked requestUpdate '''
         pass
-
-    @AppCommand
-    def help(self):
-        return
 
     @classmethod
     def initialize(cls):
         if not cls._initialized_:
             for i, mtd in enumerate(cls._methods_.orderedValues()):
                 mtd.initialize(cls, i)
+            for i, cmd in enumerate(cls._commands_.orderedValues()):
+                cmd.initialize(cls)
             cls._initialized_ = True
 
     @classmethod
-    def registerCommand(cls, name, command):
+    def addCommand(cls, name, command):
         assert isinstance(command, AppCommand)
         assert not cls._commands_.hasKey(name)
+        command.initialize(cls)
         cls._commands_.append(name, command)
         cls._cmdtable_.AddPair(name, command)
