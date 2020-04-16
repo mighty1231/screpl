@@ -1,5 +1,6 @@
 from eudplib import *
 from .application import Application, ApplicationInstance
+from .appcommand import runAppCommand
 from ...utils import EUDByteRW
 from ...utils.keycode import getKeyCode
 from ..pool import DbPool, VarPool
@@ -32,6 +33,9 @@ class AppManager:
         self.app_cnt = EUDVariable(0)
         self.app_method_stack = EUDArray(AppManager._APP_MAX_COUNT_)
         self.app_member_stack = EUDArray(AppManager._APP_MAX_COUNT_)
+        self.app_cmdtable_stack = EUDArray(AppManager._APP_MAX_COUNT_)
+
+        self.current_app_cmdtable_epd = EUDVariable()
 
         self.keystates = EPD(Db(0x100 * 4))
         self.keystates_sub = EPD(Db(0x100 * 4))
@@ -62,6 +66,10 @@ class AppManager:
 
             self.app_method_stack[self.app_cnt] = self.current_app_instance._methodptr
             self.app_member_stack[self.app_cnt] = self.current_app_instance._memberptr
+
+            self.current_app_cmdtable_epd << EPD(app._cmdtable_)
+            self.app_cmdtable_stack[self.app_cnt] = self.current_app_cmdtable_epd
+
             self.app_cnt += 1
 
             self.current_app_instance.init()
@@ -80,6 +88,7 @@ class AppManager:
         self.freeVariable(self.current_app_instance._memberptr)
         self.current_app_instance._methodptr << self.app_method_stack[self.app_cnt]
         self.current_app_instance._memberptr << self.app_member_stack[self.app_cnt]
+        self.current_app_cmdtable_epd << self.app_cmdtable_stack[self.app_cnt]
         self.current_app_instance._update()
 
     def updateKeyState(self):
@@ -212,17 +221,12 @@ class AppManager:
                 # 3 = colorcode, colon, spacebar
                 new_chat_off = chat_off + (prefixlen + 3)
 
-                '''
-                app << foreground
-                if EUDWhile(app.chatCallback(new_chat_off)):
-                    app << lowerapp
-
-                if EUDIf()(self.viewmem == 0):
-                    self._execute_command(new_chat_off)
-                if EUDElseIf()(EUDView.cast(self.view).execute_chat(self.viewmem, new_chat_off) == 0):
-                    self._execute_command(new_chat_off)
-                EUDEndIf()
-                '''
+                # run AppCommand on foreground app
+                runAppCommand(
+                    new_chat_off,
+                    self.current_app_cmdtable_epd,
+                    self.current_app_instance.cmd_output_epd
+                )
             EUDEndIf()
             if EUDIf()(i == 10):
                 i << 0

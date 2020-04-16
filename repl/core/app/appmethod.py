@@ -9,7 +9,7 @@ def getMethodPtr(argtypes, rettypes):
     return EUDTypedFuncPtr(argtypes, rettypes)
 
 class _AppMethod:
-    def __init__(self, argtypes, rettypes, method):
+    def __init__(self, argtypes, rettypes, method, *, traced):
         # Get argument number of fdecl_func
         argspec = inspect.getargspec(method)
         ep_assert(
@@ -27,16 +27,16 @@ class _AppMethod:
         self.retn = len(rettypes)
 
         self.method = method
-
         self.funcptr = EUDTypedFuncPtr(argtypes, rettypes)()
         self.index = -1
 
+        self.traced = traced
+
     def getFuncPtr(self):
-        assert self.funcptr is not None
         return self.funcptr
 
     def initialize(self, cls, index):
-        if self.funcptr is not None:
+        if self.index != -1:
             return
 
         def call_inner(*args):
@@ -52,7 +52,7 @@ class _AppMethod:
 
         self.funcn = EUDTypedFuncN(
             self.argn, call_inner, self.method, self.argtypes, self.rettypes,
-            traced=traced)
+            traced=self.traced)
         self.index = index
         self.funcptr << self.funcn
 
@@ -64,7 +64,7 @@ class _AppMethod:
 ''' Decorator to make _AppMethod '''
 def AppTypedMethod(argtypes, rettypes = None, *, traced=False):
     def ret(method):
-        return _AppMethod(argtypes, rettypes, method)
+        return _AppMethod(argtypes, rettypes, method, traced=traced)
     return ret
 
 def AppMethod(method):

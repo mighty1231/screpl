@@ -1,6 +1,9 @@
 from eudplib import *
 
-from .appmethod import _AppMethod, AppCommand
+from ...utils import EPDConstString
+from ..referencetable import ReferenceTable
+from .appmethod import _AppMethod
+from .appcommand import AppCommand
 
 class _indexPair:
     def __init__(self, items = None):
@@ -34,6 +37,10 @@ class _indexPair:
     def orderedValues(self):
         return list(map(lambda iv:iv[1], \
             sorted(self.items.values(), key = lambda pair:pair[0])))
+
+    def orderedItems(self):
+        return list(map(lambda item:(item[0], item[1][1]), \
+            sorted(self.items.items(), key = lambda pair:item[1][0])))
 
     def __len__(self):
         return self.size
@@ -76,6 +83,7 @@ class _Application_Metaclass(type):
             fields = pcls._fields_.copy()
 
         # methods and commands
+        # @TODO key comparison (versus override)
         for k, v in dct.items():
             assert k not in ApplicationInstance._attributes_, \
                     "You should not use key %s as a member" % k
@@ -110,10 +118,16 @@ class _Application_Metaclass(type):
                 fields.append(f)
                 # @TODO field type conversion
 
+        # collect commands
+        cmdtable = ReferenceTable(key_f=EPDConstString)
+        for name, cmd in commands.orderedItems():
+            cmdtable.AddPair(name, cmd)
+
         cls._methods_ = methods
         cls._methodarray_ = EUDVArray(len(methods))(list(map(
                 lambda am:am.getFuncPtr(), methods.orderedValues())))
         cls._commands_ = commands
+        cls._cmdtable_ = cmdtable
         cls._fields_ = fields
         cls._initialized_ = False
 
@@ -162,8 +176,9 @@ class ApplicationInstance:
             raise AttributeError("class %s key %s" % \
                     (self._cls.__name__, name))
 
-        
+# default application
 class Application(metaclass=_Application_Metaclass):
+    _fields_ = ["cmd_output_epd"]
     def init(self):
         pass
 
@@ -193,3 +208,10 @@ class Application(metaclass=_Application_Metaclass):
             for i, mtd in enumerate(cls._methods_.orderedValues()):
                 mtd.initialize(cls, i)
             cls._initialized_ = True
+
+    @classmethod
+    def registerCommand(cls, name, command):
+        assert isinstance(command, AppCommand)
+        assert not cls._commands_.hasKey(name)
+        cls._commands_.append(name, command)
+        cls._cmdtable_.AddPair(name, command)
