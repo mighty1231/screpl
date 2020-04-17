@@ -132,3 +132,7 @@ class REPL(Application):
             + 'cmds() - See list of all commands\n'
         )
         getAppManager().openApplication(StaticApp)
+
+    @AppCommand([])
+    def what(self):
+        DoActions(CreateUnit(1, "Terran Marine", 1, P1))

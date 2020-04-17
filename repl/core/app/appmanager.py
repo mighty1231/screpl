@@ -228,15 +228,23 @@ class AppManager:
 
         self.updateKeyState()
 
+
+        # process all new chats
+        prev_txtPtr = EUDVariable(initval=10)
+        after_chat = Forward()
+        if EUDIf()(Memory(0x640B58, Exactly, prev_txtPtr)):
+            EUDJump(after_chat)
+        EUDEndIf()
+
+        # copy superuser name
         prefix = Db(36)
         f_strcpy(prefix, 0x57EEEB + 36*self.superuser)
         prefixlen = f_strlen(0x57EEEB + 36*self.superuser)
 
-        # process all new chats
-        prev_txtPtr = EUDVariable(initval=10)
-        i = EUDVariable()
         cur_txtPtr = f_dwread_epd(EPD(0x640B58))
-        chat_off = 0x640B60 + 218 * prev_txtPtr
+        i = EUDVariable()
+        i << prev_txtPtr
+        chat_off = 0x640B60 + 218 * i
 
         if EUDInfLoop()():
             EUDBreakIf(i == cur_txtPtr)
@@ -257,6 +265,8 @@ class AppManager:
         EUDEndInfLoop()
         prev_txtPtr << cur_txtPtr
 
+        after_chat << NextTrigger()
+
         # loop
         self.current_app_instance.loop()
 
@@ -270,6 +280,7 @@ class AppManager:
         EUDEndIf()
 
         # update display
+        self.update << 1
         if EUDIf()(self.update == 1):
             # Print top of the screen, you can chat at the same time
             txtPtr = f_dwread_epd(EPD(0x640B58))

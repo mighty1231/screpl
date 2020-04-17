@@ -12,7 +12,7 @@ class StaticApp(Application):
         "title_epd",
 
         "linecount",
-        ("content_epd", EUDArray),
+        "content_epd",
 
         "lines_per_page",
         "offset", # line number
@@ -22,7 +22,7 @@ class StaticApp(Application):
     def setContent(title, content):
         _title_epd << EPDConstString(title)
         epdarray, linecount = EPDConstStringArray(content)
-        _epdarray << epdarray
+        _epdarray << EPD(epdarray)
         _linecount << linecount
 
     def init(self):
