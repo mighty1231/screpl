@@ -1,21 +1,25 @@
 from eudplib import *
-from .application import Application, ApplicationInstance
-from .appcommand import runAppCommand
+
 from ...utils import EUDByteRW
 from ...utils.keycode import getKeyCode
 from ..pool import DbPool, VarPool
 
 _manager = None
 
-def getAppManager():
+def getAppManager(superuser=None):
     global _manager
-    if _manager is None:
-        _manager = AppManager()
+    if superuser is None:
+        assert _manager is not None
+    else:
+        assert _manager is None
+        _manager = AppManager(superuser)
     return _manager
 
 class AppManager:
     _APP_MAX_COUNT_ = 30
-    def __init__(self, superuser = P1):
+    def __init__(self, superuser):
+        from . import ApplicationInstance
+
         self.superuser = EncodePlayer(superuser)
         assert 0 <= self.superuser < 8, "Superuser should be one of P1 ~ P8"
 
@@ -39,7 +43,6 @@ class AppManager:
 
         self.keystates = EPD(Db(0x100 * 4))
         self.keystates_sub = EPD(Db(0x100 * 4))
-        self.openApplication(REPL)
 
     def allocVariable(self, count):
         return self.varpool.alloc(count)
@@ -58,8 +61,11 @@ class AppManager:
         return self.current_app_instance
 
     def openApplication(self, app):
-        # @TODO decide the moment when new app emerges
+        from . import Application
+
         app.initialize()
+
+        # @TODO decide the moment when new app emerges
         assert issubclass(app, Application)
         if EUDIf()(self.app_cnt < AppManager._APP_MAX_COUNT_):
             self.current_app_instance._methodptr << app._methodarray_
@@ -204,7 +210,18 @@ class AppManager:
         '''
         self.destruct << 1
 
+    def getWriter(self):
+        '''
+        Internally printing function uses this method
+        '''
+        return self.writer
+
     def loop(self):
+        from ...app.repl import REPL
+        if EUDExecuteOnce()():
+            self.openApplication(REPL)
+        EUDEndExecuteOnce()
+
         self.updateKeyState()
 
         prefix = Db(36)
@@ -256,14 +273,9 @@ class AppManager:
             f_setcurpl(self.superuser)
 
             self.writer.seekepd(EPD(self.displayBuffer.GetStringMemoryAddr()))
-            self.current_app_instance.print(self.writer)
+            self.current_app_instance.print() # it uses self.writer
             self.displayBuffer.Display()
 
             SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
             self.update << 0
         EUDEndIf()
-
-
-
-
-

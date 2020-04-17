@@ -2,8 +2,7 @@ from eudplib import *
 
 from ...utils import EPDConstString
 from ..referencetable import ReferenceTable
-from .appmethod import _AppMethod
-from .appcommand import AppCommand
+from .appmethod import AppMethod_print
 
 class _indexPair:
     def __init__(self, items = None):
@@ -40,32 +39,24 @@ class _indexPair:
 
     def orderedItems(self):
         return list(map(lambda item:(item[0], item[1][1]), \
-            sorted(self.items.items(), key = lambda pair:item[1][0])))
+            sorted(self.items.items(), key = lambda item:item[1][0])))
 
     def __len__(self):
         return self.size
 
+    def __contains__(self, key):
+        return key in self.items
+
     def __getitem__(self, key):
         return self.items[key]
-
-class AppClassStruct:
-    def __init__(self, cls, methods):
-        assert isinstance(methods, _indexPair)
-
-        self.cls = cls
-        self.methods = methods
-        self.data = EUDVArray(len(methods))([])
-
-    def getVArrayData(self):
-        return self.data
-
-    def invoke(self, name, instance):
 
 class _Application_Metaclass(type):
     def __init__(cls, name, bases, dct):
         '''
         Fill methods, commands, members
         '''
+        from . import _AppMethod, _AppCommand, AppMethod
+
         super().__init__(name, bases, dct)
 
         print("New Application name", name)
@@ -87,7 +78,7 @@ class _Application_Metaclass(type):
         for k, v in dct.items():
             assert k not in ApplicationInstance._attributes_, \
                     "You should not use key %s as a member" % k
-            if isinstance(v, AppCommand):
+            if isinstance(v, _AppCommand):
                 assert not methods.hasKey(k), "A key %s is already defined as a method" % k
                 assert not fields.hasKey(k), "A key %s is already defined as a field" % k
                 if commands.hasKey(k):
@@ -117,16 +108,8 @@ class _Application_Metaclass(type):
                 fields.append(f)
                 # @TODO field type conversion
 
-        # collect commands
-        cmdtable = ReferenceTable(key_f=EPDConstString)
-        for name, cmd in commands.orderedItems():
-            cmdtable.AddPair(name, cmd)
-
         cls._methods_ = methods
-        cls._methodarray_ = EUDVArray(len(methods))(list(map(
-                lambda am:am.getFuncPtr(), methods.orderedValues())))
         cls._commands_ = commands
-        cls._cmdtable_ = cmdtable
         cls._fields_ = fields
         cls._initialized_ = False
 
@@ -143,12 +126,16 @@ class ApplicationInstance:
         self._cls = None
         self._memberptr = EUDVariable()
         self._methodptr = EUDVariable()
-        self._ivarr, self._mvarr = EUDVArray(0)(), EUDVArray(0)()
+        self._ivarr = EUDVArray(12345).cast(self._memberptr)
+        self._mvarr = EUDVArray(12345).cast(self._methodptr)
         self._cmdtable_epd = EUDVariable()
 
     def _update(self):
-        self._ivarr << self._memberptr
-        self._mvarr << self._methodptr
+        # assert IsEUDVariable(unProxy(self._ivarr))
+        unProxy(self._ivarr) << self._memberptr
+        self._ivarr._epd << EPD(self._memberptr)
+        unProxy(self._mvarr) << self._methodptr
+        self._mvarr._epd << EPD(self._methodptr)
 
     def __getattr__(self, name):
         if name in self._cls._commands_:
@@ -164,17 +151,16 @@ class ApplicationInstance:
                 return attrtype.cast(attr)
             else:
                 return attr
-        return super().__getattr__(name)
+        raise AttributeError
 
     def __setattr__(self, name, value):
-        if name in self._cls._fields_:
+        if name in ApplicationInstance._attributes_:
+            super().__setattr__(name, value)
+        elif name in self._cls._fields_:
             attrid, attrtype = self._cls._fields_[name]
             self._ivarr.set(attrid + 1, value)
-        elif name in ApplicationInstance._attributes_:
-            super().__setattr__(key, value)
         else:
-            raise AttributeError("class %s key %s" % \
-                    (self._cls.__name__, name))
+            raise AttributeError
 
 # default application
 class Application(metaclass=_Application_Metaclass):
@@ -195,6 +181,7 @@ class Application(metaclass=_Application_Metaclass):
         ''' loop() called exactly once in every frame '''
         pass
 
+    @AppMethod_print
     def print(self, writer):
         ''' called once in a frame that invoked requestUpdate '''
         pass
@@ -202,16 +189,26 @@ class Application(metaclass=_Application_Metaclass):
     @classmethod
     def initialize(cls):
         if not cls._initialized_:
+            methodarray = []
             for i, mtd in enumerate(cls._methods_.orderedValues()):
                 mtd.initialize(cls, i)
-            for i, cmd in enumerate(cls._commands_.orderedValues()):
+                methodarray.append(mtd.getFuncPtr())
+            cls._methodarray_ = EUDVArray(len(methodarray))(methodarray)
+
+            # collect commands
+            cmdtable = ReferenceTable(key_f=EPDConstString)
+            for name, cmd in enumerate(cls._commands_.orderedItems()):
                 cmd.initialize(cls)
+                cmdtable.AddPair(name, cmd.getCmdPtr())
+
+            cls._cmdtable_ = cmdtable
             cls._initialized_ = True
 
     @classmethod
     def addCommand(cls, name, command):
-        assert isinstance(command, AppCommand)
+        from . import _AppCommand
+        assert isinstance(command, _AppCommand)
         assert not cls._commands_.hasKey(name)
         command.initialize(cls)
         cls._commands_.append(name, command)
-        cls._cmdtable_.AddPair(name, command)
+        cls._cmdtable_.AddPair(name, command.getCmdPtr())

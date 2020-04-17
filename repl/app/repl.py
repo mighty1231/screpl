@@ -1,7 +1,7 @@
 from eudplib import *
 
-from ..core.app import Application, getApplicationManager
-from ..util import EPDConstStringArray
+from ..core.app import Application, getAppManager, AppCommand, runAppCommand
+from ..utils import EPDConstStringArray, EUDByteRW
 from .static import StaticApp
 
 PAGE_NUMLINES = 8
@@ -40,12 +40,12 @@ class REPL(Application):
             repl_outputEPDPtr.AddNumber(LINESIZE // 4),
             repl_index.AddNumber(1)
         ])
-        getApplicationManager().requestUpdate()
+        getAppManager().requestUpdate()
 
     def loop(self):
         # F7 - previous page
         # F8 - next page
-        manager = getApplicationManager()
+        manager = getAppManager()
         if EUDIf()(manager.keyPress("F7")):
             if EUDIfNot()(repl_top_index == 0):
                 DoActions([
@@ -131,4 +131,4 @@ class REPL(Application):
             + 'help() - See manual\n',
             + 'cmds() - See list of all commands\n'
         )
-        getApplicationManager().openApplication(StaticApp)
+        getAppManager().openApplication(StaticApp)

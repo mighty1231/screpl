@@ -2,6 +2,9 @@ from eudplib import *
 
 from ...utils import EPDConstString, EUDByteRW, f_strcmp_ptrepd
 from ..referencetable import SearchTable
+from ..encoder import ReadName
+
+import inspect
 
 _MAXARGCNT = 8
 
@@ -16,17 +19,21 @@ _encode_success = EUDVariable()
 _output_writer = EUDByteRW()
 _ref_stdout_epd = EUDVariable()
 
+AppCommandPtr = EUDFuncPtr(0, 0)
+
 
 @EUDFunc
 def _runAppCommand():
-    cmdtable_epd = getApplicationManager().getCurrentAppInstance()._cmdtable_epd
+    from . import getAppManager
+
+    cmdtable_epd = getAppManager().getCurrentAppInstance()._cmdtable_epd
     funcname = Db(50)
     _output_writer.seekepd(_ref_stdout_epd)
 
     # read function name
     if EUDIf()(ReadName(_offset, ord('('), \
             EPD(_offset.getValueAddr()), EPD(funcname)) == 1):
-        func = EUDCommandPtr()
+        func = AppCommandPtr()
         ret = EUDVariable()
 
         # search command
@@ -34,8 +41,8 @@ def _runAppCommand():
                 f_strcmp_ptrepd, EPD(ret.getValueAddr())) == 1):
 
             # encode argument
-            func.setFunc(EUDCommandPtr.cast(ret))
-            func(_offset)
+            func.setFunc(AppCommandPtr.cast(ret))
+            func()
         if EUDElseIfNot()(_ref_stdout_epd == 0):
             _output_writer.write_strepd(EPDConstString('\x06Failed to read function name'))
             _output_writer.write(0)
@@ -67,19 +74,24 @@ class _AppCommand:
         self.argn = len(arg_encoders)
 
         self.func = func
-        self.cmdptr = EUDTypedFuncPtr([], [])()
+        self.cmdptr = AppCommandPtr()
 
         self.traced = traced
 
         self.cls = None
 
+    def getCmdPtr(self):
+        assert self.cls is not None
+        return self.cmdptr
+
     def initialize(self, cls):
+        from . import getAppManager
         if self.cls is not None:
-            assert cls == self.cls
+            assert self.cls == cls
             return
 
         def call_inner():
-            instance = getApplicationManager().getCurrentAppInstance()
+            instance = getAppManager().getCurrentAppInstance()
             prev_cls = instance._cls
             instance._cls = cls
 
@@ -100,7 +112,7 @@ class _AppCommand:
         self.funcn = EUDTypedFuncN(
             0, call_inner, self.func, [], [],
             traced=self.traced)
-        self.funcptr << self.funcn
+        self.cmdptr << self.funcn
         assert self.funcn._retn == 0, "You should not return anything on AppCommand"
 
 @EUDFunc

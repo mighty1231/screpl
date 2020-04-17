@@ -4,3 +4,6 @@ output: repl.scx
 
 [prepl.py]
 superuser: P1
+
+[freeze]
+freeze: 0
