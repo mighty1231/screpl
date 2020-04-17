@@ -56,16 +56,12 @@ class _indexPair:
 
 class _Application_Metaclass(type):
     def __init__(cls, name, bases, dct):
-        '''
-        Fill methods, commands, members
-        '''
+        ''' Fill methods, commands, members '''
         from . import _AppMethod, _AppCommand, AppMethod
 
         super().__init__(name, bases, dct)
 
-
-        # build methods and members
-        # basically from parents
+        # build methods and members, basically from parent class
         pcls = cls.__mro__[1]
         if pcls == object:
             methods = _indexPair()
@@ -115,9 +111,8 @@ class _Application_Metaclass(type):
                     k, typ = f, None
                 else:
                     k, typ = f
-                assert not commands.hasKey(f), "A key %s is already defined as a command" % f
-                assert not methods.hasKey(f), "A key %s is already defined as a method" % f
-                assert not fields.hasKey(f), "A key %s is already defined as a field" % f
+                assert k not in total_dict, \
+                        "Conflict on attribute - class %s attr %s" % (name, k)
                 fields.append(k, typ)
                 total_dict[k] = 'F'
 
