@@ -228,7 +228,6 @@ class AppManager:
 
         self.updateKeyState()
 
-
         # process all new chats
         prev_txtPtr = EUDVariable(initval=10)
         after_chat = Forward()
@@ -279,18 +278,18 @@ class AppManager:
             self.update << 1
         EUDEndIf()
 
-        # update display
-        self.update << 1
+        # Print top of the screen, enables chat simultaneously
+        txtPtr = f_dwread_epd(EPD(0x640B58))
         if EUDIf()(self.update == 1):
-            # Print top of the screen, you can chat at the same time
-            txtPtr = f_dwread_epd(EPD(0x640B58))
 
             f_setcurpl(self.superuser)
 
             self.writer.seekepd(EPD(self.displayBuffer.GetStringMemoryAddr()))
-            self.current_app_instance.print() # it uses self.writer
-            self.displayBuffer.Display()
 
-            SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
+            # print() uses self.writer internally
+            self.current_app_instance.print()
+
             self.update << 0
         EUDEndIf()
+        self.displayBuffer.Display()
+        SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
