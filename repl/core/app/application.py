@@ -109,10 +109,6 @@ class _Application_Metaclass(type):
                 total_dict[k] = 'Other'
 
         # fields for the cases that a child newly defined field
-        if pcls != object:
-            print('p', pcls.fields)
-        print('c', cls.fields)
-        print('=============')
         if pcls == object or id(cls.fields) != id(pcls.fields):
             for f in cls.fields:
                 if isinstance(f, str):
@@ -131,10 +127,6 @@ class _Application_Metaclass(type):
         cls._fields_ = fields
         cls._initialized_ = False
 
-        print("New Application name", name)
-        print(total_dict)
-        print('------------')
-
 class ApplicationInstance:
     '''
     instance: EUDVArray
@@ -145,7 +137,7 @@ class ApplicationInstance:
     _attributes_ = ['_cls', '_memberptr', '_methodptr',
             '_ivarr', '_mvarr', '_cmdtable_epd', '_update']
     def __init__(self):
-        self._cls = None
+        self._cls = Application
         self._memberptr = EUDVariable()
         self._methodptr = EUDVariable()
         self._ivarr = EUDVArray(12345).cast(self._memberptr)
@@ -182,7 +174,6 @@ class ApplicationInstance:
             attrid, attrtype = self._cls._fields_[name]
             self._ivarr.set(attrid + 1, value)
         else:
-            print(name, value, self._cls._fields_.items)
             raise AttributeError
 
 # default application
@@ -224,7 +215,7 @@ class Application(metaclass=_Application_Metaclass):
 
             # initialize commands
             cmdtable = ReferenceTable(key_f=EPDConstString)
-            for name, (i, cmd) in enumerate(cls._commands_.orderedItems()):
+            for name, cmd in cls._commands_.orderedItems():
                 cmd.initialize(cls)
                 cmdtable.AddPair(name, cmd.getCmdPtr())
 

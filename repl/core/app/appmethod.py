@@ -114,8 +114,6 @@ class _AppMethod:
 
             funcn._CreateFuncBody()
 
-        print('appmethod', cls, self.method.__name__)
-
         self.funcn = funcn
         self.index = index
         self.funcptr << self.funcn

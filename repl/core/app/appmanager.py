@@ -90,7 +90,7 @@ class AppManager:
         if EUDIf()(self.app_cnt == 0):
             f_raiseError("FATAL ERROR: Application shutdown")
         EUDEndIf()
-        self.current_app_instance.dest()
+        self.current_app_instance.destruct()
 
         self.app_cnt -= 1
         self.freeVariable(self.current_app_instance._memberptr)
@@ -173,11 +173,11 @@ class AppManager:
 
             actions = [SetMemory(prev + 20, Add, 1) for prev in prevs]
             actions += [SetMemory(cur + 20, Add, 1) for cur in curs]
-            actions += [SetMemory(statve + 20, Add, 4) for i, state in enumerate(states)]
+            actions += [SetMemory(state + 20, Add, 4) for i, state in enumerate(states)]
             actions += [SetMemory(sub + 20, Add, 4) for i, sub in enumerate(subs)]
             DoActions(actions)
         EUDEndLoopN()
-        f_repmovsd_epd(EPD(prev_states), EPD(0x596A18), 0x100//4)
+        f_repmovsd_epd(prev_states, EPD(0x596A18), 0x100//4)
 
     def keyDown(self, key):
         # Example. shift + f7
@@ -225,8 +225,8 @@ class AppManager:
         self.updateKeyState()
 
         prefix = Db(36)
-        f_strcpy(prefix, 0x57EEEB + 36*playerId)
-        prefixlen << f_strlen(0x57EEEB + 36*playerId)
+        f_strcpy(prefix, 0x57EEEB + 36*self.superuser)
+        prefixlen = f_strlen(0x57EEEB + 36*self.superuser)
 
         # process all new chats
         prev_txtPtr = EUDVariable(initval=10)
