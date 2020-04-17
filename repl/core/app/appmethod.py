@@ -21,10 +21,9 @@ class _AppMethod:
 
         assert argn == len(argtypes)
         self.argtypes = argtypes
-
         self.rettypes = rettypes
         self.argn = argn
-        self.retn = None
+        self.retn = len(rettypes)
 
         self.method = method
         self.funcptr = None
@@ -37,12 +36,14 @@ class _AppMethod:
 
         if isPrint:
             assert self.argtypes == [None] and self.argn == 1
-            assert self.rettypes == None
+            assert self.rettypes == []
             self.argtypes = self.rettypes = []
             self.argn = 0
 
+        self.funcptr_cls = EUDTypedFuncPtr(self.argtypes, self.rettypes)
+        self.funcptr = self.funcptr_cls()
+
     def getFuncPtr(self):
-        assert self.funcptr is not None
         return self.funcptr
 
     def setParent(self, parent):
@@ -52,9 +53,11 @@ class _AppMethod:
             self.isPrint = True
 
             assert self.argtypes == [None] and self.argn == 1
-            assert self.rettypes == None
+            assert self.rettypes == []
             self.argtypes = self.rettypes = []
             self.argn = 0
+            self.funcptr_cls = EUDTypedFuncPtr([], [])
+            self.funcptr = self.funcptr_cls()
         else:
             if self.argtypes is not None:
                 assert self.argtypes == parent.argtypes
@@ -62,6 +65,8 @@ class _AppMethod:
             else:
                 self.argtypes = parent.argtypes
                 self.argn = parent.argn
+            assert self.rettypes == parent.rettypes
+            assert self.retn == parent.retn
         self.parent = parent
 
     def initialize(self, cls, index):
@@ -90,8 +95,7 @@ class _AppMethod:
                 traced=self.traced)
 
             funcn._CreateFuncBody()
-            if self.rettypes is None:
-                self.rettypes = [None for _ in range(funcn._retn)]
+
         else:
             # Additionally set second argument as printer
             def call():
@@ -105,40 +109,35 @@ class _AppMethod:
                 instance._cls = prev_cls
                 return ret
             funcn = EUDTypedFuncN(
-                0, call, self.method, self.argtypes, self.rettypes,
+                0, call, self.method, [], [],
                 traced=self.traced)
 
             funcn._CreateFuncBody()
-            assert funcn._retn == 0
+
+        print('appmethod', cls, self.method.__name__)
 
         self.funcn = funcn
         self.index = index
-
-        self.funcptr_cls = EUDTypedFuncPtr(self.argtypes, self.rettypes)
-        self.funcptr = self.funcptr_cls(_from = funcn)
         self.funcptr << self.funcn
 
         # overriding check - returning arguments
         if self.parent:
             assert self.index == self.parent.index, 'class %s name %s' % (cls, self.method.__name__)
-            assert self.rettypes == self.parent.rettypes, 'class %s name %s' % (cls, self.method.__name__)
-            assert self.retn == self.parent.retn, 'class %s name %s' % (cls, self.method.__name__)
 
     def apply(self, instance):
         from . import ApplicationInstance
-        assert self.index != -1
         assert isinstance(instance, ApplicationInstance)
         return self.funcptr_cls.cast(instance._mvarr[self.index])
 
 ''' Decorator to make _AppMethod '''
-def AppTypedMethod(argtypes, rettypes = None, *, isPrint=False, traced=False):
+def AppTypedMethod(argtypes, rettypes = [], *, isPrint=False, traced=False):
     def ret(method):
         return _AppMethod(argtypes, rettypes, method, isPrint=isPrint, traced=traced)
     return ret
 
 def AppMethod(method):
-    return AppTypedMethod(None, None, traced=False)(method)
+    return AppTypedMethod(None, [], traced=False)(method)
 
 # special method
 def AppMethod_print(method):
-    return AppTypedMethod(None, None, isPrint=True, traced=False)(method)
+    return AppTypedMethod(None, [], isPrint=True, traced=False)(method)

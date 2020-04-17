@@ -1,6 +1,6 @@
 from eudplib import *
 
-from ...utils import EUDByteRW
+from ...utils import EUDByteRW, f_raiseError, f_raiseWarning
 from ...utils.keycode import getKeyCode
 from ..pool import DbPool, VarPool
 

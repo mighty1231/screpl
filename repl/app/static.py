@@ -45,7 +45,7 @@ class StaticApp(Application):
         EUDEndIf()
 
         if EUDIfNot()(prevoffset == self.offset):
-            manager.requestUpdate()
+            getAppManager().requestUpdate()
         EUDEndIf()
 
     def loop(self):

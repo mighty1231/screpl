@@ -214,13 +214,15 @@ class Application(metaclass=_Application_Metaclass):
         if not cls._initialized_:
             if cls.__mro__[1] != object:
                 cls.__mro__[1].initialize()
+
+            # Initialize methods
             methodarray = []
             for i, mtd in enumerate(cls._methods_.orderedValues()):
                 mtd.initialize(cls, i)
                 methodarray.append(mtd.getFuncPtr())
             cls._methodarray_ = EUDVArray(len(methodarray))(methodarray)
 
-            # collect commands
+            # initialize commands
             cmdtable = ReferenceTable(key_f=EPDConstString)
             for name, (i, cmd) in enumerate(cls._commands_.orderedItems()):
                 cmd.initialize(cls)
