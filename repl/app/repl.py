@@ -2,7 +2,7 @@ from eudplib import *
 
 from ..core.app import Application, getApplicationManager
 from ..util import EPDConstStringArray
-from .static import StaticApplication
+from .static import StaticApp
 
 PAGE_NUMLINES = 8
 LINESIZE = 216
@@ -118,7 +118,7 @@ class REPL(Application):
 
     @AppCommand([])
     def help():
-        StaticApplication.setContent(
+        StaticApp.setContent(
             'SC-REPL manual',
             '\x13SC-REPL\n'
             + '\x13Made by sixthMeat\n'
@@ -131,4 +131,4 @@ class REPL(Application):
             + 'help() - See manual\n',
             + 'cmds() - See list of all commands\n'
         )
-        getApplicationManager().openApplication(StaticApplication)
+        getApplicationManager().openApplication(StaticApp)

@@ -241,6 +241,11 @@ class EUDByteRW:
 			DoActions(cnt.SubtractNumber(1))
 		EUDEndInfLoop()
 
+	@EUDMethod
+	def write_STR_string(self, strId):
+		strsect = f_dwread_epd(EPD(0x5993D4))
+		self.write_str(strsect + f_dwread(strsect + strId*4))
+
 	def write_f(self, fmt, *args):
 		'''
 		Parse formatted string with python (not in-game)

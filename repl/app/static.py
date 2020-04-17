@@ -7,7 +7,7 @@ _title_epd = EUDVariable(EPDConstString("Title"))
 _epdarray = EUDVariable(EPDConstString("Hello World!"))
 _linecount = EUDVariable(1)
 
-class StaticApplication(Application):
+class StaticApp(Application):
     _fields_ = [
         "title_epd",
 
@@ -52,7 +52,9 @@ class StaticApplication(Application):
         # F7 - previous page
         # F8 - next page
         manager = getApplicationManager()
-        if EUDIf()(manager.keyPress("F7")):
+        if EUDIf()(manager.keyPress("ESC")):
+            manager.requestDestruct()
+        if EUDElseIf()(manager.keyPress("F7")):
             self.setOffset(self.offset - self.lines_per_page)
         if EUDElseIf()(manager.keyPress("F8")):
             self.setOffset(self.offset + self.lines_per_page)
