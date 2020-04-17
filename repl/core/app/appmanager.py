@@ -108,14 +108,17 @@ class AppManager:
 
         prevs = [Forward() for _ in range(4*4)]
         curs = [Forward() for _ in range(4*4)]
-        states = [Forward() for _ in range(5*4)]
+        states_cond = [Forward() for _ in range(4)]
+        states = [Forward() for _ in range(4*4)]
         subs = [Forward() for _ in range(3*4)]
 
-        actions = [SetMemory(prev + 20, SetTo, prev_states) for prev in prevs]
-        actions += [SetMemory(cur + 20, SetTo, EPD(0x596A18)) for cur in curs]
-        actions += [SetMemory(state + 20, SetTo, self.keystates + i//5)
+        actions = [SetMemory(prev + 4, SetTo, prev_states) for prev in prevs]
+        actions += [SetMemory(cur + 4, SetTo, EPD(0x596A18)) for cur in curs]
+        actions += [SetMemory(state + 4, SetTo, self.keystates + i)
+                    for i, state in enumerate(states_cond)]
+        actions += [SetMemory(state + 16, SetTo, self.keystates + i//4)
                     for i, state in enumerate(states)]
-        actions += [SetMemory(sub + 20, SetTo, self.keystates_sub + i//3)
+        actions += [SetMemory(sub + 16, SetTo, self.keystates_sub + i//3)
                     for i, sub in enumerate(subs)]
         DoActions(actions)
 
@@ -128,7 +131,7 @@ class AppManager:
                         curs[4*i] << MemoryX(0, Exactly, 0, 0xFF * pos)
                     ],
                     actions = [
-                        states[5*i] << SetMemory(0, SetTo, 0)
+                        states[4*i] << SetMemory(0x58A364, SetTo, 0)
                     ]
                 )
                 # 0->1: set 1
@@ -138,7 +141,7 @@ class AppManager:
                         curs[4*i+1] << MemoryX(0, Exactly, pos, 0xFF * pos)
                     ],
                     actions = [
-                        states[5*i+1] << SetMemory(0, SetTo, 1),
+                        states[4*i+1] << SetMemory(0, SetTo, 1),
                         subs[3*i] << SetMemory(0, SetTo, 1),
                     ]
                 )
@@ -148,7 +151,7 @@ class AppManager:
                         prevs[4*i+2] << MemoryX(0, Exactly, pos, 0xFF * pos),
                         curs[4*i+2] << MemoryX(0, Exactly, 0, 0xFF * pos)
                     ],
-                    actions = [states[5*i+2] << SetMemory(0, SetTo, 2**32-1)]
+                    actions = [states[4*i+2] << SetMemory(0, SetTo, 2**32-1)]
                 )
                 # 1->1: +1
                 Trigger(
@@ -157,24 +160,25 @@ class AppManager:
                         curs[4*i+3] << MemoryX(0, Exactly, pos, 0xFF * pos)
                     ],
                     actions = [
-                        states[5*i+3] << SetMemory(0, Add, 1),
+                        states[4*i+3] << SetMemory(0, Add, 1),
                         subs[3*i+1] << SetMemory(0, SetTo, 0),
                     ]
                 )
                 # subs (consecutive keydown)
                 Trigger(
                     conditions = [
-                        states[5*i+4] << Memory(0, AtLeast, 5)
+                        states_cond[i] << Memory(0, AtLeast, 5)
                     ],
                     actions = [
                         subs[3*i+2] << SetMemory(0, SetTo, 1)
                     ]
                 )
 
-            actions = [SetMemory(prev + 20, Add, 1) for prev in prevs]
-            actions += [SetMemory(cur + 20, Add, 1) for cur in curs]
-            actions += [SetMemory(state + 20, Add, 4) for i, state in enumerate(states)]
-            actions += [SetMemory(sub + 20, Add, 4) for i, sub in enumerate(subs)]
+            actions = [SetMemory(prev + 4, Add, 1) for prev in prevs]
+            actions += [SetMemory(cur + 4, Add, 1) for cur in curs]
+            actions += [SetMemory(state + 4, Add, 4) for state in states_cond]
+            actions += [SetMemory(state + 16, Add, 4) for state in states]
+            actions += [SetMemory(sub + 16, Add, 4) for sub in subs]
             DoActions(actions)
         EUDEndLoopN()
         f_repmovsd_epd(prev_states, EPD(0x596A18), 0x100//4)
