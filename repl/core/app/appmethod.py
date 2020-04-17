@@ -30,12 +30,39 @@ class _AppMethod:
         self.funcptr = None
         self.index = -1
 
+        self.parent = None
+
         self.isPrint = isPrint
         self.traced = traced
+
+        if isPrint:
+            assert self.argtypes == [None] and self.argn == 1
+            assert self.rettypes == None
+            self.argtypes = self.rettypes = []
+            self.argn = 0
 
     def getFuncPtr(self):
         assert self.funcptr is not None
         return self.funcptr
+
+    def setParent(self, parent):
+        # Overriding method, some members are replicated
+        assert self.index == parent.index == -1, "Should not be initialized"
+        if parent.isPrint:
+            self.isPrint = True
+
+            assert self.argtypes == [None] and self.argn == 1
+            assert self.rettypes == None
+            self.argtypes = self.rettypes = []
+            self.argn = 0
+        else:
+            if self.argtypes is not None:
+                assert self.argtypes == parent.argtypes
+                assert self.argn == parent.argn
+            else:
+                self.argtypes = parent.argtypes
+                self.argn = parent.argn
+        self.parent = parent
 
     def initialize(self, cls, index):
         from . import getAppManager
@@ -67,17 +94,13 @@ class _AppMethod:
                 self.rettypes = [None for _ in range(funcn._retn)]
         else:
             # Additionally set second argument as printer
-            assert self.argtypes == [None] and self.argn == 1
-            assert self.rettypes == None
-            self.argtypes = self.rettypes = []
-
             def call():
                 instance = getAppManager().getCurrentAppInstance()
                 prev_cls = instance._cls
                 instance._cls = cls
                 printer = getAppManager().getWriter()
 
-                ret = self.method(printer)
+                ret = self.method(instance, printer)
 
                 instance._cls = prev_cls
                 return ret
@@ -86,6 +109,7 @@ class _AppMethod:
                 traced=self.traced)
 
             funcn._CreateFuncBody()
+            assert funcn._retn == 0
 
         self.funcn = funcn
         self.index = index
@@ -93,6 +117,12 @@ class _AppMethod:
         self.funcptr_cls = EUDTypedFuncPtr(self.argtypes, self.rettypes)
         self.funcptr = self.funcptr_cls(_from = funcn)
         self.funcptr << self.funcn
+
+        # overriding check - returning arguments
+        if self.parent:
+            assert self.index == self.parent.index, 'class %s name %s' % (cls, self.method.__name__)
+            assert self.rettypes == self.parent.rettypes, 'class %s name %s' % (cls, self.method.__name__)
+            assert self.retn == self.parent.retn, 'class %s name %s' % (cls, self.method.__name__)
 
     def apply(self, instance):
         from . import ApplicationInstance

@@ -117,18 +117,18 @@ class REPL(Application):
         writer.write(0)
 
     @AppCommand([])
-    def help():
+    def help(self):
         StaticApp.setContent(
             'SC-REPL manual',
             '\x13SC-REPL\n'
             + '\x13Made by sixthMeat\n'
-            + '\n',
-            + 'Key Inputs\n',
-            + '- F7: Search previous page\n',
-            + '- F8: Search next page\n',
-            + '\n',
-            + 'build in functions\n',
-            + 'help() - See manual\n',
+            + '\n'
+            + 'Key Inputs\n'
+            + '- F7: Search previous page\n'
+            + '- F8: Search next page\n'
+            + '\n'
+            + 'build in functions\n'
+            + 'help() - See manual\n'
             + 'cmds() - See list of all commands\n'
         )
         getAppManager().openApplication(StaticApp)

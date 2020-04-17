@@ -2,7 +2,7 @@ from eudplib import *
 
 from ...utils import EPDConstString, EUDByteRW, f_strcmp_ptrepd
 from ..referencetable import SearchTable
-from ..encoder import ReadName
+from ..encoder import ArgEncoderPtr, ReadName, _read_until_delimiter
 
 import inspect
 
@@ -86,6 +86,8 @@ class _AppCommand:
 
     def initialize(self, cls):
         from . import getAppManager
+        from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN
+
         if self.cls is not None:
             assert self.cls == cls
             return

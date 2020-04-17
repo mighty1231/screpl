@@ -1,8 +1,9 @@
 from eudplib import *
 
+from .appmethod import AppMethod_print
+from .appcommand import runAppCommand
 from ...utils import EPDConstString
 from ..referencetable import ReferenceTable
-from .appmethod import AppMethod_print
 
 class _indexPair:
     def __init__(self, items = None):
@@ -41,6 +42,9 @@ class _indexPair:
         return list(map(lambda item:(item[0], item[1][1]), \
             sorted(self.items.items(), key = lambda item:item[1][0])))
 
+    def getValue(self, key):
+        return self.items[key][1]
+
     def __len__(self):
         return self.size
 
@@ -59,7 +63,6 @@ class _Application_Metaclass(type):
 
         super().__init__(name, bases, dct)
 
-        print("New Application name", name)
 
         # build methods and members
         # basically from parents
@@ -68,50 +71,69 @@ class _Application_Metaclass(type):
             methods = _indexPair()
             commands = _indexPair()
             fields = _indexPair()
+            total_dict = {k:None for k in ApplicationInstance._attributes_}
         else:
             methods = pcls._methods_.copy()
             commands = pcls._commands_.copy()
             fields = pcls._fields_.copy()
+            total_dict = pcls._total_dict_.copy()
 
         # methods and commands
-        # @TODO key comparison (versus override)
         for k, v in dct.items():
-            assert k not in ApplicationInstance._attributes_, \
-                    "You should not use key %s as a member" % k
             if isinstance(v, _AppCommand):
-                assert not methods.hasKey(k), "A key %s is already defined as a method" % k
-                assert not fields.hasKey(k), "A key %s is already defined as a field" % k
+                assert k not in total_dict or isinstance(total_dict[k], _AppCommand), \
+                        "Conflict on attribute - class %s attr %s" % (name, k)
                 if commands.hasKey(k):
                     commands.replace(k, v)
                 else:
                     commands.append(k, v)
-            elif callable(v):
+                total_dict[k] = v
+            elif callable(v) or isinstance(v, _AppMethod):
+                assert not (k[:2] == k[-2:] == "__"), \
+                        "Illegal method - class %s attr %s" % (name, k)
+                assert k not in total_dict or isinstance(total_dict[k], _AppMethod), \
+                        "Conflict on attribute - class %s attr %s" % (name, k)
                 if not isinstance(v, _AppMethod):
                     v = AppMethod(v)
-                    assert isinstance(v, _AppMethod)
-                assert not (k[:2] == k[-2:] == "__"), \
-                        "method %s should not be defined" % k
-                assert not commands.hasKey(k), "A key %s is already defined as a command" % k
-                assert not fields.hasKey(k), "A key %s is already defined as a field" % k
                 setattr(cls, k, v)
                 if methods.hasKey(k):
+                    # Overriding AppMethod
+                    v.setParent(methods.getValue(k))
                     methods.replace(k, v)
                 else:
                     methods.append(k, v)
+                total_dict[k] = v
+            else:
+                assert k not in total_dict or total_dict[k] == 'Other', \
+                        "Conflict on attribute - class %s attr %s" % (name, k)
+                total_dict[k] = 'Other'
 
         # fields for the cases that a child newly defined field
+        if pcls != object:
+            print('p', pcls.fields)
+        print('c', cls.fields)
+        print('=============')
         if pcls == object or id(cls.fields) != id(pcls.fields):
             for f in cls.fields:
+                if isinstance(f, str):
+                    k, typ = f, None
+                else:
+                    k, typ = f
                 assert not commands.hasKey(f), "A key %s is already defined as a command" % f
                 assert not methods.hasKey(f), "A key %s is already defined as a method" % f
                 assert not fields.hasKey(f), "A key %s is already defined as a field" % f
-                fields.append(f)
-                # @TODO field type conversion
+                fields.append(k, typ)
+                total_dict[k] = 'F'
 
+        cls._total_dict_ = total_dict
         cls._methods_ = methods
         cls._commands_ = commands
         cls._fields_ = fields
         cls._initialized_ = False
+
+        print("New Application name", name)
+        print(total_dict)
+        print('------------')
 
 class ApplicationInstance:
     '''
@@ -160,6 +182,7 @@ class ApplicationInstance:
             attrid, attrtype = self._cls._fields_[name]
             self._ivarr.set(attrid + 1, value)
         else:
+            print(name, value, self._cls._fields_.items)
             raise AttributeError
 
 # default application
@@ -189,6 +212,8 @@ class Application(metaclass=_Application_Metaclass):
     @classmethod
     def initialize(cls):
         if not cls._initialized_:
+            if cls.__mro__[1] != object:
+                cls.__mro__[1].initialize()
             methodarray = []
             for i, mtd in enumerate(cls._methods_.orderedValues()):
                 mtd.initialize(cls, i)
@@ -197,7 +222,7 @@ class Application(metaclass=_Application_Metaclass):
 
             # collect commands
             cmdtable = ReferenceTable(key_f=EPDConstString)
-            for name, cmd in enumerate(cls._commands_.orderedItems()):
+            for name, (i, cmd) in enumerate(cls._commands_.orderedItems()):
                 cmd.initialize(cls)
                 cmdtable.AddPair(name, cmd.getCmdPtr())
 

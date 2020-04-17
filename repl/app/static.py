@@ -8,7 +8,7 @@ _epdarray = EUDVariable(EPDConstString("Hello World!"))
 _linecount = EUDVariable(1)
 
 class StaticApp(Application):
-    _fields_ = [
+    fields = [
         "title_epd",
 
         "linecount",
@@ -51,7 +51,7 @@ class StaticApp(Application):
     def loop(self):
         # F7 - previous page
         # F8 - next page
-        manager = getApplicationManager()
+        manager = getAppManager()
         if EUDIf()(manager.keyPress("ESC")):
             manager.requestDestruct()
         if EUDElseIf()(manager.keyPress("F7")):
