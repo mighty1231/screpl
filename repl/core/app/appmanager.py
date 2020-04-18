@@ -32,14 +32,18 @@ class AppManager:
         self.dbpool = DbPool(300000)
         self.varpool = VarPool(800)
 
-        self.current_app_instance = ApplicationInstance()
+        self.current_app_instance = ApplicationInstance(self)
 
         self.app_cnt = EUDVariable(0)
         self.app_method_stack = EUDArray(AppManager._APP_MAX_COUNT_)
+        self.app_cmdtab_stack = EUDArray(AppManager._APP_MAX_COUNT_)
         self.app_member_stack = EUDArray(AppManager._APP_MAX_COUNT_)
-        self.app_cmdtable_stack = EUDArray(AppManager._APP_MAX_COUNT_)
 
-        self.current_app_cmdtable_epd = EUDVariable()
+        if EUDExecuteOnce()():
+            self.cur_methods = EUDVArray(12345)(_from=EUDVariable())
+            self.cur_members = EUDVArray(12345)(_from=EUDVariable())
+        EUDEndExecuteOnce()
+        self.cur_cmdtable_epd = EUDVariable()
 
         self.keystates = EPD(Db(0x100 * 4))
         self.keystates_sub = EPD(Db(0x100 * 4))
@@ -68,36 +72,43 @@ class AppManager:
         # @TODO decide the moment when new app emerges
         assert issubclass(app, Application)
         if EUDIf()(self.app_cnt < AppManager._APP_MAX_COUNT_):
-            self.current_app_instance._methodptr << app._methodarray_
-            self.current_app_instance._memberptr << self.allocVariable(len(app._fields_) + 1)
-            self.current_app_instance._cmdtable_epd << EPD(app._cmdtable_)
-            self.current_app_instance._update()
-            self.current_app_instance.cmd_output_epd = 0
+            members = self.allocVariable(len(app._fields_))
+            self.cur_members      << members
+            self.cur_members._epd << EPD(members)
+            self.cur_methods      << app._methodarray_
+            self.cur_methods._epd << app._methodarray_epd_
+            self.cur_cmdtable_epd << EPD(app._cmdtable_)
 
-            self.app_method_stack[self.app_cnt] = self.current_app_instance._methodptr
-            self.app_member_stack[self.app_cnt] = self.current_app_instance._memberptr
-            self.app_cmdtable_stack[self.app_cnt] = self.current_app_instance._cmdtable_epd
-
+            self.app_member_stack[self.app_cnt] = members
+            self.app_method_stack[self.app_cnt] = app._methodarray_
+            self.app_cmdtab_stack[self.app_cnt] = EPD(app._cmdtable_)
             self.app_cnt += 1
 
+            self.current_app_instance.cmd_output_epd = 0
             self.current_app_instance.init()
             self.requestUpdate()
         if EUDElse()():
             f_raiseWarning("APP COUNT reached MAX, No more spaces")
         EUDEndIf()
 
-    def shutApplication(self):
-        if EUDIf()(self.app_cnt == 0):
-            f_raiseError("FATAL ERROR: Application shutdown")
+    def terminateApplication(self):
+        if EUDIf()(self.app_cnt == 1):
+            f_raiseError("FATAL ERROR: Excessive TerminateApplication")
         EUDEndIf()
+
         self.current_app_instance.destruct()
+        self.freeVariable(self.cur_members)
 
         self.app_cnt -= 1
-        self.freeVariable(self.current_app_instance._memberptr)
-        self.current_app_instance._methodptr << self.app_method_stack[self.app_cnt]
-        self.current_app_instance._memberptr << self.app_member_stack[self.app_cnt]
-        self.current_app_instance._cmdtable_epd << self.app_cmdtable_stack[self.app_cnt]
-        self.current_app_instance._update()
+        members   = self.app_member_stack[self.app_cnt]
+        methods   = self.app_method_stack[self.app_cnt]
+        table_epd = self.app_cmdtab_stack[self.app_cnt]
+
+        self.cur_members      << members
+        self.cur_members._epd << EPD(members)
+        self.cur_methods      << methods
+        self.cur_methods._epd << EPD(methods)
+        self.cur_cmdtable_epd << table_epd
 
     def updateKeyState(self):
         # keystate
@@ -271,7 +282,7 @@ class AppManager:
 
         # check destruction
         if EUDIf()(self.destruct == 1):
-            self.shutApplication()
+            self.terminateApplication()
             self.current_app_instance.loop()
 
             self.destruct << 0

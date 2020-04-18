@@ -133,47 +133,35 @@ class ApplicationInstance:
       item #1: instance field [0]
       item #i: instance field [i+1]
     '''
-    _attributes_ = ['_cls', '_memberptr', '_methodptr',
-            '_ivarr', '_mvarr', '_cmdtable_epd', '_update']
-    def __init__(self):
+    _attributes_ = ['_cls', '_manager']
+    def __init__(self, manager):
         self._cls = Application
-        self._memberptr = EUDVariable()
-        self._methodptr = EUDVariable()
-        self._ivarr = EUDVArray(12345).cast(self._memberptr)
-        self._mvarr = EUDVArray(12345).cast(self._methodptr)
-        self._cmdtable_epd = EUDVariable()
-
-    def _update(self):
-        # assert IsEUDVariable(unProxy(self._ivarr))
-        unProxy(self._ivarr) << self._memberptr
-        self._ivarr._epd << EPD(self._memberptr)
-        unProxy(self._mvarr) << self._methodptr
-        self._mvarr._epd << EPD(self._methodptr)
+        self._manager = manager
 
     def __getattr__(self, name):
         if name in self._cls._commands_:
             raise RuntimeError("You should not invoke AppCommand directly")
         elif name in self._cls._methods_:
             i, v = self._cls._methods_[name]
-            return v.apply(self)
+            return v.apply()
             # return self._methodptr.get(i)
         elif name in self._cls._fields_:
             attrid, attrtype = self._cls._fields_[name]
-            attr = self._ivarr.get(attrid + 1)
+            attr = self._manager.cur_members.get(attrid)
             if attrtype:
                 return attrtype.cast(attr)
             else:
                 return attr
-        raise AttributeError
+        raise AttributeError("Application '%s' has no attribute '%s'" % (self._cls, name))
 
     def __setattr__(self, name, value):
         if name in ApplicationInstance._attributes_:
             super().__setattr__(name, value)
         elif name in self._cls._fields_:
             attrid, attrtype = self._cls._fields_[name]
-            self._ivarr.set(attrid + 1, value)
+            self._manager.cur_members.set(attrid, value)
         else:
-            raise AttributeError
+            raise AttributeError("Application '%s' has no attribute '%s'" % (self._cls, name))
 
 # default application
 class Application(metaclass=_Application_Metaclass):
@@ -211,6 +199,7 @@ class Application(metaclass=_Application_Metaclass):
                 mtd.allocate()
                 methodarray.append(mtd.getFuncPtr())
             cls._methodarray_ = EUDVArray(len(methodarray))(methodarray)
+            cls._methodarray_epd_ = EPD(cls._methodarray_)
 
             # allocate commands
             cmdtable = ReferenceTable(key_f=EPDConstString)

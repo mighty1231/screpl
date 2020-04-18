@@ -26,7 +26,7 @@ AppCommandPtr = EUDFuncPtr(0, 0)
 def _runAppCommand():
     from . import getAppManager
 
-    cmdtable_epd = getAppManager().getCurrentAppInstance()._cmdtable_epd
+    cmdtable_epd = getAppManager().cur_cmdtable_epd
     funcname = Db(50)
     _output_writer.seekepd(_ref_stdout_epd)
 

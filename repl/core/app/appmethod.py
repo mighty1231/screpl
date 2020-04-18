@@ -145,11 +145,11 @@ class _AppMethod:
 
         self.status = 'allocated'
 
-    def apply(self, instance):
-        from . import ApplicationInstance
-        assert isinstance(instance, ApplicationInstance)
+    def apply(self):
+        from . import getAppManager
+        manager = getAppManager()
         assert self.status in ['initialized', 'allocated'], self
-        return self.funcptr_cls.cast(instance._mvarr[self.index])
+        return self.funcptr_cls.cast(manager.cur_methods[self.index])
 
 ''' Decorator to make _AppMethod '''
 def AppTypedMethod(argtypes, rettypes = [], *, isPrint=False, traced=False):
