@@ -1,11 +1,15 @@
 from eudplib import *
 
 from ..core.app import Application, getAppManager, AppCommand
+from ..utils import EPDConstString
+
+FRAME_PERIOD = 24
 
 _location = EUDVariable(1)
 mapw = -1
 maph = -1
-FRAME_PERIOD = 24
+
+locstrings = None
 
 def drawRectangle(location, frame):
     superuser = getAppManager().superuser
@@ -204,23 +208,42 @@ class LocationApp(Application):
         "frame"
     ]
 
+    @classmethod
+    def allocate(cls):
+        if not cls._allocated_:
+            global mapw, maph, locstrings
+            if mapw == -1:
+                from eudplib.core.mapdata.stringmap import locmap
+                arr = [0 for _ in range(256)]
+                for string, locid in locmap._s2id.items():
+                    arr[locid + 1] = EPDConstString(string)
+                locstrings = EUDArray(arr)
+                dim = GetChkTokenized().getsection(b'DIM ')
+                mapw = b2i2(dim, 0)
+                maph = b2i2(dim, 2)
+
+            DoActions([
+                # make enable to create Scanner Sweep
+                SetMemoryX(0x661558, SetTo, 1 << 17, 1 << 17),
+
+                # unit dimension
+                SetMemory(0x6617C8 + 33 * 8, SetTo, 0x00040004),
+                SetMemory(0x6617C8 + 33 * 8 + 4, SetTo, 0x00040004)
+            ])
+        super(LocationApp, cls).allocate()
+
     @staticmethod
     def setContent(location):
         _location << EncodeLocation(location)
 
     def init(self):
-        global mapw, maph
-        if mapw != -1:
-            dim = GetChkTokenized().getsection(b'DIM ')
-            mapw = b2i2(dim, 0)
-            maph = b2i2(dim, 2)
+        global mapw
+        assert mapw != -1
         self.location = 0
         self.centerview = 1
         self.autorefresh = 1
         self.frame = 0
 
-        # make enable to create Scanner Sweep
-        DoActions(SetMemoryX(0x661558, SetTo, 1 << 17, 1 << 17))
         self.setLocation(_location)
 
     def setLocation(self, location):
@@ -302,7 +325,7 @@ class LocationApp(Application):
 
     def print(self, writer):
         # title
-        writer.write_f("Location (flags) ( %D / 256 ) // CenterView: ",
+        writer.write_f("Location (sizeX, sizeY, flags) ( %D / 256 ) // CenterView: ",
                 self.location)
         if EUDIfNot()(self.centerview == 0):
             writer.write_f("ON\n")
@@ -333,7 +356,10 @@ class LocationApp(Application):
             #   0x08: Low Air
             #   0x10: Med Air
             #   0x20: High Air
-            strId = f_wread_epd(cur_epd + 4, 0)
+            left  = f_dwread_epd(cur_epd)
+            top   = f_dwread_epd(cur_epd + 1)
+            right = f_dwread_epd(cur_epd + 2)
+            down  = f_dwread_epd(cur_epd + 3)
             flag = f_wread_epd(cur_epd + 4, 2)
 
             if EUDIf()(cur == target_location):
@@ -341,7 +367,13 @@ class LocationApp(Application):
             if EUDElse()():
                 writer.write(0x02) # pale blue
             EUDEndIf()
-            writer.write_f(" %D %H ", cur, cur_ptr)
+
+            str_epd = locstrings[cur]
+            if EUDIfNot()(str_epd == 0):
+                writer.write_f(" %D '%E': %D x %D // ", cur, str_epd, right-left, down-top)
+            if EUDElse()():
+                writer.write_f(" %D: %D x %D // ", cur, right-left, down-top)
+            EUDEndIf()
 
             layers = ['Low Ground', 'Med Ground', 'High Ground',
                     'Low Air', 'Med Air', 'High Air']
@@ -359,11 +391,6 @@ class LocationApp(Application):
                         cnt += 1
                     EUDEndIf()
             EUDEndIf()
-            writer.write(ord(' '))
-            if EUDIfNot()(strId == 0):
-                writer.write_STR_string(strId)
-            EUDEndIf()
-            writer.write_decimal(strId)
             writer.write(ord('\n'))
 
             DoActions([cur_ptr.AddNumber(0x14), cur.AddNumber(1), cur_epd.AddNumber(0x14//4)])
