@@ -79,7 +79,7 @@ class _Application_Metaclass(type):
         for k, v in dct.items():
             if isinstance(v, _AppCommand):
                 assert k not in total_dict or isinstance(total_dict[k], _AppCommand), \
-                        "Conflict on attribute - class %s attr %s" % (name, k)
+                        "Conflict on attribute - %s.%s" % (name, k)
                 if commands.hasKey(k):
                     commands.replace(k, v)
                 else:
@@ -88,9 +88,9 @@ class _Application_Metaclass(type):
                 total_dict[k] = v
             elif callable(v) or isinstance(v, _AppMethod):
                 assert not (k[:2] == k[-2:] == "__"), \
-                        "Illegal method - class %s attr %s" % (name, k)
+                        "Illegal method - %s.%s" % (name, k)
                 assert k not in total_dict or isinstance(total_dict[k], _AppMethod), \
-                        "Conflict on attribute - class %s attr %s" % (name, k)
+                        "Conflict on attribute - %s.%s" % (name, k)
                 if not isinstance(v, _AppMethod):
                     v = AppMethod(v)
                 setattr(cls, k, v)
@@ -104,7 +104,7 @@ class _Application_Metaclass(type):
                 total_dict[k] = v
             else:
                 assert k not in total_dict or total_dict[k] == 'Other', \
-                        "Conflict on attribute - class %s attr %s" % (name, k)
+                        "Conflict on attribute - %s.%s" % (name, k)
                 total_dict[k] = 'Other'
 
         # fields for the cases that a child newly defined field
@@ -115,7 +115,7 @@ class _Application_Metaclass(type):
                 else:
                     k, typ = f
                 assert k not in total_dict, \
-                        "Conflict on attribute - class %s attr %s" % (name, k)
+                        "Conflict on attribute - %s.%s" % (name, k)
                 fields.append(k, typ)
                 total_dict[k] = 'F'
 
@@ -211,10 +211,33 @@ class Application(metaclass=_Application_Metaclass):
             cls._allocated_ = True
 
     @classmethod
-    def addCommand(cls, name, command):
+    def addCommand(cls, name, cmd):
         from . import _AppCommand
-        assert isinstance(command, _AppCommand)
-        assert not cls._commands_.hasKey(name)
-        command.allocate(cls)
-        cls._commands_.append(name, command)
-        cls._cmdtable_.AddPair(name, command.getCmdPtr())
+
+        assert isinstance(cmd, _AppCommand), "CMD (%s) must be callable or AppCommand" % cmd
+
+        if cls._allocated_:
+            # case allocated
+            #   - unable to replace, just append only
+            #   - initialize and allocate
+            assert name not in cls._total_dict_, \
+                    "Please avoid to use '%s' as the command name on class %s," \
+                    "or add it before allocation of the class" % (name, cls.__name__)
+            cls._commands_.append(name, cmd)
+            cmd.initialize(cls)
+            cls._total_dict_[name] = cmd
+
+            cmd.allocate()
+            cls._cmdtable_.AddPair(name, cmd.getCmdPtr())
+        else:
+            # case not allocated
+            #   - replace or add
+            #   - just initialize
+            assert name not in cls._total_dict_ or isinstance(cls._total_dict_[name], _AppCommand), \
+                    "Conflict on attribute - %s.%s" % (cls.__name__, name)
+            if cls._commands_.hasKey(name):
+                cls._commands_.replace(name, cmd)
+            else:
+                cls._commands_.append(name, cmd)
+            cmd.initialize(cls)
+            cls._total_dict_[name] = cmd

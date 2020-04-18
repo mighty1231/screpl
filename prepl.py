@@ -10,9 +10,18 @@ def beforeTriggerExec():
 	if pid not in range(7):
 		raise RuntimeError('Superuser in REPL should be one of P1~P8')
 
-	from repl import getAppManager
+	from repl import getAppManager, AppCommand
 
-	getAppManager(superuser = pid).loop()
+	manager = getAppManager(superuser = pid)
+	from repl.app import LocationApp, REPL
+
+	@AppCommand([])
+	def openloc(self):
+		manager.openApplication(LocationApp)
+
+	REPL.addCommand('openloc', openloc)
+
+	manager.loop()
 
 playerMap = {
 	'P1':P1,

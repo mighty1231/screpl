@@ -1,13 +1,12 @@
 from eudplib import *
 
-from .static import StaticApp
-from ..core.app import Application, getApplicationManager
-from ..util import EPDConstStringArray
+from ..core.app import Application, getAppManager, AppCommand
+from ..utils import EPDConstStringArray
 
 _location = EUDVariable(1)
 
-class LocationApp(StaticApp):
-    _fields_ = [
+class LocationApp(Application):
+    fields = [
         "location", # 1 ~ 255
 
         "centerview", # do centerview every setLocation if 1
@@ -21,10 +20,10 @@ class LocationApp(StaticApp):
         _location << EncodeLocation(location)
 
     def init(self):
-        self.location << _location
-        self.centerview << 0
-        self.autorefresh << 1
-        self.frame << 0
+        self.location = _location
+        self.centerview = 1
+        self.autorefresh = 1
+        self.frame = 0
         
         # make enable to create Scanner Sweep
         DoActions(SetMemoryX(0x661558, SetTo, 1 << 17, 1 << 17))
@@ -36,20 +35,20 @@ class LocationApp(StaticApp):
 
                 if EUDIfNot()(self.centerview == 0):
                     cp = f_getcurpl()
-                    f_setcurpl(getApplicationManager().superuser)
+                    f_setcurpl(getAppManager().superuser)
                     DoActions([CenterView(location)])
                     f_setcurpl(cp)
                 EUDEndIf()
-                getApplicationManager().requestUpdate()
+                getAppManager().requestUpdate()
             EUDEndIf()
         EUDEndIf()
 
     def loop(self):
         # F7 - previous location
         # F8 - next location
-        manager = getApplicationManager()
+        manager = getAppManager()
         location = self.location
-        superuser = getApplicationManager().superuser
+        superuser = manager.superuser
         if EUDIf()(manager.keyPress("ESC")):
             manager.requestDestruct()
         if EUDElseIf()(manager.keyPress("F7")):
@@ -59,7 +58,7 @@ class LocationApp(StaticApp):
         EUDEndIf()
 
         if EUDIfNot()(self.autorefresh == 0):
-            getApplicationManager().requestUpdate()
+            manager.requestUpdate()
         EUDEndIf()
 
 
@@ -75,7 +74,7 @@ class LocationApp(StaticApp):
         ])
 
         # draw location with Scanner Sweep
-        cur_epd = EPD(0x58DC60 - 0x14) + (0x14 // 4) * cur
+        cur_epd = EPD(0x58DC60 - 0x14) + (0x14 // 4) * self.location
         le, te, re, de = cur_epd, cur_epd+1, cur_epd+2, cur_epd+3
         l, t, r, d = [f_dwread_epd(ee) for ee in [le, te, re, de]]
 
@@ -98,26 +97,26 @@ class LocationApp(StaticApp):
         DoActions(CreateUnit(1, "Scanner Sweep", location, superuser))
 
         # restore location
-        for epd, val in zip([le, te, re, de], [l, t, r, d])
+        for epd, val in zip([le, te, re, de], [l, t, r, d]):
             f_dwwrite_epd(epd, val)
 
         # restore Scanner Sweep
         DoActions([
-            RemoveUnit("Scanner Sweep", superuser)
+            RemoveUnit("Scanner Sweep", superuser),
             SetMemoryX(0x666458, SetTo, prev_im, 0xFFFF),
             SetMemory(0x66EFE8, SetTo, prev_is)
         ])
 
-    @AppCommand
+    @AppCommand([])
     def toggle_cv(self):
         if EUDIfNot()(self.centerview == 0):
             self.centerview = 0
         if EUDElse()():
             self.centerview = 1
         EUDEndIf()
-        getApplicationManager().requestUpdate()
+        getAppManager().requestUpdate()
 
-    @AppCommand
+    @AppCommand([])
     def toggle_ar(self):
         if EUDIfNot()(self.autorefresh == 0):
             self.autorefresh = 0
@@ -128,7 +127,7 @@ class LocationApp(StaticApp):
     def print(self, writer):
         # title
         writer.write_f("Location (Left, Top, Right, Down, Flag, Name) ( %D / 256 ) // CenterView: ",
-                self.offset)
+                self.location)
         if EUDIfNot()(self.centerview == 0):
             writer.write_f("ON\n")
         if EUDElse()():
@@ -160,9 +159,11 @@ class LocationApp(StaticApp):
 
             if EUDIf()(cur == target_location):
                 writer.write(0x11) # orange
+            if EUDElse()():
+                writer.write(0x02) # pale blue
             EUDEndIf()
             writer.write_f(" %D %H : %D %D %D %D ",
-                cur, ptr, left, top, right, down
+                cur, cur_ptr, left, top, right, down
             )
             writer.write_binary(flag)
             writer.write(ord(' '))
@@ -172,15 +173,6 @@ class LocationApp(StaticApp):
             writer.write(ord('\n'))
 
             DoActions([cur_ptr.AddNumber(0x14), cur.AddNumber(1), cur_epd.AddNumber(0x14//4)])
-        EUDEndInfLoop()
-
-        # fill with contents
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= until)
-            writer.write_strepd(f_dwread_epd(self.content_epd + cur))
-            writer.write(ord('\n'))
-
-            DoActions(cur.AddNumber(1))
         EUDEndInfLoop()
 
         writer.write(0)
