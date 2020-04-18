@@ -74,7 +74,7 @@ class REPL(Application):
             cur_pn << 0
         EUDEndIf()
 
-        writer.write_f("SC-REPL, type help() ( %D / %D )\n",
+        writer.write_f("SC-REPL, type help() ( %D / %D )",
             cur_pn,
             f_div(repl_index + (PAGE_NUMLINES//2-1),
                 PAGE_NUMLINES//2)[0]
@@ -97,8 +97,8 @@ class REPL(Application):
         if EUDInfLoop()():
             EUDBreakIf(cur >= until)
 
-            writer.write_f('\x1C>>> \x1D%E\n', inputepd)
-            writer.write_f('%C%E\n', repl_outputcolor, outputepd)
+            writer.write_f('\n\x1C>>> \x1D%E', inputepd)
+            writer.write_f('\n%C%E', repl_outputcolor, outputepd)
 
             DoActions([
                 cur.AddNumber(1),

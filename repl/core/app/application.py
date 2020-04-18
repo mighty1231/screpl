@@ -55,6 +55,7 @@ class _indexPair:
         return self.items[key]
 
 class _Application_Metaclass(type):
+    apps = []
     def __init__(cls, name, bases, dct):
         ''' Fill methods, commands, members '''
         from . import _AppMethod, _AppCommand, AppMethod
@@ -83,6 +84,7 @@ class _Application_Metaclass(type):
                     commands.replace(k, v)
                 else:
                     commands.append(k, v)
+                v.initialize(cls)
                 total_dict[k] = v
             elif callable(v) or isinstance(v, _AppMethod):
                 assert not (k[:2] == k[-2:] == "__"), \
@@ -94,9 +96,10 @@ class _Application_Metaclass(type):
                 setattr(cls, k, v)
                 if methods.hasKey(k):
                     # Overriding AppMethod
-                    v.setParent(methods.getValue(k))
+                    v.initialize(cls, methods[k][0], methods.getValue(k))
                     methods.replace(k, v)
                 else:
+                    v.initialize(cls, len(methods))
                     methods.append(k, v)
                 total_dict[k] = v
             else:
@@ -120,7 +123,8 @@ class _Application_Metaclass(type):
         cls._methods_ = methods
         cls._commands_ = commands
         cls._fields_ = fields
-        cls._initialized_ = False
+        cls._allocated_ = False
+        _Application_Metaclass.apps.append(cls)
 
 class ApplicationInstance:
     '''
@@ -196,32 +200,32 @@ class Application(metaclass=_Application_Metaclass):
         pass
 
     @classmethod
-    def initialize(cls):
-        if not cls._initialized_:
+    def allocate(cls):
+        if not cls._allocated_:
             if cls.__mro__[1] != object:
-                cls.__mro__[1].initialize()
+                cls.__mro__[1].allocate()
 
-            # Initialize methods
+            # allocate methods
             methodarray = []
-            for i, mtd in enumerate(cls._methods_.orderedValues()):
-                mtd.initialize(cls, i)
+            for mtd in cls._methods_.orderedValues():
+                mtd.allocate()
                 methodarray.append(mtd.getFuncPtr())
             cls._methodarray_ = EUDVArray(len(methodarray))(methodarray)
 
-            # initialize commands
+            # allocate commands
             cmdtable = ReferenceTable(key_f=EPDConstString)
             for name, cmd in cls._commands_.orderedItems():
-                cmd.initialize(cls)
+                cmd.allocate()
                 cmdtable.AddPair(name, cmd.getCmdPtr())
 
             cls._cmdtable_ = cmdtable
-            cls._initialized_ = True
+            cls._allocated_ = True
 
     @classmethod
     def addCommand(cls, name, command):
         from . import _AppCommand
         assert isinstance(command, _AppCommand)
         assert not cls._commands_.hasKey(name)
-        command.initialize(cls)
+        command.allocate(cls)
         cls._commands_.append(name, command)
         cls._cmdtable_.AddPair(name, command.getCmdPtr())

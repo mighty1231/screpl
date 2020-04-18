@@ -6,7 +6,6 @@ class _AppMethod:
     def __init__(self, argtypes, rettypes, method, *, isPrint, traced):
         # Get argument number of fdecl_func
         argspec = inspect.getargspec(method)
-        argn = len(argspec[0]) - 1 # except self
         ep_assert(
             argspec[1] is None,
             'No variadic arguments (*args) allowed for AppMethod.'
@@ -16,115 +15,140 @@ class _AppMethod:
             'No variadic keyword arguments (*kwargs) allowed for AppMethod.'
         )
 
+        argn = len(argspec[0]) - 1 # except self
         if argtypes is None:
             argtypes = [None for _ in range(argn)]
+        else:
+            assert argn == len(argtypes)
+        retn = len(rettypes)
 
-        assert argn == len(argtypes)
+        if isPrint:
+            assert argtypes == [None] and argn == 1
+            assert rettypes == []
+            argtypes = rettypes = []
+            argn = retn = 0
+        self.isPrint = isPrint
+
         self.argtypes = argtypes
         self.rettypes = rettypes
         self.argn = argn
-        self.retn = len(rettypes)
+        self.retn = retn
 
         self.method = method
-        self.funcptr = None
+        self.name = method.__name__
+
+        # Step 2 initialize
+        self.cls = None
         self.index = -1
-
         self.parent = None
+        self.funcptr_cls = None
+        self.funcptr = None
 
-        self.isPrint = isPrint
+        # Step 3 allocate
+        self.funcn = None
+
+
         self.traced = traced
+        self.status = 'not initialized'
 
-        if isPrint:
-            assert self.argtypes == [None] and self.argn == 1
-            assert self.rettypes == []
-            self.argtypes = self.rettypes = []
-            self.argn = 0
-
-        self.funcptr_cls = EUDTypedFuncPtr(self.argtypes, self.rettypes)
-        self.funcptr = self.funcptr_cls()
+    def __repr__(self):
+        if self.status == 'not initialized':
+            return '<AppMethod %s, st=NI>' % self.name
+        elif self.status == 'initialized':
+            return '<AppMethod %s.%s, st=I, idx=%d>' % (self.cls.__name__, self.name, self.index)
+        elif self.status == 'allocated':
+            return '<AppMethod %s.%s, st=A, idx=%d>' % (self.cls.__name__, self.name, self.index)
+        else:
+            raise RuntimeError
 
     def getFuncPtr(self):
         return self.funcptr
 
-    def setParent(self, parent):
-        # Overriding method, some members are replicated
-        assert self.index == parent.index == -1, "Should not be initialized"
-        if parent.isPrint:
-            self.isPrint = True
+    def initialize(self, cls, index, parent = None):
+        # initializing from its Application class
+        assert self.status == 'not initialized'
 
-            assert self.argtypes == [None] and self.argn == 1
-            assert self.rettypes == []
-            self.argtypes = self.rettypes = []
-            self.argn = 0
-            self.funcptr_cls = EUDTypedFuncPtr([], [])
-            self.funcptr = self.funcptr_cls()
-        else:
-            if self.argtypes is not None:
-                assert self.argtypes == parent.argtypes
-                assert self.argn == parent.argn
+        # overriding
+        if parent:
+            assert index == parent.index, 'class %s name %s' % (cls, self.name)
+            if parent.isPrint:
+                assert self.argtypes == [None] and self.argn == 1
+                assert self.rettypes == []
+                self.argtypes = self.rettypes = []
+                self.argn = self.retn = 0
+
+                self.isPrint = True
             else:
-                self.argtypes = parent.argtypes
-                self.argn = parent.argn
-            assert self.rettypes == parent.rettypes
-            assert self.retn == parent.retn
-        self.parent = parent
+                if self.argtypes is not None:
+                    assert self.argtypes == parent.argtypes
+                    assert self.argn == parent.argn
+                else:
+                    self.argtypes = parent.argtypes
+                    self.argn = parent.argn
 
-    def initialize(self, cls, index):
+                if self.rettypes is not None:
+                    assert self.rettypes == parent.rettypes
+                    assert self.retn == parent.retn
+                else:
+                    self.rettypes = parent.rettypes
+                    self.retn = parent.retn
+
+        self.cls = cls
+        self.index = index
+        self.parent = parent
+        self.funcptr_cls = EUDTypedFuncPtr(self.argtypes, self.rettypes)
+        self.funcptr = self.funcptr_cls()
+
+        self.status = 'initialized'
+
+    def allocate(self):
+        if self.status == 'allocated':
+            return
+        assert self.status == 'initialized'
+
         from . import getAppManager
         from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN, applyTypes
-
-        if self.index != -1:
-            assert self.index == index
-            return
 
         if not self.isPrint:
             # Set first argument as AppInstance
             def call(*args):
                 instance = getAppManager().getCurrentAppInstance()
                 prev_cls = instance._cls
-                instance._cls = cls
+                instance._cls = self.cls
 
                 args = applyTypes(self.argtypes, args)
                 ret = self.method(instance, *args)
 
                 instance._cls = prev_cls
                 return ret
-
-            funcn = EUDTypedFuncN(
-                self.argn, call, self.method, self.argtypes, self.rettypes,
-                traced=self.traced)
-
-            funcn._CreateFuncBody()
-
         else:
             # Additionally set second argument as printer
             def call():
                 instance = getAppManager().getCurrentAppInstance()
                 prev_cls = instance._cls
-                instance._cls = cls
+                instance._cls = self.cls
                 printer = getAppManager().getWriter()
 
                 ret = self.method(instance, printer)
 
                 instance._cls = prev_cls
                 return ret
-            funcn = EUDTypedFuncN(
-                0, call, self.method, [], [],
-                traced=self.traced)
 
-            funcn._CreateFuncBody()
+        funcn = EUDTypedFuncN(
+            self.argn, call, self.method, self.argtypes, self.rettypes,
+            traced=self.traced)
+
+        funcn._CreateFuncBody()
 
         self.funcn = funcn
-        self.index = index
         self.funcptr << self.funcn
 
-        # overriding check - returning arguments
-        if self.parent:
-            assert self.index == self.parent.index, 'class %s name %s' % (cls, self.method.__name__)
+        self.status = 'allocated'
 
     def apply(self, instance):
         from . import ApplicationInstance
         assert isinstance(instance, ApplicationInstance)
+        assert self.status in ['initialized', 'allocated'], self
         return self.funcptr_cls.cast(instance._mvarr[self.index])
 
 ''' Decorator to make _AppMethod '''

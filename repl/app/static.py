@@ -33,7 +33,7 @@ class StaticApp(Application):
         self.offset = 0
 
     def setOffset(self, new_offset):
-        prevoffset, linecount, lpp = self.offset, self.linecount, self.lines_per_page
+        prev_offset, linecount, lpp = self.offset, self.linecount, self.lines_per_page
         if EUDIf()([new_offset <= 0x80000000, linecount > lpp]):
             if EUDIfNot()(new_offset >= linecount - lpp):
                 self.offset = new_offset
@@ -44,7 +44,7 @@ class StaticApp(Application):
             self.offset = 0
         EUDEndIf()
 
-        if EUDIfNot()(prevoffset == self.offset):
+        if EUDIfNot()(prev_offset == self.offset):
             getAppManager().requestUpdate()
         EUDEndIf()
 
@@ -52,6 +52,7 @@ class StaticApp(Application):
         # F7 - previous page
         # F8 - next page
         manager = getAppManager()
+        self.destruct()
         if EUDIf()(manager.keyPress("ESC")):
             manager.requestDestruct()
         if EUDElseIf()(manager.keyPress("F7")):
@@ -62,7 +63,7 @@ class StaticApp(Application):
 
     def print(self, writer):
         # title
-        writer.write_f("%E ( %D / %D )\n",
+        writer.write_f("%E ( %D / %D )",
                 self.title_epd, self.offset, self.linecount)
 
         cur, pageend, until = EUDCreateVariables(3)
@@ -77,8 +78,8 @@ class StaticApp(Application):
         # fill with contents
         if EUDInfLoop()():
             EUDBreakIf(cur >= until)
-            writer.write_strepd(f_dwread_epd(self.content_epd + cur))
             writer.write(ord('\n'))
+            writer.write_strepd(f_dwread_epd(self.content_epd + cur))
 
             DoActions(cur.AddNumber(1))
         EUDEndInfLoop()

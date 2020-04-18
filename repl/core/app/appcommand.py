@@ -76,26 +76,34 @@ class _AppCommand:
         self.func = func
         self.cmdptr = AppCommandPtr()
 
-        self.traced = traced
-
+        # Step 2 initialize
         self.cls = None
+
+        # Step 3 allocate
+        self.funcn = None
+
+        self.traced = traced
+        self.status = 'not initialized'
 
     def getCmdPtr(self):
         assert self.cls is not None
         return self.cmdptr
 
     def initialize(self, cls):
+        assert self.status == 'not initialized'
+        self.cls = cls
+        self.status = 'initialized'
+
+    def allocate(self):
         from . import getAppManager
         from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN
 
-        if self.cls is not None:
-            assert self.cls == cls
-            return
+        assert self.status == 'initialized'
 
         def call_inner():
             instance = getAppManager().getCurrentAppInstance()
             prev_cls = instance._cls
-            instance._cls = cls
+            instance._cls = self.cls
 
             _argn << self.argn
             for i, enc in enumerate(self.arg_encoders):
@@ -110,12 +118,13 @@ class _AppCommand:
 
             instance._cls = prev_cls
 
-        self.cls = cls
         self.funcn = EUDTypedFuncN(
             0, call_inner, self.func, [], [],
             traced=self.traced)
         self.cmdptr << self.funcn
         assert self.funcn._retn == 0, "You should not return anything on AppCommand"
+
+        self.status = 'allocated'
 
 @EUDFunc
 def encodeArguments():

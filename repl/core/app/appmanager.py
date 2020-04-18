@@ -63,7 +63,7 @@ class AppManager:
     def openApplication(self, app):
         from . import Application
 
-        app.initialize()
+        app.allocate()
 
         # @TODO decide the moment when new app emerges
         assert issubclass(app, Application)
@@ -281,9 +281,6 @@ class AppManager:
         # Print top of the screen, enables chat simultaneously
         txtPtr = f_dwread_epd(EPD(0x640B58))
         if EUDIf()(self.update == 1):
-
-            f_setcurpl(self.superuser)
-
             self.writer.seekepd(EPD(self.displayBuffer.GetStringMemoryAddr()))
 
             # print() uses self.writer internally
@@ -291,5 +288,6 @@ class AppManager:
 
             self.update << 0
         EUDEndIf()
+        f_setcurpl(self.superuser)
         self.displayBuffer.Display()
         SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
