@@ -100,9 +100,10 @@ class AppManager:
         self.freeVariable(self.cur_members)
 
         self.app_cnt -= 1
-        members   = self.app_member_stack[self.app_cnt]
-        methods   = self.app_method_stack[self.app_cnt]
-        table_epd = self.app_cmdtab_stack[self.app_cnt]
+        cur_app_id = self.app_cnt - 1
+        members    = self.app_member_stack[cur_app_id]
+        methods    = self.app_method_stack[cur_app_id]
+        table_epd  = self.app_cmdtab_stack[cur_app_id]
 
         self.cur_members      << members
         self.cur_members._epd << EPD(members)
