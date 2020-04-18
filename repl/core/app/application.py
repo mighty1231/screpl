@@ -2,6 +2,7 @@ from eudplib import *
 
 from .appmethod import AppMethod_print
 from .appcommand import runAppCommand
+from .appmanager import getAppManager
 from ...utils import EPDConstString
 from ..referencetable import ReferenceTable
 
@@ -128,26 +129,30 @@ class _Application_Metaclass(type):
 
 class ApplicationInstance:
     '''
-    instance: EUDVArray
-      item #0: method pointers of class
-      item #1: instance field [0]
-      item #i: instance field [i+1]
+    Mimic object for application instance, used in AppMethod
+    It supports field access and method invocation
     '''
-    _attributes_ = ['_cls', '_manager']
-    def __init__(self, manager):
-        self._cls = Application
-        self._manager = manager
+    _attributes_ = ['_cls', '_absolute']
+    def __init__(self, cls = None):
+        if cls:
+            self._cls = cls
+            self._absolute = True
+        else:
+            self._cls = Application
+            self._absolute = False
 
     def __getattr__(self, name):
         if name in self._cls._commands_:
             raise RuntimeError("You should not invoke AppCommand directly")
         elif name in self._cls._methods_:
             i, v = self._cls._methods_[name]
-            return v.apply()
-            # return self._methodptr.get(i)
+            if not self._absolute:
+                return v.apply()
+            else:
+                return v.applyAbsolute()
         elif name in self._cls._fields_:
             attrid, attrtype = self._cls._fields_[name]
-            attr = self._manager.cur_members.get(attrid)
+            attr = getAppManager().cur_members.get(attrid)
             if attrtype:
                 return attrtype.cast(attr)
             else:
@@ -159,7 +164,7 @@ class ApplicationInstance:
             super().__setattr__(name, value)
         elif name in self._cls._fields_:
             attrid, attrtype = self._cls._fields_[name]
-            self._manager.cur_members.set(attrid, value)
+            getAppManager().cur_members.set(attrid, value)
         else:
             raise AttributeError("Application '%s' has no attribute '%s'" % (self._cls, name))
 
@@ -186,6 +191,13 @@ class Application(metaclass=_Application_Metaclass):
     def print(self, writer):
         ''' called once in a frame that invoked requestUpdate '''
         pass
+
+    @classmethod
+    def getSuper(cls):
+        parent = cls.__mro__[1]
+        assert parent != object
+
+        return ApplicationInstance(parent)
 
     @classmethod
     def allocate(cls):

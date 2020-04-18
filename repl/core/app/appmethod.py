@@ -130,6 +130,7 @@ class _AppMethod:
                 printer = getAppManager().getWriter()
 
                 ret = self.method(instance, printer)
+                printer.write(0)
 
                 instance._cls = prev_cls
                 return ret
@@ -150,6 +151,9 @@ class _AppMethod:
         manager = getAppManager()
         assert self.status in ['initialized', 'allocated'], self
         return self.funcptr_cls.cast(manager.cur_methods[self.index])
+
+    def applyAbsolute(self):
+        return self.funcn
 
 ''' Decorator to make _AppMethod '''
 def AppTypedMethod(argtypes, rettypes = [], *, isPrint=False, traced=False):

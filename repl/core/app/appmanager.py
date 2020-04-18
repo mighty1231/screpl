@@ -32,7 +32,7 @@ class AppManager:
         self.dbpool = DbPool(300000)
         self.varpool = VarPool(800)
 
-        self.current_app_instance = ApplicationInstance(self)
+        self.current_app_instance = ApplicationInstance()
 
         self.app_cnt = EUDVariable(0)
         self.app_method_stack = EUDArray(AppManager._APP_MAX_COUNT_)
