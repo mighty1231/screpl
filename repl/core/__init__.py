@@ -1,4 +1,4 @@
-from .referencetable import SearchTable
+from .referencetable import ReferenceTable, SearchTable
 from .eudbyterw import EUDByteRW
 
 from .appmanager import getAppManager

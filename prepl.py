@@ -1,21 +1,31 @@
 from eudplib import *
 from repl import REPL, getAppManager, AppCommand
 
+import importlib, re
+
 manager = None
 
 def onPluginStart():
     global manager
 
-    # loading settings
+    # set superuser
     pid = 0 # default as P1
     if 'superuser' in settings:
         su = playerMap.get(settings['superuser'], settings['superuser'])
         pid = EncodePlayer(su)
-
     if pid not in range(7):
         raise RuntimeError('Superuser in REPL should be one of P1~P8')
 
+    # make AppManager instance with superuser
     manager = getAppManager(superuser = pid)
+
+    # load plugins
+    # split plugins with ',' or ' '
+    if 'plugins' in settings:
+        plugins = re.split(',| ', settings['plugins'])
+        for plugin in plugins:
+            if plugin:
+                importlib.import_module(plugin)
 
 def beforeTriggerExec():
     manager.loop()
