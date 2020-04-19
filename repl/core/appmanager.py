@@ -51,6 +51,8 @@ class AppManager:
         self.keystates = EPD(Db(0x100 * 4))
         self.keystates_sub = EPD(Db(0x100 * 4))
 
+        self.mouse_pos = EUDCreateVariables(2)
+
     def allocVariable(self, count):
         return self.varpool.alloc(count)
 
@@ -275,6 +277,16 @@ class AppManager:
         '''
         return self.writer
 
+    def updateMousePosition(self):
+        x, y = self.mouse_pos
+        x << f_dwread_epd(EPD(0x0062848C)) + f_dwread_epd(EPD(0x006CDDC4))
+        y << f_dwread_epd(EPD(0x006284A8)) + f_dwread_epd(EPD(0x006CDDC8))
+
+    @EUDMethod
+    def getMousePositionXY(self):
+        x, y = self.mouse_pos
+        EUDReturn([x, y])
+
     def loop(self):
         from .repl import REPL
         if EUDExecuteOnce()():
@@ -285,6 +297,7 @@ class AppManager:
             self.initApplications()
         EUDEndIf()
 
+        self.updateMousePosition()
         self.updateKeyState()
 
         # process all new chats
