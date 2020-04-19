@@ -112,9 +112,11 @@ class AppManager:
 
             EUDBreakIf(self.cur_app_id >= self.app_cnt - 1)
         EUDEndInfLoop()
-        self.requestUpdate()
 
         self.is_opening_app << 0
+
+        self.cleanText()
+        self.requestUpdate()
 
     def terminateApplication(self):
         if EUDIf()(self.app_cnt == 1):
@@ -137,6 +139,10 @@ class AppManager:
         self.cur_cmdtable_epd << table_epd
 
         self.destruct << 0
+
+        self.cleanText()
+        self.requestUpdate()
+        self.current_app_instance.loop()
 
     def updateKeyState(self):
         # keystate
@@ -258,6 +264,11 @@ class AppManager:
         EUDEndIf()
         self.destruct << 1
 
+    def cleanText(self):
+        # clean previous app
+        f_setcurpl(self.superuser)
+        DoActions(DisplayText("\n" * 12))
+
     def getWriter(self):
         '''
         Internally printing function uses this method
@@ -320,9 +331,6 @@ class AppManager:
         # check destruction
         if EUDIfNot()(self.destruct == 0):
             self.terminateApplication()
-
-            self.current_app_instance.loop()
-            self.update << 1
         EUDEndIf()
 
         # Print top of the screen, enables chat simultaneously
