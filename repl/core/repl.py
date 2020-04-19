@@ -31,10 +31,10 @@ class REPL(Application):
         writer.seekepd(repl_inputEPDPtr)
         writer.write_str(offset)
         writer.write(0)
-        runAppCommand(
-            offset,
-            repl_outputEPDPtr
-        )
+        self.cmd_output_epd = repl_outputEPDPtr
+
+        REPL.getSuper().chatCallback(offset)
+
         quot, mod = f_div(repl_index, PAGE_NUMLINES // 2)
         repl_top_index << repl_index - mod
         repl_cur_page << quot

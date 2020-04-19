@@ -18,4 +18,8 @@ from .core import (
     REPL,
 )
 
+from .resources.encoder.const import (
+	argEncNumber
+)
+
 from .utils import EPDConstString

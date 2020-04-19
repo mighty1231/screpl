@@ -39,14 +39,14 @@ class AppManager:
         self.app_cmdtab_stack = EUDArray(AppManager._APP_MAX_COUNT_)
         self.app_member_stack = EUDArray(AppManager._APP_MAX_COUNT_)
 
+        self.cur_app_id = EUDVariable(-1)
+        self.is_opening_app = EUDVariable(0)
+
         if EUDExecuteOnce()():
             self.cur_methods = EUDVArray(12345)(_from=EUDVariable())
             self.cur_members = EUDVArray(12345)(_from=EUDVariable())
         EUDEndExecuteOnce()
         self.cur_cmdtable_epd = EUDVariable()
-
-        self.end_point_var = EUDVariable()
-        self.end_points = [Forward() for _ in range(4)]
 
         self.keystates = EPD(Db(0x100 * 4))
         self.keystates_sub = EPD(Db(0x100 * 4))
@@ -72,29 +72,49 @@ class AppManager:
 
         app.allocate()
 
+        if EUDIf()(self.destruct == 1):
+            f_raiseError("FATAL ERROR: openApplication <-> requestDestruct")
+        EUDEndIf()
+
         # @TODO decide the moment when new app emerges
         assert issubclass(app, Application)
         if EUDIf()(self.app_cnt < AppManager._APP_MAX_COUNT_):
             members = self.allocVariable(len(app._fields_))
-            self.cur_members      << members
-            self.cur_members._epd << EPD(members)
-            self.cur_methods      << app._methodarray_
-            self.cur_methods._epd << app._methodarray_epd_
-            self.cur_cmdtable_epd << EPD(app._cmdtable_)
-
             self.app_member_stack[self.app_cnt] = members
             self.app_method_stack[self.app_cnt] = app._methodarray_
             self.app_cmdtab_stack[self.app_cnt] = EPD(app._cmdtable_)
             self.app_cnt += 1
 
-            self.current_app_instance.cmd_output_epd = 0
-            self.current_app_instance.init()
-            self.requestUpdate()
+            self.is_opening_app << 1
         if EUDElse()():
             f_raiseWarning("APP COUNT reached MAX, No more spaces")
         EUDEndIf()
-        if _return:
-            EUDJump(self.end_point_var)
+
+    def initApplications(self):
+        '''
+        ex. only app#0, cur_appid = 0, app_cnt = 4
+            then, initialize app#1, app#2, app#3
+        '''
+        if EUDInfLoop()():
+            self.cur_app_id += 1
+            members    = self.app_member_stack[self.cur_app_id]
+            methods    = self.app_method_stack[self.cur_app_id]
+            table_epd  = self.app_cmdtab_stack[self.cur_app_id]
+
+            self.cur_members      << members
+            self.cur_members._epd << EPD(members)
+            self.cur_methods      << methods
+            self.cur_methods._epd << EPD(methods)
+            self.cur_cmdtable_epd << table_epd
+
+            self.current_app_instance.cmd_output_epd = 0
+            self.current_app_instance.init()
+
+            EUDBreakIf(self.cur_app_id >= self.app_cnt - 1)
+        EUDEndInfLoop()
+        self.requestUpdate()
+
+        self.is_opening_app << 0
 
     def terminateApplication(self):
         if EUDIf()(self.app_cnt == 1):
@@ -105,16 +125,18 @@ class AppManager:
         self.freeVariable(self.cur_members)
 
         self.app_cnt -= 1
-        cur_app_id = self.app_cnt - 1
-        members    = self.app_member_stack[cur_app_id]
-        methods    = self.app_method_stack[cur_app_id]
-        table_epd  = self.app_cmdtab_stack[cur_app_id]
+        self.cur_app_id << self.app_cnt - 1
+        members    = self.app_member_stack[self.cur_app_id]
+        methods    = self.app_method_stack[self.cur_app_id]
+        table_epd  = self.app_cmdtab_stack[self.cur_app_id]
 
         self.cur_members      << members
         self.cur_members._epd << EPD(members)
         self.cur_methods      << methods
         self.cur_methods._epd << EPD(methods)
         self.cur_cmdtable_epd << table_epd
+
+        self.destruct << 0
 
     def updateKeyState(self):
         # keystate
@@ -228,7 +250,12 @@ class AppManager:
         '''
         Request self-destruct of application
         Should be called under AppMethod or AppCommand
+        When a single app requested openApplication,
+          destruction should not be requested at the same frame.
         '''
+        if EUDIfNot()(self.is_opening_app == 0):
+            f_raiseError("FATAL ERROR: openApplication <-> requestDestruct")
+        EUDEndIf()
         self.destruct << 1
 
     def getWriter(self):
@@ -243,6 +270,10 @@ class AppManager:
             self.openApplication(REPL, _return=False)
         EUDEndExecuteOnce()
 
+        if EUDIfNot()(self.is_opening_app == 0):
+            self.initApplications()
+        EUDEndIf()
+
         self.updateKeyState()
 
         # process all new chats
@@ -251,7 +282,6 @@ class AppManager:
         if EUDIf()(Memory(0x640B58, Exactly, prev_txtPtr)):
             EUDJump(after_chat)
         EUDEndIf()
-        self.end_point_var << self.end_points[0]
 
         # copy superuser name
         prefix = Db(36)
@@ -283,34 +313,25 @@ class AppManager:
         prev_txtPtr << cur_txtPtr
 
         after_chat << NextTrigger()
-        self.end_points[0] << NextTrigger()
 
         # loop
-        self.end_point_var << self.end_points[1]
         self.current_app_instance.loop()
-        self.end_points[1] << NextTrigger()
 
         # check destruction
-        if EUDIf()(self.destruct == 1):
+        if EUDIfNot()(self.destruct == 0):
             self.terminateApplication()
 
-            self.end_point_var << self.end_points[2]
             self.current_app_instance.loop()
-            self.end_points[2] << NextTrigger()
-
-            self.destruct << 0
             self.update << 1
         EUDEndIf()
 
         # Print top of the screen, enables chat simultaneously
         txtPtr = f_dwread_epd(EPD(0x640B58))
-        if EUDIf()(self.update == 1):
+        if EUDIfNot()(self.update == 0):
             self.writer.seekepd(EPD(self.displayBuffer.GetStringMemoryAddr()))
 
             # print() uses self.writer internally
-            self.end_point_var << self.end_points[3]
             self.current_app_instance.print()
-            self.end_points[3] << NextTrigger()
 
             self.update << 0
         EUDEndIf()
