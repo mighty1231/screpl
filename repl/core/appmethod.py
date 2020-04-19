@@ -1,5 +1,7 @@
 from eudplib import *
 
+from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN, applyTypes
+
 import inspect
 
 class _AppMethod:
@@ -106,8 +108,7 @@ class _AppMethod:
             return
         assert self.status == 'initialized'
 
-        from . import getAppManager
-        from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN, applyTypes
+        from .appmanager import getAppManager
 
         if not self.isPrint:
             # Set first argument as AppInstance
@@ -147,7 +148,7 @@ class _AppMethod:
         self.status = 'allocated'
 
     def apply(self):
-        from . import getAppManager
+        from .appmanager import getAppManager
         manager = getAppManager()
         assert self.status in ['initialized', 'allocated'], self
         return self.funcptr_cls.cast(manager.cur_methods[self.index])

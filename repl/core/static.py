@@ -1,6 +1,7 @@
 from eudplib import *
 
-from ..core.app import Application, getAppManager
+from .application import Application
+from .appmanager import getAppManager
 from ..utils import EPDConstString, EPDConstStringArray
 
 _title_epd = EUDVariable(EPDConstString("Title"))

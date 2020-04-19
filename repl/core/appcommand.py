@@ -1,8 +1,11 @@
 from eudplib import *
 
-from ...utils import EPDConstString, EUDByteRW, f_strcmp_ptrepd
-from ..referencetable import SearchTable
-from ..encoder import ArgEncoderPtr, ReadName, _read_until_delimiter
+from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN
+from .appmanager import getAppManager
+from .encoder import ArgEncoderPtr, ReadName, _read_until_delimiter
+from .eudbyterw import EUDByteRW
+from .referencetable import SearchTable
+from ..utils import EPDConstString, f_strcmp_ptrepd
 
 import inspect
 
@@ -21,11 +24,13 @@ _ref_stdout_epd = EUDVariable()
 
 AppCommandPtr = EUDFuncPtr(0, 0)
 
+def runAppCommand(txtptr, ref_stdout_epd):
+    _offset << txtptr
+    _ref_stdout_epd << ref_stdout_epd
+    _runAppCommand()
 
 @EUDFunc
 def _runAppCommand():
-    from . import getAppManager
-
     cmdtable_epd = getAppManager().cur_cmdtable_epd
     funcname = Db(50)
     _output_writer.seekepd(_ref_stdout_epd)
@@ -52,10 +57,39 @@ def _runAppCommand():
         _output_writer.write(0)
     EUDEndIf()
 
-def runAppCommand(txtptr, ref_stdout_epd):
-    _offset << txtptr
-    _ref_stdout_epd << ref_stdout_epd
-    _runAppCommand()
+@EUDFunc
+def encodeArguments():
+    i, delim = EUDCreateVariables(2)
+    i << 0
+    _encode_success << 1
+    if EUDIf()(_argn == 0):
+        _encode_success << _read_until_delimiter(ord(' '), ord(')'))
+    if EUDElse()():
+        delim << ord(',')
+        if EUDInfLoop()():
+            EUDBreakIf(i == _argn)
+            if EUDIf()(i == _argn-1):
+                delim << ord(')')
+            EUDEndIf()
+            _arg_encoder_ptr = ArgEncoderPtr.cast(_arg_encoders[i])
+            if EUDIfNot()(_arg_encoder_ptr(_offset, delim, \
+                    EPD(_offset.getValueAddr()), \
+                    EPD(_arg_storage)+i) == 1):
+                _encode_success << 0 # failed to encode argument
+                if EUDIfNot()(_ref_stdout_epd == 0):
+                    _output_writer.write_strepd(EPDConstString(\
+                            '\x06Syntax Error: during encoding argument ['))
+                    _output_writer.write_decimal(i)
+                    _output_writer.write_strepd(EPDConstString('] \x16'))
+                    _output_writer.write_strn(_offset, 5)
+                    _output_writer.write_strepd(EPDConstString('...'))
+                    _output_writer.write(0)
+                EUDEndIf()
+                EUDBreak()
+            EUDEndIf()
+            i += 1
+        EUDEndInfLoop()
+    EUDEndIf()
 
 class _AppCommand:
     def __init__(self, arg_encoders, func, *, traced):
@@ -95,8 +129,6 @@ class _AppCommand:
         self.status = 'initialized'
 
     def allocate(self):
-        from . import getAppManager
-        from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN
 
         assert self.status == 'initialized'
 
@@ -125,40 +157,6 @@ class _AppCommand:
         assert self.funcn._retn == 0, "You should not return anything on AppCommand"
 
         self.status = 'allocated'
-
-@EUDFunc
-def encodeArguments():
-    i, delim = EUDCreateVariables(2)
-    i << 0
-    _encode_success << 1
-    if EUDIf()(_argn == 0):
-        _encode_success << _read_until_delimiter(ord(' '), ord(')'))
-    if EUDElse()():
-        delim << ord(',')
-        if EUDInfLoop()():
-            EUDBreakIf(i == _argn)
-            if EUDIf()(i == _argn-1):
-                delim << ord(')')
-            EUDEndIf()
-            _arg_encoder_ptr = ArgEncoderPtr.cast(_arg_encoders[i])
-            if EUDIfNot()(_arg_encoder_ptr(_offset, delim, \
-                    EPD(_offset.getValueAddr()), \
-                    EPD(_arg_storage)+i) == 1):
-                _encode_success << 0 # failed to encode argument
-                if EUDIfNot()(_ref_stdout_epd == 0):
-                    _output_writer.write_strepd(EPDConstString(\
-                            '\x06Syntax Error: during encoding argument ['))
-                    _output_writer.write_decimal(i)
-                    _output_writer.write_strepd(EPDConstString('] \x16'))
-                    _output_writer.write_strn(_offset, 5)
-                    _output_writer.write_strepd(EPDConstString('...'))
-                    _output_writer.write(0)
-                EUDEndIf()
-                EUDBreak()
-            EUDEndIf()
-            i += 1
-        EUDEndInfLoop()
-    EUDEndIf()
 
 ''' Decorator to make _AppMethod '''
 def AppCommand(arg_encoders, *, traced=False):

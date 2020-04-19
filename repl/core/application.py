@@ -1,10 +1,10 @@
 from eudplib import *
 
-from .appmethod import AppMethod_print
-from .appcommand import runAppCommand
+from .appcommand import _AppCommand, runAppCommand
 from .appmanager import getAppManager
-from ...utils import EPDConstString
-from ..referencetable import ReferenceTable
+from .appmethod import _AppMethod, AppMethod, AppMethod_print
+from .referencetable import ReferenceTable
+from ..utils import EPDConstString
 
 class _indexPair:
     def __init__(self, items = None):
@@ -59,8 +59,6 @@ class _Application_Metaclass(type):
     apps = []
     def __init__(cls, name, bases, dct):
         ''' Fill methods, commands, members '''
-        from . import _AppMethod, _AppCommand, AppMethod
-
         super().__init__(name, bases, dct)
 
         # build methods and members, basically from parent class
@@ -224,8 +222,6 @@ class Application(metaclass=_Application_Metaclass):
 
     @classmethod
     def addCommand(cls, name, cmd):
-        from . import _AppCommand
-
         assert isinstance(cmd, _AppCommand), "CMD (%s) must be callable or AppCommand" % cmd
 
         if cls._allocated_:

@@ -1,8 +1,11 @@
 from eudplib import *
 
-from ..core.app import Application, getAppManager, AppCommand, runAppCommand
-from ..utils import EPDConstStringArray, EUDByteRW
+from .application import Application
+from .appmanager import getAppManager
+from .appcommand import AppCommand, runAppCommand
+from .eudbyterw import EUDByteRW
 from .static import StaticApp
+from ..utils import EPDConstStringArray
 
 PAGE_NUMLINES = 8
 LINESIZE = 216

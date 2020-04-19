@@ -1,8 +1,8 @@
 from eudplib import *
 
-from ...utils import EUDByteRW, f_raiseError, f_raiseWarning
-from ...utils.keycode import getKeyCode
-from ..pool import DbPool, VarPool
+from .eudbyterw import EUDByteRW
+from .pool import DbPool, VarPool
+from ..utils import f_raiseError, f_raiseWarning, getKeyCode
 
 _manager = None
 
@@ -18,7 +18,7 @@ def getAppManager(superuser=None):
 class AppManager:
     _APP_MAX_COUNT_ = 30
     def __init__(self, superuser):
-        from . import ApplicationInstance
+        from .application import ApplicationInstance
 
         self.superuser = EncodePlayer(superuser)
         assert 0 <= self.superuser < 8, "Superuser should be one of P1 ~ P8"
@@ -45,6 +45,9 @@ class AppManager:
         EUDEndExecuteOnce()
         self.cur_cmdtable_epd = EUDVariable()
 
+        self.end_point_var = EUDVariable()
+        self.end_points = [Forward() for _ in range(4)]
+
         self.keystates = EPD(Db(0x100 * 4))
         self.keystates_sub = EPD(Db(0x100 * 4))
 
@@ -64,8 +67,8 @@ class AppManager:
     def getCurrentAppInstance(self):
         return self.current_app_instance
 
-    def openApplication(self, app):
-        from . import Application
+    def openApplication(self, app, _return=True):
+        from .application import Application
 
         app.allocate()
 
@@ -90,6 +93,8 @@ class AppManager:
         if EUDElse()():
             f_raiseWarning("APP COUNT reached MAX, No more spaces")
         EUDEndIf()
+        if _return:
+            EUDJump(self.end_point_var)
 
     def terminateApplication(self):
         if EUDIf()(self.app_cnt == 1):
@@ -233,9 +238,9 @@ class AppManager:
         return self.writer
 
     def loop(self):
-        from ...app.repl import REPL
+        from .repl import REPL
         if EUDExecuteOnce()():
-            self.openApplication(REPL)
+            self.openApplication(REPL, _return=False)
         EUDEndExecuteOnce()
 
         self.updateKeyState()
@@ -246,6 +251,7 @@ class AppManager:
         if EUDIf()(Memory(0x640B58, Exactly, prev_txtPtr)):
             EUDJump(after_chat)
         EUDEndIf()
+        self.end_point_var << self.end_points[0]
 
         # copy superuser name
         prefix = Db(36)
@@ -277,14 +283,20 @@ class AppManager:
         prev_txtPtr << cur_txtPtr
 
         after_chat << NextTrigger()
+        self.end_points[0] << NextTrigger()
 
         # loop
+        self.end_point_var << self.end_points[1]
         self.current_app_instance.loop()
+        self.end_points[1] << NextTrigger()
 
         # check destruction
         if EUDIf()(self.destruct == 1):
             self.terminateApplication()
+
+            self.end_point_var << self.end_points[2]
             self.current_app_instance.loop()
+            self.end_points[2] << NextTrigger()
 
             self.destruct << 0
             self.update << 1
@@ -296,7 +308,9 @@ class AppManager:
             self.writer.seekepd(EPD(self.displayBuffer.GetStringMemoryAddr()))
 
             # print() uses self.writer internally
+            self.end_point_var << self.end_points[3]
             self.current_app_instance.print()
+            self.end_points[3] << NextTrigger()
 
             self.update << 0
         EUDEndIf()

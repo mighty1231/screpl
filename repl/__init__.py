@@ -1,1 +1,8 @@
-from .core.app import Application, getAppManager, AppCommand, AppMethod
+from .core import (
+    Application,
+    getAppManager,
+    AppCommand,
+    AppMethod,
+    AppTypedMethod,
+    REPL
+)

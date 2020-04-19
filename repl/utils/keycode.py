@@ -199,4 +199,6 @@ KeyCodeDict = {
 }
 
 def getKeyCode(key):
-    return KeyCodeDict.get(key, key)
+    if type(key) == int:
+        return key
+    return KeyCodeDict[key.upper()]

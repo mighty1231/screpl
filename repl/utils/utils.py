@@ -1,5 +1,5 @@
 from eudplib import *
-from .eudbyterw import EUDByteRW
+from ..core.eudbyterw import EUDByteRW
 
 _byterw1 = EUDByteRW()
 _byterw2 = EUDByteRW()
