@@ -4,6 +4,7 @@ output: repl.scx
 
 [prepl.py]
 superuser: P1
+plugins: apps.location
 
 [freeze]
 freeze: 0
