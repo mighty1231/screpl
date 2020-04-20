@@ -1,10 +1,9 @@
 from eudplib import *
 
-from repl import getAppManager
+from . import manager, mapw, maph
 
-
-def drawRectangle(location, frame, frame_period, mapw, maph):
-    superuser = getAppManager().superuser
+def drawRectangle(location, frame, frame_period):
+    superuser = manager.superuser
 
     cur_epd = EPD(0x58DC60 - 0x14) + (0x14 // 4) * location
     le, te, re, de = cur_epd, cur_epd+1, cur_epd+2, cur_epd+3
@@ -59,7 +58,6 @@ def drawRectangle(location, frame, frame_period, mapw, maph):
         EUDJump(end_point)
     EUDEndIf()
 
-    # ((frame * length / 24) + offset) % length
     length = EUDVariable()
     bias = EUDVariable()
 
@@ -91,6 +89,7 @@ def drawRectangle(location, frame, frame_period, mapw, maph):
             EUDEndIf()
         EUDEndLoopN()
 
+    # horizontal lines
     if EUDIf()(lv < rv - 32):
         length << rv - lv
         bias << (frame * length) // frame_period
@@ -136,9 +135,11 @@ def drawRectangle(location, frame, frame_period, mapw, maph):
         mark()
     EUDEndIf()
 
+    # restore
     for epd, val in zip([le, te, re, de], [lv, tv, rv, dv]):
         f_dwwrite_epd(epd, val)
 
+    # verical lines
     if EUDIf()(tv < dv - 32):
         length << dv - tv
         bias << (frame * length) // frame_period

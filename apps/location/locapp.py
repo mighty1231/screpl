@@ -1,69 +1,42 @@
 from eudplib import *
 
-from repl import (
-    Application,
-    getAppManager,
-    AppCommand,
-    EPDConstString
-)
+from repl import Application, AppCommand
 
+from . import manager, FRAME_PERIOD, locstrings
 from .rect import drawRectangle
 
-
+# app-specific initializing arguments
 _location = EUDVariable(1)
-
-FRAME_PERIOD = 24
-locstrings = None
-mapw = -1
-maph = -1
+_result_epd = EUDVariable(0)
 
 class LocationApp(Application):
     fields = [
         "location", # 1 ~ 255
+        "result_epd", # this app can make it as a result
 
-        "centerview", # do centerview every setLocation if 1
-        "autorefresh", # read location every loop if 1
+        "frame", # parameter used on draw rectangle as animation
 
-        "frame"
+        "centerview", # do centerview on every setLocation() calles if 1
     ]
 
-    @classmethod
-    def allocate(cls):
-        if not cls._allocated_:
-            global mapw, maph, locstrings
-            if mapw == -1:
-                from eudplib.core.mapdata.stringmap import locmap
-                arr = [0 for _ in range(256)]
-                for string, locid in locmap._s2id.items():
-                    arr[locid + 1] = EPDConstString(string)
-                locstrings = EUDArray(arr)
-                dim = GetChkTokenized().getsection(b'DIM ')
-                mapw = b2i2(dim, 0)
-                maph = b2i2(dim, 2)
-
-            DoActions([
-                # make enable to create Scanner Sweep
-                SetMemoryX(0x661558, SetTo, 1 << 17, 1 << 17),
-
-                # unit dimension
-                SetMemory(0x6617C8 + 33 * 8, SetTo, 0x00040004),
-                SetMemory(0x6617C8 + 33 * 8 + 4, SetTo, 0x00040004)
-            ])
-        super(LocationApp, cls).allocate()
-
     @staticmethod
-    def setContent(location):
+    def setContent(location, result_epd = None):
+        # set initializing arguments
         _location << EncodeLocation(location)
+        if result_epd:
+            _result_epd << result_epd
 
     def init(self):
-        global mapw
-        assert mapw != -1
         self.location = 0
         self.centerview = 1
-        self.autorefresh = 1
         self.frame = 0
+        self.result_epd = _result_epd
 
         self.setLocation(_location)
+
+        # restore initializing arguments
+        _location << 1
+        _result_epd << 0
 
     def setLocation(self, location):
         if EUDIf()([location >= 1, location <= 255]):
@@ -73,83 +46,81 @@ class LocationApp(Application):
 
                 if EUDIfNot()(self.centerview == 0):
                     cp = f_getcurpl()
-                    f_setcurpl(getAppManager().superuser)
+                    f_setcurpl(manager.superuser)
                     DoActions([CenterView(location)])
                     f_setcurpl(cp)
                 EUDEndIf()
-                getAppManager().requestUpdate()
+                manager.requestUpdate()
             EUDEndIf()
         EUDEndIf()
 
     def loop(self):
         # F7 - previous location
         # F8 - next location
-        manager = getAppManager()
-        location = self.location
         superuser = manager.superuser
+
+        location = self.location
         if EUDIf()(manager.keyPress("ESC")):
+            if EUDIfNot()(self.result_epd == 0):
+                f_dwwrite_epd(self.result_epd, self.location)
+            EUDEndIf()
             manager.requestDestruct()
+            EUDReturn()
         if EUDElseIf()(manager.keyPress("F7")):
             self.setLocation(location - 1)
         if EUDElseIf()(manager.keyPress("F8")):
             self.setLocation(location + 1)
         EUDEndIf()
 
-        if EUDIfNot()(self.autorefresh == 0):
-            manager.requestUpdate()
-        EUDEndIf()
-
-        # backup Scanner Sweep and prepare effect
-        prev_im = f_dwread_epd(EPD(0x666458))
-        prev_is = f_dwread_epd(EPD(0x66EFE8))
+        # backup "Scanner Sweep" and prepare effect
+        # thanks to Artanis(kein0011@naver.com),
+        #   - https://cafe.naver.com/edac/77656
+        # sprites[380] is "Scanner Sweep Hit"
+        # image[232] is "Nuke Beam"
+        # sprites[380].image <- 232
+        # images[232].iscript <- 250
+        prev_im = f_dwread_epd(EPD(0x666160 + 2*380))
+        prev_is = f_dwread_epd(EPD(0x66EC48 + 4*232))
         DoActions([
-            # Set Scanner Sweep to image 232 Nuke Beam
-            SetMemoryX(0x666458, SetTo, 232, 0xFFFF),
-
-            # image_232_iscript, disappeared after 1 frame
-            SetMemory(0x66EFE8, SetTo, 250) 
+            SetMemoryX(0x666160 + 2*380, SetTo, 232, 0xFFFF),
+            SetMemory(0x66EC48 + 4*232, SetTo, 250)
         ])
 
-        # draw location with Scanner Sweep
-        drawRectangle(location, self.frame, FRAME_PERIOD, mapw, maph)
+        # draw location with "Scanner Sweep"
+        drawRectangle(self.location, self.frame, FRAME_PERIOD)
 
-        # restore Scanner Sweep
+        # restore "Scanner Sweep"
         DoActions([
             RemoveUnit("Scanner Sweep", superuser),
-            SetMemoryX(0x666458, SetTo, prev_im, 0xFFFF),
-            SetMemory(0x66EFE8, SetTo, prev_is)
+            SetMemoryX(0x666160 + 2*380, SetTo, prev_im, 0xFFFF),
+            SetMemory(0x66EC48 + 4*232, SetTo, prev_is)
         ])
 
         self.frame += 1
         if EUDIf()(self.frame == FRAME_PERIOD):
             self.frame = 0
         EUDEndIf()
+        manager.requestUpdate()
 
     @AppCommand([])
-    def toggle_cv(self):
+    def cv(self):
+        '''
+        Toggle CenterView Effect
+        '''
         if EUDIfNot()(self.centerview == 0):
             self.centerview = 0
         if EUDElse()():
             self.centerview = 1
         EUDEndIf()
-        getAppManager().requestUpdate()
-
-    @AppCommand([])
-    def toggle_ar(self):
-        if EUDIfNot()(self.autorefresh == 0):
-            self.autorefresh = 0
-        if EUDElse()():
-            self.autorefresh = 1
-        EUDEndIf()
+        manager.requestUpdate()
 
     def print(self, writer):
-        # title
-        writer.write_f("Location (sizeX, sizeY, flags) ( %D / 256 ) // CenterView: ",
+        writer.write_f("\x16Location (sizeX, sizeY, flags) ( %D / 255 ) // CenterView: ",
                 self.location)
         if EUDIfNot()(self.centerview == 0):
-            writer.write_f("ON\n")
+            writer.write_f("\x07ON\n")
         if EUDElse()():
-            writer.write_f("OFF\n")
+            writer.write_f("\x08OFF\n")
         EUDEndIf()
 
         target_location = self.location
@@ -161,12 +132,12 @@ class LocationApp(Application):
             until << 254
         EUDEndIf()
 
-        # fill
+        # fill contents
         cur_epd = EPD(0x58DC60 - 0x14) + (0x14 // 4) * cur
         cur_ptr = (0x58DC60 - 0x14) + 0x14 * cur
         if EUDInfLoop()():
             EUDBreakIf(cur >= until)
-            # "(color)(locid) (ptr): (left) (top) (right) (down) (flag) (string)
+
             # +0x00: X1, +0x04: Y1, +0x08: X2, +0x0C: Y2, +0x10: StringID, +0x12: Flags
             # flags
             #   0x01: Low Ground

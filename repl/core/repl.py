@@ -77,7 +77,7 @@ class REPL(Application):
             cur_pn << 0
         EUDEndIf()
 
-        writer.write_f("SC-REPL, type help() ( %D / %D )\n",
+        writer.write_f("\x16SC-REPL, type help() ( %D / %D )\n",
             cur_pn,
             f_div(repl_index + (PAGE_NUMLINES//2-1),
                 PAGE_NUMLINES//2)[0]
