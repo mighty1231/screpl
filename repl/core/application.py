@@ -198,6 +198,10 @@ class Application(metaclass=_Application_Metaclass):
             self.cmd_output_epd
         )
 
+    def resume(self):
+        ''' resume() called exactly once after forward application was closed '''
+        pass
+
     def loop(self):
         ''' loop() called exactly once in every frame '''
         pass

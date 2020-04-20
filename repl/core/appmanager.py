@@ -24,7 +24,6 @@ class AppManager:
         assert 0 <= self.superuser < 8, "Superuser should be one of P1 ~ P8"
 
         self.update = EUDVariable(initval=0)
-        self.destruct = EUDVariable(initval=0)
 
         self.writer = EUDByteRW()
         self.displayBuffer = DBString(5000)
@@ -41,6 +40,7 @@ class AppManager:
 
         self.cur_app_id = EUDVariable(-1)
         self.is_opening_app = EUDVariable(0)
+        self.is_terminating_app = EUDVariable(0)
 
         if EUDExecuteOnce()():
             self.cur_methods = EUDVArray(12345)(_from=EUDVariable())
@@ -78,7 +78,7 @@ class AppManager:
 
     @EUDMethod
     def _openApplication(self, fieldsize, methods, table_epd):
-        if EUDIf()(self.destruct == 1):
+        if EUDIfNot()(self.is_terminating_app == 0):
             f_raiseError("FATAL ERROR: openApplication <-> requestDestruct")
         EUDEndIf()
 
@@ -93,13 +93,23 @@ class AppManager:
             f_raiseWarning("APP COUNT reached MAX, No more spaces")
         EUDEndIf()
 
-    def initApplications(self):
+    def initOrTerminateApplication(self):
         '''
         ex. only app#0, cur_appid = 0, app_cnt = 4
             then, initialize app#1, app#2, app#3
         '''
-        if EUDInfLoop()():
-            self.cur_app_id += 1
+
+        # Terminate one
+        if EUDIfNot()(self.is_terminating_app == 0):
+            if EUDIf()(self.app_cnt == 1):
+                f_raiseError("FATAL ERROR: Excessive TerminateApplication")
+            EUDEndIf()
+
+            self.current_app_instance.destruct()
+            self.freeVariable(self.cur_members)
+
+            self.app_cnt -= 1
+            self.cur_app_id << self.app_cnt - 1
             members    = self.app_member_stack[self.cur_app_id]
             methods    = self.app_method_stack[self.cur_app_id]
             table_epd  = self.app_cmdtab_stack[self.cur_app_id]
@@ -110,42 +120,36 @@ class AppManager:
             self.cur_methods._epd << EPD(methods)
             self.cur_cmdtable_epd << table_epd
 
-            self.current_app_instance.cmd_output_epd = 0
-            self.current_app_instance.init()
+            self.current_app_instance.resume()
 
-            EUDBreakIf(self.cur_app_id >= self.app_cnt - 1)
-        EUDEndInfLoop()
-
-        self.is_opening_app << 0
-
-        self.cleanText()
-        self.requestUpdate()
-
-    def terminateApplication(self):
-        if EUDIf()(self.app_cnt == 1):
-            f_raiseError("FATAL ERROR: Excessive TerminateApplication")
+            self.is_terminating_app << 0
         EUDEndIf()
 
-        self.current_app_instance.destruct()
-        self.freeVariable(self.cur_members)
+        # Initialize one or more
+        if EUDIfNot()(self.is_opening_app == 0):
+            if EUDInfLoop()():
+                self.cur_app_id += 1
+                members    = self.app_member_stack[self.cur_app_id]
+                methods    = self.app_method_stack[self.cur_app_id]
+                table_epd  = self.app_cmdtab_stack[self.cur_app_id]
 
-        self.app_cnt -= 1
-        self.cur_app_id << self.app_cnt - 1
-        members    = self.app_member_stack[self.cur_app_id]
-        methods    = self.app_method_stack[self.cur_app_id]
-        table_epd  = self.app_cmdtab_stack[self.cur_app_id]
+                self.cur_members      << members
+                self.cur_members._epd << EPD(members)
+                self.cur_methods      << methods
+                self.cur_methods._epd << EPD(methods)
+                self.cur_cmdtable_epd << table_epd
 
-        self.cur_members      << members
-        self.cur_members._epd << EPD(members)
-        self.cur_methods      << methods
-        self.cur_methods._epd << EPD(methods)
-        self.cur_cmdtable_epd << table_epd
+                self.current_app_instance.cmd_output_epd = 0
+                self.current_app_instance.init()
 
-        self.destruct << 0
+                EUDBreakIf(self.cur_app_id >= self.app_cnt - 1)
+            EUDEndInfLoop()
+
+            self.is_opening_app << 0
+        EUDEndIf()
 
         self.cleanText()
         self.requestUpdate()
-        self.current_app_instance.loop()
 
     def updateKeyState(self):
         # keystate
@@ -265,7 +269,7 @@ class AppManager:
         if EUDIfNot()(self.is_opening_app == 0):
             f_raiseError("FATAL ERROR: openApplication <-> requestDestruct")
         EUDEndIf()
-        self.destruct << 1
+        self.is_terminating_app << 1
 
     def cleanText(self):
         # clean previous app
@@ -294,12 +298,12 @@ class AppManager:
             self.openApplication(REPL)
         EUDEndExecuteOnce()
 
-        if EUDIfNot()(self.is_opening_app == 0):
-            self.initApplications()
-        EUDEndIf()
-
         self.updateMousePosition()
         self.updateKeyState()
+
+        if EUDIfNot()([self.is_terminating_app == 0, self.is_opening_app == 0]):
+            self.initOrTerminateApplication()
+        EUDEndIf()
 
         # process all new chats
         prev_txtPtr = EUDVariable(initval=10)
@@ -341,11 +345,6 @@ class AppManager:
 
         # loop
         self.current_app_instance.loop()
-
-        # check destruction
-        if EUDIfNot()(self.destruct == 0):
-            self.terminateApplication()
-        EUDEndIf()
 
         # Print top of the screen, enables chat simultaneously
         txtPtr = f_dwread_epd(EPD(0x640B58))
