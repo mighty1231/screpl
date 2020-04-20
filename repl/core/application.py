@@ -192,14 +192,14 @@ class Application(metaclass=_Application_Metaclass):
     def destruct(self):
         pass
 
-    def chatCallback(self, offset):
+    def onChat(self, offset):
         runAppCommand(
             offset,
             self.cmd_output_epd
         )
 
-    def resume(self):
-        ''' resume() called exactly once after forward application was closed '''
+    def onResume(self):
+        ''' onResume() called exactly once after forward application was closed '''
         pass
 
     def loop(self):

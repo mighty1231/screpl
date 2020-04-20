@@ -27,13 +27,13 @@ repl_outputcolor = 0x16
 writer = EUDByteRW()
 
 class REPL(Application):
-    def chatCallback(self, offset):
+    def onChat(self, offset):
         writer.seekepd(repl_inputEPDPtr)
         writer.write_str(offset)
         writer.write(0)
         self.cmd_output_epd = repl_outputEPDPtr
 
-        REPL.getSuper().chatCallback(offset)
+        REPL.getSuper().onChat(offset)
 
         quot, mod = f_div(repl_index, PAGE_NUMLINES // 2)
         repl_top_index << repl_index - mod
@@ -134,7 +134,7 @@ class REPL(Application):
             + 'help() - See manual\n'
             + 'cmds() - See list of all commands\n'
         )
-        getAppManager().openApplication(StaticApp)
+        getAppManager().startApplication(StaticApp)
 
     @AppCommand([])
     def what(self):

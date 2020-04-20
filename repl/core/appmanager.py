@@ -39,7 +39,7 @@ class AppManager:
         self.app_member_stack = EUDArray(AppManager._APP_MAX_COUNT_)
 
         self.cur_app_id = EUDVariable(-1)
-        self.is_opening_app = EUDVariable(0)
+        self.is_starting_app = EUDVariable(0)
         self.is_terminating_app = EUDVariable(0)
 
         if EUDExecuteOnce()():
@@ -69,17 +69,17 @@ class AppManager:
     def getCurrentAppInstance(self):
         return self.current_app_instance
 
-    def openApplication(self, app):
+    def startApplication(self, app):
         from .application import Application
         assert issubclass(app, Application)
 
         app.allocate()
-        self._openApplication(len(app._fields_), app._methodarray_, EPD(app._cmdtable_))
+        self._startApplication(len(app._fields_), app._methodarray_, EPD(app._cmdtable_))
 
     @EUDMethod
-    def _openApplication(self, fieldsize, methods, table_epd):
+    def _startApplication(self, fieldsize, methods, table_epd):
         if EUDIfNot()(self.is_terminating_app == 0):
-            f_raiseError("FATAL ERROR: openApplication <-> requestDestruct")
+            f_raiseError("FATAL ERROR: startApplication <-> requestDestruct")
         EUDEndIf()
 
         if EUDIf()(self.app_cnt < AppManager._APP_MAX_COUNT_):
@@ -88,7 +88,7 @@ class AppManager:
             self.app_cmdtab_stack[self.app_cnt] = table_epd
             self.app_cnt += 1
 
-            self.is_opening_app << 1
+            self.is_starting_app << 1
         if EUDElse()():
             f_raiseWarning("APP COUNT reached MAX, No more spaces")
         EUDEndIf()
@@ -120,13 +120,13 @@ class AppManager:
             self.cur_methods._epd << EPD(methods)
             self.cur_cmdtable_epd << table_epd
 
-            self.current_app_instance.resume()
+            self.current_app_instance.onResume()
 
             self.is_terminating_app << 0
         EUDEndIf()
 
         # Initialize one or more
-        if EUDIfNot()(self.is_opening_app == 0):
+        if EUDIfNot()(self.is_starting_app == 0):
             if EUDInfLoop()():
                 self.cur_app_id += 1
                 members    = self.app_member_stack[self.cur_app_id]
@@ -145,7 +145,7 @@ class AppManager:
                 EUDBreakIf(self.cur_app_id >= self.app_cnt - 1)
             EUDEndInfLoop()
 
-            self.is_opening_app << 0
+            self.is_starting_app << 0
         EUDEndIf()
 
         self.cleanText()
@@ -263,11 +263,11 @@ class AppManager:
         '''
         Request self-destruct of application
         Should be called under AppMethod or AppCommand
-        When a single app requested openApplication,
+        When a single app requested startApplication,
           destruction should not be requested at the same frame.
         '''
-        if EUDIfNot()(self.is_opening_app == 0):
-            f_raiseError("FATAL ERROR: openApplication <-> requestDestruct")
+        if EUDIfNot()(self.is_starting_app == 0):
+            f_raiseError("FATAL ERROR: startApplication <-> requestDestruct")
         EUDEndIf()
         self.is_terminating_app << 1
 
@@ -295,13 +295,13 @@ class AppManager:
     def loop(self):
         from .repl import REPL
         if EUDExecuteOnce()():
-            self.openApplication(REPL)
+            self.startApplication(REPL)
         EUDEndExecuteOnce()
 
         self.updateMousePosition()
         self.updateKeyState()
 
-        if EUDIfNot()([self.is_terminating_app == 0, self.is_opening_app == 0]):
+        if EUDIfNot()([self.is_terminating_app == 0, self.is_starting_app == 0]):
             self.initOrTerminateApplication()
         EUDEndIf()
 
@@ -329,7 +329,7 @@ class AppManager:
                 new_chat_off = chat_off + (prefixlen + 3)
 
                 # run AppCommand on foreground app
-                self.current_app_instance.chatCallback(new_chat_off)
+                self.current_app_instance.onChat(new_chat_off)
             EUDEndIf()
             if EUDIf()(i == 10):
                 i << 0
