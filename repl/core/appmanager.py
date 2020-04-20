@@ -69,17 +69,14 @@ class AppManager:
     def getCurrentAppInstance(self):
         return self.current_app_instance
 
-    def openApplication(self, app, _return=True):
+    def openApplication(self, app):
         from .application import Application
-
-        app.allocate()
+        assert issubclass(app, Application)
 
         if EUDIf()(self.destruct == 1):
             f_raiseError("FATAL ERROR: openApplication <-> requestDestruct")
         EUDEndIf()
 
-        # @TODO decide the moment when new app emerges
-        assert issubclass(app, Application)
         if EUDIf()(self.app_cnt < AppManager._APP_MAX_COUNT_):
             members = self.allocVariable(len(app._fields_))
             self.app_member_stack[self.app_cnt] = members
@@ -289,8 +286,12 @@ class AppManager:
 
     def loop(self):
         from .repl import REPL
+        from .application import _Application_Metaclass
         if EUDExecuteOnce()():
-            self.openApplication(REPL, _return=False)
+            for cls in _Application_Metaclass.apps:
+                assert not cls._allocated_
+                cls.allocate()
+            self.openApplication(REPL)
         EUDEndExecuteOnce()
 
         if EUDIfNot()(self.is_opening_app == 0):
