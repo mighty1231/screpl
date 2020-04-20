@@ -1,6 +1,8 @@
 from eudplib import *
 
 from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN, applyTypes
+from eudplib.core.eudstruct.vararray import EUDVArrayData
+from eudplib.core.eudfunc.eudfptr import createIndirectCaller
 
 import inspect
 
@@ -99,7 +101,8 @@ class _AppMethod:
         self.index = index
         self.parent = parent
         self.funcptr_cls = EUDTypedFuncPtr(self.argtypes, self.rettypes)
-        self.funcptr = self.funcptr_cls()
+        self.funcptr_val = EUDVArrayData(2)([0, 0])
+        self.funcptr = self.funcptr_cls(self.funcptr_val)
 
         self.status = 'initialized'
 
@@ -141,9 +144,10 @@ class _AppMethod:
             traced=self.traced)
 
         funcn._CreateFuncBody()
+        f_idcstart, f_idcend = createIndirectCaller(funcn)
 
         self.funcn = funcn
-        self.funcptr << self.funcn
+        self.funcptr_val._initvars = [f_idcstart, EPD(f_idcend + 4)]
 
         self.status = 'allocated'
 

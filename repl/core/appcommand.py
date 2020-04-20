@@ -1,6 +1,9 @@
 from eudplib import *
 
 from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN
+from eudplib.core.eudstruct.vararray import EUDVArrayData
+from eudplib.core.eudfunc.eudfptr import createIndirectCaller
+
 from .appmanager import getAppManager
 from .encoder import ArgEncoderPtr, ReadName, _read_until_delimiter
 from .eudbyterw import EUDByteRW
@@ -108,7 +111,8 @@ class _AppCommand:
         self.argn = len(arg_encoders)
 
         self.func = func
-        self.cmdptr = AppCommandPtr()
+        self.cmdptr_val = EUDVArrayData(2)([0, 0])
+        self.cmdptr = AppCommandPtr(self.cmdptr_val)
 
         # Step 2 initialize
         self.cls = None
@@ -150,11 +154,16 @@ class _AppCommand:
 
             instance._cls = prev_cls
 
-        self.funcn = EUDTypedFuncN(
+        funcn = EUDTypedFuncN(
             0, call_inner, self.func, [], [],
             traced=self.traced)
-        self.cmdptr << self.funcn
-        assert self.funcn._retn == 0, "You should not return anything on AppCommand"
+
+        funcn._CreateFuncBody()
+        f_idcstart, f_idcend = createIndirectCaller(funcn)
+        assert funcn._retn == 0, "You should not return anything on AppCommand"
+
+        self.funcn = funcn
+        self.cmdptr_val._initvars = [f_idcstart, EPD(f_idcend + 4)]
 
         self.status = 'allocated'
 

@@ -73,6 +73,8 @@ class AppManager:
         from .application import Application
         assert issubclass(app, Application)
 
+        app.allocate()
+
         if EUDIf()(self.destruct == 1):
             f_raiseError("FATAL ERROR: openApplication <-> requestDestruct")
         EUDEndIf()
@@ -286,11 +288,7 @@ class AppManager:
 
     def loop(self):
         from .repl import REPL
-        from .application import _Application_Metaclass
         if EUDExecuteOnce()():
-            for cls in _Application_Metaclass.apps:
-                assert not cls._allocated_
-                cls.allocate()
             self.openApplication(REPL)
         EUDEndExecuteOnce()
 
