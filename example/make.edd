@@ -4,7 +4,4 @@ output: repl.scx
 
 [prepl.py]
 superuser: P1
-plugins: apps.location apps.memory
-
-[freeze]
-freeze: 0
+plugins: apps.location apps.memory sample
