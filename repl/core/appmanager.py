@@ -160,17 +160,17 @@ class AppManager:
 
         prevs = [Forward() for _ in range(4*4)]
         curs = [Forward() for _ in range(4*4)]
-        states_cond = [Forward() for _ in range(4)]
+        states_cond = [Forward() for _ in range(2*4)]
         states = [Forward() for _ in range(4*4)]
-        subs = [Forward() for _ in range(3*4)]
+        subs = [Forward() for _ in range(4*4)]
 
         actions = [SetMemory(prev + 4, SetTo, prev_states) for prev in prevs]
         actions += [SetMemory(cur + 4, SetTo, EPD(0x596A18)) for cur in curs]
-        actions += [SetMemory(state + 4, SetTo, self.keystates + i)
+        actions += [SetMemory(state + 4, SetTo, self.keystates + i//2)
                     for i, state in enumerate(states_cond)]
         actions += [SetMemory(state + 16, SetTo, self.keystates + i//4)
                     for i, state in enumerate(states)]
-        actions += [SetMemory(sub + 16, SetTo, self.keystates_sub + i//3)
+        actions += [SetMemory(sub + 16, SetTo, self.keystates_sub + i//4)
                     for i, sub in enumerate(subs)]
         DoActions(actions)
 
@@ -194,7 +194,7 @@ class AppManager:
                     ],
                     actions = [
                         states[4*i+1] << SetMemory(0, SetTo, 1),
-                        subs[3*i] << SetMemory(0, SetTo, 1),
+                        subs[4*i] << SetMemory(0, SetTo, 1),
                     ]
                 )
                 # 1->0: set -1
@@ -203,7 +203,10 @@ class AppManager:
                         prevs[4*i+2] << MemoryX(0, Exactly, pos, 0xFF * pos),
                         curs[4*i+2] << MemoryX(0, Exactly, 0, 0xFF * pos)
                     ],
-                    actions = [states[4*i+2] << SetMemory(0, SetTo, 2**32-1)]
+                    actions = [
+                        states[4*i+2] << SetMemory(0, SetTo, 2**32-1),
+                        subs[4*i+1] << SetMemory(0, SetTo, 0),
+                    ]
                 )
                 # 1->1: +1
                 Trigger(
@@ -213,16 +216,17 @@ class AppManager:
                     ],
                     actions = [
                         states[4*i+3] << SetMemory(0, Add, 1),
-                        subs[3*i+1] << SetMemory(0, SetTo, 0),
+                        subs[4*i+2] << SetMemory(0, SetTo, 0),
                     ]
                 )
                 # subs (consecutive keydown)
                 Trigger(
                     conditions = [
-                        states_cond[i] << Memory(0, AtLeast, 5)
+                        states_cond[2*i] << Memory(0, AtLeast, 8),
+                        states_cond[2*i+1] << Memory(0, AtMost, 2**31-1)
                     ],
                     actions = [
-                        subs[3*i+2] << SetMemory(0, SetTo, 1)
+                        subs[4*i+3] << SetMemory(0, SetTo, 1)
                     ]
                 )
 
