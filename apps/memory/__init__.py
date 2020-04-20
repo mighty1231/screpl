@@ -1,7 +1,7 @@
 from eudplib import *
 
 from repl import REPL, getAppManager, AppCommand, argEncNumber
-from .app import MemoryApp
+from .memoryapp import MemoryApp
 
 manager = getAppManager()
 

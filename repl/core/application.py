@@ -130,7 +130,11 @@ class ApplicationInstance:
     Mimic object for application instance, used in AppMethod
     It supports field access and method invocation
     '''
-    _attributes_ = ['_cls', '_absolute']
+
+    # reserved keywords
+    _attributes_ = ['_cls', '_absolute', 'getReference_epd']
+
+
     def __init__(self, cls = None):
         if cls:
             self._cls = cls
@@ -138,6 +142,19 @@ class ApplicationInstance:
         else:
             self._cls = Application
             self._absolute = False
+
+    def getReference_epd(self, member):
+        '''
+        Get reference for instance member
+
+        self.var << 1                     # self.var is 1
+        v = self.getReference_epd('var')  # get reference for self.var
+        f_dwwrite_epd(v, 12)              # self.var becomes 12
+
+        Traditional EUDVariable can be referred as EPD(v.getValueAddr())
+        '''
+        attrid, attrtype = self._cls._fields_[member]
+        return getAppManager().cur_members._epd + (18 * attrid + 348 // 4)
 
     def __getattr__(self, name):
         if name in self._cls._commands_:
