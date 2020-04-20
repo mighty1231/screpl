@@ -19,7 +19,26 @@ from .core import (
 )
 
 from .resources.encoder.const import (
-	argEncNumber
+    argEncNumber,
+    argEncCount,
+    argEncModifier,
+    argEncAllyStatus,
+    argEncComparison,
+    argEncOrder,
+    argEncPlayer,
+    argEncPropState,
+    argEncResource,
+    argEncScore,
+    argEncSwitchAction,
+    argEncSwitchState
+)
+
+from .resources.encoder.str import (
+    argEncUnit,
+    argEncLocation,
+    argEncAIScript,
+    argEncSwitch,
+    argEncString
 )
 
 from .utils import EPDConstString
