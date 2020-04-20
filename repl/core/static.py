@@ -26,7 +26,7 @@ class StaticApp(Application):
         _epdarray << EPD(epdarray)
         _linecount << linecount
 
-    def init(self):
+    def onInit(self):
         self.title_epd = _title_epd
         self.linecount = _linecount
         self.content_epd = _epdarray
@@ -53,7 +53,6 @@ class StaticApp(Application):
         # F7 - previous page
         # F8 - next page
         manager = getAppManager()
-        self.destruct()
         if EUDIf()(manager.keyPress("ESC")):
             manager.requestDestruct()
         if EUDElseIf()(manager.keyPress("F7")):

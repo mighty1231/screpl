@@ -26,7 +26,7 @@ class LocationApp(Application):
         if result_epd:
             _result_epd << result_epd
 
-    def init(self):
+    def onInit(self):
         self.location = 0
         self.centerview = 1
         self.frame = 0

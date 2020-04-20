@@ -38,7 +38,7 @@ class MyApp(Application):
         'trial'
     ]
 
-    def init(self):
+    def onInit(self):
         '''
         Initialize members
 
@@ -52,7 +52,7 @@ class MyApp(Application):
         self.var2 = 341
         self.trial = 0
 
-    def destruct(self):
+    def onDestruct(self):
         '''
         You should free variable that had allocated on init()
         '''

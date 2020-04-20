@@ -186,10 +186,10 @@ class ApplicationInstance:
 # default application
 class Application(metaclass=_Application_Metaclass):
     fields = ["cmd_output_epd"]
-    def init(self):
+    def onInit(self):
         self.cmd_output_epd = 0
 
-    def destruct(self):
+    def onDestruct(self):
         pass
 
     def onChat(self, offset):

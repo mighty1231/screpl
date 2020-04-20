@@ -105,7 +105,7 @@ class AppManager:
                 f_raiseError("FATAL ERROR: Excessive TerminateApplication")
             EUDEndIf()
 
-            self.current_app_instance.destruct()
+            self.current_app_instance.onDestruct()
             self.freeVariable(self.cur_members)
 
             self.app_cnt -= 1
@@ -140,7 +140,7 @@ class AppManager:
                 self.cur_cmdtable_epd << table_epd
 
                 self.current_app_instance.cmd_output_epd = 0
-                self.current_app_instance.init()
+                self.current_app_instance.onInit()
 
                 EUDBreakIf(self.cur_app_id >= self.app_cnt - 1)
             EUDEndInfLoop()

@@ -33,7 +33,7 @@ class MemoryApp(Application):
         _epd << epd
         _size << size
 
-    def init(self):
+    def onInit(self):
         self.ptr = _ptr
         self.epd = _epd
         self.size = _size
