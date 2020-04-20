@@ -235,7 +235,7 @@ class EUDByteRW:
             b = reader.read()
 
             self.write_bytehex(b)
-            self.write_str(ConstString(' '))
+            self.write(ord(' '))
 
             DoActions(cnt.SubtractNumber(1))
         EUDEndInfLoop()
