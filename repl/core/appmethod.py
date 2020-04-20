@@ -160,6 +160,14 @@ class _AppMethod:
     def applyAbsolute(self):
         return self.funcn
 
+    def __call__(self, instance, *args, **kwargs):
+        '''
+        Direct call - used for superclass method call
+        '''
+        from .appmanager import getAppManager
+        assert id(instance) == id(getAppManager().getCurrentAppInstance())
+        return self.funcn(*args, **kwargs)
+
 ''' Decorator to make _AppMethod '''
 def AppTypedMethod(argtypes, rettypes = [], *, isPrint=False, traced=False):
     def ret(method):

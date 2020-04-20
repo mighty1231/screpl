@@ -133,7 +133,6 @@ class _AppCommand:
         self.status = 'initialized'
 
     def allocate(self):
-
         assert self.status == 'initialized'
 
         def call_inner():
@@ -149,10 +148,10 @@ class _AppCommand:
             if EUDIf()(_encode_success == 1):
                 encoded_args = [_arg_storage[i] for i in range(self.argn)]
                 ret = self.func(instance, *encoded_args)
-                assert ret is None, "You should not return anything on AppCommand"
             EUDEndIf()
 
             instance._cls = prev_cls
+            return ret
 
         funcn = EUDTypedFuncN(
             0, call_inner, self.func, [], [],

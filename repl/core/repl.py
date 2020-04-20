@@ -33,7 +33,7 @@ class REPL(Application):
         writer.write(0)
         self.cmd_output_epd = repl_outputEPDPtr
 
-        REPL.getSuper().onChat(offset)
+        Application.onChat(self, offset)
 
         quot, mod = f_div(repl_index, PAGE_NUMLINES // 2)
         repl_top_index << repl_index - mod
