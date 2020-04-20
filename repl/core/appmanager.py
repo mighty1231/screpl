@@ -74,16 +74,18 @@ class AppManager:
         assert issubclass(app, Application)
 
         app.allocate()
+        self._openApplication(len(app._fields_), app._methodarray_, EPD(app._cmdtable_))
 
+    @EUDMethod
+    def _openApplication(self, fieldsize, methods, table_epd):
         if EUDIf()(self.destruct == 1):
             f_raiseError("FATAL ERROR: openApplication <-> requestDestruct")
         EUDEndIf()
 
         if EUDIf()(self.app_cnt < AppManager._APP_MAX_COUNT_):
-            members = self.allocVariable(len(app._fields_))
-            self.app_member_stack[self.app_cnt] = members
-            self.app_method_stack[self.app_cnt] = app._methodarray_
-            self.app_cmdtab_stack[self.app_cnt] = EPD(app._cmdtable_)
+            self.app_member_stack[self.app_cnt] = self.allocVariable(fieldsize)
+            self.app_method_stack[self.app_cnt] = methods
+            self.app_cmdtab_stack[self.app_cnt] = table_epd
             self.app_cnt += 1
 
             self.is_opening_app << 1
@@ -243,7 +245,7 @@ class AppManager:
 
     def keyPress(self, key):
         key = getKeyCode(key)
-        return [MemoryEPD(self.keystates + key, Exactly, 1),
+        return [MemoryEPD(self.keystates + key, AtLeast, 1),
             MemoryEPD(self.keystates_sub + key, Exactly, 1)]
 
     def requestUpdate(self):
