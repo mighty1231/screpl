@@ -9,5 +9,7 @@ from .appcommand import AppCommand, runAppCommand
 
 from .encoder import ArgEncoderPtr
 
-from .repl import REPL
 from .static import StaticApp
+from .repl import REPL
+from .decorator import IOCheck
+from .logger import Logger
