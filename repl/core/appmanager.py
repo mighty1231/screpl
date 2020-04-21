@@ -53,6 +53,8 @@ class AppManager:
 
         self.mouse_pos = EUDCreateVariables(2)
 
+        self.current_frame_number = EUDVariable(0)
+
     def allocVariable(self, count):
         return self.varpool.alloc(count)
 
@@ -286,6 +288,12 @@ class AppManager:
         '''
         return self.writer
 
+    def getCurrentFrameNumber(self):
+        '''
+        Counter that measures how much loops are called
+        '''
+        return self.current_frame_number
+
     def updateMousePosition(self):
         x, y = self.mouse_pos
         x << f_dwread_epd(EPD(0x0062848C)) + f_dwread_epd(EPD(0x006CDDC4))
@@ -349,6 +357,7 @@ class AppManager:
 
         # loop
         self.current_app_instance.loop()
+        self.current_frame_number += 1
 
         # Print top of the screen, enables chat simultaneously
         txtPtr = f_dwread_epd(EPD(0x640B58))

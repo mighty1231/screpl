@@ -1,13 +1,15 @@
 from eudplib import *
-
+from .appmethod import _AppMethod
+from .appcommand import _AppCommand
+from .application import ApplicationInstance
 from .logger import Logger
 
 def IOCheck(func):
     if isinstance(func, EUDFuncN):
         return decoEUDFuncN(func)
-    elif isinstance(func, AppMethod):
+    elif isinstance(func, _AppMethod):
         return decoAppMethod(func)
-    elif isinstance(func, AppCommand):
+    elif isinstance(func, _AppCommand):
         return decoAppCommand(func)
     raise RuntimeError("IOCheck can be done with EUDFuncN, AppCommand, AppMethod")
 
@@ -15,7 +17,7 @@ def decoEUDFuncN(funcn):
     if funcn._fstart:
         raise RuntimeError("EUDFuncN already has its body")
 
-    funcn_name = funcn._bodyfunc
+    funcn_name = funcn._bodyfunc.__name__
     old_caller = funcn._callerfunc
     def new_caller(*args):
         _inputs = EUDCreateVariables(funcn._argn)
@@ -38,12 +40,16 @@ def decoEUDFuncN(funcn):
             ", ".join(["%D"] * funcn._argn),
             ", ".join(["%D"] * funcn._retn)
         )
-        Logger.fmt(fmtstring, *(_inputs + _outputs))
+        Logger.format(fmtstring, *(_inputs + _outputs))
 
         funcn._fend = Forward()
         return None
     funcn._callerfunc = new_caller
     return funcn
+
+def decoAppMethod(mtd):
+    mtd.setFuncnDecorator(_decoAppMethod)
+    return mtd
 
 def _decoAppMethod(funcn):
     if funcn._fstart:
@@ -71,7 +77,7 @@ def _decoAppMethod(funcn):
             ", ".join(["%D"] * funcn._argn),
             ", ".join(["%D"] * funcn._retn)
         )
-        Logger.fmt(fmtstring, *(_inputs + _outputs))
+        Logger.format(fmtstring, *(_inputs + _outputs))
 
         funcn._fend = Forward()
         return None
@@ -91,11 +97,11 @@ def decoAppCommand(cmd):
 
         # Log format: my_app.my_cmd(arg1, arg2)
         fmtstring = "{}.{}({})".format(
-            cmd.cls,
+            cmd.cls.__name__,
             cmd.func.__name__,
-            ", ".join(["%D"] * funcn._argn)
+            ", ".join(["%D"] * cmd.argn)
         )
-        Logger.fmt(fmtstring, *_inputs)
+        Logger.format(fmtstring, *_inputs)
 
         return old_func(self, *args)
 

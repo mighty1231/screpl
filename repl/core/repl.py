@@ -11,7 +11,7 @@ PAGE_NUMLINES = 8
 LINESIZE = 216
 REPLSIZE = 300
 
-# REPL Should be guaranteed for exactly 1 instance
+# Guarantee no more than 1 REPL instance
 repl_input = Db(LINESIZE*REPLSIZE)
 repl_output = Db(LINESIZE*REPLSIZE)
 repl_inputEPDPtr = EUDVariable(EPD(repl_input))
@@ -137,5 +137,6 @@ class REPL(Application):
         getAppManager().startApplication(StaticApp)
 
     @AppCommand([])
-    def what(self):
-        DoActions(CreateUnit(1, "Terran Marine", 1, P1))
+    def log(self):
+        from .logger import Logger
+        getAppManager().startApplication(Logger)
