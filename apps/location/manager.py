@@ -2,14 +2,15 @@ from eudplib import *
 
 from repl import Application, AppCommand
 
-from . import manager, FRAME_PERIOD, locstrings
+from . import appManager, locstrings, keymap, FRAME_PERIOD
 from .rect import drawRectangle
+from .editor import LocationEditorApp
 
 # app-specific initializing arguments
 _location = EUDVariable(1)
 _result_epd = EUDVariable(0)
 
-class LocationApp(Application):
+class LocationManagerApp(Application):
     fields = [
         "location", # 1 ~ 255
         "result_epd", # this app can make it as a result
@@ -46,30 +47,36 @@ class LocationApp(Application):
 
                 if EUDIfNot()(self.centerview == 0):
                     cp = f_getcurpl()
-                    f_setcurpl(manager.superuser)
+                    f_setcurpl(appManager.superuser)
                     DoActions([CenterView(location)])
                     f_setcurpl(cp)
                 EUDEndIf()
-                manager.requestUpdate()
+                appManager.requestUpdate()
             EUDEndIf()
+        EUDEndIf()
+
+    def onDestruct(self):
+        if EUDIfNot()(self.result_epd == 0):
+            f_dwwrite_epd(self.result_epd, self.location)
         EUDEndIf()
 
     def loop(self):
         # F7 - previous location
         # F8 - next location
-        superuser = manager.superuser
+        superuser = appManager.superuser
 
         location = self.location
-        if EUDIf()(manager.keyPress("ESC")):
-            if EUDIfNot()(self.result_epd == 0):
-                f_dwwrite_epd(self.result_epd, self.location)
-            EUDEndIf()
-            manager.requestDestruct()
+        if EUDIf()(appManager.keyPress("ESC")):
+            appManager.requestDestruct()
             EUDReturn()
-        if EUDElseIf()(manager.keyPress("F7")):
+        if EUDElseIf()(appManager.keyPress("F7")):
             self.setLocation(location - 1)
-        if EUDElseIf()(manager.keyPress("F8")):
+        if EUDElseIf()(appManager.keyPress("F8")):
             self.setLocation(location + 1)
+        if EUDElseIf()(appManager.keyPress(keymap["manager"]["open_editor"])):
+            LocationEditorApp.setTarget(location)
+            appManager.startApplication(LocationEditorApp)
+            EUDReturn()
         EUDEndIf()
 
         # backup "Scanner Sweep" and prepare effect
@@ -100,7 +107,7 @@ class LocationApp(Application):
         if EUDIf()(self.frame == FRAME_PERIOD):
             self.frame = 0
         EUDEndIf()
-        manager.requestUpdate()
+        appManager.requestUpdate()
 
     @AppCommand([])
     def cv(self):
@@ -112,7 +119,7 @@ class LocationApp(Application):
         if EUDElse()():
             self.centerview = 1
         EUDEndIf()
-        manager.requestUpdate()
+        appManager.requestUpdate()
 
     def print(self, writer):
         writer.write_f("\x16Location (sizeX, sizeY, flags) ( %D / 255 ) // CenterView: ",
@@ -149,7 +156,7 @@ class LocationApp(Application):
             left  = f_dwread_epd(cur_epd)
             top   = f_dwread_epd(cur_epd + 1)
             right = f_dwread_epd(cur_epd + 2)
-            down  = f_dwread_epd(cur_epd + 3)
+            bottom  = f_dwread_epd(cur_epd + 3)
             flag = f_wread_epd(cur_epd + 4, 2)
 
             if EUDIf()(cur == target_location):
@@ -160,9 +167,9 @@ class LocationApp(Application):
 
             str_epd = locstrings[cur]
             if EUDIfNot()(str_epd == 0):
-                writer.write_f(" %D '%E': %D x %D // ", cur, str_epd, right-left, down-top)
+                writer.write_f(" %D '%E': %D x %D // ", cur, str_epd, right-left, bottom-top)
             if EUDElse()():
-                writer.write_f(" %D: %D x %D // ", cur, right-left, down-top)
+                writer.write_f(" %D: %D x %D // ", cur, right-left, bottom-top)
             EUDEndIf()
 
             layers = ['Low Ground', 'Med Ground', 'High Ground',

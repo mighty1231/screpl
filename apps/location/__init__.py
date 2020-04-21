@@ -3,8 +3,20 @@ from eudplib.core.mapdata.stringmap import locmap
 
 from repl import REPL, getAppManager, AppCommand, EUDByteRW, EPDConstString
 
+keymap = {
+    "manager" : {
+        "open_editor" : "E"
+    },
+
+    "editor" : {
+        "hold": "H",
+        "change_grid_mode": "G",
+    }
+}
+FRAME_PERIOD = 24
+
 # initialize variables
-manager = getAppManager()
+appManager = getAppManager()
 arr = [0 for _ in range(256)]
 for string, locid in locmap._s2id.items():
     arr[locid + 1] = EPDConstString(string)
@@ -13,8 +25,6 @@ locstrings = EUDArray(arr)
 dim = GetChkTokenized().getsection(b'DIM ')
 mapw = b2i2(dim, 0)
 maph = b2i2(dim, 2)
-
-FRAME_PERIOD = 24
 
 
 DoActions([
@@ -27,10 +37,10 @@ DoActions([
 ])
 
 # make commands
-from .locapp import LocationApp
+from .manager import LocationManagerApp
 
 @AppCommand([])
 def startCommand(self):
-    manager.startApplication(LocationApp)
+    appManager.startApplication(LocationManagerApp)
 
 REPL.addCommand('location', startCommand)
