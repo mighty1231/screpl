@@ -4,6 +4,8 @@ from .appcommand import _AppCommand
 from .application import ApplicationInstance
 from .logger import Logger
 
+import inspect
+
 def IOCheck(func):
     if isinstance(func, EUDFuncN):
         return decoEUDFuncN(func)
@@ -17,7 +19,6 @@ def decoEUDFuncN(funcn):
     if funcn._fstart:
         raise RuntimeError("EUDFuncN already has its body")
 
-    funcn_name = funcn._bodyfunc.__name__
     old_caller = funcn._callerfunc
     def new_caller(*args):
         _inputs = EUDCreateVariables(funcn._argn)
@@ -34,12 +35,18 @@ def decoEUDFuncN(funcn):
         for i, v in zip(_outputs, funcn._frets):
             i << v
 
-        # Log format: myfunction(arg1, arg2) -> (ret1, ret2)
-        fmtstring = "{}({}) -> ({})".format(
-            funcn_name,
-            ", ".join(["%D"] * funcn._argn),
-            ", ".join(["%D"] * funcn._retn)
+        # Log format: my_function(arg1=3, arg2=4) -> (2, 4)
+        argnames = inspect.getfullargspec(funcn._bodyfunc).args
+        fmtstring = "{}({}) -> ".format(
+            funcn._bodyfunc.__name__,
+            ", ".join(["{}=%D".format(name) for name in argnames]),
         )
+        if funcn._retn == 0:
+            fmtstring += "."
+        elif funcn._retn == 1:
+            fmtstring += "%D"
+        else:
+            fmtstring += ", ".join(["%D"] * funcn._retn)
         Logger.format(fmtstring, *(_inputs + _outputs))
 
         funcn._fend = Forward()
@@ -65,18 +72,24 @@ def _decoAppMethod(funcn):
 
         if final_rets is not None:
             funcn._AddReturn(Assignable2List(final_rets), False)
-        funcn._fend << NextTrigger()
+        funcn._fend << NextTrigger() # To catch EUDReturn
 
         _outputs = EUDCreateVariables(funcn._retn)
         for i, v in zip(_outputs, funcn._frets):
             i << v
 
-        # Log format: my_app.my_method(arg1, arg2) -> (ret1, ret2)
-        fmtstring = "{}({}) -> ({})".format(
+        # Log format: my_app.my_method(arg1=3, arg2=4) -> (2, 4)
+        argnames = inspect.getfullargspec(funcn._bodyfunc).args[1:]
+        fmtstring = "{}({}) -> ".format(
             funcn._bodyfunc.__qualname__,
-            ", ".join(["%D"] * funcn._argn),
-            ", ".join(["%D"] * funcn._retn)
+            ", ".join(["{}=%D".format(name) for name in argnames]),
         )
+        if funcn._retn == 0:
+            fmtstring += "."
+        elif funcn._retn == 1:
+            fmtstring += "%D"
+        else:
+            fmtstring += ", ".join(["%D"] * funcn._retn)
         Logger.format(fmtstring, *(_inputs + _outputs))
 
         funcn._fend = Forward()
