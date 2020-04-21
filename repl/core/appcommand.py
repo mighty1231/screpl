@@ -109,6 +109,8 @@ class _AppCommand:
 
         self.arg_encoders = arg_encoders
         self.argn = len(arg_encoders)
+        if self.argn > _MAXARGCNT:
+            raise RuntimeError("Too many arguments!")
 
         self.func = func
         self.cmdptr_val = EUDVArrayData(2)([0, 0])
