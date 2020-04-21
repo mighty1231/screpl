@@ -5,3 +5,6 @@ output: repl.scx
 [prepl.py]
 superuser: P1
 plugins: apps.location apps.memory sample
+
+[freeze]
+freeze: 0
