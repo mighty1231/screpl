@@ -16,6 +16,8 @@ from .core import (
 
     StaticApp,
     REPL,
+    Logger,
+    IOCheck
 )
 
 from .resources.encoder.const import (

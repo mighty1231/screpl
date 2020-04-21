@@ -50,6 +50,7 @@ class _AppMethod:
 
         # Step 3 allocate
         self.funcn = None
+        self.funcn_decorator = None
 
 
         self.traced = traced
@@ -67,6 +68,12 @@ class _AppMethod:
 
     def getFuncPtr(self):
         return self.funcptr
+
+    def setFuncnDecorator(self, funcn_decorator):
+        if self.status == "allocated":
+            raise RuntimeError("AppMethod already has its body")
+        assert self.funcn_decorator is None
+        self.funcn_decorator = funcn_decorator
 
     def initialize(self, cls, index, parent = None):
         # initializing from its Application class
@@ -142,6 +149,11 @@ class _AppMethod:
         funcn = EUDTypedFuncN(
             self.argn, call, self.method, self.argtypes, self.rettypes,
             traced=self.traced)
+
+        if self.funcn_decorator:
+            if self.isPrint:
+                raise RuntimeError("print() cannot be decorated")
+            funcn = self.funcn_decorator(funcn)
 
         funcn._CreateFuncBody()
         f_idcstart, f_idcend = createIndirectCaller(funcn)
