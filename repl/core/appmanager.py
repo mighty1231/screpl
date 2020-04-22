@@ -2,26 +2,70 @@ from eudplib import *
 
 from .eudbyterw import EUDByteRW
 from .pool import DbPool, VarPool
-from ..utils import f_raiseError, f_raiseWarning, getKeyCode
+from ..utils import f_raiseError, f_raiseWarning, getKeyCode, ConstString, f_strlen
 
 _manager = None
 
-def getAppManager(superuser=None):
+def getAppManager():
     global _manager
-    if superuser is None:
-        assert _manager is not None
-    else:
-        assert _manager is None
-        _manager = AppManager(superuser)
+    assert _manager
+
     return _manager
 
 class AppManager:
     _APP_MAX_COUNT_ = 30
-    def __init__(self, superuser):
+
+    @staticmethod
+    def initialize(*args, **kwargs):
+        global _manager
+        assert _manager is None
+        _manager = AppManager(*args, **kwargs)
+
+    def __init__(self, superuser, superuser_mode):
         from .application import ApplicationInstance
 
-        self.superuser = EncodePlayer(superuser)
-        assert 0 <= self.superuser < 8, "Superuser should be one of P1 ~ P8"
+        # set superuser
+        modes = ["playerNumber", "playerID"]
+        if superuser_mode == modes[0]:
+            self.superuser = EncodePlayer(playerMap.get(superuser, superuser))
+            assert 0 <= self.superuser < 8, "Superuser should be one of P1 ~ P8"
+            print("[SC-REPL] Given superuser playerNumber = %d" % self.superuser)
+
+            # 3 = colon, colorcode, spacebar, colorcode, colon, spacebar
+            # copy superuser name
+            self.su_prefix = Db(36)
+            su_writer = EUDByteRW()
+            su_writer.seekepd(EPD(self.su_prefix))
+            su_writer.write_str(0x57EEEB + 36*self.superuser)
+            su_writer.write(58) # colon
+            su_writer.write(7)  # color code
+            su_writer.write(32) # space
+            su_writer.write(0)
+
+            self.su_prefixlen = f_strlen(self.su_prefix)
+        elif superuser_mode == modes[1]:
+            print("[SC-REPL] Given superuser playerID = '%s'" % superuser)
+
+            self.su_prefix = Db(u2b(superuser) + bytes([58, 7, 32, 0]))
+            self.su_prefixlen = len(superuser)+3
+            self.superuser = EUDVariable(0)
+
+            name_ptr = EUDVariable(0x57EEEB)
+            if EUDWhile()(name_ptr <= 0x57EEEB + 36*7):
+                if EUDIf()(f_strcmp(name_ptr, Db(u2b(superuser) + b'\0')) == 0):
+                    EUDBreak()
+                EUDEndIf()
+                DoActions([
+                    name_ptr.AddNumber(36),
+                    self.superuser.AddNumber(1)
+                ])
+            EUDEndWhile()
+            if EUDIf()(self.superuser == 8):
+                f_raiseError("[SC-REPL] superuser '%s' not found" % superuser)
+            EUDEndIf()
+        else:
+            raise RuntimeError("Unknown superuser mode, please set among {}"
+                    .format(modes))
 
         self.update = EUDVariable(initval=0)
 
@@ -324,11 +368,7 @@ class AppManager:
             EUDJump(after_chat)
         EUDEndIf()
 
-        # copy superuser name
-        prefix = Db(36)
-        f_strcpy(prefix, 0x57EEEB + 36*self.superuser)
-        prefixlen = f_strlen(0x57EEEB + 36*self.superuser)
-
+        # parse updated lines
         cur_txtPtr = f_dwread_epd(EPD(0x640B58))
         i = EUDVariable()
         i << prev_txtPtr
@@ -336,9 +376,8 @@ class AppManager:
 
         if EUDInfLoop()():
             EUDBreakIf(i == cur_txtPtr)
-            if EUDIf()(f_memcmp(chat_off, prefix, prefixlen) == 0):
-                # 3 = colorcode, colon, spacebar
-                new_chat_off = chat_off + (prefixlen + 3)
+            if EUDIf()(f_memcmp(chat_off, self.su_prefix, self.su_prefixlen) == 0):
+                new_chat_off = chat_off + self.su_prefixlen
 
                 # run AppCommand on foreground app
                 self.current_app_instance.onChat(new_chat_off)
@@ -372,3 +411,22 @@ class AppManager:
         f_setcurpl(self.superuser)
         self.displayBuffer.Display()
         SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
+
+playerMap = {
+    'P1':P1,
+    'P2':P2,
+    'P3':P3,
+    'P4':P4,
+    'P5':P5,
+    'P6':P6,
+    'P7':P7,
+    'P8':P8,
+    'Player1':Player1,
+    'Player2':Player2,
+    'Player3':Player3,
+    'Player4':Player4,
+    'Player5':Player5,
+    'Player6':Player6,
+    'Player7':Player7,
+    'Player8':Player8,
+}
