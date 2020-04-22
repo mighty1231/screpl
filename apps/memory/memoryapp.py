@@ -72,6 +72,7 @@ class MemoryApp(Application):
                 cur_ptr += 4
             writer.write(ord("\n"))
         EUDEndWhile()
+        writer.write(0)
 
     @AppCommand([argEncNumber])
     def setptr(self, ptr):

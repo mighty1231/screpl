@@ -209,7 +209,7 @@ class Application(metaclass=_Application_Metaclass):
     @AppMethod_writerParam
     def print(self, writer):
         ''' called once in a frame that invoked requestUpdate '''
-        pass
+        writer.write(0)
 
     @classmethod
     def getSuper(cls):

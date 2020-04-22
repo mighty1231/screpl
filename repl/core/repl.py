@@ -117,6 +117,7 @@ class REPL(Application):
             writer.write(ord('\n'))
             DoActions(cur.AddNumber(1))
         EUDEndInfLoop()
+
         writer.write(0)
 
     @AppCommand([])

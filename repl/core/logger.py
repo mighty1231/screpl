@@ -74,7 +74,6 @@ class Logger(Application):
                 writer.write(ord('\n'))
                 DoActions(cur.AddNumber(LINE_SIZE // 4))
             EUDEndInfLoop()
-            writer.write(0)
         if EUDElse()():
             cur << buf_epd_var - PAGE_NUMLINES * (LINE_SIZE // 4)
             pageend << buf_epd_var
@@ -90,5 +89,6 @@ class Logger(Application):
                     cur << buf_start_epd
                 EUDEndIf()
             EUDEndInfLoop()
-            writer.write(0)
         EUDEndIf()
+
+        writer.write(0)
