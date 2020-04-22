@@ -7,41 +7,19 @@ from eudplib.core.eudfunc.eudfptr import createIndirectCaller
 import inspect
 
 class _AppMethod:
-    def __init__(self, argtypes, rettypes, method, *, isPrint, traced):
-        # Get argument number of fdecl_func
-        argspec = inspect.getargspec(method)
-        ep_assert(
-            argspec[1] is None,
-            'No variadic arguments (*args) allowed for AppMethod.'
-        )
-        ep_assert(
-            argspec[2] is None,
-            'No variadic keyword arguments (*kwargs) allowed for AppMethod.'
-        )
-
-        argn = len(argspec[0]) - 1 # except self
-        if argtypes is None:
-            argtypes = [None for _ in range(argn)]
-        else:
-            assert argn == len(argtypes)
-        retn = len(rettypes)
-
-        if isPrint:
-            assert argtypes == [None] and argn == 1
-            assert rettypes == []
-            argtypes = rettypes = []
-            argn = retn = 0
-        self.isPrint = isPrint
-
+    def __init__(self, argtypes, rettypes, method, *, getWriterAsParam, traced):
+        # Step 1 __init__
         self.argtypes = argtypes
         self.rettypes = rettypes
-        self.argn = argn
-        self.retn = retn
 
         self.method = method
         self.name = method.__name__
 
-        # Step 2 initialize
+        self.getWriterAsParam = getWriterAsParam
+
+        # Step 2 initialize with class
+        self.argn = -1
+        self.retn = -1
         self.cls = None
         self.index = -1
         self.parent = None
@@ -79,31 +57,44 @@ class _AppMethod:
         # initializing from its Application class
         assert self.status == 'not initialized'
 
-        # overriding
+        # Get argument number of fdecl_func
+        argspec = inspect.getfullargspec(self.method)
+        argn = len(argspec.args)
+        assert argspec.varargs is None, \
+                'No variadic arguments (*args) allowed for AppMethod'
+        assert argspec.varkw is None, \
+                'No variadic keyword arguments (**kwargs) allowed for AppMethod'
+
         if parent:
+            # override
             assert index == parent.index, 'class %s name %s' % (cls, self.name)
-            if parent.isPrint:
-                assert self.argtypes == [None] and self.argn == 1
-                assert self.rettypes == []
-                self.argtypes = self.rettypes = []
-                self.argn = self.retn = 0
-
-                self.isPrint = True
+            if self.argtypes:
+                assert self.argtypes == parent.argtypes
             else:
-                if self.argtypes is not None:
-                    assert self.argtypes == parent.argtypes
-                    assert self.argn == parent.argn
-                else:
-                    self.argtypes = parent.argtypes
-                    self.argn = parent.argn
+                self.argtypes = parent.argtypes
 
-                if self.rettypes is not None:
-                    assert self.rettypes == parent.rettypes
-                    assert self.retn == parent.retn
-                else:
-                    self.rettypes = parent.rettypes
-                    self.retn = parent.retn
+            if self.rettypes:
+                assert self.rettypes == parent.rettypes
+            else:
+                self.rettypes = parent.rettypes
 
+            if parent.getWriterAsParam:
+                self.getWriterAsParam = True
+
+        # initialize or check argtype
+        if self.argtypes:
+            if self.getWriterAsParam:
+                assert len(self.argtypes) == argn - 2
+            else:
+                assert len(self.argtypes) == argn - 1
+        else:
+            if self.getWriterAsParam:
+                self.argtypes = [None for _ in range(argn - 2)]
+            else:
+                self.argtypes = [None for _ in range(argn - 1)]
+
+        self.argn = len(self.argtypes)
+        self.retn = len(self.rettypes)
         self.cls = cls
         self.index = index
         self.parent = parent
@@ -120,7 +111,7 @@ class _AppMethod:
 
         from .appmanager import getAppManager
 
-        if not self.isPrint:
+        if not self.getWriterAsParam:
             # Set first argument as AppInstance
             def call(*args):
                 instance = getAppManager().getCurrentAppInstance()
@@ -134,14 +125,14 @@ class _AppMethod:
                 return ret
         else:
             # Additionally set second argument as printer
-            def call():
+            def call(*args):
                 instance = getAppManager().getCurrentAppInstance()
                 prev_cls = instance._cls
                 instance._cls = self.cls
                 printer = getAppManager().getWriter()
 
-                ret = self.method(instance, printer)
-                printer.write(0)
+                args = applyTypes(self.argtypes, args)
+                ret = self.method(instance, printer, *args)
 
                 instance._cls = prev_cls
                 return ret
@@ -151,7 +142,7 @@ class _AppMethod:
             traced=self.traced)
 
         if self.funcn_decorator:
-            if self.isPrint:
+            if self.getWriterAsParam:
                 raise RuntimeError("print() cannot be decorated")
             funcn = self.funcn_decorator(funcn)
 
@@ -181,14 +172,14 @@ class _AppMethod:
         return self.funcn(*args, **kwargs)
 
 ''' Decorator to make _AppMethod '''
-def AppTypedMethod(argtypes, rettypes = [], *, isPrint=False, traced=False):
+def AppTypedMethod(argtypes, rettypes = [], *, getWriterAsParam=False, traced=False):
     def ret(method):
-        return _AppMethod(argtypes, rettypes, method, isPrint=isPrint, traced=traced)
+        return _AppMethod(argtypes, rettypes, method,
+                getWriterAsParam=getWriterAsParam, traced=traced)
     return ret
 
 def AppMethod(method):
     return AppTypedMethod(None, [], traced=False)(method)
 
-# special method
-def AppMethod_print(method):
-    return AppTypedMethod(None, [], isPrint=True, traced=False)(method)
+def AppMethod_writerParam(method):
+    return AppTypedMethod(None, [], getWriterAsParam=True, traced=False)(method)

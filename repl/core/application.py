@@ -2,7 +2,7 @@ from eudplib import *
 
 from .appcommand import _AppCommand, runAppCommand
 from .appmanager import getAppManager
-from .appmethod import _AppMethod, AppMethod, AppMethod_print
+from .appmethod import _AppMethod, AppMethod, AppMethod_writerParam
 from .referencetable import ReferenceTable
 from ..utils import EPDConstString
 
@@ -206,7 +206,7 @@ class Application(metaclass=_Application_Metaclass):
         ''' loop() called exactly once in every frame '''
         pass
 
-    @AppMethod_print
+    @AppMethod_writerParam
     def print(self, writer):
         ''' called once in a frame that invoked requestUpdate '''
         pass
