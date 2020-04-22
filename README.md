@@ -15,8 +15,6 @@ and corresponding [source](https://github.com/mighty1231/screpl/tree/master/apps
 * with sample application - [video](https://www.youtube.com/watch?v=6RexCF3SBFU)
 and corresponding [source](https://github.com/mighty1231/screpl/blob/master/example/sample/myapp.py)
 
-## Contribution [Guide](CONTRIBUTING.md)
-
 
 ## Required
 
@@ -55,3 +53,16 @@ plugins: apps.location apps.memory
 
 You can make your customized application as a plugin of SC-REPL. Check it [here](https://github.com/mighty1231/screplPluginTemplate).
 
+
+## Documentation
+
+Documentation is provided with [wiki](https://github.com/mighty1231/screpl/wiki)
+
+## Contribution Guide
+
+You may make your own plugin, but also you can contribute to this project. Check [contribution guide](CONTRIBUTING.md).
+
+
+## LICENSE
+
+MIT License
