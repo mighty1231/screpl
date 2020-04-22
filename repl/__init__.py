@@ -15,6 +15,7 @@ from .core import (
     ArgEncoderPtr,
 
     StaticApp,
+    ScrollApp,
     REPL,
     Logger,
     IOCheck
