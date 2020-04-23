@@ -4,10 +4,11 @@ from repl import REPL, getAppManager, AppCommand, EPDConstString, ReferenceTable
 
 # initialize global variables
 manager = getAppManager()
+accessed_resources = set()
 death_units = []
 watched_eud_vars = ReferenceTable(key_f=EPDConstString)
 
-def getUsedDeathUnits():
+def exploreTriggers():
     orig_triggers = GetChkTokenized().getsection(b'TRIG')
     assert len(orig_triggers) % 2400 == 0
 
@@ -27,17 +28,31 @@ def getUsedDeathUnits():
             action = trig[16*20+32*i:16*20+32*(i+1)]
             actions.append(action)
 
-        # find Deaths and SetDeaths
         for condition in conditions:
             condtype = condition[15]
             player = b2i4(condition, 4)
             unitid = b2i2(condition, 12)
+            restype = condition[16]
 
+            # search Accumulate
+            if condtype == 4 and player <= 26:
+                if restype == EncodeResource(Ore):
+                    accessed_resources.add(Ore)
+                elif restype == EncodeResource(Gas):
+                    accessed_resources.add(Gas)
+                elif restype == EncodeResource(OreAndGas):
+                    accessed_resources.add(Ore)
+                    accessed_resources.add(Gas)
+                else:
+                    raise RuntimeError("Unknown restype on Accumulate, %d" % restype)
+
+            # search Deaths
             if condtype == 15 and     \
                     player <= 26 and  \
                     unitid not in death_units:
                 death_units.append(unitid)
 
+        # search SetDeaths
         for action in actions:
             acttype = action[26]
             player = b2i4(action, 16)
@@ -50,7 +65,7 @@ def getUsedDeathUnits():
 
         offset += 2400
 
-getUsedDeathUnits()
+exploreTriggers()
 
 def watchVariable(name, var):
     assert IsEUDVariable(var)
