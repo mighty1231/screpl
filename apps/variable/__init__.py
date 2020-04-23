@@ -1,10 +1,11 @@
 from eudplib import *
 
-from repl import REPL, getAppManager, AppCommand, EPDConstString
+from repl import REPL, getAppManager, AppCommand, EPDConstString, ReferenceTable
 
 # initialize global variables
 manager = getAppManager()
 death_units = []
+watched_eud_vars = ReferenceTable(key_f=EPDConstString)
 
 def getUsedDeathUnits():
     orig_triggers = GetChkTokenized().getsection(b'TRIG')
@@ -50,6 +51,10 @@ def getUsedDeathUnits():
         offset += 2400
 
 getUsedDeathUnits()
+
+def watchVariable(name, var):
+    assert IsEUDVariable(var)
+    watched_eud_vars.AddPair(name, EPD(var.getValueAddr()))
 
 # make commands
 from .varapp import VariableApp
