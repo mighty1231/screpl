@@ -44,7 +44,7 @@ euddraft0.*.*.*
 ```
 [prepl.py]
 superuser: P1
-plugins: apps.location apps.memory apps.location
+plugins: apps.location apps.memory apps.variables
 ```
 
 2. Run your euddraft project file with euddraft.
