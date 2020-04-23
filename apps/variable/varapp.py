@@ -24,7 +24,7 @@ class VariableApp(ScrollApp):
             EUDElseIf()(line == (i+1))
 
             # write number
-            writer.write_f("# {} ".format(i+1))
+            writer.write_f("\x1e# {} ".format(i+1))
 
             # write unit name
             strID = off_unitsdat_UnitMapString.read(unitID)
@@ -35,14 +35,14 @@ class VariableApp(ScrollApp):
             EUDEndIf()
 
             # write death values of each players
-            writer.write_f(" : %D", f_dwread_epd(EPD(0x58A364 + 48*unitID)))
-            writer.write_f(" / %D", f_dwread_epd(EPD(0x58A364 + 48*unitID + 4*1)))
-            writer.write_f(" / %D", f_dwread_epd(EPD(0x58A364 + 48*unitID + 4*2)))
-            writer.write_f(" / %D", f_dwread_epd(EPD(0x58A364 + 48*unitID + 4*3)))
-            writer.write_f(" / %D", f_dwread_epd(EPD(0x58A364 + 48*unitID + 4*4)))
-            writer.write_f(" / %D", f_dwread_epd(EPD(0x58A364 + 48*unitID + 4*5)))
-            writer.write_f(" / %D", f_dwread_epd(EPD(0x58A364 + 48*unitID + 4*6)))
-            writer.write_f(" / %D", f_dwread_epd(EPD(0x58A364 + 48*unitID + 4*7)))
+            writer.write_f(" : \x08%D", f_dwread_epd(EPD(0x58A364 + 48*unitID)))
+            writer.write_f("\x1e / \x0e%D", f_dwread_epd(EPD(0x58A364 + 48*unitID + 4*1)))
+            writer.write_f("\x1e / \x0f%D", f_dwread_epd(EPD(0x58A364 + 48*unitID + 4*2)))
+            writer.write_f("\x1e / \x10%D", f_dwread_epd(EPD(0x58A364 + 48*unitID + 4*3)))
+            writer.write_f("\x1e / \x11%D", f_dwread_epd(EPD(0x58A364 + 48*unitID + 4*4)))
+            writer.write_f("\x1e / \x15%D", f_dwread_epd(EPD(0x58A364 + 48*unitID + 4*5)))
+            writer.write_f("\x1e / \x16%D", f_dwread_epd(EPD(0x58A364 + 48*unitID + 4*6)))
+            writer.write_f("\x1e / \x17%D", f_dwread_epd(EPD(0x58A364 + 48*unitID + 4*7)))
         EUDEndIf()
 
     def getLineCount(self):
