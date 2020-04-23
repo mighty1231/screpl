@@ -29,7 +29,6 @@ class ScrollApp(Application):
 
     def setOffset(self, new_offset):
         offset, linecount = self.offset, self.getLineCount()
-        print(offset, linecount)
         if EUDIf()([new_offset <= 0x80000000, linecount >= LINES_PER_PAGE+1]):
             if EUDIfNot()(new_offset >= linecount - LINES_PER_PAGE):
                 self.offset = new_offset

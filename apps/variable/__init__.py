@@ -1,11 +1,10 @@
 from eudplib import *
-from eudplib.core.mapdata.stringmap import locmap
 
 from repl import REPL, getAppManager, AppCommand, EPDConstString
 
-# initialize variables
+# initialize global variables
 manager = getAppManager()
-death_units = set()
+death_units = []
 
 def getUsedDeathUnits():
     orig_triggers = GetChkTokenized().getsection(b'TRIG')
@@ -27,22 +26,26 @@ def getUsedDeathUnits():
             action = trig[16*20+32*i:16*20+32*(i+1)]
             actions.append(action)
 
-        # Find Deaths and SetDeaths
+        # find Deaths and SetDeaths
         for condition in conditions:
             condtype = condition[15]
             player = b2i4(condition, 4)
             unitid = b2i2(condition, 12)
 
-            if condtype == 15 and player <= 26:
-                death_units.add(unitid)
+            if condtype == 15 and     \
+                    player <= 26 and  \
+                    unitid not in death_units:
+                death_units.append(unitid)
 
         for action in actions:
             acttype = action[26]
             player = b2i4(action, 16)
             unitid = b2i2(action, 24)
 
-            if acttype == 45 and player <= 26:
-                death_units.add(unitid)
+            if acttype == 45 and      \
+                    player <= 26 and  \
+                    unitid not in death_units:
+                death_units.append(unitid)
 
         offset += 2400
 
