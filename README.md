@@ -11,7 +11,7 @@ Unlike other plugins, SC-REPL manages detailed plugins (app) on its own.
 ## Example
 
 * with location application - [video](https://youtu.be/f3M0CDGIX2A)
-and corresponding [source](https://github.com/mighty1231/screpl/tree/master/apps/location)
+and corresponding [source](https://github.com/mighty1231/screpl/tree/master/plugins/location)
 * with sample application - [video](https://www.youtube.com/watch?v=6RexCF3SBFU)
 and corresponding [source](https://github.com/mighty1231/screpl/blob/master/example/sample/myapp.py)
 
@@ -24,14 +24,20 @@ and corresponding [source](https://github.com/mighty1231/screpl/blob/master/exam
 
 ## Installation
 
-* Move folders `repl` and `apps` to `euddraft/lib`.
+* Move a directory `repl` to `euddraft/lib`
+* Move a directory `plugins` to `euddraft/lib` and rename it into `replplugins`.
 * Move a file `prepl.py` to `euddraft/plugins`.
 
 ```bash
 euddraft0.*.*.*
 ├── lib
 │   ├── repl
-│   └── apps
+│   │   ├── apps
+│   │   ├── base
+│   │   └── ...
+│   └── replplugins
+│       ├── location
+│       └── ...
 ├── plugins
 │   └── prepl.py
 └── euddraft.exe
@@ -44,7 +50,7 @@ euddraft0.*.*.*
 ```
 [prepl.py]
 superuser: P1
-plugins: apps.location apps.memory apps.variables
+plugins: replplugins.location replplugins.memory replplugins.variables
 ```
 
 2. Run your euddraft project file with euddraft.
