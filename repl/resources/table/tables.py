@@ -10,7 +10,7 @@ from eudplib.core.mapdata.stringmap import (
     locmap,
     swmap
 )
-from ...core.referencetable import ReferenceTable
+from ...base.referencetable import ReferenceTable
 from ...utils import EPDConstString
 
 # used on views

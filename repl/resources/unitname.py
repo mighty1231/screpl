@@ -1,4 +1,3 @@
-
 from eudplib.core.rawtrigger.strdict import DefUnitDict
 
 def getDefaultUnitName(unitid):

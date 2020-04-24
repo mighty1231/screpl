@@ -4,11 +4,11 @@ from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN
 from eudplib.core.eudstruct.vararray import EUDVArrayData
 from eudplib.core.eudfunc.eudfptr import createIndirectCaller
 
-from .appmanager import getAppManager
-from .encoder import ArgEncoderPtr, ReadName, _read_until_delimiter
-from .eudbyterw import EUDByteRW
-from .referencetable import SearchTable
+from ..base.encoder import ArgEncoderPtr, ReadName, _read_until_delimiter
+from ..base.eudbyterw import EUDByteRW
+from ..base.referencetable import SearchTable
 from ..utils import EPDConstString, f_strcmp_ptrepd
+from .appmanager import getAppManager
 
 import inspect
 
@@ -34,6 +34,7 @@ def runAppCommand(txtptr, ref_stdout_epd):
 
 @EUDFunc
 def _runAppCommand():
+    # get current AppCommand table
     cmdtable_epd = getAppManager().cur_cmdtable_epd
     funcname = Db(50)
     _output_writer.seekepd(_ref_stdout_epd)

@@ -1,7 +1,7 @@
 from eudplib import *
-from .appmethod import _AppMethod
-from .appcommand import _AppCommand
-from .application import ApplicationInstance
+from ..core.appmethod import _AppMethod
+from ..core.appcommand import _AppCommand
+from ..core.application import ApplicationInstance
 from .logger import Logger
 
 import inspect
@@ -74,9 +74,12 @@ def _decoAppMethod(funcn):
             funcn._AddReturn(Assignable2List(final_rets), False)
         funcn._fend << NextTrigger() # To catch EUDReturn
 
-        _outputs = EUDCreateVariables(funcn._retn)
-        for i, v in zip(_outputs, funcn._frets):
-            i << v
+        if funcn._retn is None:
+            _outputs = []
+        else:
+            _outputs = EUDCreateVariables(funcn._retn)
+            for i, v in zip(_outputs, funcn._frets):
+                i << v
 
         # Log format: my_app.my_method(arg1=3, arg2=4) -> (2, 4)
         argnames = inspect.getfullargspec(funcn._bodyfunc).args[1:]
@@ -84,12 +87,12 @@ def _decoAppMethod(funcn):
             funcn._bodyfunc.__qualname__,
             ", ".join(["{}=%D".format(name) for name in argnames]),
         )
-        if funcn._retn == 0:
+        if len(_outputs) == 0:
             fmtstring += "."
-        elif funcn._retn == 1:
+        elif len(_outputs) == 1:
             fmtstring += "%D"
         else:
-            fmtstring += ", ".join(["%D"] * funcn._retn)
+            fmtstring += ", ".join(["%D"] * len(_outputs))
         Logger.format(fmtstring, *(_inputs + _outputs))
 
         funcn._fend = Forward()

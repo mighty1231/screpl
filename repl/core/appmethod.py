@@ -8,7 +8,7 @@ import inspect
 
 class _AppMethod:
     def __init__(self, argtypes, rettypes, method, *, getWriterAsParam, traced):
-        # Step 1 __init__
+        # Step 1 from parameters
         self.argtypes = argtypes
         self.rettypes = rettypes
 

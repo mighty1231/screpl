@@ -1,7 +1,7 @@
 from eudplib import *
 
-from .application import Application
-from .appmanager import getAppManager
+from ..core.application import Application
+from ..core.appmanager import getAppManager
 from ..utils import EPDConstString, EPDConstStringArray
 
 _title_epd = EUDVariable(EPDConstString("Title"))
@@ -63,14 +63,15 @@ class StaticApp(Application):
 
     def print(self, writer):
         # title
+        offset, linecount = self.offset, self.linecount
         writer.write_f("%E ( %D / %D )",
-                self.title_epd, self.offset, self.linecount)
+                self.title_epd, offset, linecount)
 
         cur, pageend, until = EUDCreateVariables(3)
         cur << self.offset
         pageend << self.offset + self.lines_per_page
-        if EUDIf()(pageend >= self.linecount):
-            until << self.linecount
+        if EUDIf()(pageend >= linecount):
+            until << linecount
         if EUDElse()():
             until << pageend
         EUDEndIf()

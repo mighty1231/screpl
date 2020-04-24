@@ -7,17 +7,20 @@ from .core import (
 
     AppMethod,
     AppTypedMethod,
+)
 
+from .base import (
     ReferenceTable,
     SearchTable,
-
     EUDByteRW,
-    ArgEncoderPtr,
+    ArgEncoderPtr
+)
 
+from .apps import (
     StaticApp,
     ScrollApp,
-    REPL,
     Logger,
+    REPL,
     IOCheck
 )
 

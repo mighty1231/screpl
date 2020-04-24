@@ -1,8 +1,8 @@
 from eudplib import *
 
-from .application import Application
-from .appmanager import getAppManager
-from .eudbyterw import EUDByteRW
+from ..base.eudbyterw import EUDByteRW
+from ..core.application import Application
+from ..core.appmanager import getAppManager
 
 import functools
 

@@ -1,4 +1,5 @@
 from eudplib import *
+from ..utils import EPDConstString
 
 class EUDByteRW:
     def __init__(self):
@@ -8,12 +9,10 @@ class EUDByteRW:
     def getoffset(self):
         EUDReturn(0x58A364 + 4 * self.epd + self.off)
 
-    @EUDMethod
     def seekepd(self, epd):
         self.epd << epd
         self.off << 0
 
-    @EUDMethod
     def seekoffset(self, ptr):
         epd, off = f_div(ptr, 4)
         epd += -0x58A364 // 4
@@ -246,8 +245,6 @@ class EUDByteRW:
         self.write_str(strsect + f_dwread(strsect + strId*4))
 
     def write_f(self, fmt, *args):
-        from ..utils.conststring import EPDConstString
-
         '''
         Parse formatted string with python (not in-game)
           and write it with EUDVariable or ConstExpr

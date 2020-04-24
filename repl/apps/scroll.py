@@ -1,8 +1,8 @@
 from eudplib import *
 
-from .application import Application
-from .appmanager import getAppManager
-from .appmethod import AppTypedMethod
+from ..core.application import Application
+from ..core.appmanager import getAppManager
+from ..core.appmethod import AppTypedMethod
 from ..utils import EPDConstString
 
 LINES_PER_PAGE = 8

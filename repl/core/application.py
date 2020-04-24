@@ -1,10 +1,10 @@
 from eudplib import *
 
+from ..base.referencetable import ReferenceTable
+from ..utils import EPDConstString
 from .appcommand import _AppCommand, runAppCommand
 from .appmanager import getAppManager
 from .appmethod import _AppMethod, AppMethod, AppMethod_writerParam
-from .referencetable import ReferenceTable
-from ..utils import EPDConstString
 
 class _indexPair:
     def __init__(self, items = None):
@@ -12,15 +12,6 @@ class _indexPair:
             items = dict()
         self.items = items
         self.size = len(items)
-
-    def debugPrint(self):
-        print("- _indexPair id {} dictid {}--".format(id(self), id(self.items)))
-        for i, t in enumerate(self.items):
-            print(' {}: {}'.format(i, t))
-        print("---")
-
-    def hasKey(self, key):
-        return key in self.items
 
     def replace(self, key, new_value):
         idx, old_value = self.items[key]
@@ -79,7 +70,7 @@ class _Application_Metaclass(type):
             if isinstance(v, _AppCommand):
                 assert k not in total_dict or isinstance(total_dict[k], _AppCommand), \
                         "Conflict on attribute - %s.%s" % (name, k)
-                if commands.hasKey(k):
+                if k in commands:
                     commands.replace(k, v)
                 else:
                     commands.append(k, v)
@@ -93,7 +84,7 @@ class _Application_Metaclass(type):
                 if not isinstance(v, _AppMethod):
                     v = AppMethod(v)
                 setattr(cls, k, v)
-                if methods.hasKey(k):
+                if k in methods:
                     # Overriding AppMethod
                     v.initialize(cls, methods[k][0], methods.getValue(k))
                     methods.replace(k, v)
@@ -127,8 +118,13 @@ class _Application_Metaclass(type):
 
 class ApplicationInstance:
     '''
-    Mimic object for application instance, used in AppMethod
-    It supports field access and method invocation
+    Mimic object for application instance, used in AppMethod.
+    It supports field access and method invocation.
+
+    Typically _absolute is False.
+    Leaf AppMethods are called, set by current instance.
+    Otherwise, their absolute address are used.
+    It would applied into calling methods from superclasses.
     '''
 
     # reserved keywords
@@ -149,9 +145,10 @@ class ApplicationInstance:
 
         self.var << 1                     # self.var is 1
         v = self.getReference_epd('var')  # get reference for self.var
-        f_dwwrite_epd(v, 12)              # self.var becomes 12
+        f_dwwrite_epd(v, 12)
+        Logger.format("%D", self.var)     # self.var becomes 12
 
-        Traditional EUDVariable can be referred as EPD(v.getValueAddr())
+        Traditional EUDVariable can be referenced as EPD(v.getValueAddr())
         '''
         attrid, attrtype = self._cls._fields_[member]
         return getAppManager().cur_members._epd + (18 * attrid + 348 // 4)
@@ -185,7 +182,11 @@ class ApplicationInstance:
 
 # default application
 class Application(metaclass=_Application_Metaclass):
+    # deafult field - cmd_output_epd
+    # if it is not 0, the reason of failure on
+    #    runAppCommand() is written into cmd_output_epd.
     fields = ["cmd_output_epd"]
+
     def onInit(self):
         self.cmd_output_epd = 0
 
@@ -264,7 +265,7 @@ class Application(metaclass=_Application_Metaclass):
             #   - just initialize
             assert name not in cls._total_dict_ or isinstance(cls._total_dict_[name], _AppCommand), \
                     "Conflict on attribute - %s.%s" % (cls.__name__, name)
-            if cls._commands_.hasKey(name):
+            if name in cls._commands_:
                 cls._commands_.replace(name, cmd)
             else:
                 cls._commands_.append(name, cmd)
