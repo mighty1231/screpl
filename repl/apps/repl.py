@@ -3,8 +3,6 @@ from eudplib import *
 from ..base.eudbyterw import EUDByteRW
 from ..core.application import Application
 from ..core.appmanager import getAppManager
-from ..core.appcommand import AppCommand
-from .static import StaticApp
 
 PAGE_NUMLINES = 8
 LINESIZE = 216
@@ -118,25 +116,3 @@ class REPL(Application):
         EUDEndInfLoop()
 
         writer.write(0)
-
-    @AppCommand([])
-    def help(self):
-        StaticApp.setContent(
-            'SC-REPL manual',
-            '\x13SC-REPL\n'
-            + '\x13Made by sixthMeat (mighty1231@gmail.com)\n'
-            + '\n'
-            + 'Key Inputs\n'
-            + '- F7: Search previous page\n'
-            + '- F8: Search next page\n'
-            + '\n'
-            + 'builtin functions\n'
-            + 'help() - See manual\n'
-            + 'cmds() - See list of all commands\n'
-        )
-        getAppManager().startApplication(StaticApp)
-
-    @AppCommand([])
-    def log(self):
-        from .logger import Logger
-        getAppManager().startApplication(Logger)

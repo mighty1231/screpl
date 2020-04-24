@@ -37,9 +37,6 @@ class Logger(Application):
             buf_epd_var << buf_start_epd
         EUDEndIf()
 
-    def onChat(self, offset):
-        pass
-
     def loop(self):
         manager = getAppManager()
         if EUDIf()(manager.keyPress("ESC")):
