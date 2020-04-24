@@ -3,7 +3,7 @@ from repl import ScrollApp, ReferenceTable, AppTypedMethod
 
 from repl.resources.offset import off_unitsdat_UnitMapString
 from repl.resources.unitname import getDefaultUnitName
-from . import manager, death_units, watched_eud_vars, accessed_resources
+from . import death_units, watched_eud_vars, accessed_resources
 
 watched_eud_vars_size = EUDVariable()
 

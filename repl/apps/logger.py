@@ -4,8 +4,6 @@ from ..base.eudbyterw import EUDByteRW
 from ..core.application import Application
 from ..core.appmanager import getAppManager
 
-import functools
-
 PAGE_NUMLINES = 8
 LINE_SIZE = 216
 LOGGER_SIZE = 10

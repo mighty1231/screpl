@@ -3,8 +3,7 @@ from eudplib import *
 from ..base.eudbyterw import EUDByteRW
 from ..core.application import Application
 from ..core.appmanager import getAppManager
-from ..core.appcommand import AppCommand, runAppCommand
-from ..utils import EPDConstStringArray
+from ..core.appcommand import AppCommand
 from .static import StaticApp
 
 PAGE_NUMLINES = 8

@@ -1,11 +1,9 @@
-from eudplib import *
-from repl import REPL, AppCommand
 from repl.core.appmanager import AppManager, getAppManager
 
 import importlib, re
 
 default_settings = {
-    'superuser'     : P1,
+    'superuser'     : 'P1',
     'superuser_mode': 'playerNumber',
     'plugins'       : ''
 }
