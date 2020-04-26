@@ -15,6 +15,15 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    bool initialize();
+
+public slots:
+    void update(QString applog, QString loggerlog, QString display);
+    void metProcess(bool met);
+    void metREPL(bool met);
+
+    void setError(QString msg);
+
 private:
     Ui::MainWindow *ui;
 };

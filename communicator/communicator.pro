@@ -17,10 +17,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     main.cpp \
-    mainwindow.cpp
+    mainwindow.cpp \
+    worker.cpp
+
+LIBS += \
+    Advapi32.lib \
+    User32.lib
+
 
 HEADERS += \
-    mainwindow.h
+    mainwindow.h \
+    sharedregion.h \
+    worker.h
 
 FORMS += \
     mainwindow.ui

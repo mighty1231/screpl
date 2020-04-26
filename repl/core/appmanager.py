@@ -3,6 +3,7 @@ from eudplib import *
 from ..base.eudbyterw import EUDByteRW
 from ..base.pool import DbPool, VarPool
 from ..utils import f_raiseError, f_raiseWarning, getKeyCode, f_strlen
+from .communicator import comm_init, comm_loop
 
 KEYPRESS_DELAY = 8
 _manager = None
@@ -22,7 +23,7 @@ class AppManager:
         assert _manager is None
         _manager = AppManager(*args, **kwargs)
 
-    def __init__(self, superuser, superuser_mode):
+    def __init__(self, superuser, superuser_mode, communicate):
         from .application import ApplicationInstance
 
         # set superuser
@@ -102,6 +103,17 @@ class AppManager:
         self.keystates_sub = EPD(Db(0x100 * 4))
         self.mouse_pos = EUDCreateVariables(2)
         self.current_frame_number = EUDVariable(0)
+
+        # communicate
+        communicate = communicate.lower()
+        if communicate == 'true':
+            self.communicate = True
+            comm_init()
+        elif communicate == 'false':
+            self.communicate = False
+        else:
+            raise RuntimeError("Unknown 'communicate' = '%s', "\
+                    "expected true or false" % communicate)
 
     def allocVariable(self, count):
         return self.varpool.alloc(count)
@@ -398,7 +410,6 @@ class AppManager:
 
         # loop
         self.current_app_instance.loop()
-        self.current_frame_number += 1
 
         # print top of the screen, enables chat simultaneously
         txtPtr = f_dwread_epd(EPD(0x640B58))
@@ -413,6 +424,10 @@ class AppManager:
         f_setcurpl(self.superuser)
         self.displayBuffer.Display()
         SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
+
+        self.current_frame_number += 1
+        if self.communicate:
+            comm_loop(self.current_frame_number)
 
 playerMap = {
     'P1':P1,
