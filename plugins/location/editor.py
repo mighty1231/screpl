@@ -3,8 +3,7 @@ from repl import (
     Application,
     AppTypedMethod,
     AppCommand,
-    argEncNumber,
-    Logger
+    argEncNumber
 )
 
 from . import appManager, locstrings, keymap, FRAME_PERIOD
@@ -75,7 +74,8 @@ class LocationEditorApp(Application):
         frame << 0
         for i in range(len(py_modes)):
             prev_available_modes[i] = 0
-        is_holding << 1
+        cur_mode << -1
+        is_holding << 0
 
     def evaluateAvailableModes(self):
         '''
@@ -131,11 +131,6 @@ class LocationEditorApp(Application):
             is_t_y_b << 0
         EUDEndIf()
 
-        Logger.format("L %D R %D T %D B %D", dlx, drx, dty, dby)
-        Logger.format("inside X %D Y %D", is_l_x_r, is_t_y_b)
-        Logger.format("l x r %D %D %D", cur_lv, cur_mX, cur_rv)
-        Logger.format("t y b %D %D %D", cur_tv, cur_mY, cur_bv)
-
         if EUDIf()([is_t_y_b.Exactly(1), dlx <= limit]):
             DoActions(SetMemoryEPD(EPD(cur_available_modes)+4, SetTo, 1))
         EUDEndIf()
@@ -156,11 +151,9 @@ class LocationEditorApp(Application):
 
     def loop(self):
         global cur_mode
+
         if EUDIf()(appManager.keyPress("ESC")):
             appManager.requestDestruct()
-            EUDReturn()
-        if EUDElseIf()(appManager.keyPress("L")):
-            appManager.startApplication(Logger)
             EUDReturn()
         EUDEndIf()
 
@@ -333,15 +326,23 @@ class LocationEditorApp(Application):
         EUDEndIf()
 
         writer.write_f("Mode: ")
+        to_pass = Forward()
+        if EUDIf()(cur_mode == -1):
+            writer.write_f("--")
+            EUDJump(to_pass)
+        EUDEndIf()
         for i in range(len(py_modes)):
             if EUDIf()(cur_mode == i):
                 writer.write_f(py_modes_string[i])
             EUDEndIf()
         if EUDIf()(is_holding == 1):
             writer.write_f(" Holding...")
+        if EUDElse()():
+            writer.write_f(" Press '%s' to hold" % keymap["editor"]["hold"])
         EUDEndIf()
-        writer.write(ord('\n'))
 
+        to_pass << NextTrigger()
+        writer.write_f("\nAvailable modes (LClick with mouse on the map to change): ")
         for i in range(len(py_modes)):
             if EUDIf()(cur_available_modes[i]):
                 writer.write_f(py_modes_string[i] + " ")
