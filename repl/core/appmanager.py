@@ -100,6 +100,8 @@ class AppManager:
         # common useful value that app may use
         self.keystates = EPD(Db(0x100 * 4))
         self.keystates_sub = EPD(Db(0x100 * 4))
+        self.mouse_prev_state = EUDVariable(0)
+        self.mouse_state = EUDArray([1, 1, 1])
         self.mouse_pos = EUDCreateVariables(2)
         self.current_frame_number = EUDVariable(0)
 
@@ -312,10 +314,51 @@ class AppManager:
         '''
         return self.current_frame_number
 
-    def updateMousePosition(self):
+    def updateMouseState(self):
+        # up   -> up   : 1
+        # up   -> down : 2
+        # down -> up   : 0
+        # down -> down : 3
+        for i, c in enumerate([2, 8, 32]): # L, R, M
+            for _bef, _cur, _state in [(0, 0, 1), (0, 1, 2), (1, 0, 0), (1, 1, 3)]:
+                Trigger(
+                    conditions = [
+                        self.mouse_prev_state.ExactlyX(c * _bef, c),
+                        MemoryX(0x6CDDC0, Exactly, c * _cur, c)
+                    ], actions = SetMemoryEPD(EPD(self.mouse_state) + i, SetTo, _state)
+                )
+            # store previous value
+            Trigger(
+                conditions=MemoryX(0x6CDDC0, Exactly, c, c),
+                actions=self.mouse_prev_state.SetNumberX(c, c)
+            )
+            Trigger(
+                conditions=MemoryX(0x6CDDC0, Exactly, 0, c),
+                actions=self.mouse_prev_state.SetNumberX(0, c)
+            )
+
+        # mouse posiition
         x, y = self.mouse_pos
         x << f_dwread_epd(EPD(0x0062848C)) + f_dwread_epd(EPD(0x006CDDC4))
         y << f_dwread_epd(EPD(0x006284A8)) + f_dwread_epd(EPD(0x006CDDC8))
+
+    def mouseLClick(self):
+        return MemoryEPD(EPD(self.mouse_state), Exactly, 0)
+
+    def mouseLPress(self):
+        return MemoryEPD(EPD(self.mouse_state), AtLeast, 2)
+
+    def mouseRClick(self):
+        return MemoryEPD(EPD(self.mouse_state+1), Exactly, 0)
+
+    def mouseRPress(self):
+        return MemoryEPD(EPD(self.mouse_state+1), AtLeast, 2)
+
+    def mouseRClick(self):
+        return MemoryEPD(EPD(self.mouse_state+2), Exactly, 0)
+
+    def mouseRPress(self):
+        return MemoryEPD(EPD(self.mouse_state+2), AtLeast, 2)
 
     @EUDMethod
     def getMousePositionXY(self):
@@ -359,7 +402,7 @@ class AppManager:
             self.startApplication(REPL)
         EUDEndExecuteOnce()
 
-        self.updateMousePosition()
+        self.updateMouseState()
         self.updateKeyState()
 
         if EUDIfNot()([self.is_terminating_app == 0, self.is_starting_app == 0]):
