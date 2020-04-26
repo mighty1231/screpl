@@ -1,12 +1,20 @@
 from eudplib import *
 
 from . import appManager, mapw, maph
+from repl.resources.offset import off_unitsdat_ElevationLevel
 
 def drawRectangle(location, frame, frame_period):
     superuser = appManager.superuser
 
     cur_epd = EPD(0x58DC60 - 0x14) + (0x14 // 4) * location
     le, te, re, de = cur_epd, cur_epd+1, cur_epd+2, cur_epd+3
+
+    elevation = off_unitsdat_ElevationLevel.read(EncodeUnit("Scanner Sweep"))
+    DoActions([
+        SetMemoryEPD(te, Add, elevation),
+        SetMemoryEPD(de, Add, elevation),
+    ])
+
     lv, tv, rv, dv = [f_dwread_epd(ee) for ee in [le, te, re, de]]
 
     # 0, 0, 0, 0: pass
@@ -190,3 +198,10 @@ def drawRectangle(location, frame, frame_period):
     end_point << NextTrigger()
     for epd, val in zip([le, te, re, de], [lv, tv, rv, dv]):
         f_dwwrite_epd(epd, val)
+
+    # restore draw
+    neg_elevation = -elevation
+    DoActions([
+        SetMemoryEPD(te, Add, neg_elevation),
+        SetMemoryEPD(de, Add, neg_elevation),
+    ])
