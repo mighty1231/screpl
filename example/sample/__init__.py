@@ -1,4 +1,4 @@
-''' module sample '''
+''' plugin sample '''
 
 from eudplib import *
 from repl import REPL, getAppManager, AppCommand, EUDByteRW, argEncNumber

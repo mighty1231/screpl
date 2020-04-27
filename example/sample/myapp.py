@@ -4,7 +4,7 @@ Application sample for REPL
 A series of methods is executed in each frame as follows.
 
 Case 1. app starts with getAppManager().startApplication(app)
-  - init, (onChat), loop, print
+  - onInit, (onChat), loop, print
 
 Case 2. If 'onChat' or 'loop' invoked 'getAppManager().requestUpdate()',
   - (onChat), loop, print
@@ -13,7 +13,7 @@ Case 3. If 'onChat' or 'loop' did not invoked 'getAppManager().requestUpdate()',
   - (onChat), loop
 
 Case 4. If 'onChat' or 'loop' invoked 'getAppManager().requestDestruct()'
-  - (onChat), loop, destruct
+  - (onChat), loop, onDestruct
 
 Case 5. Previously launched app is dead,
   - onResume, (onChat), loop

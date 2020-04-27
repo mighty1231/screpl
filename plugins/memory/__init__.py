@@ -1,5 +1,3 @@
-from eudplib import *
-
 from repl import REPL, getAppManager, AppCommand, argEncNumber
 from .memoryapp import MemoryApp
 

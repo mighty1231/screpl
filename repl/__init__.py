@@ -1,27 +1,10 @@
-from .core import (
-    Application,
-    getAppManager,
-
-    AppCommand,
-    runAppCommand,
-
-    AppMethod,
-    AppTypedMethod,
-)
+from .utils import EPDConstString
 
 from .base import (
     ReferenceTable,
     SearchTable,
     EUDByteRW,
     ArgEncoderPtr
-)
-
-from .apps import (
-    StaticApp,
-    ScrollApp,
-    Logger,
-    REPL,
-    IOCheck
 )
 
 from .resources.encoder.const import (
@@ -47,4 +30,21 @@ from .resources.encoder.str import (
     argEncString
 )
 
-from .utils import EPDConstString
+from .core import (
+    Application,
+    getAppManager,
+
+    AppCommand,
+    runAppCommand,
+
+    AppMethod,
+    AppTypedMethod,
+)
+
+from .apps import (
+    StaticApp,
+    ScrollApp,
+    Logger,
+    REPL,
+    IOCheck
+)

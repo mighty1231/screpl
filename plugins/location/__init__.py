@@ -1,7 +1,7 @@
 from eudplib import *
 from eudplib.core.mapdata.stringmap import locmap
 
-from repl import REPL, getAppManager, AppCommand, EUDByteRW, EPDConstString
+from repl import REPL, getAppManager, AppCommand, EPDConstString
 
 keymap = {
     "manager" : {

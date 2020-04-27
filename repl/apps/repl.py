@@ -3,9 +3,11 @@ from eudplib import *
 from ..base.eudbyterw import EUDByteRW
 from ..core.application import Application
 from ..core.appmanager import getAppManager
-from ..core.appcommand import AppCommand, runAppCommand
-from ..utils import EPDConstStringArray
+from ..core.appcommand import AppCommand
+
 from .static import StaticApp
+
+import inspect
 
 PAGE_NUMLINES = 8
 LINESIZE = 216
@@ -121,23 +123,24 @@ class REPL(Application):
         writer.write(0)
 
     @AppCommand([])
-    def help(self):
-        StaticApp.setContent(
-            'SC-REPL manual',
-            '\x13SC-REPL\n'
-            + '\x13Made by sixthMeat (mighty1231@gmail.com)\n'
-            + '\n'
-            + 'Key Inputs\n'
-            + '- F7: Search previous page\n'
-            + '- F8: Search next page\n'
-            + '\n'
-            + 'builtin functions\n'
-            + 'help() - See manual\n'
-            + 'cmds() - See list of all commands\n'
-        )
-        getAppManager().startApplication(StaticApp)
+    def cmds(self):
+        content = ''
+        cmd_id = 1
+        for name, cmd in REPL._commands_.orderedItems():
+            argspec = inspect.getfullargspec(cmd.func)
+            # encoders = cmd.arg_encoders
 
-    @AppCommand([])
-    def log(self):
-        from .logger import Logger
-        getAppManager().startApplication(Logger)
+            arg_description = []
+            for i in range(cmd.argn):
+                arg_description.append('{}'.format(
+                    argspec.args[i+1]
+                ))
+            content += '\x16{}. {}({})\n'.format(
+                cmd_id,
+                name,
+                ', '.join(arg_description)
+            )
+            cmd_id += 1
+
+        StaticApp.setContent('\x16SC-REPL commands', content)
+        getAppManager().startApplication(StaticApp)

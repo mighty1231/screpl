@@ -3,9 +3,14 @@ from eudplib import *
 from ..base.eudbyterw import EUDByteRW
 from ..base.pool import DbPool, VarPool
 from ..utils import f_raiseError, f_raiseWarning, getKeyCode, f_strlen
+from .bridge import bridge_init, bridge_loop
 
 KEYPRESS_DELAY = 8
 _manager = None
+
+BRIDGE_OFF = 0
+BRIDGE_ON = 1
+BRIDGE_BLIND = 2
 
 def getAppManager():
     global _manager
@@ -22,7 +27,7 @@ class AppManager:
         assert _manager is None
         _manager = AppManager(*args, **kwargs)
 
-    def __init__(self, superuser, superuser_mode):
+    def __init__(self, superuser, superuser_mode, bridge_mode):
         from .application import ApplicationInstance
 
         # set superuser
@@ -100,8 +105,26 @@ class AppManager:
         # common useful value that app may use
         self.keystates = EPD(Db(0x100 * 4))
         self.keystates_sub = EPD(Db(0x100 * 4))
+        self.mouse_prev_state = EUDVariable(0)
+        self.mouse_state = EUDArray([1, 1, 1])
         self.mouse_pos = EUDCreateVariables(2)
         self.current_frame_number = EUDVariable(0)
+
+        # bridge_mode
+        bridge_mode = bridge_mode.lower()
+        if bridge_mode == 'on':
+            self.bridge_mode = BRIDGE_ON
+            bridge_init()
+            self.is_blind_mode = EUDVariable(0)
+        elif bridge_mode == 'blind':
+            self.bridge_mode = BRIDGE_BLIND
+            bridge_init()
+            self.is_blind_mode = EUDVariable(1)
+        elif bridge_mode == 'off':
+            self.bridge_mode = BRIDGE_OFF
+        else:
+            raise RuntimeError("Unknown 'bridge_mode' = '%s', "\
+                    "expected 'on', 'off', or 'blind'" % bridge_mode)
 
     def allocVariable(self, count):
         return self.varpool.alloc(count)
@@ -312,10 +335,51 @@ class AppManager:
         '''
         return self.current_frame_number
 
-    def updateMousePosition(self):
+    def updateMouseState(self):
+        # up   -> up   : 1
+        # up   -> down : 2
+        # down -> up   : 0
+        # down -> down : 3
+        for i, c in enumerate([2, 8, 32]): # L, R, M
+            for _bef, _cur, _state in [(0, 0, 1), (0, 1, 2), (1, 0, 0), (1, 1, 3)]:
+                Trigger(
+                    conditions = [
+                        self.mouse_prev_state.ExactlyX(c * _bef, c),
+                        MemoryX(0x6CDDC0, Exactly, c * _cur, c)
+                    ], actions = SetMemoryEPD(EPD(self.mouse_state) + i, SetTo, _state)
+                )
+            # store previous value
+            Trigger(
+                conditions=MemoryX(0x6CDDC0, Exactly, c, c),
+                actions=self.mouse_prev_state.SetNumberX(c, c)
+            )
+            Trigger(
+                conditions=MemoryX(0x6CDDC0, Exactly, 0, c),
+                actions=self.mouse_prev_state.SetNumberX(0, c)
+            )
+
+        # mouse posiition
         x, y = self.mouse_pos
         x << f_dwread_epd(EPD(0x0062848C)) + f_dwread_epd(EPD(0x006CDDC4))
         y << f_dwread_epd(EPD(0x006284A8)) + f_dwread_epd(EPD(0x006CDDC8))
+
+    def mouseLClick(self):
+        return MemoryEPD(EPD(self.mouse_state), Exactly, 0)
+
+    def mouseLPress(self):
+        return MemoryEPD(EPD(self.mouse_state), AtLeast, 2)
+
+    def mouseRClick(self):
+        return MemoryEPD(EPD(self.mouse_state+1), Exactly, 0)
+
+    def mouseRPress(self):
+        return MemoryEPD(EPD(self.mouse_state+1), AtLeast, 2)
+
+    def mouseRClick(self):
+        return MemoryEPD(EPD(self.mouse_state+2), Exactly, 0)
+
+    def mouseRPress(self):
+        return MemoryEPD(EPD(self.mouse_state+2), AtLeast, 2)
 
     @EUDMethod
     def getMousePositionXY(self):
@@ -344,8 +408,14 @@ class AppManager:
 
     def cleanText(self):
         # clean text UI of previous app
+        if self.bridge_mode:
+            EUDIf()(self.is_blind_mode == 0)
+
         f_setcurpl(self.superuser)
         DoActions(DisplayText("\n" * 12))
+
+        if self.bridge_mode:
+            EUDEndIf()
 
     def getWriter(self):
         '''
@@ -355,11 +425,18 @@ class AppManager:
 
     def loop(self):
         from ..apps.repl import REPL
+        from .appcommand import AppCommand
+
+        if self.bridge_mode:
+            @AppCommand([])
+            def toggleBlind(repl):
+                self.is_blind_mode << 1 - self.is_blind_mode
+            REPL.addCommand("blind", toggleBlind)
         if EUDExecuteOnce()():
             self.startApplication(REPL)
         EUDEndExecuteOnce()
 
-        self.updateMousePosition()
+        self.updateMouseState()
         self.updateKeyState()
 
         if EUDIfNot()([self.is_terminating_app == 0, self.is_starting_app == 0]):
@@ -398,10 +475,17 @@ class AppManager:
 
         # loop
         self.current_app_instance.loop()
-        self.current_frame_number += 1
 
         # print top of the screen, enables chat simultaneously
+        # option - blind mode
+        #    1. save gametext
+        #    2. print text ui
+        #    3. send displayed text to bridge
+        #    4. restore gametext
         txtPtr = f_dwread_epd(EPD(0x640B58))
+        if self.bridge_mode:
+            previous_gameText = Db(11*218 + 2)
+
         if EUDIfNot()(self.update == 0):
             self.writer.seekepd(EPD(self.displayBuffer.GetStringMemoryAddr()))
 
@@ -411,8 +495,22 @@ class AppManager:
             self.update << 0
         EUDEndIf()
         f_setcurpl(self.superuser)
+
+        if self.bridge_mode:
+            if EUDIf()(self.is_blind_mode == 1):
+                f_repmovsd_epd(EPD(previous_gameText), EPD(0x640B60), (11*218+2) // 4)
+            EUDEndIf()
+
         self.displayBuffer.Display()
         SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
+
+        self.current_frame_number += 1
+        if self.bridge_mode:
+            bridge_loop(self)
+            if EUDIf()(self.is_blind_mode == 1):
+                f_repmovsd_epd(EPD(0x640B60), EPD(previous_gameText), (11*218+2) // 4)
+            EUDEndIf()
+
 
 playerMap = {
     'P1':P1,

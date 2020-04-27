@@ -1,7 +1,6 @@
 from eudplib import *
 from repl import (
     Application,
-    AppTypedMethod,
     AppCommand,
     getAppManager,
     argEncNumber
