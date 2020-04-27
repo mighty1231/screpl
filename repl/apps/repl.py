@@ -3,6 +3,11 @@ from eudplib import *
 from ..base.eudbyterw import EUDByteRW
 from ..core.application import Application
 from ..core.appmanager import getAppManager
+from ..core.appcommand import AppCommand
+
+from .static import StaticApp
+
+import inspect
 
 PAGE_NUMLINES = 8
 LINESIZE = 216
@@ -116,3 +121,26 @@ class REPL(Application):
         EUDEndInfLoop()
 
         writer.write(0)
+
+    @AppCommand([])
+    def cmds(self):
+        content = ''
+        cmd_id = 1
+        for name, cmd in REPL._commands_.orderedItems():
+            argspec = inspect.getfullargspec(cmd.func)
+            # encoders = cmd.arg_encoders
+
+            arg_description = []
+            for i in range(cmd.argn):
+                arg_description.append('{}'.format(
+                    argspec.args[i+1]
+                ))
+            content += '\x16{}. {}({})\n'.format(
+                cmd_id,
+                name,
+                ', '.join(arg_description)
+            )
+            cmd_id += 1
+
+        StaticApp.setContent('\x16SC-REPL commands', content)
+        getAppManager().startApplication(StaticApp)
