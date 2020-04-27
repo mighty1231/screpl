@@ -200,7 +200,7 @@ void Worker::process()
     // minimal operation between leaving note A
     memcpy(region, regiontmp, sizeof(SharedRegion));
     regiontmp->noteToSC = 0;
-    regiontmp->applog_sz = 0;
+    regiontmp->app_output_sz = 0;
 
     // restore note
     if (!WriteProcessMemory(
@@ -216,6 +216,7 @@ void Worker::process()
     }
 
     // some heavy evaluations
+    // check framecount
     if (last_framecount == region->frameCount) {
         // nothing to do
         if (last_interaction_timer.elapsed() > 2000) {
@@ -233,7 +234,20 @@ void Worker::process()
         last_interaction_timer.start();
     }
 
-    // check framecount
+    // app output
+    QString app_output = QString::fromUtf8(region->app_output);
+
+    // log
+    static int last_log_index = 0;
+    QString logger_log;
+    for (int i=last_log_index; i<region->log_index; i++) {
+        int line = i % LOGGER_LINE_COUNT;
+        logger_log.append(ignoreColor(region->logger_log[line]));
+        logger_log.append('\n');
+    }
+    last_log_index = region->log_index;
+
+    // display
     QString display;
     int idx = region->displayIndex;
     for (int i=0; i<12; i++) {
@@ -245,7 +259,7 @@ void Worker::process()
     display.append(makeString(region->display[12]));
     display.append('\n');
 
-    emit update("", "", display);
+    emit update(app_output, logger_log, display);
 }
 
 bool Worker::writeRegionInt(int offset, int value)
