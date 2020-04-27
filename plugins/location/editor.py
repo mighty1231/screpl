@@ -406,3 +406,6 @@ class LocationEditorApp(Application):
         sz = bv - tv
         f_dwadd_epd(be, value-sz)
 
+    @AppCommand([argEncNumber])
+    def setFlag(self, flag):
+        f_wwrite_epd(cur_epd+4, 2, flag)
