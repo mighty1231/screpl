@@ -427,7 +427,7 @@ class AppManager:
 
         self.current_frame_number += 1
         if self.communicate:
-            comm_loop(self.current_frame_number)
+            comm_loop(self)
 
 playerMap = {
     'P1':P1,

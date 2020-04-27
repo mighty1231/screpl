@@ -30,7 +30,6 @@ Worker::Worker(QObject *parent) : QThread(parent),
 void Worker::run()
 {
     forever {
-        qDebug() << "status " << status;
         if (QThread::currentThread()->isInterruptionRequested()) {
             break;
         }
@@ -205,8 +204,10 @@ void Worker::process()
     // send command
     if (regiontmp->command[0] == 0) {
         command_mutex.lock();
-        strncpy_s(regiontmp->command, command.toLocal8Bit().constData(), 300);
-        _command_tmp = command;
+        if (!command.isEmpty()) {
+            strncpy_s(regiontmp->command, command.toLocal8Bit().constData(), 300);
+            _command_tmp = command;
+        }
         command_mutex.unlock();
     }
     memcpy(region, regiontmp, sizeof(SharedRegion));
@@ -257,7 +258,8 @@ void Worker::process()
     for (int i=last_log_index; i<region->log_index; i++) {
         int line = i % LOGGER_LINE_COUNT;
         logger_log.append(ignoreColor(region->logger_log[line]));
-        logger_log.append('\n');
+        if (i != region->log_index - 1)
+            logger_log.append('\n');
     }
     last_log_index = region->log_index;
 

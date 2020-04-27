@@ -58,8 +58,16 @@ bool MainWindow::initialize(Worker *_worker) {
 
 void MainWindow::update(QString applog, QString loggerlog, QString display)
 {
-    ui->from_log->append(applog);
-    ui->from_logger->append(loggerlog);
+    if (!applog.isEmpty()) {
+        ui->from_log->append(applog);
+        qDebug() << "applog size " << applog.size();
+    }
+
+    if (!loggerlog.isEmpty()) {
+        ui->from_logger->append(loggerlog);
+        qDebug() << "loggerlog size " << loggerlog.size();
+    }
+
 
     QString prev = ui->from_display->toPlainText();
     if (prev.compare(display)) {

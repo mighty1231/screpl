@@ -5,11 +5,11 @@ from ..core.appmanager import getAppManager
 from ..core.appcommand import AppCommand
 from .scroll import ScrollApp, LINES_PER_PAGE
 
-LINE_SIZE = 216
-LOGGER_SIZE = 500
+LOGGER_LINE_SIZE = 216
+LOGGER_LINE_COUNT = 500
 
 # Guarantee no more than 1 Logger instance
-BUF_SIZE = LINE_SIZE * LOGGER_SIZE
+BUF_SIZE = LOGGER_LINE_SIZE * LOGGER_LINE_COUNT
 buf = Db(BUF_SIZE)
 buf_start_epd = EPD(buf)
 buf_end_epd = buf_start_epd + BUF_SIZE // 4
@@ -36,7 +36,7 @@ class Logger(ScrollApp):
         writer.write(0)
 
         DoActions([
-            next_epd_to_write.AddNumber(LINE_SIZE // 4),
+            next_epd_to_write.AddNumber(LOGGER_LINE_SIZE // 4),
             log_index.AddNumber(1)
         ])
         if EUDIf()(next_epd_to_write == buf_end_epd):
@@ -86,8 +86,8 @@ class Logger(ScrollApp):
         EUDEndIf()
 
     def writeLine(self, writer, line):
-        quot, rem = f_div(line, LOGGER_SIZE)
-        epd = buf_start_epd + rem * (LINE_SIZE // 4)
+        quot, rem = f_div(line, LOGGER_LINE_COUNT)
+        epd = buf_start_epd + rem * (LOGGER_LINE_SIZE // 4)
         writer.write_strepd(epd)
 
     def getLineCount(self):
