@@ -2,6 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QLabel>
+
 #include "worker.h"
 
 QT_BEGIN_NAMESPACE
@@ -25,8 +27,17 @@ public slots:
 
     void setError(QString msg);
 
+    void tryCommand();
+    void sentCommand(QString command);
+
 private:
     Ui::MainWindow *ui;
     Worker *worker;
+
+    QString string_found;
+    QString string_notfound;
+
+    QLabel *label_proc;
+    QLabel *label_repl;
 };
 #endif // MAINWINDOW_H

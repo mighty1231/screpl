@@ -99,6 +99,7 @@ bool Worker::findREPL()
     while (startAddr  <= 0x7FFF0000) {
         if (!VirtualQueryEx(hProcess, (void *)startAddr, &mbi, sizeof(mbi))) {
             status = STATUS_NOPROCESS_FOUND;
+            emit metProcess(false);
             makeError(QString("VirtualQueryEx"));
             CloseHandle(hProcess);
             return false;
@@ -112,6 +113,7 @@ bool Worker::findREPL()
                     goto next;
 
                 status = STATUS_NOPROCESS_FOUND;
+                emit metProcess(false);
                 makeError("ReadProcessMemory");
                 CloseHandle(hProcess);
                 delete buffer;
@@ -119,6 +121,7 @@ bool Worker::findREPL()
             }
             if (written != mbi.RegionSize) {
                 status = STATUS_NOPROCESS_FOUND;
+                emit metProcess(false);
                 makeError("ReadProcessMemory, size");
                 CloseHandle(hProcess);
                 delete buffer;

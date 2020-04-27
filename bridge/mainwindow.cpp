@@ -6,9 +6,16 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow), worker(NULL)
+    , ui(new Ui::MainWindow), worker(NULL),
+      string_found("<font color=#10FF10>found</font>"),
+      string_notfound("<font color=#FF1010>not found</font>")
 {
     ui->setupUi(this);
+
+    label_proc = new QLabel(QString("Starcraft %1").arg(string_notfound));
+    label_repl= new QLabel(QString("REPL %1").arg(string_notfound));
+    ui->statusbar->addPermanentWidget(label_proc);
+    ui->statusbar->addPermanentWidget(label_repl);
 }
 
 MainWindow::~MainWindow()
@@ -31,6 +38,21 @@ bool MainWindow::initialize(Worker *_worker) {
     }
 
     worker = _worker;
+    QObject::connect(worker, SIGNAL(update(QString, QString, QString)),
+                     this, SLOT(update(QString, QString, QString)),
+                     Qt::QueuedConnection);
+    QObject::connect(worker, SIGNAL(metProcess(bool)),
+                     this, SLOT(metProcess(bool)),
+                     Qt::QueuedConnection);
+    QObject::connect(worker, SIGNAL(metREPL(bool)),
+                     this, SLOT(metREPL(bool)),
+                     Qt::QueuedConnection);
+    QObject::connect(worker, SIGNAL(signalError(QString)),
+                     this, SLOT(setError(QString)),
+                     Qt::QueuedConnection);
+    QObject::connect(worker, SIGNAL(sentCommand(QString)),
+                     this, SLOT(sentCommand(QString)),
+                     Qt::QueuedConnection);
     return true;
 }
 
@@ -47,15 +69,47 @@ void MainWindow::update(QString applog, QString loggerlog, QString display)
 
 void MainWindow::metProcess(bool met)
 {
-    qDebug() << "metProcess " << met;
+    if (met) {
+        ui->statusbar->showMessage("Starcraft found!", 4000);
+        label_proc->setText(QString("Starcraft %1").arg(string_found));
+    } else {
+        ui->statusbar->showMessage("Starcraft lost", 4000);
+        label_proc->setText(QString("Starcraft %1").arg(string_notfound));
+    }
 }
 
 void MainWindow::metREPL(bool met)
 {
-    qDebug() << "metREPL " << met;
+    if (met) {
+        ui->statusbar->showMessage("REPL found!", 4000);
+        ui->sendcmdbtn->setEnabled(true);
+        label_repl->setText(QString("REPL %1").arg(string_found));
+    } else {
+        ui->statusbar->showMessage("REPL lost", 4000);
+        ui->sendcmdbtn->setEnabled(false);
+        label_repl->setText(QString("REPL %1").arg(string_notfound));
+    }
 }
 
 void MainWindow::setError(QString msg)
 {
-    ui->statuslabel->setText(msg);
+    ui->statusbar->showMessage(msg, 5000);
+}
+
+void MainWindow::tryCommand()
+{
+    QString command = ui->cmdedit->text();
+    if (worker->setCommand(command)) {
+        ui->sendcmdbtn->setEnabled(false);
+    } else {
+        setError("Sending command failed, please retry");
+    }
+}
+
+void MainWindow::sentCommand(QString command)
+{
+    ui->statusbar->showMessage(QString("Command %1 sent!").arg(command), 5000);
+    command += '\n';
+    ui->to_cmdlog->append(command);
+    ui->sendcmdbtn->setEnabled(true);
 }
