@@ -5,7 +5,8 @@ import importlib, re
 default_settings = {
     'superuser'     : 'P1',
     'superuser_mode': 'playerNumber',
-    'plugins'       : ''
+    'plugins'       : '',
+    'bridge_mode'   : 'off'
 }
 
 def combine_settings():
@@ -23,7 +24,8 @@ def onPluginStart():
     # initialize appmanager
     AppManager.initialize(
         superuser = settings["superuser"],
-        superuser_mode = settings["superuser_mode"]
+        superuser_mode = settings["superuser_mode"],
+        bridge_mode = settings["bridge_mode"]
     )
 
     # load plugins

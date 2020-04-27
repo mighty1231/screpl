@@ -3,9 +3,14 @@ from eudplib import *
 from ..base.eudbyterw import EUDByteRW
 from ..base.pool import DbPool, VarPool
 from ..utils import f_raiseError, f_raiseWarning, getKeyCode, f_strlen
+from .bridge import bridge_init, bridge_loop
 
 KEYPRESS_DELAY = 8
 _manager = None
+
+BRIDGE_OFF = 0
+BRIDGE_ON = 1
+BRIDGE_BLIND = 2
 
 def getAppManager():
     global _manager
@@ -22,7 +27,7 @@ class AppManager:
         assert _manager is None
         _manager = AppManager(*args, **kwargs)
 
-    def __init__(self, superuser, superuser_mode):
+    def __init__(self, superuser, superuser_mode, bridge_mode):
         from .application import ApplicationInstance
 
         # set superuser
@@ -104,6 +109,22 @@ class AppManager:
         self.mouse_state = EUDArray([1, 1, 1])
         self.mouse_pos = EUDCreateVariables(2)
         self.current_frame_number = EUDVariable(0)
+
+        # bridge_mode
+        bridge_mode = bridge_mode.lower()
+        if bridge_mode == 'on':
+            self.bridge_mode = BRIDGE_ON
+            bridge_init()
+            self.is_blind_mode = EUDVariable(0)
+        elif bridge_mode == 'blind':
+            self.bridge_mode = BRIDGE_BLIND
+            bridge_init()
+            self.is_blind_mode = EUDVariable(1)
+        elif bridge_mode == 'off':
+            self.bridge_mode = BRIDGE_OFF
+        else:
+            raise RuntimeError("Unknown 'bridge_mode' = '%s', "\
+                    "expected 'on', 'off', or 'blind'" % bridge_mode)
 
     def allocVariable(self, count):
         return self.varpool.alloc(count)
@@ -387,8 +408,14 @@ class AppManager:
 
     def cleanText(self):
         # clean text UI of previous app
+        if self.bridge_mode:
+            EUDIf()(self.is_blind_mode == 0)
+
         f_setcurpl(self.superuser)
         DoActions(DisplayText("\n" * 12))
+
+        if self.bridge_mode:
+            EUDEndIf()
 
     def getWriter(self):
         '''
@@ -398,6 +425,13 @@ class AppManager:
 
     def loop(self):
         from ..apps.repl import REPL
+        from .appcommand import AppCommand
+
+        if self.bridge_mode:
+            @AppCommand([])
+            def toggleBlind(repl):
+                self.is_blind_mode << 1 - self.is_blind_mode
+            REPL.addCommand("blind", toggleBlind)
         if EUDExecuteOnce()():
             self.startApplication(REPL)
         EUDEndExecuteOnce()
@@ -441,10 +475,17 @@ class AppManager:
 
         # loop
         self.current_app_instance.loop()
-        self.current_frame_number += 1
 
         # print top of the screen, enables chat simultaneously
+        # option - blind mode
+        #    1. save gametext
+        #    2. print text ui
+        #    3. send displayed text to bridge
+        #    4. restore gametext
         txtPtr = f_dwread_epd(EPD(0x640B58))
+        if self.bridge_mode:
+            previous_gameText = Db(11*218 + 2)
+
         if EUDIfNot()(self.update == 0):
             self.writer.seekepd(EPD(self.displayBuffer.GetStringMemoryAddr()))
 
@@ -454,8 +495,22 @@ class AppManager:
             self.update << 0
         EUDEndIf()
         f_setcurpl(self.superuser)
+
+        if self.bridge_mode:
+            if EUDIf()(self.is_blind_mode == 1):
+                f_repmovsd_epd(EPD(previous_gameText), EPD(0x640B60), (11*218+2) // 4)
+            EUDEndIf()
+
         self.displayBuffer.Display()
         SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
+
+        self.current_frame_number += 1
+        if self.bridge_mode:
+            bridge_loop(self)
+            if EUDIf()(self.is_blind_mode == 1):
+                f_repmovsd_epd(EPD(0x640B60), EPD(previous_gameText), (11*218+2) // 4)
+            EUDEndIf()
+
 
 playerMap = {
     'P1':P1,

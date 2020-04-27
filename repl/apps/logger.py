@@ -1,28 +1,34 @@
 from eudplib import *
 
 from ..base.eudbyterw import EUDByteRW
-from ..core.application import Application
 from ..core.appmanager import getAppManager
+from ..core.appcommand import AppCommand
+from .scroll import ScrollApp, LINES_PER_PAGE
 
-PAGE_NUMLINES = 8
-LINE_SIZE = 216
-LOGGER_SIZE = 10
+LOGGER_LINE_SIZE = 216
+LOGGER_LINE_COUNT = 500
 
 # Guarantee no more than 1 Logger instance
-BUF_SIZE = LINE_SIZE * LOGGER_SIZE
+BUF_SIZE = LOGGER_LINE_SIZE * LOGGER_LINE_COUNT
 buf = Db(BUF_SIZE)
 buf_start_epd = EPD(buf)
 buf_end_epd = buf_start_epd + BUF_SIZE // 4
-buf_epd_var = EUDVariable(buf_start_epd)
+
+next_epd_to_write = EUDVariable(buf_start_epd)
 log_index = EUDVariable()
+
+# check whether it tracks recent logs or not
+MODE_REALTIME = 0
+MODE_STOPPED = 1
+mode = EUDVariable(MODE_REALTIME)
 
 writer = EUDByteRW()
 
-class Logger(Application):
+class Logger(ScrollApp):
     @staticmethod
     def format(fmtstring, *args):
-        writer.seekepd(buf_epd_var)
-        writer.write_f("%D: [frame %D] ",
+        writer.seekepd(next_epd_to_write)
+        writer.write_f("\x16%D: [frame %D] ",
             log_index,
             getAppManager().getCurrentFrameNumber()
         )
@@ -30,60 +36,59 @@ class Logger(Application):
         writer.write(0)
 
         DoActions([
-            buf_epd_var.AddNumber(LINE_SIZE // 4),
+            next_epd_to_write.AddNumber(LOGGER_LINE_SIZE // 4),
             log_index.AddNumber(1)
         ])
-        if EUDIf()(buf_epd_var == buf_end_epd):
-            buf_epd_var << buf_start_epd
+        if EUDIf()(next_epd_to_write == buf_end_epd):
+            next_epd_to_write << buf_start_epd
         EUDEndIf()
+
+    def onInit(self):
+        mode << MODE_REALTIME
+        ScrollApp.onInit(self)
 
     def loop(self):
         manager = getAppManager()
-        if EUDIf()(manager.keyPress("ESC")):
-            manager.requestDestruct()
+        if EUDIf()(mode == MODE_STOPPED):
+            if EUDIf()(manager.keyPress("ESC")):
+                mode << MODE_REALTIME
+            if EUDElseIf()(manager.keyPress("F7")):
+                self.setOffset(self.offset - LINES_PER_PAGE)
+            if EUDElseIf()(manager.keyPress("F8")):
+                self.setOffset(self.offset + LINES_PER_PAGE)
+            EUDEndIf()
+        if EUDElse()():
+            if EUDIf()(manager.keyPress("ESC")):
+                manager.requestDestruct()
+            if EUDElseIf()(manager.keyPress("S")):
+                mode << MODE_STOPPED
+            if EUDElse()():
+                # set offset
+                if EUDIf()(log_index >= LINES_PER_PAGE):
+                    self.setOffset(log_index - LINES_PER_PAGE)
+                EUDEndIf()
+            EUDEndIf()
         EUDEndIf()
         manager.requestUpdate()
 
-    def print(self, writer):
+    def writeTitle(self, writer):
         manager = getAppManager()
-        writer.write_f("\x16SC-REPL logs (frame=%D)\n",
-            manager.getCurrentFrameNumber()
-        )
-
-        cur, until, pageend = EUDCreateVariables(3)
-        if EUDIf()(log_index <= PAGE_NUMLINES): # log size <= 8
-            # fill logs
-            cur << buf_start_epd
-            until << buf_start_epd + log_index * (LINE_SIZE // 4)
-            pageend << buf_start_epd + PAGE_NUMLINES * (LINE_SIZE // 4)
-            if EUDInfLoop()():
-                EUDBreakIf(cur >= until)
-                writer.write_strepd(cur)
-                writer.write(ord('\n'))
-                DoActions(cur.AddNumber(LINE_SIZE // 4))
-            EUDEndInfLoop()
-
-            # make empty lines
-            if EUDInfLoop()():
-                EUDBreakIf(cur >= pageend)
-                writer.write(ord('\n'))
-                DoActions(cur.AddNumber(LINE_SIZE // 4))
-            EUDEndInfLoop()
+        if EUDIf()(mode == MODE_REALTIME):
+            writer.write_f("\x16SC-REPL logs (frame=%D), Realtime View, " \
+                    "press 'S' to stop view",
+                manager.getCurrentFrameNumber()
+            )
         if EUDElse()():
-            cur << buf_epd_var - PAGE_NUMLINES * (LINE_SIZE // 4)
-            pageend << buf_epd_var
-            if EUDIfNot()(cur >= buf_start_epd):
-                cur += BUF_SIZE // 4
-            EUDEndIf()
-            if EUDInfLoop()():
-                EUDBreakIf(cur == pageend)
-                writer.write_strepd(cur)
-                writer.write(ord('\n'))
-                DoActions(cur.AddNumber(LINE_SIZE // 4))
-                if EUDIf()(cur == buf_end_epd):
-                    cur << buf_start_epd
-                EUDEndIf()
-            EUDEndInfLoop()
+            writer.write_f("\x16SC-REPL logs (frame=%D), Stopped View, " \
+                    "press 'ESC', 'F7' or 'F8'",
+                manager.getCurrentFrameNumber()
+            )
         EUDEndIf()
 
-        writer.write(0)
+    def writeLine(self, writer, line):
+        quot, rem = f_div(line, LOGGER_LINE_COUNT)
+        epd = buf_start_epd + rem * (LOGGER_LINE_SIZE // 4)
+        writer.write_strepd(epd)
+
+    def getLineCount(self):
+        return log_index
