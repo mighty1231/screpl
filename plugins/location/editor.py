@@ -37,15 +37,24 @@ py_modes_string = [
     "SIDE_L", "SIDE_T", "SIDE_R", "SIDE_B", "MOVE",
 ]
 
+_GRID_NO = 0
+_GRID_8 = 1
+_GRID_16 = 2
+_GRID_32 = 3
+py_grid_modes = [_GRID_NO, _GRID_8, _GRID_16, _GRID_32]
+py_grid_values = [1, 8, 16, 32]
+
 frame = EUDVariable()
 
 # available modes
 prev_available_modes = EUDArray(len(py_modes))
 cur_available_modes = EUDArray(len(py_modes))
 
-# just move
+# modes
 cur_mode = EUDVariable(-1)
 is_holding = EUDVariable(0)
+
+cur_grid_mode = EUDVariable(0)
 
 # mouse pointers
 prev_mX, prev_mY = EUDCreateVariables(2)
@@ -150,11 +159,17 @@ class LocationEditorApp(Application):
 
 
     def loop(self):
-        global cur_mode
+        global cur_mode, cur_grid_mode
 
         if EUDIf()(appManager.keyPress("ESC")):
             appManager.requestDestruct()
             EUDReturn()
+        if EUDElseIf()(appManager.keyPress(keymap["editor"]["change_grid_mode"])):
+            cur_grid_mode += 1
+            Trigger(
+                conditions=[cur_grid_mode == len(py_grid_modes)],
+                actions=[cur_grid_mode.SetNumber(0)]
+            )
         EUDEndIf()
 
         # new mouse values and location
@@ -232,34 +247,49 @@ class LocationEditorApp(Application):
                         ]):
 
                     # @TODO other modes...
+                    grid_X, grid_Y = EUDCreateVariables(2)
+                    if EUDIf()(cur_grid_mode == _GRID_NO):
+                        grid_X << cur_mX
+                        grid_Y << cur_mY
+                    if EUDElseIf()(cur_grid_mode == _GRID_8):
+                        grid_X << ((cur_mX // 8) * 8)
+                        grid_Y << ((cur_mY // 8) * 8)
+                    if EUDElseIf()(cur_grid_mode == _GRID_16):
+                        grid_X << ((cur_mX // 16) * 16)
+                        grid_Y << ((cur_mY // 16) * 16)
+                    if EUDElseIf()(cur_grid_mode == _GRID_32):
+                        grid_X << ((cur_mX // 32) * 32)
+                        grid_Y << ((cur_mY // 32) * 32)
+                    EUDEndIf()
+
                     if EUDIf()(cur_mode == _POINT_LT):
                         DoActions([
-                            SetMemoryEPD(le, SetTo, cur_mX),
-                            SetMemoryEPD(te, SetTo, cur_mY),
+                            SetMemoryEPD(le, SetTo, grid_X),
+                            SetMemoryEPD(te, SetTo, grid_Y),
                         ])
                     if EUDElseIf()(cur_mode == _POINT_RT):
                         DoActions([
-                            SetMemoryEPD(re, SetTo, cur_mX),
-                            SetMemoryEPD(te, SetTo, cur_mY),
+                            SetMemoryEPD(re, SetTo, grid_X),
+                            SetMemoryEPD(te, SetTo, grid_Y),
                         ])
                     if EUDElseIf()(cur_mode == _POINT_RB):
                         DoActions([
-                            SetMemoryEPD(re, SetTo, cur_mX),
-                            SetMemoryEPD(be, SetTo, cur_mY),
+                            SetMemoryEPD(re, SetTo, grid_X),
+                            SetMemoryEPD(be, SetTo, grid_Y),
                         ])
                     if EUDElseIf()(cur_mode == _POINT_LB):
                         DoActions([
-                            SetMemoryEPD(le, SetTo, cur_mX),
-                            SetMemoryEPD(be, SetTo, cur_mY),
+                            SetMemoryEPD(le, SetTo, grid_X),
+                            SetMemoryEPD(be, SetTo, grid_Y),
                         ])
                     if EUDElseIf()(cur_mode == _SIDE_L):
-                        DoActions([SetMemoryEPD(le, SetTo, cur_mX)])
+                        DoActions([SetMemoryEPD(le, SetTo, grid_X)])
                     if EUDElseIf()(cur_mode == _SIDE_T):
-                        DoActions([SetMemoryEPD(te, SetTo, cur_mY)])
+                        DoActions([SetMemoryEPD(te, SetTo, grid_Y)])
                     if EUDElseIf()(cur_mode == _SIDE_R):
-                        DoActions([SetMemoryEPD(re, SetTo, cur_mX)])
+                        DoActions([SetMemoryEPD(re, SetTo, grid_X)])
                     if EUDElseIf()(cur_mode == _SIDE_B):
-                        DoActions([SetMemoryEPD(be, SetTo, cur_mY)])
+                        DoActions([SetMemoryEPD(be, SetTo, grid_Y)])
                     if EUDElseIf()(cur_mode == _MOVE):
                         DoActions([
                             SetMemoryEPD(ee, Add, vv) for ee, vv in zip(
@@ -342,6 +372,14 @@ class LocationEditorApp(Application):
         EUDEndIf()
 
         to_pass << NextTrigger()
+
+        for gi in range(len(py_grid_modes)):
+            if EUDIf()(cur_grid_mode == gi):
+                writer.write_f("\nGrid (Press '{}' to change): %D" \
+                    .format(keymap["editor"]["change_grid_mode"])
+                    , py_grid_values[gi])
+            EUDEndIf()
+
         writer.write_f("\nAvailable modes (LClick with mouse on the map to change): ")
         for i in range(len(py_modes)):
             if EUDIf()(cur_available_modes[i]):
