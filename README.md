@@ -50,7 +50,7 @@ euddraft0.*.*.*
 ```
 [prepl.py]
 superuser: P1
-plugins: replplugins.location replplugins.memory replplugins.variables
+plugins: replplugins.location replplugins.memory replplugins.variable
 ```
 
 2. Run your euddraft project file with euddraft.
