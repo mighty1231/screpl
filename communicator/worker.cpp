@@ -333,3 +333,16 @@ QString Worker::makeString(const char *ptr)
     return QString::fromUtf8(ba);
 }
 
+QString Worker::ignoreColor(const char *ptr)
+{
+    QByteArray ba;
+    unsigned char c = *ptr;
+    while (c != 0) {
+        // string escape
+        if (!(1 <= c && c <= 0x1F && c != '\n') && c!=0x7F)
+            ba.append(c);
+        c = *(ptr++);
+    }
+
+    return QString::fromUtf8(ba);
+}

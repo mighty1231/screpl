@@ -23,6 +23,7 @@ private:
     void run() override;
 
     static QString makeString(const char *from);
+    static QString ignoreColor(const char *from);
 
     bool findProcess();
     bool findREPL();
