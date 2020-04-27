@@ -38,21 +38,23 @@ bool MainWindow::initialize(Worker *_worker) {
     }
 
     worker = _worker;
-    QObject::connect(worker, SIGNAL(update(QString, QString, QString)),
-                     this, SLOT(update(QString, QString, QString)),
-                     Qt::QueuedConnection);
-    QObject::connect(worker, SIGNAL(metProcess(bool)),
-                     this, SLOT(metProcess(bool)),
-                     Qt::QueuedConnection);
-    QObject::connect(worker, SIGNAL(metREPL(bool)),
-                     this, SLOT(metREPL(bool)),
-                     Qt::QueuedConnection);
-    QObject::connect(worker, SIGNAL(signalError(QString)),
-                     this, SLOT(setError(QString)),
-                     Qt::QueuedConnection);
-    QObject::connect(worker, SIGNAL(sentCommand(QString)),
-                     this, SLOT(sentCommand(QString)),
-                     Qt::QueuedConnection);
+    connect(worker, SIGNAL(update(QString, QString, QString)),
+            this, SLOT(update(QString, QString, QString)),
+            Qt::QueuedConnection);
+    connect(worker, SIGNAL(metProcess(bool)),
+            this, SLOT(metProcess(bool)),
+            Qt::QueuedConnection);
+    connect(worker, SIGNAL(metREPL(bool)),
+            this, SLOT(metREPL(bool)),
+            Qt::QueuedConnection);
+    connect(worker, SIGNAL(signalError(QString)),
+            this, SLOT(setError(QString)),
+            Qt::QueuedConnection);
+    connect(worker, SIGNAL(sentCommand(QString)),
+            this, SLOT(sentCommand(QString)),
+            Qt::QueuedConnection);
+    connect(ui->sendcmdbtn, SIGNAL(clicked()),
+            this, SLOT(tryCommand()));
     return true;
 }
 
@@ -60,12 +62,10 @@ void MainWindow::update(QString applog, QString loggerlog, QString display)
 {
     if (!applog.isEmpty()) {
         ui->from_log->append(applog);
-        qDebug() << "applog size " << applog.size();
     }
 
     if (!loggerlog.isEmpty()) {
         ui->from_logger->append(loggerlog);
-        qDebug() << "loggerlog size " << loggerlog.size();
     }
 
 
@@ -117,7 +117,6 @@ void MainWindow::tryCommand()
 void MainWindow::sentCommand(QString command)
 {
     ui->statusbar->showMessage(QString("Command %1 sent!").arg(command), 5000);
-    command += '\n';
     ui->to_cmdlog->append(command);
     ui->sendcmdbtn->setEnabled(true);
 }

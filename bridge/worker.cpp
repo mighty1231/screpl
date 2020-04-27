@@ -207,6 +207,7 @@ void Worker::process()
         if (!command.isEmpty()) {
             strncpy_s(regiontmp->command, command.toLocal8Bit().constData(), 300);
             _command_tmp = command;
+            command.clear();
         }
         command_mutex.unlock();
     }
@@ -272,6 +273,7 @@ void Worker::process()
         if (idx == 12)
             idx = 0;
     }
+    display.append("\n--------\n");
     display.append(makeString(region->display[12]));
     display.append('\n');
 
@@ -371,7 +373,7 @@ QString Worker::makeString(const char *ptr)
         } else {
             ba.append(c);
         }
-        c = *(ptr++);
+        c = *(++ptr);
     }
 
     return QString::fromUtf8(ba);
@@ -385,7 +387,7 @@ QString Worker::ignoreColor(const char *ptr)
         // string escape
         if (!(1 <= c && c <= 0x1F && c != '\n') && c!=0x7F)
             ba.append(c);
-        c = *(ptr++);
+        c = *(++ptr);
     }
 
     return QString::fromUtf8(ba);

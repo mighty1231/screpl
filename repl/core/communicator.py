@@ -93,7 +93,7 @@ def comm_init():
     f_setcurpl(cp)
 
 def comm_loop(manager):
-    from ..apps.logger import buf_start_epd, next_epd_to_write, log_index, Logger
+    from ..apps.logger import buf_start_epd, next_epd_to_write, log_index
     prev_log_index = EUDVariable(0)
 
     # Too-much milk solution #3
@@ -155,6 +155,5 @@ def comm_loop(manager):
     # command
     if EUDIfNot()(Memory(buf_command, Exactly, 0)):
         manager.current_app_instance.onChat(buf_command)
-        Logger.format("buf_command %D", f_dwread_epd(EPD(buf_command)))
         DoActions(SetMemory(buf_command, SetTo, 0))
     EUDEndIf()
