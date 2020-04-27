@@ -35,7 +35,7 @@ euddraft0.*.*.*
 │   │   ├── apps
 │   │   ├── base
 │   │   └── ...
-│   └── replplugins
+│   └── plugins -> replplugins
 │       ├── location
 │       └── ...
 ├── plugins
