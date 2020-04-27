@@ -267,14 +267,17 @@ void Worker::process()
     // display
     QString display;
     int idx = region->displayIndex;
-    for (int i=0; i<12; i++) {
-        display.append(makeString(region->display[idx]));
+    for (int i=0; i<11; i++) {
+        QString line = ignoreColor(region->display[idx]);
+        display.append(line);
+        if (!line.endsWith('\n'))
+            display.append('\n');
         idx += 1;
-        if (idx == 12)
+        if (idx == 11)
             idx = 0;
     }
     display.append("\n--------\n");
-    display.append(makeString(region->display[12]));
+    display.append(ignoreColor(region->display[12]));
     display.append('\n');
 
     emit update(app_output, logger_log, display);

@@ -6,7 +6,7 @@ default_settings = {
     'superuser'     : 'P1',
     'superuser_mode': 'playerNumber',
     'plugins'       : '',
-    'communicate'   : 'false'
+    'bridge_mode'   : 'off'
 }
 
 def combine_settings():
@@ -25,7 +25,7 @@ def onPluginStart():
     AppManager.initialize(
         superuser = settings["superuser"],
         superuser_mode = settings["superuser_mode"],
-        communicate = settings["communicate"]
+        bridge_mode = settings["bridge_mode"]
     )
 
     # load plugins

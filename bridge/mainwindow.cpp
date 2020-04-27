@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent)
       string_notfound("<font color=#FF1010>not found</font>")
 {
     ui->setupUi(this);
+    this->setWindowTitle("SC-REPL Bridge Client");
 
     label_proc = new QLabel(QString("Starcraft %1").arg(string_notfound));
     label_repl= new QLabel(QString("REPL %1").arg(string_notfound));

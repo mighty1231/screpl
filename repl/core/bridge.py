@@ -82,7 +82,7 @@ buf_command = Db(300)
 app_output_sz = EUDVariable(0)
 app_output = Db(2000)
 
-def comm_init():
+def bridge_init():
     cp = f_getcurpl()
     f_setcurpl(EPD(shared_region))
     DoActions([
@@ -92,7 +92,7 @@ def comm_init():
 
     f_setcurpl(cp)
 
-def comm_loop(manager):
+def bridge_loop(manager):
     from ..apps.logger import buf_start_epd, next_epd_to_write, log_index
     prev_log_index = EUDVariable(0)
 
