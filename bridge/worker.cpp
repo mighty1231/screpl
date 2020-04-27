@@ -35,12 +35,12 @@ void Worker::run()
         }
         switch(status) {
         case STATUS_NOPROCESS_FOUND:
-            if (!findProcess()) {
+            if (!searchProcess()) {
                 sleep(1);
                 break;
             }
         case STATUS_PROCESS_FOUND:
-            if (!findREPL()) {
+            if (!searchREPL()) {
                 sleep(1);
                 break;
             }
@@ -53,7 +53,7 @@ void Worker::run()
     delete regiontmp;
 }
 
-bool Worker::findProcess()
+bool Worker::searchProcess()
 {
     // find process
     snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
@@ -86,7 +86,7 @@ bool Worker::findProcess()
     return false;
 }
 
-bool Worker::findREPL()
+bool Worker::searchREPL()
 {
     // query memory
     MEMORY_BASIC_INFORMATION mbi;
@@ -103,7 +103,7 @@ bool Worker::findREPL()
             CloseHandle(hProcess);
             return false;
         }
-        if ((mbi.State & MEM_COMMIT) && (mbi.Protect & PAGE_READWRITE) && (mbi.RegionSize < 0x100000)) {
+        if ((mbi.State & MEM_COMMIT) && (mbi.Protect & PAGE_READWRITE)) {
             buffer = new QByteArray(mbi.RegionSize, 0);
 
             // get buffer

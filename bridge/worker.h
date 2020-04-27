@@ -26,8 +26,8 @@ private:
     static QString makeString(const char *from);
     static QString ignoreColor(const char *from);
 
-    bool findProcess();
-    bool findREPL();
+    bool searchProcess();
+    bool searchREPL();
     void communicateREPL();
 
     void process();
