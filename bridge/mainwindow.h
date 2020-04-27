@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include "worker.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -15,7 +16,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    bool initialize();
+    bool initialize(Worker *worker);
 
 public slots:
     void update(QString applog, QString loggerlog, QString display);
@@ -26,5 +27,6 @@ public slots:
 
 private:
     Ui::MainWindow *ui;
+    Worker *worker;
 };
 #endif // MAINWINDOW_H

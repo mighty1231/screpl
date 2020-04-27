@@ -7,6 +7,7 @@
 #include <TlHelp32.h>
 #include <QByteArray>
 #include <QElapsedTimer>
+#include <QMutex>
 
 #include "sharedregion.h"
 
@@ -30,6 +31,9 @@ private:
     void communicateREPL();
 
     void process();
+
+    QMutex command_mutex;
+    QString command;
 
     // relative read or write
     inline bool writeRegionInt(int offset, int value);
@@ -57,6 +61,9 @@ public:
     explicit Worker(QObject *parent = nullptr);
     void makeError(QString string);
 
+    bool setCommand(QString new_cmd);
+
+
 signals:
     void signalError(QString string);
 
@@ -65,6 +72,7 @@ signals:
     void metProcess(bool met);
     void metREPL(bool met);
 
+    void sentCommand(QString cmd);
 };
 
 #endif // WORKER_H

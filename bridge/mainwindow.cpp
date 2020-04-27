@@ -6,7 +6,7 @@
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
+    , ui(new Ui::MainWindow), worker(NULL)
 {
     ui->setupUi(this);
 }
@@ -16,7 +16,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-bool MainWindow::initialize() {
+bool MainWindow::initialize(Worker *_worker) {
     // previlege
     void *tokenHandle;
     OpenProcessToken( GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES , &tokenHandle );
@@ -30,6 +30,7 @@ bool MainWindow::initialize() {
         return false;
     }
 
+    worker = _worker;
     return true;
 }
 

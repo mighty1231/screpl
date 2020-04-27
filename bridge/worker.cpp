@@ -185,6 +185,7 @@ void Worker::communicateREPL()
 void Worker::process()
 {
     SIZE_T written;
+    QString _command_tmp;
     if (!ReadProcessMemory(
                 hProcess,
                 (void *) REPLRegion,
@@ -198,6 +199,13 @@ void Worker::process()
     }
 
     // minimal operation between leaving note A
+    // send command
+    if (regiontmp->command[0] == 0) {
+        command_mutex.lock();
+        strncpy_s(regiontmp->command, command.toLocal8Bit().constData(), 300);
+        _command_tmp = command;
+        command_mutex.unlock();
+    }
     memcpy(region, regiontmp, sizeof(SharedRegion));
     regiontmp->noteToSC = 0;
     regiontmp->app_output_sz = 0;
@@ -216,6 +224,9 @@ void Worker::process()
     }
 
     // some heavy evaluations
+    if (!_command_tmp.isNull())
+        emit sentCommand(_command_tmp);
+
     // check framecount
     if (last_framecount == region->frameCount) {
         // nothing to do
@@ -325,6 +336,20 @@ void Worker::makeError(QString label)
     // {label} - {GetLastError()}: {ErrorMessage}
     QString total = label + " - " + QString::number(error, 10) + ": " + message;
     emit signalError(total);
+}
+
+bool Worker::setCommand(QString new_cmd)
+{
+    bool ret;
+    command_mutex.lock();
+    if (command.isNull()) {
+        command = new_cmd;
+        ret = true;
+    } else {
+        ret = false;
+    }
+    command_mutex.unlock();
+    return ret;
 }
 
 QString Worker::makeString(const char *ptr)

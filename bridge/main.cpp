@@ -9,9 +9,6 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     MainWindow w;
-    if (w.initialize() == false) {
-        return 0;
-    }
 
     Worker worker;
     QObject::connect(&worker, SIGNAL(update(QString, QString, QString)),
@@ -27,6 +24,9 @@ int main(int argc, char *argv[])
                      &w, SLOT(setError(QString)),
                      Qt::QueuedConnection);
 
+    if (w.initialize(&worker) == false) {
+        return 0;
+    }
     worker.start();
     w.show();
     a.exec();
