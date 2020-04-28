@@ -23,8 +23,8 @@ for string, locid in locmap._s2id.items():
 locstrings = EUDArray(arr)
 
 dim = GetChkTokenized().getsection(b'DIM ')
-mapw = b2i2(dim, 0)
-maph = b2i2(dim, 2)
+mapw = appManager.getMapWidth()
+maph = appManager.getMapHeight()
 
 
 DoActions([

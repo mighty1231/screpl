@@ -110,6 +110,12 @@ class AppManager:
         self.mouse_pos = EUDCreateVariables(2)
         self.current_frame_number = EUDVariable(0)
 
+        # 64, 96, 128, 192, 256
+        # Multiply 32 to get pixel coordinate
+        dim = GetChkTokenized().getsection(b'DIM ')
+        self.mapWidth = b2i2(dim, 0)
+        self.mapHeight = b2i2(dim, 2)
+
         # bridge_mode
         bridge_mode = bridge_mode.lower()
         if bridge_mode == 'on':
@@ -385,6 +391,17 @@ class AppManager:
     def getMousePositionXY(self):
         x, y = self.mouse_pos
         EUDReturn([x, y])
+
+    def getMapWidth(self):
+        # 64, 96, 128, 192, 256
+        # Multiply 32 to get pixel coordinate
+        return self.mapWidth
+
+    def getMapHeight(self):
+        # 64, 96, 128, 192, 256
+        # Multiply 32 to get pixel coordinate
+        return self.mapHeight
+
 
     def requestUpdate(self):
         '''
