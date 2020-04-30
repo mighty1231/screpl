@@ -24,6 +24,7 @@ g_effectunit_3 = EUDVariable(EncodeUnit("Terran Battlecruiser"))
 g_obstacle_unit = EUDVariable(EncodeUnit("Psi Emitter"))
 g_start_location = EUDVariable(1)
 g_end_location = EUDVariable(1)
+g_runnerforce = EUDVariable(EncodePlayer(Force1))
 g_runnerunit = EUDVariable(EncodeUnit("Zerg Zergling"))
 
 TMODE_EUDTURBO = 0
@@ -36,26 +37,55 @@ trigvalues[8+320+2048] = 4 # preserved trigger
 g_emptyTrigger = Db(trigvalues)
 
 # pattern variables
-p_count = EUDVariable(0)
-p_currentPattern = EUDVariable(-1)
-p_waitValue = EUDArray(MAX_PATTERN_COUNT)
+p_count = EUDVariable(1)
+p_currentPattern = EUDVariable(0)
+p_waitValue = EUDArray([1] * MAX_PATTERN_COUNT)
 p_actionCount = EUDArray(MAX_PATTERN_COUNT)
 p_actionArrayEPD = EUDArray([
     EPD(EUDArray(MAX_ACTION_COUNT * 32)) for _ in range(MAX_PATTERN_COUNT)
 ])
 
-def lets_turbo():
+# pattern, detail
+focused_pattern_id = EUDVariable(0)
+
+def loop_end_turbo():
     if EUDIf()(g_turbo_mode == 0):
         DoActions(SetMemory(0x6509A0, SetTo, 0))
     if EUDElseIf()(g_turbo_mode == 1):
         DoActions(SetMemory(0x6509A0, SetTo, 1))
     EUDEndIf()
 
+@EUDFunc
+def executePattern(pattern_id):
+    cnt, action_epd = p_actionCount[pattern_id], p_actionArrayEPD[pattern_id]
+    i = EUDVariable(0)
+    i << 0
+    if EUDInfLoop()():
+        EUDBreakIf(i >= cnt)
+
+        _nxttrig = Forward()
+
+        # fill trigger
+        DoActions(SetNextPtr(emptyTrigger, _nxttrig))
+        f_repmovsd_epd(EPD(emptyTrigger + 8 + 320), action_epd, 32 // 4)
+
+        # jump to trigger
+        EUDJump(emptyTrigger)
+        _nxttrig << NextTrigger()
+        DoActions([
+            i.AddNumber(1),
+            action_epd.AddNumber(32 // 4)
+        ])
+    EUDEndInfLoop()
+
+def cleanScreen():
+    pass
+
 # make commands
-from .editor import BoundEditorApp
+from .manager import BoundManagerApp
 
 @AppCommand([])
 def startCommand(self):
-    appManager.startApplication(BoundEditorApp)
+    appManager.startApplication(BoundManagerApp)
 
 REPL.addCommand('bound', startCommand)

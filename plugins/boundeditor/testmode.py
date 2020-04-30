@@ -20,27 +20,6 @@ timer = EUDVariable(0)
 pattern_id = EUDVariable(0)
 next_timer = EUDVariable(0)
 
-def executeActions(cnt, action_epd):
-    i = EUDVariable(0)
-    i << 0
-    if EUDInfLoop()():
-        EUDBreakIf(i >= cnt)
-
-        _nxttrig = Forward()
-
-        # fill trigger
-        DoActions(SetNextPtr(emptyTrigger, _nxttrig))
-        f_repmovsd_epd(EPD(emptyTrigger + 8 + 320), action_epd, 32 // 4)
-
-        # jump to trigger
-        EUDJump(emptyTrigger)
-        _nxttrig << NextTrigger()
-        DoActions([
-            i.AddNumber(1),
-            action_epd.AddNumber(32 // 4)
-        ])
-    EUDEndInfLoop()
-
 class TestPatternApp(Application):
     def onInit(self):
         timer << 0
@@ -51,17 +30,12 @@ class TestPatternApp(Application):
         if EUDIf()(appManager.keyPress('ESC')):
             appManager.requestDestruct()
         if EUDElseIf()(appManager.keyPress('R')):
+            cleanScreen()
             DoActions([
                 timer.SetNumber(0),
                 pattern_id.SetNumber(0),
                 next_timer.SetNumber(0),
-                RemoveUnit()
             ])
-        EUDEndIf()
-
-        if EUDIf()(p_count == 0):
-            f_raiseWarning("Please make your pattern")
-            EUDReturn()
         EUDEndIf()
 
         # Create Tester Unit for every death
@@ -72,7 +46,7 @@ class TestPatternApp(Application):
 
         # Timer
         if EUDIf()(timer == next_timer):
-            executeActions(p_actionCount[pattern_id], p_actionArrayEPD[pattern_id])
+            executePattern(pattern_id)
 
             # timer reset
             if EUDIf()(pattern_id == 0):
@@ -89,7 +63,7 @@ class TestPatternApp(Application):
         EUDEndIf()
 
         # turbo mode
-        lets_turbo()
+        loop_end_turbo()
 
     def print(self, writer):
         writer.write_f("Bound Editor - TEST MODE\n")
