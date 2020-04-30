@@ -11,7 +11,8 @@ from eudplib.core.mapdata.stringmap import (
     swmap
 )
 from ...base.referencetable import ReferenceTable
-from ...utils import EPDConstString
+from ...base.eudbyterw import EUDByteRW
+from ...utils import EPDConstString, f_raiseError
 
 tb_unit = ReferenceTable(
     DefUnitDict.items(),
@@ -29,9 +30,27 @@ tb_ai = ReferenceTable(
 tb_unitMap = ReferenceTable(
     unitmap._s2id.items(),
     key_f=EPDConstString, sortkey_f=lambda k,v:k)
+
+# location string is modifiable
+location_strings = [bytes(100) for _ in range(255)]
+for k, v in locmap._s2id.items():
+    location_strings[v] = k + bytes(100-len(k))
 tb_locMap = ReferenceTable(
-    list(map(lambda a:(a[0], a[1]+1), locmap._s2id.items())),
-    key_f=EPDConstString, sortkey_f=lambda k,v:k)
+    list(map(lambda i:(EPD(Db(location_strings[i])), i+1), range(255))))
+
+def getLocationNameEPDPointer(location_idx):
+    return f_dwread_epd((EPD(tb_locMap) - 1) + location_idx * 2)
+
+@EUDFunc
+def changeLocationName(location_idx, new_string_offset):
+    if EUDIfNot()([location_idx.AtLeast(1), location_idx.AtMost(255)]):
+        f_raiseError("SC-REPL indexError on changeLocationName")
+    EUDEndIf()
+    writer = EUDByteRW()
+    writer.seekepd(getLocationNameEPDPointer(location_idx))
+    writer.write_str(new_string_offset)
+    writer.write(0)
+
 tb_swMap = ReferenceTable(
     swmap._s2id.items(),
     key_f=EPDConstString, sortkey_f=lambda k,v:k)
