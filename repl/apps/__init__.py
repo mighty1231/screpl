@@ -1,4 +1,5 @@
 from ..core import AppCommand, getAppManager
+from ..resources.encoder.const import argEncNumber
 from .static import StaticApp
 from .scroll import ScrollApp
 from .logger import Logger
@@ -26,5 +27,30 @@ def _help(self):
 def _log(self):
     getAppManager().startApplication(Logger)
 
+@AppCommand([argEncNumber])
+def _setTriggerDelay(self, delay):
+    getAppManager().setTriggerDelay(delay)
+
+@AppCommand([])
+def _unsetTriggerDelay(self):
+    getAppManager().unsetTriggerDelay()
+
+@AppCommand([])
+def _setEUDTurbo(self):
+    getAppManager().setTriggerDelay(0)
+
+@AppCommand([])
+def _setTurbo(self):
+    getAppManager().setTriggerDelay(1)
+
+@AppCommand([])
+def _unsetTurbo(self):
+    getAppManager().unsetTriggerDelay()
+
 REPL.addCommand("help", _help)
 REPL.addCommand("log", _log)
+REPL.addCommand("trigdelay", _setTriggerDelay)
+REPL.addCommand("trigdelayOFF", _unsetTriggerDelay)
+REPL.addCommand("eudturboON", _setEUDTurbo)
+REPL.addCommand("turboON", _setTurbo)
+REPL.addCommand("turboOFF", _unsetTurbo)

@@ -1,7 +1,7 @@
 from eudplib import *
-from eudplib.core.mapdata.stringmap import locmap
 
-from repl import REPL, getAppManager, AppCommand, EPDConstString
+from repl import REPL, getAppManager, AppCommand
+from repl.resources.table.tables import changeLocationName, getLocationNameEPDPointer
 
 keymap = {
     "manager" : {
@@ -17,15 +17,9 @@ FRAME_PERIOD = 24
 
 # initialize variables
 appManager = getAppManager()
-arr = [0 for _ in range(256)]
-for string, locid in locmap._s2id.items():
-    arr[locid + 1] = EPDConstString(string)
-locstrings = EUDArray(arr)
-
 dim = GetChkTokenized().getsection(b'DIM ')
-mapw = b2i2(dim, 0)
-maph = b2i2(dim, 2)
-
+mapw = appManager.getMapWidth()
+maph = appManager.getMapHeight()
 
 DoActions([
     # make enable to create "Scanner Sweep"

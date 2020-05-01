@@ -12,6 +12,8 @@ BRIDGE_OFF = 0
 BRIDGE_ON = 1
 BRIDGE_BLIND = 2
 
+trigger_framedelay = EUDVariable(-1)
+
 def getAppManager():
     global _manager
     assert _manager
@@ -109,6 +111,12 @@ class AppManager:
         self.mouse_state = EUDArray([1, 1, 1])
         self.mouse_pos = EUDCreateVariables(2)
         self.current_frame_number = EUDVariable(0)
+
+        # 64, 96, 128, 192, 256
+        # Multiply 32 to get pixel coordinate
+        dim = GetChkTokenized().getsection(b'DIM ')
+        self.mapWidth = b2i2(dim, 0)
+        self.mapHeight = b2i2(dim, 2)
 
         # bridge_mode
         bridge_mode = bridge_mode.lower()
@@ -323,10 +331,17 @@ class AppManager:
         key = getKeyCode(key)
         return MemoryEPD(self.keystates + key, Exactly, 2**32-1)
 
-    def keyPress(self, key):
+    def keyPress(self, key, hold=[]):
+        '''
+        hold: list of keys, such as LCTRL, LSHIFT, LALT, etc...
+        '''
         key = getKeyCode(key)
-        return [MemoryEPD(self.keystates + key, AtLeast, 1),
+        actions = [MemoryEPD(self.keystates + key, AtLeast, 1),
             MemoryEPD(self.keystates_sub + key, Exactly, 1)]
+        for holdkey in hold:
+            holdkey = getKeyCode(holdkey)
+            actions.append(MemoryEPD(self.keystates + holdkey, AtLeast, 1))
+        return actions
 
     @EUDMethod
     def getCurrentFrameNumber(self):
@@ -358,7 +373,7 @@ class AppManager:
                 actions=self.mouse_prev_state.SetNumberX(0, c)
             )
 
-        # mouse posiition
+        # mouse position
         x, y = self.mouse_pos
         x << f_dwread_epd(EPD(0x0062848C)) + f_dwread_epd(EPD(0x006CDDC4))
         y << f_dwread_epd(EPD(0x006284A8)) + f_dwread_epd(EPD(0x006CDDC8))
@@ -386,6 +401,17 @@ class AppManager:
         x, y = self.mouse_pos
         EUDReturn([x, y])
 
+    def getMapWidth(self):
+        # 64, 96, 128, 192, 256
+        # Multiply 32 to get pixel coordinate
+        return self.mapWidth
+
+    def getMapHeight(self):
+        # 64, 96, 128, 192, 256
+        # Multiply 32 to get pixel coordinate
+        return self.mapHeight
+
+
     def requestUpdate(self):
         '''
         Request update of application
@@ -405,6 +431,12 @@ class AppManager:
             f_raiseError("FATAL ERROR: startApplication <-> requestDestruct")
         EUDEndIf()
         self.is_terminating_app << 1
+
+    def setTriggerDelay(self, delay):
+        trigger_framedelay << delay
+
+    def unsetTriggerDelay(self):
+        trigger_framedelay << -1
 
     def cleanText(self):
         # clean text UI of previous app
@@ -427,11 +459,13 @@ class AppManager:
         from ..apps.repl import REPL
         from .appcommand import AppCommand
 
+        # bridge command
         if self.bridge_mode:
             @AppCommand([])
             def toggleBlind(repl):
                 self.is_blind_mode << 1 - self.is_blind_mode
             REPL.addCommand("blind", toggleBlind)
+
         if EUDExecuteOnce()():
             self.startApplication(REPL)
         EUDEndExecuteOnce()
@@ -510,6 +544,11 @@ class AppManager:
             if EUDIf()(self.is_blind_mode == 1):
                 f_repmovsd_epd(EPD(0x640B60), EPD(previous_gameText), (11*218+2) // 4)
             EUDEndIf()
+
+        # turbo mode
+        if EUDIfNot()(trigger_framedelay.Exactly(-1)):
+            DoActions(SetMemory(0x6509A0, SetTo, trigger_framedelay))
+        EUDEndIf()
 
 
 playerMap = {

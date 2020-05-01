@@ -1,0 +1,1 @@
+from .chatreader import ChatReaderApp

@@ -11,66 +11,70 @@ from eudplib.core.mapdata.stringmap import (
     swmap
 )
 from ...base.referencetable import ReferenceTable
-from ...utils import EPDConstString
-
-# used on views
-views = ReferenceTable(key_f=EPDConstString)
-def RegisterView(viewname, view):
-    views.AddPair(viewname, view)
-
-# trigger strings/constants
-encoding_tables = ReferenceTable(key_f=EPDConstString, value_f=EPD)
+from ...base.eudbyterw import EUDByteRW
+from ...utils import EPDConstString, f_raiseError
 
 tb_unit = ReferenceTable(
     DefUnitDict.items(),
-    [(encoding_tables, "Unit")],
     key_f=EPDConstString, sortkey_f=lambda k,v:k)
 tb_locSub = ReferenceTable(
     DefLocationDict.items(),
-    [(encoding_tables, "LocationSub")],
     key_f=EPDConstString, sortkey_f=lambda k,v:k)
 tb_swSub = ReferenceTable(
     DefSwitchDict.items(),
-    [(encoding_tables, "SwitchSub")],
     key_f=EPDConstString, sortkey_f=lambda k,v:k)
 tb_ai = ReferenceTable(
     list(map(lambda a:(a[0], b2i4(a[1])), DefAIScriptDict.items())),
-    [(encoding_tables, "AIScript")],
     key_f=EPDConstString, sortkey_f=lambda k,v:k)
 
 tb_unitMap = ReferenceTable(
     unitmap._s2id.items(),
-    [(encoding_tables, "MapUnit")],
     key_f=EPDConstString, sortkey_f=lambda k,v:k)
+
+# location string is modifiable
+location_strings = [bytes(100) for _ in range(255)]
+for k, v in locmap._s2id.items():
+    location_strings[v] = k + bytes(100-len(k))
 tb_locMap = ReferenceTable(
-    list(map(lambda a:(a[0], a[1]+1), locmap._s2id.items())),
-    [(encoding_tables, "MapLocation")],
-    key_f=EPDConstString, sortkey_f=lambda k,v:k)
+    list(map(lambda i:(EPD(Db(location_strings[i])), i+1), range(255))))
+
+def getLocationNameEPDPointer(location_idx):
+    return f_dwread_epd((EPD(tb_locMap) - 1) + location_idx * 2)
+
+@EUDFunc
+def changeLocationName(location_idx, new_string_offset):
+    if EUDIfNot()([location_idx.AtLeast(1), location_idx.AtMost(255)]):
+        f_raiseError("SC-REPL indexError on changeLocationName")
+    EUDEndIf()
+    writer = EUDByteRW()
+    writer.seekepd(getLocationNameEPDPointer(location_idx))
+    writer.write_str(new_string_offset)
+    writer.write(0)
+
 tb_swMap = ReferenceTable(
     swmap._s2id.items(),
-    [(encoding_tables, "MapSwitch")],
     key_f=EPDConstString, sortkey_f=lambda k,v:k)
 
 tb_Modifier = ReferenceTable([
     ("SetTo", EncodeModifier(SetTo)),
     ("Add", EncodeModifier(Add)),
     ("Subtract", EncodeModifier(Subtract)),
-], [(encoding_tables, "Modifier")], key_f=EPDConstString)
+], key_f=EPDConstString)
 tb_AllyStatus = ReferenceTable([
     ("Enemy", EncodeAllyStatus(Enemy)),
     ("Ally", EncodeAllyStatus(Ally)),
     ("AlliedVictory", EncodeAllyStatus(AlliedVictory)),
-], [(encoding_tables, "AllyStatus")], key_f=EPDConstString)
+], key_f=EPDConstString)
 tb_Comparison = ReferenceTable([
     ("AtLeast", EncodeComparison(AtLeast)),
     ("AtMost", EncodeComparison(AtMost)),
     ("Exactly", EncodeComparison(Exactly)),
-], [(encoding_tables, "Comparison")], key_f=EPDConstString)
+], key_f=EPDConstString)
 tb_Order = ReferenceTable([
     ("Move", EncodeOrder(Move)),
     ("Patrol", EncodeOrder(Patrol)),
     ("Attack", EncodeOrder(Attack)),
-], [(encoding_tables, "Order")], key_f=EPDConstString)
+], key_f=EPDConstString)
 tb_Player = ReferenceTable([
     ("P1", EncodePlayer(P1)),
     ("P2", EncodePlayer(P2)),
@@ -106,17 +110,17 @@ tb_Player = ReferenceTable([
     ("Force3", EncodePlayer(Force3)),
     ("Force4", EncodePlayer(Force4)),
     ("NonAlliedVictoryPlayers", EncodePlayer(NonAlliedVictoryPlayers)),
-], [(encoding_tables, "Player")], key_f=EPDConstString)
+], key_f=EPDConstString)
 tb_PropState = ReferenceTable([
     ("Enable", EncodePropState(Enable)),
     ("Disable", EncodePropState(Disable)),
     ("Toggle", EncodePropState(Toggle)),
-], [(encoding_tables, "PropState")], key_f=EPDConstString)
+], key_f=EPDConstString)
 tb_Resource = ReferenceTable([
     ("Ore", EncodeResource(Ore)),
     ("Gas", EncodeResource(Gas)),
     ("OreAndGas", EncodeResource(OreAndGas)),
-], [(encoding_tables, "Resource")], key_f=EPDConstString)
+], key_f=EPDConstString)
 tb_Score = ReferenceTable([
     ("Total", EncodeScore(Total)),
     ("Units", EncodeScore(Units)),
@@ -126,15 +130,15 @@ tb_Score = ReferenceTable([
     ("Razings", EncodeScore(Razings)),
     ("KillsAndRazings", EncodeScore(KillsAndRazings)),
     ("Custom", EncodeScore(Custom)),
-], [(encoding_tables, "Score")], key_f=EPDConstString)
+], key_f=EPDConstString)
 tb_SwitchAction = ReferenceTable([
     ("Set", EncodeSwitchAction(Set)),
     ("Clear", EncodeSwitchAction(Clear)),
     ("Toggle", EncodeSwitchAction(Toggle)),
     ("Random", EncodeSwitchAction(Random)),
-], [(encoding_tables, "SwitchAction")], key_f=EPDConstString)
+], key_f=EPDConstString)
 tb_SwitchState = ReferenceTable([
     ("Set", EncodeSwitchState(Set)),
     ("Cleared", EncodeSwitchState(Cleared)),
-], [(encoding_tables, "SwitchState")], key_f=EPDConstString)
+], key_f=EPDConstString)
 
