@@ -61,9 +61,6 @@ class TestPatternApp(Application):
             EUDEndIf()
         EUDEndIf()
 
-        # turbo mode
-        loop_end_turbo()
-
     def print(self, writer):
         writer.write_f("Bound Editor - TEST MODE\n")
         writer.write_f("Timer = %D\n\n", timer)

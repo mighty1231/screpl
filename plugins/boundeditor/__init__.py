@@ -21,9 +21,8 @@ g_effectplayer = EUDVariable(computer_player_initvar)
 g_effectunit_1 = EUDVariable(EncodeUnit("Zerg Scourge"))
 g_effectunit_2 = EUDVariable(EncodeUnit("Zerg Overlord"))
 g_effectunit_3 = EUDVariable(EncodeUnit("Terran Battlecruiser"))
-g_obstacle_unit = EUDVariable(EncodeUnit("Psi Emitter"))
+g_obstacleunit = EUDVariable(EncodeUnit("Psi Emitter"))
 g_start_location = EUDVariable(1)
-g_end_location = EUDVariable(1)
 g_runnerforce = EUDVariable(EncodePlayer(Force1))
 g_runnerunit = EUDVariable(EncodeUnit("Zerg Zergling"))
 
@@ -47,13 +46,6 @@ p_actionArrayEPD = EUDArray([
 
 # pattern, detail
 focused_pattern_id = EUDVariable(0)
-
-def loop_end_turbo():
-    if EUDIf()(g_turbo_mode == 0):
-        DoActions(SetMemory(0x6509A0, SetTo, 0))
-    if EUDElseIf()(g_turbo_mode == 1):
-        DoActions(SetMemory(0x6509A0, SetTo, 1))
-    EUDEndIf()
 
 @EUDFunc
 def executePattern(pattern_id):

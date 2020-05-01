@@ -6,7 +6,7 @@
  5. Runner force: Force1
  6. Runner unit: Zerg Zergling
  7. Start location: location
- 8. Turbo mode: EUDTurbo
+ 8.
  9.
 10.
 11.
@@ -26,11 +26,10 @@ from . import (
     g_effectunit_1,
     g_effectunit_2,
     g_effectunit_3,
-    g_obstacle_unit,
+    g_obstacleunit,
     g_start_location,
     g_runnerforce,
-    g_runnerunit,
-    g_turbo_mode
+    g_runnerunit
 )
 
 FOCUS_EFFECTPLAYER = 0
@@ -41,8 +40,7 @@ FOCUS_OBSTACLEUNIT = 4
 FOCUS_RUNNER_FORCE = 5
 FOCUS_RUNNER_UNIT = 6
 FOCUS_START_LOCATION = 7
-FOCUS_TURBO_MODE = 8
-FOCUS_END = 9
+FOCUS_END = 8
 
 focus_modes = [
     FOCUS_EFFECTPLAYER,
@@ -53,7 +51,6 @@ focus_modes = [
     FOCUS_RUNNER_FORCE,
     FOCUS_RUNNER_UNIT,
     FOCUS_START_LOCATION,
-    FOCUS_TURBO_MODE,
 ]
 
 focus = EUDVariable(0)
@@ -74,6 +71,32 @@ class OptionApp(Application):
                 conditions = focus.Exactly(FOCUS_END),
                 actions = focus.SetNumber(0)
             )
+        if EUDElseIf()(appManager.keyPress("insert")):
+            if EUDIf()(focus.Exactly(FOCUS_EFFECTPLAYER)):
+                PlayerSelectorApp.setContent(g_effectplayer, EPD(g_effectplayer.getValueAddr()))
+                appManager.startApplication(PlayerSelectorApp)
+            if EUDElseIf()(focus.Exactly(FOCUS_EFFECTUNIT1)):
+                UnitManagerApp.setContent(g_effectunit_1, EPD(g_effectunit_1.getValueAddr()))
+                appManager.startApplication(UnitManagerApp)
+            if EUDElseIf()(focus.Exactly(FOCUS_EFFECTUNIT2)):
+                UnitManagerApp.setContent(g_effectunit_2, EPD(g_effectunit_2.getValueAddr()))
+                appManager.startApplication(UnitManagerApp)
+            if EUDElseIf()(focus.Exactly(FOCUS_EFFECTUNIT3)):
+                UnitManagerApp.setContent(g_effectunit_3, EPD(g_effectunit_3.getValueAddr()))
+                appManager.startApplication(UnitManagerApp)
+            if EUDElseIf()(focus.Exactly(FOCUS_OBSTACLEUNIT)):
+                UnitManagerApp.setContent(g_obstacleunit, EPD(g_obstacleunit.getValueAddr()))
+                appManager.startApplication(UnitManagerApp)
+            if EUDElseIf()(focus.Exactly(FOCUS_RUNNER_FORCE)):
+                PlayerSelectorApp.setContent(g_runnerforce, EPD(g_runnerforce.getValueAddr()))
+                appManager.startApplication(PlayerSelectorApp)
+            if EUDElseIf()(focus.Exactly(FOCUS_RUNNER_UNIT)):
+                UnitManagerApp.setContent(g_runnerunit, EPD(g_runnerunit.getValueAddr()))
+                appManager.startApplication(UnitManagerApp)
+            if EUDElseIf()(focus.Exactly(FOCUS_START_LOCATION)):
+                LocationManagerApp.setContent(g_start_location, EPD(g_start_location.getValueAddr()))
+                appManager.startApplication(LocationManagerApp)
+            EUDEndIf()
         EUDEndIf()
         appManager.requestUpdate()
 
@@ -86,6 +109,5 @@ class OptionApp(Application):
         writer.write_f("Obstacle unit: Psi Emitter\n")
         writer.write_f("Runner force: Force1\n")
         writer.write_f("Runner unit: Zerg Zergling\n")
-        writer.write_f("Start location: location\n")
-        writer.write_f("Turbo mode: EUDTurbo\n")
+        writer.write_f("Start location: %E\n")
         write.write(0)

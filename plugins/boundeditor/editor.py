@@ -12,7 +12,6 @@ Global Variable
 4. Start / End location
 5. runner force: Force1
 6. runner unit: Zerg Zergling
-7. turbo mode: EUDTurbo, Turbo
 
 *****
 variable, only output - Death var 

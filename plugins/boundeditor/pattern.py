@@ -6,7 +6,6 @@
 3. Obstacle unit - Terran Machine Shop, Psi Emitter
 4. Start / End location
 5. runner : Zerg Zergling
-6. turbo mode: EUDTurbo, Turbo
 
 (trig_actions~...)
 
