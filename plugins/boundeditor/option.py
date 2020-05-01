@@ -6,8 +6,8 @@
  5. Runner force: Force1
  6. Runner unit: Zerg Zergling
  7. Start location: location
- 8.
- 9.
+ 8. On obstacle be created, runner be killed/removed/alive
+ 9. On obstacle be destructed, kill/remove it
 10.
 11.
 '''
@@ -17,8 +17,14 @@ from repl import (
     Application,
     AppTypedMethod,
     AppCommand,
-    argEncNumber
+    argEncNumber,
+    writeUnit,
+    writeLocation,
+    PlayerSelectorApp
 )
+
+from ..location import LocationManagerApp
+from ..unit import UnitManagerApp
 
 from . import (
     appManager,
@@ -28,19 +34,31 @@ from . import (
     g_effectunit_3,
     g_obstacleunit,
     g_start_location,
-    g_runnerforce,
-    g_runnerunit
+    g_runner_force,
+    g_runner_unit,
+    OBSTACLE_CREATEPATTERN_KILL,
+    OBSTACLE_CREATEPATTERN_REMOVE,
+    OBSTACLE_CREATEPATTERN_ALIVE,
+    OBSTACLE_CREATEPATTERN_END,
+    g_obstacle_createpattern,
+    OBSTACLE_DSTRUCTPATTERN_KILL,
+    OBSTACLE_DSTRUCTPATTERN_REMOVE,
+    OBSTACLE_DSTRUCTPATTERN_END,
+    g_obstacle_destructpattern,
+    writePlayer
 )
 
-FOCUS_EFFECTPLAYER = 0
-FOCUS_EFFECTUNIT1 = 1
-FOCUS_EFFECTUNIT2 = 2
-FOCUS_EFFECTUNIT3 = 3
-FOCUS_OBSTACLEUNIT = 4
-FOCUS_RUNNER_FORCE = 5
-FOCUS_RUNNER_UNIT = 6
-FOCUS_START_LOCATION = 7
-FOCUS_END = 8
+FOCUS_EFFECTPLAYER      = 0
+FOCUS_EFFECTUNIT1       = 1
+FOCUS_EFFECTUNIT2       = 2
+FOCUS_EFFECTUNIT3       = 3
+FOCUS_OBSTACLEUNIT      = 4
+FOCUS_RUNNER_FORCE      = 5
+FOCUS_RUNNER_UNIT       = 6
+FOCUS_START_LOCATION    = 7
+FOCUS_OBSCREATE_PATTERN = 8
+FOCUS_OBSREMOVE_PATTERN = 9
+FOCUS_END               = 10
 
 focus_modes = [
     FOCUS_EFFECTPLAYER,
@@ -51,6 +69,8 @@ focus_modes = [
     FOCUS_RUNNER_FORCE,
     FOCUS_RUNNER_UNIT,
     FOCUS_START_LOCATION,
+    FOCUS_OBSCREATE_PATTERN,
+    FOCUS_OBSREMOVE_PATTERN
 ]
 
 focus = EUDVariable(0)
@@ -96,18 +116,77 @@ class OptionApp(Application):
             if EUDElseIf()(focus.Exactly(FOCUS_START_LOCATION)):
                 LocationManagerApp.setContent(g_start_location, EPD(g_start_location.getValueAddr()))
                 appManager.startApplication(LocationManagerApp)
+            if EUDElseIf()(focus.Exactly(FOCUS_OBSCREATE_PATTERN)):
+                DoActions(g_obstacle_createpattern.AddNumber(1))
+                Trigger(
+                    conditions = g_obstacle_createpattern.Exactly(OBSTACLE_CREATEPATTERN_END),
+                    actions = g_obstacle_createpattern.SetNumber(0)
+                )
+            if EUDElseIf()(focus.Exactly(FOCUS_OBSREMOVE_PATTERN)):
+                DoActions(g_obstacle_removepattern.AddNumber(1))
+                Trigger(
+                    conditions = g_obstacle_removepattern.Exactly(OBSTACLE_REMOVEPATTERN_END),
+                    actions = g_obstacle_removepattern.SetNumber(0)
+                )
             EUDEndIf()
         EUDEndIf()
         appManager.requestUpdate()
 
     def print(self, writer):
-        writer.write_f("BoundEditor Options\n")
-        writer.write_f("Effect player: P8\n")
-        writer.write_f("Effect unit 1/2/3: ")
-        writer.write_f("Zerg Scourge, Zerg Overlord, Terran Battlecruiser\n")
+        def _emphasize(val):
+            if EUDIf()(focus.Exactly(val)):
+                writer.write(0x11)
+            if EUDElse()():
+                writer.write(0x2)
+            EUDEndIf()
 
-        writer.write_f("Obstacle unit: Psi Emitter\n")
-        writer.write_f("Runner force: Force1\n")
-        writer.write_f("Runner unit: Zerg Zergling\n")
-        writer.write_f("Start location: %E\n")
-        write.write(0)
+        writer.write_f("BoundEditor Options - F7, F8 to navigate, INSERT to modify\n")
+        writer.write_f("Effect player: ")
+        _emphasize(FOCUS_EFFECTPLAYER)
+        writePlayer(g_effectplayer)
+
+        writer.write_f("\nEffect unit 1/2/3: ")
+        _emphasize(FOCUS_EFFECTUNIT1)
+        writeUnit(g_effectunit_1)
+        writer.write_f(", ")
+        _emphasize(FOCUS_EFFECTUNIT2)
+        writeUnit(g_effectunit_2)
+        writer.write_f(", ")
+        _emphasize(FOCUS_EFFECTUNIT3)
+        writeUnit(g_effectunit_3)
+
+        writer.write_f("\nobstacle unit: ")
+        _emphasize(FOCUS_OBSTACLEUNIT)
+        writeUnit(g_obstacleunit)
+
+        writer.write_f("\nRunner Force: ")
+        _emphasize(FOCUS_RUNNER_FORCE)
+        writePlayer(g_runnerforce)
+
+        writer.write_f("\nRunner unit: ")
+        _emphasize(FOCUS_RUNNER_UNIT)
+        writeUnit(g_runnerunit)
+
+        writer.write_f("\nStart location: ")
+        _emphasize(FOCUS_START_LOCATION)
+        writeLocation(g_start_location)
+
+        writer.write_f("\nOn obstacle be created, runner be ")
+        _emphasize(FOCUS_OBSCREATE_PATTERN)
+        for v, s in [(OBSTACLE_CREATEPATTERN_KILL, "killed"),
+                (OBSTACLE_CREATEPATTERN_REMOVE, "removed"),
+                (OBSTACLE_CREATEPATTERN_ALIVE, "alive")]:
+            if EUDIf()(g_obstacle_createpattern.Exactly(v)):
+                writer.write_f(s)
+            EUDEndIf()
+
+        writer.write_f("\nOn obstacle be destructed, obstacle be ")
+        _emphasize(FOCUS_OBSREMOVE_PATTERN)
+        for v, s in [(OBSTACLE_REMOVEPATTERN_KILL, "killed"),
+                (OBSTACLE_REMOVEPATTERN_REMOVE, "removed"),
+            if EUDIf()(g_obstacle_removepattern.Exactly(v)):
+                writer.write_f(s)
+            EUDEndIf()
+
+        writer.write(ord('\n'))
+        writer.write(0)

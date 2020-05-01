@@ -74,20 +74,6 @@ def appendPattern():
         SetMemoryEPD(EPD(vp_ActionCount) + v_patternCount, SetTo, 0),
     ])
 
-
-def appendAction(pattern, action):
-    actionArray_epd = vp_ActionArrayEPDs[pattern]
-    actionCount = vp_ActionCount[pattern]
-    if EUDIf()(actionCount == MAX_ACTION_COUNT - 1):
-        f_raiseWarning("Cannot create more action")
-        EUDReturn()
-    EUDEndIf()
-    f_repmovsd_epd(
-        actionArray_epd + (actionCount * (32 // 4)),
-        action,
-        32 // 4
-    )
-
 class BoundManagerApp(Application):
     fields = [
     ]

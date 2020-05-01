@@ -15,8 +15,8 @@
 
 macro bomb(location):
  - CreateUnit(1, specified_unit, effect_player, location)
- - KillUnitAtLocation(All, unit, location, effect_p)
- - KillUnitAtLocation(All, runner, location, runnerforce)
+ - KillUnitAt(All, unit, location, effect_p)
+ - KillUnitAt(All, runner, location, runnerforce)
 
 macro obstacle(location):
  - CreateUnit(1, unit, effect_player, location)
@@ -39,11 +39,31 @@ Expected TUI
  9. Location UI
 '''
 
-from repl import Application
-from repl.resources.table.tables import getLocationNameEPDPointer
+from repl import Application, writeLocation, encodeAction_epd
 from ...location.rect import drawRectangle
-from . import appManager, superuser, focused_pattern_id
 from .detail import DetailedActionApp
+from . import (
+    appManager,
+    focused_pattern_id
+    g_effectplayer,
+    g_effectunit_1,
+    g_effectunit_2,
+    g_effectunit_3,
+    g_obstacle_unit,
+    g_start_location,
+    g_runner_force,
+    g_runner_unit,
+    OBSTACLE_CREATEPATTERN_KILL,
+    OBSTACLE_CREATEPATTERN_REMOVE,
+    OBSTACLE_CREATEPATTERN_ALIVE,
+    OBSTACLE_CREATEPATTERN_END,
+    g_obstacle_createpattern,
+    OBSTACLE_DESTRUCTPATTERN_KILL,
+    OBSTACLE_DESTRUCTPATTERN_REMOVE,
+    OBSTACLE_DESTRUCTPATTERN_END,
+    g_obstacle_destructpattern,
+    writePlayer
+)
 
 MACRO_BOMB = 0
 MACRO_OBSTACLE = 1
@@ -195,6 +215,17 @@ def appendPattern():
     cur_wait_value << 1
     p_count += 1
 
+def appendAction(action):
+    actionArray_epd = vp_ActionArrayEPDs[focused_pattern_id]
+    actionCount = vp_ActionCount[focused_pattern_id]
+    if EUDIf()(actionCount == MAX_ACTION_COUNT - 1):
+        f_raiseWarning("Cannot create more action")
+        EUDReturn()
+    EUDEndIf()
+
+    encodeAction_epd(actionArray_epd + (actionCount * (32 // 4)), action)
+    DoActions(SetMemoryEPD(EPD(vp_ActionCount) + focused_pattern_id, Add, 1))
+
 class PatternApp(Application):
     def onInit(self):
         cur_wait_value << p_waitValue[focused_pattern_id]
@@ -246,11 +277,48 @@ class PatternApp(Application):
             # confirm
             if EUDIfNot()(chosen_location.Exactly(0)):
                 if EUDIf()(macro_mode.Exactly(MACRO_BOMB)):
-                    ADD_MACRO_BOMB
+
+                    # evaluate size of chosen_location
+                    epd = EPD(0x58DC60 - 0x14) + (0x14 // 4) * chosen_location
+                    lv = f_dwread_epd(epd)
+                    tv = f_dwread_epd(epd+1)
+                    rv = f_dwread_epd(epd+2)
+                    bv = f_dwread_epd(epd+3)
+                    sizex = rv - lv
+                    sizey = bv - tv
+                    minsize = EUDVariable()
+                    if EUDIf()(sizex <= sizey):
+                        minsize << sizex
+                    if EUDElse()():
+                        minsize << sizey
+                    EUDEndIf()
+
+                    effectunit = EUDVariable()
+                    if EUDIf()(minsize <= 32+16):
+                        effectunit << g_effectunit_1
+                    if EUDElseIf()(minsize <= 32+32+16):
+                        effectunit << g_effectunit_2
+                    if EUDElse()():
+                        effectunit << g_effectunit_3
+                    EUDEndIf()
+
+                    appendAction(CreateUnit(1, effectunit, chosen_location, g_effectplayer))
+                    appendAction(KillUnitAt(1, effectunit, chosen_location, g_effectplayer))
+                    appendAction(KillUnitAt(All, g_runner_unit, chosen_location, g_runner_force))
                 if EUDElseIf()(macro_mode.Exactly(MACRO_OBSTACLE)):
-                    ADD_MACRO_OBSTACLE
+                    appendAction(CreateUnit(1, g_obstacle_unit, chosen_location, g_effectplayer))
+                    if EUDIf()(g_obstacle_createpattern.Exactly(OBSTACLE_CREATEPATTERN_KILL)):
+                        appendAction(KillUnitAt(All, g_runner_unit, chosen_location, g_runner_force))
+                    if EUDElseIf()(g_obstacle_createpattern.Exactly(OBSTACLE_CREATEPATTERN_REMOVE)):
+                        appendAction(RemoveUnitAt(All, g_runner_unit, chosen_location, g_runner_force))
+                    EUDEndIf()
                 if EUDElse()(macro_mode.Exactly(MACRO_OBSTACLEDESTRUCT)):
-                    ADD_MACRO_OBSTACLEDESTRUCT
+                    if EUDIf()(g_obstacle_destructpattern.Exactly(OBSTACLE_DESTRUCTPATTERN_KILL)):
+                        appendAction(KillUnitAt(All, g_obstacle_unit, chosen_location, g_effectplayer))
+                    if EUDElseIf()(g_obstacle_destructpattern.Exactly(OBSTACLE_DESTRUCTPATTERN_REMOVE)):
+                        appendAction(RemoveUnitAt(All, g_obstacle_unit, chosen_location, g_effectplayer))
+                    EUDEndIf()
+                    appendAction()
                 EUDEndIf()
             EUDEndIf()
         EUDEndIf()
@@ -299,6 +367,7 @@ class PatternApp(Application):
         if EUDIf()(chosen_location.Exactly(0)):
             writer.write_f("Not available")
         if EUDElse()():
-            writer.write_f("Chosen Location: %E", getLocationNameEPDPointer(chosen_location))
+            writer.write_f("Chosen Location: ")
+            writeLocation(chosen_location)
         EUDEndIf()
         writer.write_f("\n")

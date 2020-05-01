@@ -21,10 +21,21 @@ g_effectplayer = EUDVariable(computer_player_initvar)
 g_effectunit_1 = EUDVariable(EncodeUnit("Zerg Scourge"))
 g_effectunit_2 = EUDVariable(EncodeUnit("Zerg Overlord"))
 g_effectunit_3 = EUDVariable(EncodeUnit("Terran Battlecruiser"))
-g_obstacleunit = EUDVariable(EncodeUnit("Psi Emitter"))
 g_start_location = EUDVariable(1)
-g_runnerforce = EUDVariable(EncodePlayer(Force1))
-g_runnerunit = EUDVariable(EncodeUnit("Zerg Zergling"))
+g_runner_force = EUDVariable(EncodePlayer(Force1))
+g_runner_unit = EUDVariable(EncodeUnit("Zerg Zergling"))
+
+OBSTACLE_CREATEPATTERN_KILL   = 0
+OBSTACLE_CREATEPATTERN_REMOVE = 1
+OBSTACLE_CREATEPATTERN_ALIVE  = 2
+OBSTACLE_CREATEPATTERN_END    = 3
+OBSTACLE_DESTRUCTPATTERN_KILL   = 0
+OBSTACLE_DESTRUCTPATTERN_REMOVE = 1
+OBSTACLE_DESTRUCTPATTERN_END    = 2
+
+g_obstacle_unit = EUDVariable(EncodeUnit("Psi Emitter"))
+g_obstacle_createpattern = EUDVariable(OBSTACLE_UNITPATTERN_KILL)
+g_obstacle_destructpattern = EUDVariable(OBSTACLE_DESTRUCTPATTERN_KILL)
 
 TMODE_EUDTURBO = 0
 TMODE_TURBO = 1
@@ -43,6 +54,11 @@ p_actionCount = EUDArray(MAX_PATTERN_COUNT)
 p_actionArrayEPD = EUDArray([
     EPD(EUDArray(MAX_ACTION_COUNT * 32)) for _ in range(MAX_PATTERN_COUNT)
 ])
+
+def writePlayer(value):
+    from repl.resources.writer import writeConstant
+    from repl.resources.table.tables import tb_Player
+    writeConstant(EPD(tb_Player), value)
 
 # pattern, detail
 focused_pattern_id = EUDVariable(0)

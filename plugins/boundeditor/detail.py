@@ -10,8 +10,7 @@ Expected TUI
  4.  3. ...
 '''
 
-from repl import Application
-from repl.resources.trigtok.trigact import writeAction_epd
+from repl import Application, writeAction_epd
 from . import appManager, focused_pattern_id
 
 action_id = EUDVariable(0)
