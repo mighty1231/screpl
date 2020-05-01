@@ -37,10 +37,12 @@ Expected TUI
  6. Total {num_actions} actions, press 'P' to detailed action editor
  7. Mode(M): Bomb, Obstacle, ObstacleDestruct
  8. LClick to select location, RClick to confirm
- 9. 
+ 9. Location UI
 '''
 
 from repl import Application
+from repl.resources.table.tables import getLocationNameEPDPointer
+from ...location.rect import drawRectangle
 from . import appManager, superuser, focused_pattern_id
 from .detail import DetailedActionApp
 
@@ -51,6 +53,83 @@ MACRO_UNDEFINED = 3
 macro_mode = EUDVariable(0)
 
 cur_wait_value = EUDVariable()
+
+# choose location
+chosen_location = EUDVariable(0)
+
+# draw location
+frame = EUDVariable(0)
+FRAME_PERIOD = 24
+
+@EUDFunc
+def evaluateLocations():
+    posX, posY = appManager.getMousePositionXY()
+
+    cur = EUDVariable()
+    cur << chosen_location
+
+
+    # prepare the loop (chosen_location+1, chosen_location+2, ..., chosen_location)
+    le = EPD(0x58DC60 - 0x14) + (0x14 // 4) * cur
+    te = le + 1
+    re = le + 2
+    be = le + 3
+
+    la, ta, ra, ba = [Forward() for _ in range(4)]
+    SeqCompute([
+        # player field of SetMemory
+        (EPD(la) + 4, SetTo, le),
+        (EPD(ta) + 4, SetTo, te),
+        (EPD(ra) + 4, SetTo, re),
+        (EPD(ba) + 4, SetTo, be),
+
+        # value field of SetMemory
+        (EPD(la) + 5, SetTo, posX),
+        (EPD(ta) + 5, SetTo, posY),
+        (EPD(ra) + 5, SetTo, posX),
+        (EPD(ba) + 5, SetTo, posY),
+    ])
+
+    if EUDInfLoop()():
+        DoActions([
+            cur.AddNumber(1),
+            SetMemoryEPD(EPD(la) + 4, Add, 0x14 // 4),
+            SetMemoryEPD(EPD(ta) + 4, Add, 0x14 // 4),
+            SetMemoryEPD(EPD(ra) + 4, Add, 0x14 // 4),
+            SetMemoryEPD(EPD(ba) + 4, Add, 0x14 // 4),
+        ])
+        Trigger(
+            conditions = cur.Exactly(256),
+            actions = [
+                cur.SetNumber(1),
+                SetMemoryEPD(EPD(la) + 4, SetTo, EPD(0x58DC60)),
+                SetMemoryEPD(EPD(ta) + 4, SetTo, EPD(0x58DC60) + 1),
+                SetMemoryEPD(EPD(ra) + 4, SetTo, EPD(0x58DC60) + 2),
+                SetMemoryEPD(EPD(ba) + 4, SetTo, EPD(0x58DC60) + 3),
+            ]
+        )
+
+        # check mouse positions are inside the location
+        if EUDIf()([
+                    la << MemoryEPD(0, AtMost, 0),
+                    ta << MemoryEPD(0, AtMost, 0),
+                    ra << MemoryEPD(0, AtLeast, 0),
+                    ba << MemoryEPD(0, AtLeast, 0),
+                ]):
+            EUDBreak()
+        EUDEndIf()
+
+        # no location satisfies the condition
+        if EUDIf()([chosen_location.Exactly(0), cur.Exactly(255)]):
+            chosen_location << 0
+            EUDbreak()
+        EUDEndIf()
+        if EUDIf()(cur == chosen_location):
+            chosen_location << 0
+            EUDBreak()
+        EUDEndIf()
+    EUDEndInfLoop()
+
 
 def focusPatternID(new_id):
     if EUDIfNot()(new_id >= p_count):
@@ -120,6 +199,7 @@ def appendPattern():
 class PatternApp(Application):
     def onInit(self):
         cur_wait_value << p_waitValue[focused_pattern_id]
+        chosen_location << 0
 
     def loop(self):
         if EUDIf()(appManager.keyPress('Q')):
@@ -161,6 +241,30 @@ class PatternApp(Application):
                 cur_wait_value.AddNumber(1),
                 SetMemoryEPD(EPD(p_waitValue) + focused_pattern_id, Add, 1),
             ])
+        if EUDElseIf()(appManager.LClick()):
+            evaluateLocations()
+        if EUDElseIf()(appManager.RClick()):
+            # confirm
+            if EUDIfNot()(chosen_location.Exactly(0)):
+                if EUDIf()(macro_mode.Exactly(MACRO_BOMB)):
+                    ADD_MACRO_BOMB
+                if EUDElseIf()(macro_mode.Exactly(MACRO_OBSTACLE)):
+                    ADD_MACRO_OBSTACLE
+                if EUDElse()(macro_mode.Exactly(MACRO_OBSTACLEDESTRUCT)):
+                    ADD_MACRO_OBSTACLEDESTRUCT
+                EUDEndIf()
+            EUDEndIf()
+        EUDEndIf()
+
+        # draw rectangle
+        if EUDIfNot()(chosen_location.Exactly(0)):
+            drawRectangle(chosen_location, frame, FRAME_PERIOD)
+
+            # graphical set
+            DoActions(frame.AddNumber(1))
+            if EUDIf()(frame == FRAME_PERIOD):
+                DoActions(frame.SetNumber(0))
+            EUDEndIf()
         EUDEndIf()
         appManager.requestUpdate()
 
@@ -190,3 +294,12 @@ class PatternApp(Application):
             writer.write(2)
         EUDEndIf()
         writer.write_f("ObstacleDestruct\n")
+
+        writer.write_f("LClick to change location, RClick to confirm the location\n")
+
+        if EUDIf()(chosen_location.Exactly(0)):
+            writer.write_f("Not available")
+        if EUDElse()():
+            writer.write_f("Chosen Location: %E", getLocationNameEPDPointer(chosen_location))
+        EUDEndIf()
+        writer.write_f("\n")

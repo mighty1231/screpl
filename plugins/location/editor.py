@@ -322,23 +322,8 @@ class LocationEditorApp(Application):
         #   Draw Locastion   #
         ######################
 
-        # backup Scanner Sweep and prepare effect
-        prev_im = f_dwread_epd(EPD(0x666160 + 2*380))
-        prev_is = f_dwread_epd(EPD(0x66EC48 + 4*232))
-        DoActions([
-            SetMemoryX(0x666160 + 2*380, SetTo, 232, 0xFFFF),
-            SetMemory(0x66EC48 + 4*232, SetTo, 250)
-        ])
-
         # draw location with "Scanner Sweep"
         drawRectangle(target, frame, FRAME_PERIOD)
-
-        # restore "Scanner Sweep"
-        DoActions([
-            RemoveUnit("Scanner Sweep", appManager.superuser),
-            SetMemoryX(0x666160 + 2*380, SetTo, prev_im, 0xFFFF),
-            SetMemory(0x66EC48 + 4*232, SetTo, prev_is)
-        ])
 
         # graphical set
         DoActions(frame.AddNumber(1))

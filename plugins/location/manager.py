@@ -79,29 +79,8 @@ class LocationManagerApp(Application):
             EUDReturn()
         EUDEndIf()
 
-        # backup "Scanner Sweep" and prepare effect
-        # thanks to Artanis(kein0011@naver.com),
-        #   - https://cafe.naver.com/edac/77656
-        # sprites[380] is "Scanner Sweep Hit"
-        # image[232] is "Nuke Beam"
-        # sprites[380].image <- 232
-        # images[232].iscript <- 250
-        prev_im = f_dwread_epd(EPD(0x666160 + 2*380))
-        prev_is = f_dwread_epd(EPD(0x66EC48 + 4*232))
-        DoActions([
-            SetMemoryX(0x666160 + 2*380, SetTo, 232, 0xFFFF),
-            SetMemory(0x66EC48 + 4*232, SetTo, 250)
-        ])
-
         # draw location with "Scanner Sweep"
         drawRectangle(self.location, self.frame, FRAME_PERIOD)
-
-        # restore "Scanner Sweep"
-        DoActions([
-            RemoveUnit("Scanner Sweep", superuser),
-            SetMemoryX(0x666160 + 2*380, SetTo, prev_im, 0xFFFF),
-            SetMemory(0x66EC48 + 4*232, SetTo, prev_is)
-        ])
 
         self.frame += 1
         if EUDIf()(self.frame == FRAME_PERIOD):
