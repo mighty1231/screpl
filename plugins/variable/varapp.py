@@ -1,8 +1,7 @@
 from eudplib import *
-from repl import ScrollApp, ReferenceTable, AppTypedMethod
+from repl import ScrollApp, ReferenceTable, AppTypedMethod, writeUnit
 
 from repl.resources.offset import off_unitsdat_UnitMapString
-from repl.resources.unitname import getDefaultUnitName
 from . import death_units, watched_eud_vars, accessed_resources
 
 watched_eud_vars_size = EUDVariable()
@@ -52,12 +51,7 @@ class VariableApp(ScrollApp):
                     writer.write_f("\x1e # {} ".format(i+1))
 
                     # write unit name
-                    strID = off_unitsdat_UnitMapString.read(unitID)
-                    if EUDIf()(strID == 0):
-                        writer.write_f(getDefaultUnitName(i))
-                    if EUDElse()():
-                        writer.write_STR_string(strID)
-                    EUDEndIf()
+                    writeUnit(unitID)
 
                     # write death values
                     self.write_pvar_from_epd(EPD(0x58A364 + 48*unitID))

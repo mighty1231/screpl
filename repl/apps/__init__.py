@@ -5,6 +5,20 @@ from .scroll import ScrollApp
 from .logger import Logger
 from .iocheck import IOCheck
 from .repl import REPL
+from .chatreader import ChatReaderApp
+from .selector import (
+    AIScriptSelectorApp,
+    ModifierSelectorApp,
+    AllyStatusSelectorApp,
+    ComparisonSelectorApp,
+    OrderSelectorApp,
+    PlayerSelectorApp,
+    PropStateSelectorApp,
+    ResourceSelectorApp,
+    ScoreSelectorApp,
+    SwitchActionSelectorApp,
+    SwitchStateSelectorApp
+)
 
 @AppCommand([])
 def _help(self):

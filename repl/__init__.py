@@ -23,11 +23,25 @@ from .resources.encoder.const import (
 )
 
 from .resources.encoder.str import (
-    argEncUnit,
-    argEncLocation,
     argEncAIScript,
     argEncSwitch,
-    argEncString
+)
+
+from .resources.encoder.action import encodeAction_epd
+from .resources.encoder.condition import encodeCondition_epd
+
+from .resources.writer import (
+    writeUnit,
+    writeLocation,
+    writeAIScript,
+    writeSwitch,
+    writeString
+)
+
+from .resources.table.tables import (
+    GetLocationNameEPDPointer,
+    SetLocationName,
+    GetDefaultUnitNameEPDPointer
 )
 
 from .core import (
@@ -46,5 +60,17 @@ from .apps import (
     ScrollApp,
     Logger,
     REPL,
-    IOCheck
+    IOCheck,
+    ChatReaderApp,
+    AIScriptSelectorApp,
+    ModifierSelectorApp,
+    AllyStatusSelectorApp,
+    ComparisonSelectorApp,
+    OrderSelectorApp,
+    PlayerSelectorApp,
+    PropStateSelectorApp,
+    ResourceSelectorApp,
+    ScoreSelectorApp,
+    SwitchActionSelectorApp,
+    SwitchStateSelectorApp
 )

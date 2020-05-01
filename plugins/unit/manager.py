@@ -1,14 +1,11 @@
 from eudplib import *
 
-from repl import Application
+from repl import Application, writeUnit
 from . import appManager
-
-from repl.resources.unitname import EUDGetDefaultUnitName_epd
-from repl.resources.offset import off_unitsdat_UnitMapString
 
 # app-specific initializing arguments
 _unitid = EUDVariable(0)
-_result_unitid = EUDVariable(0)
+_resultref_unitid_epd = EUDVariable(0)
 
 '''
 unitid
@@ -23,40 +20,45 @@ unitid
 class UnitManagerApp(Application):
     fields = [
         "unitid",
-        "result_unitid", # unitid of chosen unit
+        "resultref_unitid_epd", # unitid of chosen unit
     ]
 
     @staticmethod
-    def setContent(unitid = None, result_unitid = None):
+    def setContent(unitid, resultref_unitid_epd = None):
         # set initializing arguments
-        if unitid:
-            _unitid << unitid
-        if result_unitid:
-            _result_unitid << result_unitid
+        _unitid << unitid
+        if resultref_unitid_epd:
+            _resultref_unitid_epd << resultref_unitid_epd
 
     def onInit(self):
         self.unitid = 0
-        self.result_unitid = _result_unitid
+        self.resultref_unitid_epd = _resultref_unitid_epd
 
         self.focusUnitID(_unitid)
 
         # restore initializing arguments
-        _result_unitid << 0
+        _resultref_unitid_epd << 0
 
     def onDestruct(self):
         unitid = self.unitid
-        result_unitid = self.result_unitid
-        if EUDIfNot()(result_unitid == 0):
-            f_dwwrite_epd(result_unitid, unitid)
+        resultref_unitid_epd = self.resultref_unitid_epd
+        if EUDIfNot()(resultref_unitid_epd == 0):
+            f_dwwrite_epd(resultref_unitid_epd, unitid)
         EUDEndIf()
         _unitid << unitid
 
     def focusUnitID(self, new_unitid):
-        if EUDIf()(new_unitid <= 232):
-            if EUDIfNot()(new_unitid == self.unitid):
-                self.unitid = new_unitid
-                appManager.requestUpdate()
-            EUDEndIf()
+        Trigger(
+            conditions = new_unitid.AtLeast(0x80000000),
+            actions = new_unitid.SetNumber(0)
+        )
+        Trigger(
+            conditions = new_unitid.AtLeast(233),
+            actions = new_unitid.SetNumber(232)
+        )
+        if EUDIfNot()(new_unitid == self.unitid):
+            self.unitid = new_unitid
+            appManager.requestUpdate()
         EUDEndIf()
 
     def loop(self):
@@ -64,12 +66,14 @@ class UnitManagerApp(Application):
         if EUDIf()(appManager.keyPress("ESC")):
             appManager.requestDestruct()
             EUDReturn()
+        if EUDElseIf()(appManager.keyPress("F7", hold=["LCTRL"])):
+            self.focusUnitID(unitid - 8)
         if EUDElseIf()(appManager.keyPress("F7")):
             self.focusUnitID(unitid - 1)
-            appManager.requestUpdate()
+        if EUDElseIf()(appManager.keyPress("F8", hold=["LCTRL"])):
+            self.focusUnitID(unitid + 8)
         if EUDElseIf()(appManager.keyPress("F8")):
             self.focusUnitID(unitid + 1)
-            appManager.requestUpdate()
         EUDEndIf()
 
     def print(self, writer):
@@ -102,17 +106,7 @@ class UnitManagerApp(Application):
             EUDEndIf()
 
             writer.write_f(" %D: ", cur)
-            if EUDIf()(cur <= 227):
-                stringid = off_unitsdat_UnitMapString.read(cur)
-
-                if EUDIfNot()(stringid == 0):
-                    writer.write_STR_string(stringid)
-                    EUDJump(written_point)
-                EUDEndIf()
-            EUDEndIf()
-            writer.write_f("%E", EUDGetDefaultUnitName_epd(cur))
-
-            written_point << NextTrigger()
+            writeUnit(cur)
             writer.write(ord('\n'))
 
             DoActions(cur.AddNumber(1))

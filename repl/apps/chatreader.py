@@ -12,8 +12,6 @@ from repl import (
     EUDByteRW
 )
 
-appManager = getAppManager()
-
 temp_storage = Db(220)
 temp_writer = EUDByteRW()
 
@@ -30,6 +28,9 @@ class ChatReaderApp(Application):
 
     def onInit(self):
         DoActions(SetMemoryX(temp_storage, SetTo, 0, 0xFF))
+        temp_writer.seekepd(EPD(temp_storage))
+        temp_writer.write_str(result_writer.getoffset())
+        temp_writer.write(0)
 
     def onDestruct(self):
         result_writer.seekepd(EPD(0))
@@ -38,9 +39,10 @@ class ChatReaderApp(Application):
         temp_writer.seekepd(EPD(temp_storage))
         temp_writer.write_str(offset)
         temp_writer.write(0)
-        appManager.requestUpdate()
+        getAppManager().requestUpdate()
 
     def loop(self):
+        appManager = getAppManager()
         if EUDIf()([appManager.keyPress('Y', hold=['LCTRL'])]):
             result_writer.write_strepd(EPD(temp_storage))
             result_writer.write(0)

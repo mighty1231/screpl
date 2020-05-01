@@ -1,20 +1,13 @@
 from eudplib import *
-from ...core.base import SearchTableInv
-from ..table.tables import (
-    tb_unit,
-    tb_locSub,
-    tb_swSub,
-    tb_ai,
-    tb_unitMap,
-    tb_locMap,
-    tb_swMap
-)
+
+from ..table.tables import GetDefaultUnitNameEPDPointer, GetLocationNameEPDPointer
+from ..offset import off_unitsdat_UnitMapString
 
 _writer = None
 def getWriter():
     global _writer
     if _writer is None:
-        from ..core import getAppManager
+        from ...core import getAppManager
         _writer = getAppManager().getWriter()
     return _writer
 
@@ -27,36 +20,25 @@ def writeConstant(table_epd, val):
         getWriter().write_decimal(val)
     EUDEndIf()
 
-# @TODO
-# \x01 ~ \x1F
-# https://github.com/phu54321/TrigEditPlus/blob/master/TrigEditPlus/Editor/StringUtils/RawCStringCast.cpp
-
 @EUDFunc
 def writeUnit(val):
-    name_epd = EUDVariable()
-    if EUDIf()(SearchTableInv(val, EPD(tb_unitMap), EPD(name_epd.getValueAddr())) == 1):
-        getWriter().write_f('"%E"', name_epd)
-    if EUDElseIf()(SearchTableInv(val, EPD(tb_unit), EPD(name_epd.getValueAddr())) == 1):
-        getWriter().write_f('"%E"', name_epd)
-    if EUDElse()():
-        getWriter().write_decimal(val)
+    if EUDIf()(val <= 227):
+        stringid = off_unitsdat_UnitMapString.read(val)
+        if EUDIfNot()(stringid == 0):
+            getWriter().write_STR_string(stringid)
+            EUDReturn()
+        EUDEndIf()
     EUDEndIf()
+    getWriter().write_strepd(GetDefaultUnitNameEPDPointer(val))
 
 @EUDFunc
 def writeLocation(val):
-    name_epd = EUDVariable()
-    if EUDIf()(SearchTableInv(val, EPD(tb_locMap), EPD(name_epd.getValueAddr())) == 1):
-        getWriter().write_f('"%E"', name_epd)
-    if EUDElseIf()(SearchTableInv(val, EPD(tb_locSub), EPD(name_epd.getValueAddr())) == 1):
-        getWriter().write_f('"%E"', name_epd)
-    if EUDElse()():
-        getWriter().write_decimal(val)
-    EUDEndIf()
+    getWriter().write_strepd(GetLocationNameEPDPointer(val))
 
 @EUDFunc
 def writeAIScript(val):
     name_epd = EUDVariable()
-    if EUDIf()(SearchTableInv(val, EPD(tb_ai), EPD(name_epd.getValueAddr())) == 1):
+    if EUDIf()(SearchTableInv(val, EPD(tb_AIScript), EPD(name_epd.getValueAddr())) == 1):
         getWriter().write_f('"%E"', name_epd)
     if EUDElse()():
         getWriter().write_decimal(val)

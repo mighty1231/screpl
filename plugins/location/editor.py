@@ -3,11 +3,12 @@ from repl import (
     Application,
     AppTypedMethod,
     AppCommand,
-    argEncNumber
+    argEncNumber,
+    ChatReaderApp,
+    GetLocationNameEPDPointer
 )
-from ..chatreader import ChatReaderApp
 
-from . import appManager, keymap, getLocationNameEPDPointer, FRAME_PERIOD
+from . import appManager, keymap, FRAME_PERIOD
 from .rect import drawRectangle
 
 '''
@@ -318,26 +319,26 @@ class LocationEditorApp(Application):
         prev_mY << cur_mY
 
 
-        ######################
-        #   Draw Locastion   #
-        ######################
+        #####################
+        #   Draw Location   #
+        #####################
 
         # draw location with "Scanner Sweep"
         drawRectangle(target, frame, FRAME_PERIOD)
 
         # graphical set
         DoActions(frame.AddNumber(1))
-        if EUDIf()(frame == FRAME_PERIOD):
-            DoActions(frame.SetNumber(0))
-        EUDEndIf()
+        Trigger(
+            conditions = frame.Exactly(FRAME_PERIOD),
+            actions = frame.SetNumber(0)
+        )
         appManager.requestUpdate()
 
     def print(self, writer):
         # Title, tells its editing mode
         writer.write_f("Location Editor #%D ", target)
 
-        str_epd = getLocationNameEPDPointer(target)
-        writer.write_f("'%E' ", str_epd)
+        writer.write_f("'%E' ", GetLocationNameEPDPointer(target))
 
         writer.write_f("Mode: ")
         to_pass = Forward()
@@ -396,5 +397,5 @@ class LocationEditorApp(Application):
 
     @AppCommand([])
     def changeName(self):
-        ChatReaderApp.setResult_epd(getLocationNameEPDPointer(target))
+        ChatReaderApp.setResult_epd(GetLocationNameEPDPointer(target))
         appManager.startApplication(ChatReaderApp)
