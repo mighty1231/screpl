@@ -2,7 +2,7 @@ from eudplib import *
 
 from repl import Application, AppCommand
 
-from . import appManager, locstrings, keymap, FRAME_PERIOD
+from . import appManager, keymap, getLocationNameEPDPointer, FRAME_PERIOD
 from .rect import drawRectangle
 from .editor import LocationEditorApp
 
@@ -165,12 +165,8 @@ class LocationManagerApp(Application):
                 writer.write(0x02) # pale blue
             EUDEndIf()
 
-            str_epd = locstrings[cur]
-            if EUDIfNot()(str_epd == 0):
-                writer.write_f(" %D '%E': %D x %D // ", cur, str_epd, right-left, bottom-top)
-            if EUDElse()():
-                writer.write_f(" %D: %D x %D // ", cur, right-left, bottom-top)
-            EUDEndIf()
+            str_epd = getLocationNameEPDPointer(cur)
+            writer.write_f(" %D %E: %D x %D // ", cur, str_epd, right-left, bottom-top)
 
             layers = ['Low Ground', 'Med Ground', 'High Ground',
                     'Low Air', 'Med Air', 'High Air']

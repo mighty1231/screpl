@@ -11,6 +11,7 @@ Expected TUI
 '''
 
 from repl import Application
+from repl.resources.trigtok.trigact import writeAction_epd
 from . import appManager, focused_pattern_id
 
 action_id = EUDVariable(0)
@@ -19,12 +20,42 @@ actionArrayEPD = EUDVariable(0)
 
 @EUDFunc
 def focusActionID(new_actionid):
-    if EUDIf()(new_actionid <= actionCount):
+    if EUDIfNot()(new_actionid >= actionCount):
         if EUDIfNot()(new_actionid == action_id):
-            action_id = new_actionid
+            action_id << new_actionid
             appManager.requestUpdate()
         EUDEndIf()
     EUDEndIf()
+
+def deleteAction():
+    if EUDIfNot()(actionCount == 0):
+        cur_action_epd = actionArrayEPD + (32//4) * action_id
+        next_action_epd = cur_action_epd + (32//4)
+        _until_epd = actionArrayEPD + (32//4) * actionCount
+
+        # overwrite
+        if EUDInfLoop()():
+            EUDBreakIf(next_action_epd == _until_epd)
+
+            f_repmovsd_epd(cur_action_epd, next_action_epd, 32//4)
+
+            DoActions([
+                cur_action_epd.AddNumber(32//4),
+                next_action_epd.AddNumber(32//4)
+            ])
+        EUDEndInfLoop()
+
+        DoActions([
+            actionCount.SubtractNumber(1),
+            SetMemoryEPD(EPD(p_actionCount) + focused_pattern_id, Subtract, 1)
+        ])
+
+        if EUDIf()(action_id == actionCount):
+            action_id -= 1
+        EUDEndIf()
+        appManager.requestUpdate()
+    EUDEndIf()
+
 
 class DetailedActionApp(Application):
     def onInit(self):
@@ -40,6 +71,8 @@ class DetailedActionApp(Application):
             focusActionID(action_id-1)
         if EUDElseIf()(appManager.keyPress('f8')):
             focusActionID(action_id+1)
+        if EUDElseIf()(appManager.keyPress('delete')):
+            deleteAction()
         EUDEndIf()
 
     def print(self, writer):
@@ -60,7 +93,7 @@ class DetailedActionApp(Application):
         EUDEndIf()
 
         # fill contents
-        written_point = Forward()
+        action_epd = actionArrayEPD + (32//4) * cur
         if EUDInfLoop()():
             EUDBreakIf(cur >= until)
 
@@ -71,22 +104,10 @@ class DetailedActionApp(Application):
             EUDEndIf()
 
             writer.write_f(" %D: ", cur)
-
-            
-            if EUDIf()(cur <= 227):
-                stringid = off_unitsdat_UnitMapString.read(cur)
-
-                if EUDIfNot()(stringid == 0):
-                    writer.write_STR_string(stringid)
-                    EUDJump(written_point)
-                EUDEndIf()
-            EUDEndIf()
-            writer.write_f("%E", EUDGetDefaultUnitName_epd(cur))
-
-            written_point << NextTrigger()
+            writeAction_epd(action_epd)
             writer.write(ord('\n'))
 
-            DoActions(cur.AddNumber(1))
+            DoActions([cur.AddNumber(1), action_epd.AddNumber(32//4)])
         EUDEndInfLoop()
 
         branch << RawTrigger()

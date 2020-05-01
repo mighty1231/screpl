@@ -329,10 +329,17 @@ class AppManager:
         key = getKeyCode(key)
         return MemoryEPD(self.keystates + key, Exactly, 2**32-1)
 
-    def keyPress(self, key):
+    def keyPress(self, key, hold=[]):
+        '''
+        hold: list of keys, such as LCTRL, LSHIFT, LALT, etc...
+        '''
         key = getKeyCode(key)
-        return [MemoryEPD(self.keystates + key, AtLeast, 1),
+        actions = [MemoryEPD(self.keystates + key, AtLeast, 1),
             MemoryEPD(self.keystates_sub + key, Exactly, 1)]
+        for holdkey in hold:
+            holdkey = getKeyCode(holdkey)
+            actions.append(MemoryEPD(self.keystates + holdkey, AtLeast, 1))
+        return actions
 
     @EUDMethod
     def getCurrentFrameNumber(self):

@@ -30,7 +30,6 @@ class TestPatternApp(Application):
         if EUDIf()(appManager.keyPress('ESC')):
             appManager.requestDestruct()
         if EUDElseIf()(appManager.keyPress('R')):
-            cleanScreen()
             DoActions([
                 timer.SetNumber(0),
                 pattern_id.SetNumber(0),

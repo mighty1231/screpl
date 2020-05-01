@@ -20,7 +20,10 @@ macro bomb(location):
  - KillUnitAtLocation(All, runner, location, runnerforce)
 
 macro obstacle(location):
- - 
+ - CreateUnit(1, unit, effect_player, location)
+
+macro obstacledestruct(location):
+ - KillUnit(1, unit, effect_player, location)
 
 # feature
 pattern test
@@ -33,7 +36,7 @@ Expected TUI
  5. 
  6. Total {num_actions} actions, press 'P' to detailed action editor
  7. Mode(M): Bomb, Obstacle, ObstacleDestruct
- 8.
+ 8. LClick to select location, RClick to confirm
  9. 
 '''
 
