@@ -1,8 +1,8 @@
 from eudplib import *
 
-from repl import Application, AppCommand
+from repl import Application, AppCommand, GetLocationNameEPDPointer
 
-from . import appManager, keymap, getLocationNameEPDPointer, FRAME_PERIOD
+from . import appManager, keymap, FRAME_PERIOD
 from .rect import drawRectangle
 from .editor import LocationEditorApp
 
@@ -66,7 +66,7 @@ class LocationManagerApp(Application):
         EUDEndIf()
 
     def onDestruct(self):
-        _resultref_location_epd = self.resultref_location_epd
+        resultref_location_epd = self.resultref_location_epd
         if EUDIfNot()(resultref_location_epd == 0):
             f_dwwrite_epd(resultref_location_epd, self.location)
         EUDEndIf()
@@ -161,7 +161,7 @@ class LocationManagerApp(Application):
                 writer.write(0x02) # pale blue
             EUDEndIf()
 
-            str_epd = getLocationNameEPDPointer(cur)
+            str_epd = GetLocationNameEPDPointer(cur)
             writer.write_f(" %D %E: %D x %D // ", cur, str_epd, right-left, bottom-top)
 
             layers = ['Low Ground', 'Med Ground', 'High Ground',

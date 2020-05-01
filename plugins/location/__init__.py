@@ -1,7 +1,6 @@
 from eudplib import *
 
 from repl import REPL, getAppManager, AppCommand
-from repl.resources.table.tables import changeLocationName, getLocationNameEPDPointer
 
 keymap = {
     "manager" : {

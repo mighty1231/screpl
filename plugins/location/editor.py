@@ -4,10 +4,11 @@ from repl import (
     AppTypedMethod,
     AppCommand,
     argEncNumber,
-    ChatReaderApp
+    ChatReaderApp,
+    GetLocationNameEPDPointer
 )
 
-from . import appManager, keymap, getLocationNameEPDPointer, FRAME_PERIOD
+from . import appManager, keymap, FRAME_PERIOD
 from .rect import drawRectangle
 
 '''
@@ -337,8 +338,7 @@ class LocationEditorApp(Application):
         # Title, tells its editing mode
         writer.write_f("Location Editor #%D ", target)
 
-        str_epd = getLocationNameEPDPointer(target)
-        writer.write_f("'%E' ", str_epd)
+        writer.write_f("'%E' ", GetLocationNameEPDPointer(target))
 
         writer.write_f("Mode: ")
         to_pass = Forward()
@@ -397,5 +397,5 @@ class LocationEditorApp(Application):
 
     @AppCommand([])
     def changeName(self):
-        ChatReaderApp.setResult_epd(getLocationNameEPDPointer(target))
+        ChatReaderApp.setResult_epd(GetLocationNameEPDPointer(target))
         appManager.startApplication(ChatReaderApp)
