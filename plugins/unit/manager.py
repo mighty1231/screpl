@@ -27,10 +27,9 @@ class UnitManagerApp(Application):
     ]
 
     @staticmethod
-    def setContent(unitid = None, result_unitid = None):
+    def setContent(unitid, result_unitid = None):
         # set initializing arguments
-        if unitid:
-            _unitid << unitid
+        _unitid << unitid
         if result_unitid:
             _result_unitid << result_unitid
 
@@ -52,11 +51,17 @@ class UnitManagerApp(Application):
         _unitid << unitid
 
     def focusUnitID(self, new_unitid):
-        if EUDIf()(new_unitid <= 232):
-            if EUDIfNot()(new_unitid == self.unitid):
-                self.unitid = new_unitid
-                appManager.requestUpdate()
-            EUDEndIf()
+        Trigger(
+            conditions = new_unitid.AtLeast(0x80000000),
+            actions = new_unitid.SetNumber(0)
+        )
+        Trigger(
+            conditions = new_unitid.AtLeast(233),
+            actions = new_unitid.SetNumber(232)
+        )
+        if EUDIfNot()(new_unitid == self.unitid):
+            self.unitid = new_unitid
+            appManager.requestUpdate()
         EUDEndIf()
 
     def loop(self):
@@ -64,12 +69,14 @@ class UnitManagerApp(Application):
         if EUDIf()(appManager.keyPress("ESC")):
             appManager.requestDestruct()
             EUDReturn()
+        if EUDElseIf()(appManager.keyPress("F7", hold=["LCTRL"])):
+            self.focusUnitID(unitid - 8)
         if EUDElseIf()(appManager.keyPress("F7")):
             self.focusUnitID(unitid - 1)
-            appManager.requestUpdate()
+        if EUDElseIf()(appManager.keyPress("F8", hold=["LCTRL"])):
+            self.focusUnitID(unitid + 8)
         if EUDElseIf()(appManager.keyPress("F8")):
             self.focusUnitID(unitid + 1)
-            appManager.requestUpdate()
         EUDEndIf()
 
     def print(self, writer):

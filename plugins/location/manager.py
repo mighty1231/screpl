@@ -39,20 +39,30 @@ class LocationManagerApp(Application):
         _location << 1
         _result_epd << 0
 
-    def setLocation(self, location):
-        if EUDIf()([location >= 1, location <= 255]):
-            if EUDIfNot()(location == self.location):
-                self.frame = 0
-                self.location = location
+    def setLocation(self, new_location):
+        Trigger(
+            conditions = new_location.AtLeast(0x80000000),
+            actions = new_location.SetNumber(1)
+        )
+        Trigger(
+            conditions = new_location.Exactly(0),
+            actions = new_location.SetNumber(1)
+        )
+        Trigger(
+            conditions = new_location.AtLeast(256),
+            actions = new_location.SetNumber(255)
+        )
+        if EUDIfNot()(new_location == self.location):
+            self.frame = 0
+            self.location = new_location
 
-                if EUDIfNot()(self.centerview == 0):
-                    cp = f_getcurpl()
-                    f_setcurpl(appManager.superuser)
-                    DoActions([CenterView(location)])
-                    f_setcurpl(cp)
-                EUDEndIf()
-                appManager.requestUpdate()
+            if EUDIfNot()(self.centerview == 0):
+                cp = f_getcurpl()
+                f_setcurpl(appManager.superuser)
+                DoActions([CenterView(new_location)])
+                f_setcurpl(cp)
             EUDEndIf()
+            appManager.requestUpdate()
         EUDEndIf()
 
     def onDestruct(self):
@@ -69,8 +79,12 @@ class LocationManagerApp(Application):
         if EUDIf()(appManager.keyPress("ESC")):
             appManager.requestDestruct()
             EUDReturn()
+        if EUDElseIf()(appManager.keyPress("F7", hold=["LCTRL"])):
+            self.setLocation(location - 8)
         if EUDElseIf()(appManager.keyPress("F7")):
             self.setLocation(location - 1)
+        if EUDElseIf()(appManager.keyPress("F8", hold=["LCTRL"])):
+            self.setLocation(location + 8)
         if EUDElseIf()(appManager.keyPress("F8")):
             self.setLocation(location + 1)
         if EUDElseIf()(appManager.keyPress(keymap["manager"]["open_editor"])):

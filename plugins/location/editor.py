@@ -3,9 +3,9 @@ from repl import (
     Application,
     AppTypedMethod,
     AppCommand,
-    argEncNumber
+    argEncNumber,
+    ChatReaderApp
 )
-from ..chatreader import ChatReaderApp
 
 from . import appManager, keymap, getLocationNameEPDPointer, FRAME_PERIOD
 from .rect import drawRectangle

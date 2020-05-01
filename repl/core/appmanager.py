@@ -320,10 +320,6 @@ class AppManager:
         f_repmovsd_epd(prev_states, EPD(0x596A18), 0x100//4)
 
     def keyDown(self, key):
-        # Example. shift + f7
-        # if EUDIf()([manager.keyDown(0xA0), manager.keyDown(0x76))]):
-        #     event()
-        # EUDEndIf()
         key = getKeyCode(key)
         return MemoryEPD(self.keystates + key, Exactly, 1)
 
