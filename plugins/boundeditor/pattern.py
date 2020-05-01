@@ -145,17 +145,18 @@ def evaluateLocations():
                     ra << MemoryEPD(0, AtLeast, 0),
                     ba << MemoryEPD(0, AtLeast, 0),
                 ]):
-            EUDBreak()
+            chosen_location << cur
+            EUDReturn()
         EUDEndIf()
 
         # no location satisfies the condition
         if EUDIf()([chosen_location.Exactly(0), cur.Exactly(255)]):
             chosen_location << 0
-            EUDBreak()
+            EUDReturn()
         EUDEndIf()
         if EUDIf()(cur == chosen_location):
             chosen_location << 0
-            EUDBreak()
+            EUDReturn()
         EUDEndIf()
     EUDEndInfLoop()
 
@@ -386,3 +387,4 @@ class PatternApp(Application):
             writeLocation(chosen_location)
         EUDEndIf()
         writer.write_f("\n")
+        writer.write(0)
