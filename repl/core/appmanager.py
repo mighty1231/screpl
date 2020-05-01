@@ -12,6 +12,8 @@ BRIDGE_OFF = 0
 BRIDGE_ON = 1
 BRIDGE_BLIND = 2
 
+trigger_framedelay = EUDVariable(-1)
+
 def getAppManager():
     global _manager
     assert _manager
@@ -371,7 +373,7 @@ class AppManager:
                 actions=self.mouse_prev_state.SetNumberX(0, c)
             )
 
-        # mouse posiition
+        # mouse position
         x, y = self.mouse_pos
         x << f_dwread_epd(EPD(0x0062848C)) + f_dwread_epd(EPD(0x006CDDC4))
         y << f_dwread_epd(EPD(0x006284A8)) + f_dwread_epd(EPD(0x006CDDC8))
@@ -430,6 +432,12 @@ class AppManager:
         EUDEndIf()
         self.is_terminating_app << 1
 
+    def setTriggerDelay(self, delay):
+        trigger_framedelay << delay
+
+    def unsetTriggerDelay(self):
+        trigger_framedelay << -1
+
     def cleanText(self):
         # clean text UI of previous app
         if self.bridge_mode:
@@ -451,11 +459,13 @@ class AppManager:
         from ..apps.repl import REPL
         from .appcommand import AppCommand
 
+        # bridge command
         if self.bridge_mode:
             @AppCommand([])
             def toggleBlind(repl):
                 self.is_blind_mode << 1 - self.is_blind_mode
             REPL.addCommand("blind", toggleBlind)
+
         if EUDExecuteOnce()():
             self.startApplication(REPL)
         EUDEndExecuteOnce()
@@ -534,6 +544,11 @@ class AppManager:
             if EUDIf()(self.is_blind_mode == 1):
                 f_repmovsd_epd(EPD(0x640B60), EPD(previous_gameText), (11*218+2) // 4)
             EUDEndIf()
+
+        # turbo mode
+        if EUDIfNot()(trigger_framedelay.Exactly(-1)):
+            DoActions(SetMemory(0x6509A0, SetTo, trigger_framedelay))
+        EUDEndIf()
 
 
 playerMap = {
