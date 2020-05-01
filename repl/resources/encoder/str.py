@@ -5,7 +5,7 @@ from ..table.tables import (
     tb_unit,
     tb_locSub,
     tb_swSub,
-    tb_ai,
+    tb_AIScript,
     tb_unitMap,
     tb_locMap,
     tb_swMap
@@ -48,7 +48,7 @@ def _argEncAIScript(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
-        if EUDIf()(SearchTable(tmpbuf, EPD(tb_ai), f_strcmp_ptrepd, retval_epd)  == 1):
+        if EUDIf()(SearchTable(tmpbuf, EPD(tb_AIScript), f_strcmp_ptrepd, retval_epd)  == 1):
             EUDReturn(1)
         EUDEndIf()
     EUDEndIf()

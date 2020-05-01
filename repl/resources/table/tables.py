@@ -23,10 +23,6 @@ tb_locSub = ReferenceTable(
 tb_swSub = ReferenceTable(
     DefSwitchDict.items(),
     key_f=EPDConstString, sortkey_f=lambda k,v:k)
-tb_ai = ReferenceTable(
-    list(map(lambda a:(a[0], b2i4(a[1])), DefAIScriptDict.items())),
-    key_f=EPDConstString, sortkey_f=lambda k,v:k)
-
 tb_unitMap = ReferenceTable(
     unitmap._s2id.items(),
     key_f=EPDConstString, sortkey_f=lambda k,v:k)
@@ -55,6 +51,9 @@ tb_swMap = ReferenceTable(
     swmap._s2id.items(),
     key_f=EPDConstString, sortkey_f=lambda k,v:k)
 
+tb_AIScript = ReferenceTable(
+    list(map(lambda a:(a[0], b2i4(a[1])), DefAIScriptDict.items())),
+    key_f=EPDConstString, sortkey_f=lambda k,v:k)
 tb_Modifier = ReferenceTable([
     ("SetTo", EncodeModifier(SetTo)),
     ("Add", EncodeModifier(Add)),
@@ -76,18 +75,6 @@ tb_Order = ReferenceTable([
     ("Attack", EncodeOrder(Attack)),
 ], key_f=EPDConstString)
 tb_Player = ReferenceTable([
-    ("P1", EncodePlayer(P1)),
-    ("P2", EncodePlayer(P2)),
-    ("P3", EncodePlayer(P3)),
-    ("P4", EncodePlayer(P4)),
-    ("P5", EncodePlayer(P5)),
-    ("P6", EncodePlayer(P6)),
-    ("P7", EncodePlayer(P7)),
-    ("P8", EncodePlayer(P8)),
-    ("P9", EncodePlayer(P9)),
-    ("P10", EncodePlayer(P10)),
-    ("P11", EncodePlayer(P11)),
-    ("P12", EncodePlayer(P12)),
     ("Player1", EncodePlayer(Player1)),
     ("Player2", EncodePlayer(Player2)),
     ("Player3", EncodePlayer(Player3)),

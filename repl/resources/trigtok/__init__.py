@@ -4,7 +4,7 @@ from ..table.tables import (
     tb_unit,
     tb_locSub,
     tb_swSub,
-    tb_ai,
+    tb_AIScript,
     tb_unitMap,
     tb_locMap,
     tb_swMap
@@ -56,7 +56,7 @@ def writeLocation(val):
 @EUDFunc
 def writeAIScript(val):
     name_epd = EUDVariable()
-    if EUDIf()(SearchTableInv(val, EPD(tb_ai), EPD(name_epd.getValueAddr())) == 1):
+    if EUDIf()(SearchTableInv(val, EPD(tb_AIScript), EPD(name_epd.getValueAddr())) == 1):
         getWriter().write_f('"%E"', name_epd)
     if EUDElse()():
         getWriter().write_decimal(val)

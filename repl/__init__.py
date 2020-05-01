@@ -46,5 +46,17 @@ from .apps import (
     ScrollApp,
     Logger,
     REPL,
-    IOCheck
+    IOCheck,
+    ChatReaderApp,
+    AIScriptSelectorApp,
+    ModifierSelectorApp,
+    AllyStatusSelectorApp,
+    ComparisonSelectorApp,
+    OrderSelectorApp,
+    PlayerSelectorApp,
+    PropStateSelectorApp,
+    ResourceSelectorApp,
+    ScoreSelectorApp,
+    SwitchActionSelectorApp,
+    SwitchStateSelectorApp
 )
