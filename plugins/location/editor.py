@@ -318,18 +318,19 @@ class LocationEditorApp(Application):
         prev_mY << cur_mY
 
 
-        ######################
-        #   Draw Locastion   #
-        ######################
+        #####################
+        #   Draw Location   #
+        #####################
 
         # draw location with "Scanner Sweep"
         drawRectangle(target, frame, FRAME_PERIOD)
 
         # graphical set
         DoActions(frame.AddNumber(1))
-        if EUDIf()(frame == FRAME_PERIOD):
-            DoActions(frame.SetNumber(0))
-        EUDEndIf()
+        Trigger(
+            conditions = frame.Exactly(FRAME_PERIOD),
+            actions = frame.SetNumber(0)
+        )
         appManager.requestUpdate()
 
     def print(self, writer):

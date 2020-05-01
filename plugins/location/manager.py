@@ -8,12 +8,12 @@ from .editor import LocationEditorApp
 
 # app-specific initializing arguments
 _location = EUDVariable(1)
-_result_epd = EUDVariable(0)
+_resultref_location_epd = EUDVariable(0)
 
 class LocationManagerApp(Application):
     fields = [
         "location", # 1 ~ 255
-        "result_epd", # this app can make it as a result
+        "resultref_location_epd", # this app can make a result
 
         "frame", # parameter used on draw rectangle as animation
 
@@ -21,23 +21,23 @@ class LocationManagerApp(Application):
     ]
 
     @staticmethod
-    def setContent(location, result_epd = None):
+    def setContent(location, resultref_location_epd = None):
         # set initializing arguments
         _location << EncodeLocation(location)
-        if result_epd:
-            _result_epd << result_epd
+        if resultref_location_epd:
+            _resultref_location_epd << resultref_location_epd
 
     def onInit(self):
         self.location = 0
         self.centerview = 1
         self.frame = 0
-        self.result_epd = _result_epd
+        self.resultref_location_epd = _resultref_location_epd
 
         self.setLocation(_location)
 
         # restore initializing arguments
         _location << 1
-        _result_epd << 0
+        _resultref_location_epd << 0
 
     def setLocation(self, new_location):
         Trigger(
@@ -66,8 +66,9 @@ class LocationManagerApp(Application):
         EUDEndIf()
 
     def onDestruct(self):
-        if EUDIfNot()(self.result_epd == 0):
-            f_dwwrite_epd(self.result_epd, self.location)
+        _resultref_location_epd = self.resultref_location_epd
+        if EUDIfNot()(resultref_location_epd == 0):
+            f_dwwrite_epd(resultref_location_epd, self.location)
         EUDEndIf()
 
     def loop(self):
@@ -96,10 +97,12 @@ class LocationManagerApp(Application):
         # draw location with "Scanner Sweep"
         drawRectangle(self.location, self.frame, FRAME_PERIOD)
 
-        self.frame += 1
-        if EUDIf()(self.frame == FRAME_PERIOD):
-            self.frame = 0
-        EUDEndIf()
+        frame = self.frame + 1
+        Trigger(
+            conditions = frame.Exactly(FRAME_PERIOD),
+            actions = frame.SetNumber(0)
+        )
+        self.frame = frame
         appManager.requestUpdate()
 
     @AppCommand([])

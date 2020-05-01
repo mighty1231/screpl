@@ -8,7 +8,7 @@ from repl.resources.offset import off_unitsdat_UnitMapString
 
 # app-specific initializing arguments
 _unitid = EUDVariable(0)
-_result_unitid = EUDVariable(0)
+_resultref_unitid_epd = EUDVariable(0)
 
 '''
 unitid
@@ -23,30 +23,30 @@ unitid
 class UnitManagerApp(Application):
     fields = [
         "unitid",
-        "result_unitid", # unitid of chosen unit
+        "resultref_unitid_epd", # unitid of chosen unit
     ]
 
     @staticmethod
-    def setContent(unitid, result_unitid = None):
+    def setContent(unitid, resultref_unitid_epd = None):
         # set initializing arguments
         _unitid << unitid
-        if result_unitid:
-            _result_unitid << result_unitid
+        if resultref_unitid_epd:
+            _resultref_unitid_epd << resultref_unitid_epd
 
     def onInit(self):
         self.unitid = 0
-        self.result_unitid = _result_unitid
+        self.resultref_unitid_epd = _resultref_unitid_epd
 
         self.focusUnitID(_unitid)
 
         # restore initializing arguments
-        _result_unitid << 0
+        _resultref_unitid_epd << 0
 
     def onDestruct(self):
         unitid = self.unitid
-        result_unitid = self.result_unitid
-        if EUDIfNot()(result_unitid == 0):
-            f_dwwrite_epd(result_unitid, unitid)
+        resultref_unitid_epd = self.resultref_unitid_epd
+        if EUDIfNot()(resultref_unitid_epd == 0):
+            f_dwwrite_epd(resultref_unitid_epd, unitid)
         EUDEndIf()
         _unitid << unitid
 
