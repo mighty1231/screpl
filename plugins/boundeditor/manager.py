@@ -1,7 +1,7 @@
 from eudplib import *
 
-from repl import Application, f_raiseError
-from . import appManager, computer_player, timer_unit, superuser
+from repl import Application, AppCommand
+from . import appManager, superuser
 from .option import OptionApp
 from .pattern import PatternApp
 from .testmode import TestPatternApp

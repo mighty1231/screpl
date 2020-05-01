@@ -34,7 +34,7 @@ OBSTACLE_DESTRUCTPATTERN_REMOVE = 1
 OBSTACLE_DESTRUCTPATTERN_END    = 2
 
 g_obstacle_unit = EUDVariable(EncodeUnit("Psi Emitter"))
-g_obstacle_createpattern = EUDVariable(OBSTACLE_UNITPATTERN_KILL)
+g_obstacle_createpattern = EUDVariable(OBSTACLE_CREATEPATTERN_KILL)
 g_obstacle_destructpattern = EUDVariable(OBSTACLE_DESTRUCTPATTERN_KILL)
 
 TMODE_EUDTURBO = 0
@@ -74,11 +74,11 @@ def executePattern(pattern_id):
         _nxttrig = Forward()
 
         # fill trigger
-        DoActions(SetNextPtr(emptyTrigger, _nxttrig))
-        f_repmovsd_epd(EPD(emptyTrigger + 8 + 320), action_epd, 32 // 4)
+        DoActions(SetNextPtr(g_emptyTrigger, _nxttrig))
+        f_repmovsd_epd(EPD(g_emptyTrigger + 8 + 320), action_epd, 32 // 4)
 
         # jump to trigger
-        EUDJump(emptyTrigger)
+        EUDJump(g_emptyTrigger)
         _nxttrig << NextTrigger()
         DoActions([
             i.AddNumber(1),

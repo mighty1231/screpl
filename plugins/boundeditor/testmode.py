@@ -12,9 +12,18 @@ Expected TUI
 10.
 11.
 '''
+from eudplib import *
 
 from repl import Application
-from . import appManager, superuser
+from . import (
+    appManager,
+    superuser,
+    g_runner_unit,
+    g_start_location,
+    executePattern,
+    p_waitValue,
+    p_count
+)
 
 timer = EUDVariable(0)
 pattern_id = EUDVariable(0)
@@ -27,6 +36,7 @@ class TestPatternApp(Application):
         next_timer << 0
 
     def loop(self):
+        global timer, pattern_id, next_timer
         if EUDIf()(appManager.keyPress('ESC')):
             appManager.requestDestruct()
         if EUDElseIf()(appManager.keyPress('R')):
@@ -39,8 +49,8 @@ class TestPatternApp(Application):
 
         # Create Tester Unit for every death
         Trigger(
-            conditions = [Bring(superuser, Exactly, 0, g_runnerunit, g_start_location)],
-            actions = [CreateUnit(1, g_runnerunit, g_start_location, superuser)]
+            conditions = [Bring(superuser, Exactly, 0, g_runner_unit, g_start_location)],
+            actions = [CreateUnit(1, g_runner_unit, g_start_location, superuser)]
         )
 
         # Timer

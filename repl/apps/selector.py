@@ -74,7 +74,7 @@ def _createapp(domainname, reftable):
 
         def print(self, writer):
             writer.write_f("\x16{} Selector, value=%D, ESC, F7, F8\n".format(domainname),
-                _value, _offset)
+                _value)
 
             cur, until, pageend, key_epd = EUDCreateVariables(4)
             if EUDIf()(_offset >= (reftable_sz // NITEMS * NITEMS)):

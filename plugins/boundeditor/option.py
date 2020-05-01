@@ -32,7 +32,7 @@ from . import (
     g_effectunit_1,
     g_effectunit_2,
     g_effectunit_3,
-    g_obstacleunit,
+    g_obstacle_unit,
     g_start_location,
     g_runner_force,
     g_runner_unit,
@@ -41,9 +41,9 @@ from . import (
     OBSTACLE_CREATEPATTERN_ALIVE,
     OBSTACLE_CREATEPATTERN_END,
     g_obstacle_createpattern,
-    OBSTACLE_DSTRUCTPATTERN_KILL,
-    OBSTACLE_DSTRUCTPATTERN_REMOVE,
-    OBSTACLE_DSTRUCTPATTERN_END,
+    OBSTACLE_DESTRUCTPATTERN_KILL,
+    OBSTACLE_DESTRUCTPATTERN_REMOVE,
+    OBSTACLE_DESTRUCTPATTERN_END,
     g_obstacle_destructpattern,
     writePlayer
 )
@@ -57,7 +57,7 @@ FOCUS_RUNNER_FORCE      = 5
 FOCUS_RUNNER_UNIT       = 6
 FOCUS_START_LOCATION    = 7
 FOCUS_OBSCREATE_PATTERN = 8
-FOCUS_OBSREMOVE_PATTERN = 9
+FOCUS_OBSDESTRUCT_PATTERN = 9
 FOCUS_END               = 10
 
 focus_modes = [
@@ -70,7 +70,7 @@ focus_modes = [
     FOCUS_RUNNER_UNIT,
     FOCUS_START_LOCATION,
     FOCUS_OBSCREATE_PATTERN,
-    FOCUS_OBSREMOVE_PATTERN
+    FOCUS_OBSDESTRUCT_PATTERN
 ]
 
 focus = EUDVariable(0)
@@ -105,13 +105,13 @@ class OptionApp(Application):
                 UnitManagerApp.setContent(g_effectunit_3, EPD(g_effectunit_3.getValueAddr()))
                 appManager.startApplication(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_OBSTACLEUNIT)):
-                UnitManagerApp.setContent(g_obstacleunit, EPD(g_obstacleunit.getValueAddr()))
+                UnitManagerApp.setContent(g_obstacle_unit, EPD(g_obstacle_unit.getValueAddr()))
                 appManager.startApplication(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_RUNNER_FORCE)):
-                PlayerSelectorApp.setContent(g_runnerforce, EPD(g_runnerforce.getValueAddr()))
+                PlayerSelectorApp.setContent(g_runner_force, EPD(g_runner_force.getValueAddr()))
                 appManager.startApplication(PlayerSelectorApp)
             if EUDElseIf()(focus.Exactly(FOCUS_RUNNER_UNIT)):
-                UnitManagerApp.setContent(g_runnerunit, EPD(g_runnerunit.getValueAddr()))
+                UnitManagerApp.setContent(g_runner_unit, EPD(g_runner_unit.getValueAddr()))
                 appManager.startApplication(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_START_LOCATION)):
                 LocationManagerApp.setContent(g_start_location, EPD(g_start_location.getValueAddr()))
@@ -122,11 +122,11 @@ class OptionApp(Application):
                     conditions = g_obstacle_createpattern.Exactly(OBSTACLE_CREATEPATTERN_END),
                     actions = g_obstacle_createpattern.SetNumber(0)
                 )
-            if EUDElseIf()(focus.Exactly(FOCUS_OBSREMOVE_PATTERN)):
-                DoActions(g_obstacle_removepattern.AddNumber(1))
+            if EUDElseIf()(focus.Exactly(FOCUS_OBSDESTRUCT_PATTERN)):
+                DoActions(g_obstacle_destructpattern.AddNumber(1))
                 Trigger(
-                    conditions = g_obstacle_removepattern.Exactly(OBSTACLE_REMOVEPATTERN_END),
-                    actions = g_obstacle_removepattern.SetNumber(0)
+                    conditions = g_obstacle_destructpattern.Exactly(OBSTACLE_DESTRUCTPATTERN_END),
+                    actions = g_obstacle_destructpattern.SetNumber(0)
                 )
             EUDEndIf()
         EUDEndIf()
@@ -157,15 +157,15 @@ class OptionApp(Application):
 
         writer.write_f("\nobstacle unit: ")
         _emphasize(FOCUS_OBSTACLEUNIT)
-        writeUnit(g_obstacleunit)
+        writeUnit(g_obstacle_unit)
 
         writer.write_f("\nRunner Force: ")
         _emphasize(FOCUS_RUNNER_FORCE)
-        writePlayer(g_runnerforce)
+        writePlayer(g_runner_force)
 
         writer.write_f("\nRunner unit: ")
         _emphasize(FOCUS_RUNNER_UNIT)
-        writeUnit(g_runnerunit)
+        writeUnit(g_runner_unit)
 
         writer.write_f("\nStart location: ")
         _emphasize(FOCUS_START_LOCATION)
@@ -181,10 +181,10 @@ class OptionApp(Application):
             EUDEndIf()
 
         writer.write_f("\nOn obstacle be destructed, obstacle be ")
-        _emphasize(FOCUS_OBSREMOVE_PATTERN)
-        for v, s in [(OBSTACLE_REMOVEPATTERN_KILL, "killed"),
-                (OBSTACLE_REMOVEPATTERN_REMOVE, "removed"),
-            if EUDIf()(g_obstacle_removepattern.Exactly(v)):
+        _emphasize(FOCUS_OBSDESTRUCT_PATTERN)
+        for v, s in [(OBSTACLE_DESTRUCTPATTERN_KILL, "killed"),
+                (OBSTACLE_DESTRUCTPATTERN_REMOVE, "removed")]:
+            if EUDIf()(g_obstacle_destructpattern.Exactly(v)):
                 writer.write_f(s)
             EUDEndIf()
 

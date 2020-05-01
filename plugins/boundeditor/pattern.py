@@ -39,12 +39,15 @@ Expected TUI
  9. Location UI
 '''
 
-from repl import Application, writeLocation, encodeAction_epd
-from ...location.rect import drawRectangle
+from eudplib import *
+
+from repl import Application, writeLocation, encodeAction_epd, f_raiseWarning
+from ..location.rect import drawRectangle
 from .detail import DetailedActionApp
 from . import (
     appManager,
-    focused_pattern_id
+    MAX_ACTION_COUNT,
+    focused_pattern_id,
     g_effectplayer,
     g_effectunit_1,
     g_effectunit_2,
@@ -62,7 +65,14 @@ from . import (
     OBSTACLE_DESTRUCTPATTERN_REMOVE,
     OBSTACLE_DESTRUCTPATTERN_END,
     g_obstacle_destructpattern,
-    writePlayer
+    writePlayer,
+    p_count,
+    p_currentPattern,
+    p_waitValue,
+    p_actionCount,
+    p_actionArrayEPD,
+    cleanScreen,
+    executePattern
 )
 
 MACRO_BOMB = 0
@@ -141,7 +151,7 @@ def evaluateLocations():
         # no location satisfies the condition
         if EUDIf()([chosen_location.Exactly(0), cur.Exactly(255)]):
             chosen_location << 0
-            EUDbreak()
+            EUDBreak()
         EUDEndIf()
         if EUDIf()(cur == chosen_location):
             chosen_location << 0
@@ -151,12 +161,14 @@ def evaluateLocations():
 
 
 def focusPatternID(new_id):
+    global p_count
     if EUDIfNot()(new_id >= p_count):
         focused_pattern_id << new_id
         cur_wait_value << p_waitValue[focused_pattern_id]
     EUDEndIf()
 
 def insertPattern():
+    global p_count
     # p_count-1 -> p_count
     # focused_pattern_id -> focused_pattern_id+1
     i = EUDVariable()
@@ -180,6 +192,7 @@ def insertPattern():
     p_count += 1
 
 def deletePattern():
+    global p_count
     if EUDIfNot()(p_count == 1):
         if EUDIf()(focused_pattern_id == p_count - 1):
             DoActions([
@@ -207,6 +220,7 @@ def deletePattern():
     cur_wait_value << p_waitValue[focused_pattern_id]
 
 def appendPattern():
+    global p_count
     DoActions([
         SetMemoryEPD(EPD(p_waitValue) + p_count, SetTo, 1),
         SetMemoryEPD(EPD(p_actionCount) + p_count, SetTo, 0),
@@ -216,15 +230,15 @@ def appendPattern():
     p_count += 1
 
 def appendAction(action):
-    actionArray_epd = vp_ActionArrayEPDs[focused_pattern_id]
-    actionCount = vp_ActionCount[focused_pattern_id]
+    actionArray_epd = p_actionArrayEPD[focused_pattern_id]
+    actionCount = p_actionCount[focused_pattern_id]
     if EUDIf()(actionCount == MAX_ACTION_COUNT - 1):
         f_raiseWarning("Cannot create more action")
         EUDReturn()
     EUDEndIf()
 
     encodeAction_epd(actionArray_epd + (actionCount * (32 // 4)), action)
-    DoActions(SetMemoryEPD(EPD(vp_ActionCount) + focused_pattern_id, Add, 1))
+    DoActions(SetMemoryEPD(EPD(p_actionCount) + focused_pattern_id, Add, 1))
 
 class PatternApp(Application):
     def onInit(self):
@@ -232,6 +246,7 @@ class PatternApp(Application):
         chosen_location << 0
 
     def loop(self):
+        global macro_mode
         if EUDIf()(appManager.keyPress('Q')):
             focusPatternID(0)
         if EUDElseIf()(appManager.keyPress('W')):
@@ -245,7 +260,8 @@ class PatternApp(Application):
         if EUDElseIf()(appManager.keyPress('I')):
             insertPattern()
         if EUDElseIf()(appManager.keyPress('C')):
-            copyPattern()
+            # copyPattern()
+            pass
         if EUDElseIf()(appManager.keyPress('D')):
             deletePattern()
         if EUDElseIf()(appManager.keyPress('T')):
@@ -271,9 +287,9 @@ class PatternApp(Application):
                 cur_wait_value.AddNumber(1),
                 SetMemoryEPD(EPD(p_waitValue) + focused_pattern_id, Add, 1),
             ])
-        if EUDElseIf()(appManager.LClick()):
+        if EUDElseIf()(appManager.mouseLClick()):
             evaluateLocations()
-        if EUDElseIf()(appManager.RClick()):
+        if EUDElseIf()(appManager.mouseRClick()):
             # confirm
             if EUDIfNot()(chosen_location.Exactly(0)):
                 if EUDIf()(macro_mode.Exactly(MACRO_BOMB)):
@@ -312,13 +328,12 @@ class PatternApp(Application):
                     if EUDElseIf()(g_obstacle_createpattern.Exactly(OBSTACLE_CREATEPATTERN_REMOVE)):
                         appendAction(RemoveUnitAt(All, g_runner_unit, chosen_location, g_runner_force))
                     EUDEndIf()
-                if EUDElse()(macro_mode.Exactly(MACRO_OBSTACLEDESTRUCT)):
+                if EUDElseIf()(macro_mode.Exactly(MACRO_OBSTACLEDESTRUCT)):
                     if EUDIf()(g_obstacle_destructpattern.Exactly(OBSTACLE_DESTRUCTPATTERN_KILL)):
                         appendAction(KillUnitAt(All, g_obstacle_unit, chosen_location, g_effectplayer))
                     if EUDElseIf()(g_obstacle_destructpattern.Exactly(OBSTACLE_DESTRUCTPATTERN_REMOVE)):
                         appendAction(RemoveUnitAt(All, g_obstacle_unit, chosen_location, g_effectplayer))
                     EUDEndIf()
-                    appendAction()
                 EUDEndIf()
             EUDEndIf()
         EUDEndIf()

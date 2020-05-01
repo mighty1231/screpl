@@ -1,6 +1,13 @@
 from eudplib import *
 
-from ..table.tables import GetDefaultUnitNameEPDPointer, GetLocationNameEPDPointer
+from ...base import SearchTableInv
+from ..table.tables import (
+    GetDefaultUnitNameEPDPointer,
+    GetLocationNameEPDPointer,
+    tb_swMap,
+    tb_swSub,
+    tb_AIScript
+)
 from ..offset import off_unitsdat_UnitMapString
 
 _writer = None

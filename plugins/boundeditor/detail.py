@@ -9,9 +9,10 @@ Expected TUI
  3.  2. Kill..
  4.  3. ...
 '''
+from eudplib import *
 
 from repl import Application, writeAction_epd
-from . import appManager, focused_pattern_id
+from . import appManager, focused_pattern_id, p_actionCount, p_actionArrayEPD
 
 action_id = EUDVariable(0)
 actionCount = EUDVariable(0)
@@ -27,6 +28,7 @@ def focusActionID(new_actionid):
     EUDEndIf()
 
 def deleteAction():
+    global action_id
     if EUDIfNot()(actionCount == 0):
         cur_action_epd = actionArrayEPD + (32//4) * action_id
         next_action_epd = cur_action_epd + (32//4)

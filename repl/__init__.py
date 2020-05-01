@@ -1,4 +1,8 @@
-from .utils import EPDConstString
+from .utils import (
+    EPDConstString,
+    f_raiseError,
+    f_raiseWarning
+)
 
 from .base import (
     ReferenceTable,
