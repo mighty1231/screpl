@@ -145,33 +145,33 @@ class OptionApp(Application):
         _emphasize(FOCUS_EFFECTPLAYER)
         writePlayer(g_effectplayer)
 
-        writer.write_f("\nEffect unit 1/2/3: ")
+        writer.write_f("\x02\nEffect unit 1/2/3: ")
         _emphasize(FOCUS_EFFECTUNIT1)
         writeUnit(g_effectunit_1)
-        writer.write_f(", ")
+        writer.write_f("\x02, ")
         _emphasize(FOCUS_EFFECTUNIT2)
         writeUnit(g_effectunit_2)
-        writer.write_f(", ")
+        writer.write_f("\x02, ")
         _emphasize(FOCUS_EFFECTUNIT3)
         writeUnit(g_effectunit_3)
 
-        writer.write_f("\nobstacle unit: ")
+        writer.write_f("\x02\nobstacle unit: ")
         _emphasize(FOCUS_OBSTACLEUNIT)
         writeUnit(g_obstacle_unit)
 
-        writer.write_f("\nRunner Force: ")
+        writer.write_f("\x02\nRunner Force: ")
         _emphasize(FOCUS_RUNNER_FORCE)
         writePlayer(g_runner_force)
 
-        writer.write_f("\nRunner unit: ")
+        writer.write_f("\x02\nRunner unit: ")
         _emphasize(FOCUS_RUNNER_UNIT)
         writeUnit(g_runner_unit)
 
-        writer.write_f("\nStart location: ")
+        writer.write_f("\x02\nStart location: ")
         _emphasize(FOCUS_START_LOCATION)
         writeLocation(g_start_location)
 
-        writer.write_f("\nOn obstacle be created, runner be ")
+        writer.write_f("\x02\nOn obstacle be created, runner be ")
         _emphasize(FOCUS_OBSCREATE_PATTERN)
         for v, s in [(OBSTACLE_CREATEPATTERN_KILL, "killed"),
                 (OBSTACLE_CREATEPATTERN_REMOVE, "removed"),
@@ -180,7 +180,7 @@ class OptionApp(Application):
                 writer.write_f(s)
             EUDEndIf()
 
-        writer.write_f("\nOn obstacle be destructed, obstacle be ")
+        writer.write_f("\x02\nOn obstacle be destructed, obstacle be ")
         _emphasize(FOCUS_OBSDESTRUCT_PATTERN)
         for v, s in [(OBSTACLE_DESTRUCTPATTERN_KILL, "killed"),
                 (OBSTACLE_DESTRUCTPATTERN_REMOVE, "removed")]:
