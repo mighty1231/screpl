@@ -325,12 +325,15 @@ class PatternApp(Application):
         appManager.requestUpdate()
 
     def print(self, writer):
-        writer.write_f("Bound Editor - PATTERN MODE\n")
+        writer.write_f("Bound Editor - Pattern mode\n")
         writer.write_f("[<<(Q)] [<(W)] %D / %D [>(E)] [>>(R)]\n",
             focused_pattern_id+1, p_count)
         writer.write_f("Append(A), Insert(I), Delete(D), Test(T)\n")
         writer.write_f("Wait value(,.): %D\n", cur_wait_value)
 
+
+        writer.write_f("Total %D actions, press 'P' to see detail\n",
+            p_actionCount[focused_pattern_id])
         writer.write_f("Mode(M): ")
         if EUDIf()(macro_mode == MACRO_BOMB):
             writer.write(0x11)
@@ -351,7 +354,8 @@ class PatternApp(Application):
         EUDEndIf()
         writer.write_f("ObstacleDestruct\n")
 
-        writer.write_f("\x02LClick to change location, RClick to confirm the location\n")
+        writer.write_f("\x02LClick with mouse - choose location, "\
+            "press 'N' to confirm it and insert actions\n")
 
         if EUDIf()(chosen_location.Exactly(0)):
             writer.write_f("No Location is chosen")
