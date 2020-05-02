@@ -56,9 +56,12 @@ private:
     int REPLRegion;
     SharedRegion *regiontmp;
     SharedRegion *region;
+    char *app_output_buffer;
 
 public:
     explicit Worker(QObject *parent = nullptr);
+    ~Worker();
+
     void makeError(QString string);
 
     bool setCommand(QString new_cmd);

@@ -25,6 +25,13 @@ Worker::Worker(QObject *parent) : QThread(parent),
 
     regiontmp = new SharedRegion();
     region = new SharedRegion();
+    app_output_buffer = new char[APP_OUTPUT_MAXSIZE + 1];
+}
+
+Worker::~Worker() {
+    delete[] app_output_buffer;
+    delete region;
+    delete regiontmp;
 }
 
 void Worker::run()
@@ -281,6 +288,7 @@ void Worker::process()
     }
 
     // app output
+    memcpy(app_output_buffer, region->app_output, region->app_output_sz);
     region->app_output[region->app_output_sz] = 0;
     QString app_output = QString::fromUtf8(region->app_output);
 

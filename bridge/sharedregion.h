@@ -5,6 +5,7 @@
 
 #define LOGGER_LINE_SIZE 216
 #define LOGGER_LINE_COUNT 500
+#define APP_OUTPUT_MAXSIZE 2000
 
 struct SharedRegion {
     char signature[160];
@@ -20,7 +21,7 @@ struct SharedRegion {
     int frameCount;
 
     int app_output_sz;
-    char app_output[2000];
+    char app_output[APP_OUTPUT_MAXSIZE];
 
     int log_index;
     char logger_log[LOGGER_LINE_COUNT][LOGGER_LINE_SIZE];
