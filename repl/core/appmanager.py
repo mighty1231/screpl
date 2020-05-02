@@ -386,10 +386,10 @@ class AppManager:
     def mouseRPress(self):
         return MemoryEPD(EPD(self.mouse_state+1), AtLeast, 2)
 
-    def mouseRClick(self):
+    def mouseMClick(self):
         return MemoryEPD(EPD(self.mouse_state+2), Exactly, 0)
 
-    def mouseRPress(self):
+    def mouseMPress(self):
         return MemoryEPD(EPD(self.mouse_state+2), AtLeast, 2)
 
     @EUDMethod
@@ -469,6 +469,11 @@ class AppManager:
         self.updateMouseState()
         self.updateKeyState()
 
+        # turbo mode
+        if EUDIfNot()(trigger_framedelay.Exactly(-1)):
+            DoActions(SetMemory(0x6509A0, SetTo, trigger_framedelay))
+        EUDEndIf()
+
         if EUDIfNot()([self.is_terminating_app == 0, self.is_starting_app == 0]):
             self.initOrTerminateApplication()
         EUDEndIf()
@@ -540,11 +545,6 @@ class AppManager:
             if EUDIf()(self.is_blind_mode == 1):
                 f_repmovsd_epd(EPD(0x640B60), EPD(previous_gameText), (11*218+2) // 4)
             EUDEndIf()
-
-        # turbo mode
-        if EUDIfNot()(trigger_framedelay.Exactly(-1)):
-            DoActions(SetMemory(0x6509A0, SetTo, trigger_framedelay))
-        EUDEndIf()
 
 
 playerMap = {
