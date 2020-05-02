@@ -14,7 +14,7 @@ Expected TUI
 '''
 from eudplib import *
 
-from repl import Application
+from repl import Application, writeLocation
 from . import (
     appManager,
     superuser,
@@ -74,8 +74,10 @@ class TestPatternApp(Application):
         DoActions(timer.AddNumber(1))
 
     def print(self, writer):
-        writer.write_f("Bound Editor - TEST MODE\n")
-        writer.write_f("Timer = %D\n\n", timer)
+        writer.write_f("Bound Editor Test Mode\n")
         writer.write_f("Press 'R' to reset, press 'ESC' to end test\n")
-        writer.write_f("Start location: %D\n", g_start_location)
+        writer.write_f("Timer = %D\n\n", timer)
+        writer.write_f("Start location: ")
+        writeLocation(g_start_location)
+        writer.write(ord('\n'))
         writer.write(0)

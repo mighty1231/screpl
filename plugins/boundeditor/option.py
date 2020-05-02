@@ -140,7 +140,7 @@ class OptionApp(Application):
                 writer.write(0x2)
             EUDEndIf()
 
-        writer.write_f("BoundEditor Options - F7, F8 to navigate, INSERT to modify\n")
+        writer.write_f("Bound Editor Options - F7, F8 to navigate, INSERT to modify\n")
         writer.write_f("Effect player: ")
         _emphasize(FOCUS_EFFECTPLAYER)
         writePlayer(g_effectplayer)
