@@ -39,6 +39,7 @@ class TestPatternApp(Application):
         global timer, pattern_id, next_timer
         if EUDIf()(appManager.keyPress('ESC')):
             appManager.requestDestruct()
+            EUDReturn()
         if EUDElseIf()(appManager.keyPress('R')):
             DoActions([
                 timer.SetNumber(0),
@@ -70,9 +71,11 @@ class TestPatternApp(Application):
                 pattern_id << 0
             EUDEndIf()
         EUDEndIf()
+        DoActions(timer.AddNumber(1))
 
     def print(self, writer):
         writer.write_f("Bound Editor - TEST MODE\n")
         writer.write_f("Timer = %D\n\n", timer)
         writer.write_f("Press 'R' to reset, press 'ESC' to end test\n")
         writer.write_f("Start location: %D\n", g_start_location)
+        writer.write(0)

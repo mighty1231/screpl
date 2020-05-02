@@ -35,7 +35,7 @@ Expected TUI
  5. 
  6. Total {num_actions} actions, press 'P' to detailed action editor
  7. Mode(M): Bomb, Obstacle, ObstacleDestruct
- 8. LClick to select location, RClick to confirm
+ 8. LClick to select location, press 'N' to confirm
  9. Location UI
 '''
 
@@ -67,7 +67,6 @@ from . import (
     g_obstacle_destructpattern,
     writePlayer,
     p_count,
-    p_currentPattern,
     p_waitValue,
     p_actionCount,
     p_actionArrayEPD,
@@ -106,44 +105,44 @@ def evaluateLocations():
 
     la, ta, ra, ba = [Forward() for _ in range(4)]
     SeqCompute([
-        # player field of SetMemory
-        (EPD(la) + 4, SetTo, le),
-        (EPD(ta) + 4, SetTo, te),
-        (EPD(ra) + 4, SetTo, re),
-        (EPD(ba) + 4, SetTo, be),
+        # memory field of Memory
+        (EPD(la) + 1, SetTo, le),
+        (EPD(ta) + 1, SetTo, te),
+        (EPD(ra) + 1, SetTo, re),
+        (EPD(ba) + 1, SetTo, be),
 
-        # value field of SetMemory
-        (EPD(la) + 5, SetTo, posX),
-        (EPD(ta) + 5, SetTo, posY),
-        (EPD(ra) + 5, SetTo, posX),
-        (EPD(ba) + 5, SetTo, posY),
+        # value field of Memory
+        (EPD(la) + 2, SetTo, posX),
+        (EPD(ta) + 2, SetTo, posY),
+        (EPD(ra) + 2, SetTo, posX),
+        (EPD(ba) + 2, SetTo, posY),
     ])
 
     if EUDInfLoop()():
         DoActions([
             cur.AddNumber(1),
-            SetMemoryEPD(EPD(la) + 4, Add, 0x14 // 4),
-            SetMemoryEPD(EPD(ta) + 4, Add, 0x14 // 4),
-            SetMemoryEPD(EPD(ra) + 4, Add, 0x14 // 4),
-            SetMemoryEPD(EPD(ba) + 4, Add, 0x14 // 4),
+            SetMemoryEPD(EPD(la) + 1, Add, 0x14 // 4),
+            SetMemoryEPD(EPD(ta) + 1, Add, 0x14 // 4),
+            SetMemoryEPD(EPD(ra) + 1, Add, 0x14 // 4),
+            SetMemoryEPD(EPD(ba) + 1, Add, 0x14 // 4),
         ])
         Trigger(
             conditions = cur.Exactly(256),
             actions = [
                 cur.SetNumber(1),
-                SetMemoryEPD(EPD(la) + 4, SetTo, EPD(0x58DC60)),
-                SetMemoryEPD(EPD(ta) + 4, SetTo, EPD(0x58DC60) + 1),
-                SetMemoryEPD(EPD(ra) + 4, SetTo, EPD(0x58DC60) + 2),
-                SetMemoryEPD(EPD(ba) + 4, SetTo, EPD(0x58DC60) + 3),
+                SetMemoryEPD(EPD(la) + 1, SetTo, EPD(0x58DC60)),
+                SetMemoryEPD(EPD(ta) + 1, SetTo, EPD(0x58DC60) + 1),
+                SetMemoryEPD(EPD(ra) + 1, SetTo, EPD(0x58DC60) + 2),
+                SetMemoryEPD(EPD(ba) + 1, SetTo, EPD(0x58DC60) + 3),
             ]
         )
 
         # check mouse positions are inside the location
         if EUDIf()([
-                    la << MemoryEPD(0, AtMost, 0),
-                    ta << MemoryEPD(0, AtMost, 0),
-                    ra << MemoryEPD(0, AtLeast, 0),
-                    ba << MemoryEPD(0, AtLeast, 0),
+                    la << Memory(0, AtMost, 0),
+                    ta << Memory(0, AtMost, 0),
+                    ra << Memory(0, AtLeast, 0),
+                    ba << Memory(0, AtLeast, 0),
                 ]):
             chosen_location << cur
             EUDReturn()
@@ -248,7 +247,10 @@ class PatternApp(Application):
 
     def loop(self):
         global macro_mode
-        if EUDIf()(appManager.keyPress('Q')):
+        if EUDIf()(appManager.keyPress('ESC')):
+            appManager.requestDestruct()
+            EUDReturn()
+        if EUDElseIf()(appManager.keyPress('Q')):
             focusPatternID(0)
         if EUDElseIf()(appManager.keyPress('W')):
             focusPatternID(focused_pattern_id - 1)
@@ -290,7 +292,8 @@ class PatternApp(Application):
             ])
         if EUDElseIf()(appManager.mouseLClick()):
             evaluateLocations()
-        if EUDElseIf()(appManager.mouseRClick()):
+        # if EUDElseIf()(appManager.mouseRClick()):
+        if EUDElseIf()(appManager.keyPress('N')):
             # confirm
             if EUDIfNot()(chosen_location.Exactly(0)):
                 if EUDIf()(macro_mode.Exactly(MACRO_BOMB)):
@@ -321,13 +324,16 @@ class PatternApp(Application):
 
                     appendAction(CreateUnit(1, effectunit, chosen_location, g_effectplayer))
                     appendAction(KillUnitAt(1, effectunit, chosen_location, g_effectplayer))
-                    appendAction(KillUnitAt(All, g_runner_unit, chosen_location, g_runner_force))
+                    # appendAction(KillUnitAt(All, g_runner_unit, chosen_location, g_runner_force))
+                    appendAction(KillUnitAt(All, "(men)", chosen_location, g_runner_force))
                 if EUDElseIf()(macro_mode.Exactly(MACRO_OBSTACLE)):
                     appendAction(CreateUnit(1, g_obstacle_unit, chosen_location, g_effectplayer))
                     if EUDIf()(g_obstacle_createpattern.Exactly(OBSTACLE_CREATEPATTERN_KILL)):
-                        appendAction(KillUnitAt(All, g_runner_unit, chosen_location, g_runner_force))
+                        # appendAction(KillUnitAt(All, g_runner_unit, chosen_location, g_runner_force))
+                        appendAction(KillUnitAt(All, "(men)", chosen_location, g_runner_force))
                     if EUDElseIf()(g_obstacle_createpattern.Exactly(OBSTACLE_CREATEPATTERN_REMOVE)):
-                        appendAction(RemoveUnitAt(All, g_runner_unit, chosen_location, g_runner_force))
+                        # appendAction(RemoveUnitAt(All, g_runner_unit, chosen_location, g_runner_force))
+                        appendAction(RemoveUnitAt(All, "(men)", chosen_location, g_runner_force))
                     EUDEndIf()
                 if EUDElseIf()(macro_mode.Exactly(MACRO_OBSTACLEDESTRUCT)):
                     if EUDIf()(g_obstacle_destructpattern.Exactly(OBSTACLE_DESTRUCTPATTERN_KILL)):
@@ -378,7 +384,7 @@ class PatternApp(Application):
         EUDEndIf()
         writer.write_f("ObstacleDestruct\n")
 
-        writer.write_f("LClick to change location, RClick to confirm the location\n")
+        writer.write_f("\x02LClick to change location, RClick to confirm the location\n")
 
         if EUDIf()(chosen_location.Exactly(0)):
             writer.write_f("Not available")

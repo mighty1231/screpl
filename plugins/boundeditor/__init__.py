@@ -48,7 +48,6 @@ g_emptyTrigger = Db(trigvalues)
 
 # pattern variables
 p_count = EUDVariable(1)
-p_currentPattern = EUDVariable(0)
 p_waitValue = EUDArray([1] * MAX_PATTERN_COUNT)
 p_actionCount = EUDArray(MAX_PATTERN_COUNT)
 p_actionArrayEPD = EUDArray([

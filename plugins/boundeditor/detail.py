@@ -80,17 +80,14 @@ class DetailedActionApp(Application):
         writer.write_f("Pattern %D action editor, "\
                 "press 'ESC' to go back\n", focused_pattern_id+1)
 
-        branch, branch_common, branch_last = [Forward() for _ in range(3)]
-        space = EUDVariable()
         quot, mod = f_div(action_id, 8)
         cur = quot * 8
-        until = cur + 8
-        if EUDIf()(until <= actionCount):
-            DoActions(SetNextPtr(branch, branch_common))
+        pageend = cur + 8
+        until = EUDVariable()
+        if EUDIf()(pageend <= actionCount):
+            until << pageend
         if EUDElse()():
-            space << until - actionCount
             until << actionCount
-            DoActions(SetNextPtr(branch, branch_last))
         EUDEndIf()
 
         # fill contents
@@ -111,13 +108,10 @@ class DetailedActionApp(Application):
             DoActions([cur.AddNumber(1), action_epd.AddNumber(32//4)])
         EUDEndInfLoop()
 
-        branch << RawTrigger()
-        branch_last << NextTrigger()
         if EUDInfLoop()():
-            EUDBreakIf(space == 0)
+            EUDBreakIf(cur >= pageend)
             writer.write(ord('\n'))
-            space -= 1
+            cur += 1
         EUDEndInfLoop()
 
-        branch_common << NextTrigger()
         writer.write(0)
