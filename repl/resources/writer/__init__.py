@@ -32,15 +32,17 @@ def writeUnit(val):
     if EUDIf()(val <= 227):
         stringid = off_unitsdat_UnitMapString.read(val)
         if EUDIfNot()(stringid == 0):
+            getWriter().write(ord('"'))
             getWriter().write_STR_string(stringid)
+            getWriter().write(ord('"'))
             EUDReturn()
         EUDEndIf()
     EUDEndIf()
-    getWriter().write_strepd(GetDefaultUnitNameEPDPointer(val))
+    getWriter().write_f("\"%E\"", GetDefaultUnitNameEPDPointer(val))
 
 @EUDFunc
 def writeLocation(val):
-    getWriter().write_strepd(GetLocationNameEPDPointer(val))
+    getWriter().write_f("\"%E\"", GetLocationNameEPDPointer(val))
 
 @EUDFunc
 def writeAIScript(val):
