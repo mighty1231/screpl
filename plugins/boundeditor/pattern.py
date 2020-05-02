@@ -2,7 +2,7 @@
 Expected TUI
  1. Bound Editor - PATTERN MODE
  2. [<<(Q)] [<(W)] {focused_pattern_id}/{p_count} [>(E)] [>>(R)]
- 3. Append(A), Insert(I), Copy(C), Delete(D), Test(T)
+ 3. Append(A), Insert(I), Delete(D), Test(T)
  4. Wait Value(,.): 1
  5. 
  6. Total {num_actions} actions, press 'P' to detailed action editor
@@ -233,9 +233,6 @@ class PatternApp(Application):
             appendPattern()
         if EUDElseIf()(appManager.keyPress('I')):
             insertPattern()
-        if EUDElseIf()(appManager.keyPress('C')):
-            # copyPattern()
-            pass
         if EUDElseIf()(appManager.keyPress('D')):
             deletePattern()
         if EUDElseIf()(appManager.keyPress('T')):
@@ -331,7 +328,7 @@ class PatternApp(Application):
         writer.write_f("Bound Editor - PATTERN MODE\n")
         writer.write_f("[<<(Q)] [<(W)] %D / %D [>(E)] [>>(R)]\n",
             focused_pattern_id+1, p_count)
-        writer.write_f("Append(A), Insert(I), Copy(C), Delete(D), Test(T)\n")
+        writer.write_f("Append(A), Insert(I), Delete(D), Test(T)\n")
         writer.write_f("Wait value(,.): %D\n", cur_wait_value)
 
         writer.write_f("Mode(M): ")
