@@ -28,12 +28,15 @@ from . import (
 timer = EUDVariable(0)
 pattern_id = EUDVariable(0)
 next_timer = EUDVariable(0)
+last_tick = EUDVariable(0)
+cur_tick = EUDVariable()
 
 class TestPatternApp(Application):
     def onInit(self):
         timer << 0
         pattern_id << 0
         next_timer << 0
+        cur_tick << f_getgametick()
 
     def loop(self):
         global timer, pattern_id, next_timer
@@ -73,10 +76,18 @@ class TestPatternApp(Application):
         EUDEndIf()
         DoActions(timer.AddNumber(1))
 
+        # observe frame count
+        last_tick << cur_tick
+        cur_tick << f_getgametick()
+
+        appManager.requestUpdate()
+
     def print(self, writer):
         writer.write_f("Bound Editor Test Mode\n")
         writer.write_f("Press 'R' to reset, press 'ESC' to end test\n")
         writer.write_f("Timer = %D\n\n", timer)
+        writer.write_f("Observed trigger delay = %D " \
+                "(1:eudturbo, 2:turbo, 31:nothing)\n\n", cur_tick - last_tick)
         writer.write_f("Start location: ")
         writeLocation(g_start_location)
         writer.write(ord('\n'))
