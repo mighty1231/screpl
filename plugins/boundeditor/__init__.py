@@ -21,10 +21,21 @@ g_effectplayer = EUDVariable(computer_player_initvar)
 g_effectunit_1 = EUDVariable(EncodeUnit("Zerg Scourge"))
 g_effectunit_2 = EUDVariable(EncodeUnit("Zerg Overlord"))
 g_effectunit_3 = EUDVariable(EncodeUnit("Terran Battlecruiser"))
-g_obstacleunit = EUDVariable(EncodeUnit("Psi Emitter"))
 g_start_location = EUDVariable(1)
-g_runnerforce = EUDVariable(EncodePlayer(Force1))
-g_runnerunit = EUDVariable(EncodeUnit("Zerg Zergling"))
+g_runner_force = EUDVariable(EncodePlayer(Force1))
+g_runner_unit = EUDVariable(EncodeUnit("Zerg Zergling"))
+
+OBSTACLE_CREATEPATTERN_KILL   = 0
+OBSTACLE_CREATEPATTERN_REMOVE = 1
+OBSTACLE_CREATEPATTERN_ALIVE  = 2
+OBSTACLE_CREATEPATTERN_END    = 3
+OBSTACLE_DESTRUCTPATTERN_KILL   = 0
+OBSTACLE_DESTRUCTPATTERN_REMOVE = 1
+OBSTACLE_DESTRUCTPATTERN_END    = 2
+
+g_obstacle_unit = EUDVariable(EncodeUnit("Psi Emitter"))
+g_obstacle_createpattern = EUDVariable(OBSTACLE_CREATEPATTERN_KILL)
+g_obstacle_destructpattern = EUDVariable(OBSTACLE_DESTRUCTPATTERN_KILL)
 
 TMODE_EUDTURBO = 0
 TMODE_TURBO = 1
@@ -37,12 +48,16 @@ g_emptyTrigger = Db(trigvalues)
 
 # pattern variables
 p_count = EUDVariable(1)
-p_currentPattern = EUDVariable(0)
 p_waitValue = EUDArray([1] * MAX_PATTERN_COUNT)
 p_actionCount = EUDArray(MAX_PATTERN_COUNT)
 p_actionArrayEPD = EUDArray([
     EPD(EUDArray(MAX_ACTION_COUNT * 32)) for _ in range(MAX_PATTERN_COUNT)
 ])
+
+def writePlayer(value):
+    from repl.resources.writer import writeConstant
+    from repl.resources.table.tables import tb_Player
+    writeConstant(EPD(tb_Player), value)
 
 # pattern, detail
 focused_pattern_id = EUDVariable(0)
@@ -58,20 +73,17 @@ def executePattern(pattern_id):
         _nxttrig = Forward()
 
         # fill trigger
-        DoActions(SetNextPtr(emptyTrigger, _nxttrig))
-        f_repmovsd_epd(EPD(emptyTrigger + 8 + 320), action_epd, 32 // 4)
+        DoActions(SetNextPtr(g_emptyTrigger, _nxttrig))
+        f_repmovsd_epd(EPD(g_emptyTrigger + 8 + 320), action_epd, 32 // 4)
 
         # jump to trigger
-        EUDJump(emptyTrigger)
+        EUDJump(g_emptyTrigger)
         _nxttrig << NextTrigger()
         DoActions([
             i.AddNumber(1),
             action_epd.AddNumber(32 // 4)
         ])
     EUDEndInfLoop()
-
-def cleanScreen():
-    pass
 
 # make commands
 from .manager import BoundManagerApp

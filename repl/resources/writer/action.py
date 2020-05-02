@@ -114,7 +114,6 @@ def writeAction_epd(epd):
     if EUDIf()(flags.ExactlyX(4, 4)):
         getWriter().write_f(' AlwaysDisplay')
     EUDEndIf()
-    getWriter().write(0)
 
 @EUDFunc
 def _writeVictory(epd):

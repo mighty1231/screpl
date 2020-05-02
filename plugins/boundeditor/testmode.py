@@ -12,23 +12,37 @@ Expected TUI
 10.
 11.
 '''
+from eudplib import *
 
-from repl import Application
-from . import appManager, superuser
+from repl import Application, writeLocation
+from . import (
+    appManager,
+    superuser,
+    g_runner_unit,
+    g_start_location,
+    executePattern,
+    p_waitValue,
+    p_count
+)
 
 timer = EUDVariable(0)
 pattern_id = EUDVariable(0)
 next_timer = EUDVariable(0)
+last_tick = EUDVariable(0)
+cur_tick = EUDVariable()
 
 class TestPatternApp(Application):
     def onInit(self):
         timer << 0
         pattern_id << 0
         next_timer << 0
+        cur_tick << f_getgametick()
 
     def loop(self):
+        global timer, pattern_id, next_timer
         if EUDIf()(appManager.keyPress('ESC')):
             appManager.requestDestruct()
+            EUDReturn()
         if EUDElseIf()(appManager.keyPress('R')):
             DoActions([
                 timer.SetNumber(0),
@@ -39,8 +53,8 @@ class TestPatternApp(Application):
 
         # Create Tester Unit for every death
         Trigger(
-            conditions = [Bring(superuser, Exactly, 0, g_runnerunit, g_start_location)],
-            actions = [CreateUnit(1, g_runnerunit, g_start_location, superuser)]
+            conditions = [Bring(superuser, Exactly, 0, g_runner_unit, g_start_location)],
+            actions = [CreateUnit(1, g_runner_unit, g_start_location, superuser)]
         )
 
         # Timer
@@ -60,9 +74,21 @@ class TestPatternApp(Application):
                 pattern_id << 0
             EUDEndIf()
         EUDEndIf()
+        DoActions(timer.AddNumber(1))
+
+        # observe frame count
+        last_tick << cur_tick
+        cur_tick << f_getgametick()
+
+        appManager.requestUpdate()
 
     def print(self, writer):
-        writer.write_f("Bound Editor - TEST MODE\n")
-        writer.write_f("Timer = %D\n\n", timer)
+        writer.write_f("Bound Editor Test Mode\n")
         writer.write_f("Press 'R' to reset, press 'ESC' to end test\n")
-        writer.write_f("Start location: %D\n", g_start_location)
+        writer.write_f("Timer = %D\n\n", timer)
+        writer.write_f("Observed trigger delay = %D " \
+                "(1:eudturbo, 2:turbo, 31:nothing)\n\n", cur_tick - last_tick)
+        writer.write_f("Start location: ")
+        writeLocation(g_start_location)
+        writer.write(ord('\n'))
+        writer.write(0)

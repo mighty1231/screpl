@@ -9,14 +9,18 @@ Expected TUI
  3.  2. Kill..
  4.  3. ...
 '''
+from eudplib import *
 
-from repl import Application
-from repl.resources.trigtok.trigact import writeAction_epd
-from . import appManager, focused_pattern_id
+from repl import Application, writeAction_epd
+from . import appManager, focused_pattern_id, p_actionCount, p_actionArrayEPD
+from ..location.rect import drawRectangle
 
 action_id = EUDVariable(0)
 actionCount = EUDVariable(0)
 actionArrayEPD = EUDVariable(0)
+frame = EUDVariable(0)
+
+FRAME_PERIOD = 24
 
 @EUDFunc
 def focusActionID(new_actionid):
@@ -28,6 +32,7 @@ def focusActionID(new_actionid):
     EUDEndIf()
 
 def deleteAction():
+    global action_id
     if EUDIfNot()(actionCount == 0):
         cur_action_epd = actionArrayEPD + (32//4) * action_id
         next_action_epd = cur_action_epd + (32//4)
@@ -75,21 +80,38 @@ class DetailedActionApp(Application):
             deleteAction()
         EUDEndIf()
 
+        if EUDIfNot()(action_id == -1):
+            action_epd = actionArrayEPD + (32//4) * action_id
+
+            locid1 = f_dwread_epd(action_epd)
+            if EUDIfNot()(locid1 == 0):
+                drawRectangle(locid1, frame, FRAME_PERIOD)
+            EUDEndIf()
+
+            # graphical set
+            DoActions(frame.AddNumber(1))
+            if EUDIf()(frame == FRAME_PERIOD):
+                DoActions(frame.SetNumber(0))
+            EUDEndIf()
+        EUDEndIf()
+
     def print(self, writer):
         writer.write_f("Pattern %D action editor, "\
-                "press 'ESC' to go back\n", focused_pattern_id+1)
+                "press 'ESC' to go back (F7, F8, Delete)\n", focused_pattern_id+1)
 
-        branch, branch_common, branch_last = [Forward() for _ in range(3)]
-        space = EUDVariable()
+        if EUDIf()(action_id == -1):
+            writer.write(0)
+            EUDReturn()
+        EUDEndIf()
+
         quot, mod = f_div(action_id, 8)
         cur = quot * 8
-        until = cur + 8
-        if EUDIf()(until <= actionCount):
-            DoActions(SetNextPtr(branch, branch_common))
+        pageend = cur + 8
+        until = EUDVariable()
+        if EUDIf()(pageend <= actionCount):
+            until << pageend
         if EUDElse()():
-            space << until - actionCount
             until << actionCount
-            DoActions(SetNextPtr(branch, branch_last))
         EUDEndIf()
 
         # fill contents
@@ -110,13 +132,10 @@ class DetailedActionApp(Application):
             DoActions([cur.AddNumber(1), action_epd.AddNumber(32//4)])
         EUDEndInfLoop()
 
-        branch << RawTrigger()
-        branch_last << NextTrigger()
         if EUDInfLoop()():
-            EUDBreakIf(space == 0)
+            EUDBreakIf(cur >= pageend)
             writer.write(ord('\n'))
-            space -= 1
+            cur += 1
         EUDEndInfLoop()
 
-        branch_common << NextTrigger()
         writer.write(0)
