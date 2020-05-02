@@ -1,32 +1,4 @@
 ''' PATTERN MODE
-* feature
-
-1. Effect player - default: Computer player
-2. Effect unit - (loc maximum size~) scourge, overlord, battlecruiser
-3. Obstacle unit - Terran Machine Shop, Psi Emitter
-4. Start / End location
-5. runner : Zerg Zergling
-
-(trig_actions~...)
-
-1. Output to bridge - select death variable (player * unit)
- * macro - BOMB
- * macro - Obstacle
-
-macro bomb(location):
- - CreateUnit(1, specified_unit, effect_player, location)
- - KillUnitAt(All, unit, location, effect_p)
- - KillUnitAt(All, runner, location, runnerforce)
-
-macro obstacle(location):
- - CreateUnit(1, unit, effect_player, location)
-
-macro obstacledestruct(location):
- - KillUnit(1, unit, effect_player, location)
-
-# feature
-pattern test
-
 Expected TUI
  1. Bound Editor - PATTERN MODE
  2. [<<(Q)] [<(W)] {focused_pattern_id}/{p_count} [>(E)] [>>(R)]
@@ -36,7 +8,7 @@ Expected TUI
  6. Total {num_actions} actions, press 'P' to detailed action editor
  7. Mode(M): Bomb, Obstacle, ObstacleDestruct
  8. LClick to select location, press 'N' to confirm
- 9. Location UI
+ 9. Chosen location
 '''
 
 from eudplib import *
@@ -70,7 +42,6 @@ from . import (
     p_waitValue,
     p_actionCount,
     p_actionArrayEPD,
-    cleanScreen,
     executePattern
 )
 
@@ -268,7 +239,6 @@ class PatternApp(Application):
         if EUDElseIf()(appManager.keyPress('D')):
             deletePattern()
         if EUDElseIf()(appManager.keyPress('T')):
-            cleanScreen()
             executePattern(focused_pattern_id)
         if EUDElseIf()(appManager.keyPress('P')):
             appManager.startApplication(DetailedActionApp)
@@ -387,9 +357,9 @@ class PatternApp(Application):
         writer.write_f("\x02LClick to change location, RClick to confirm the location\n")
 
         if EUDIf()(chosen_location.Exactly(0)):
-            writer.write_f("Not available")
+            writer.write_f("No Location is chosen")
         if EUDElse()():
-            writer.write_f("Chosen Location: ")
+            writer.write_f("Chosen location: ")
             writeLocation(chosen_location)
         EUDEndIf()
         writer.write_f("\n")

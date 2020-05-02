@@ -85,9 +85,6 @@ def executePattern(pattern_id):
         ])
     EUDEndInfLoop()
 
-def cleanScreen():
-    pass
-
 # make commands
 from .manager import BoundManagerApp
 

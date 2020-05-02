@@ -78,7 +78,7 @@ class DetailedActionApp(Application):
 
     def print(self, writer):
         writer.write_f("Pattern %D action editor, "\
-                "press 'ESC' to go back\n", focused_pattern_id+1)
+                "press 'ESC' to go back (F7, F8, Delete)\n", focused_pattern_id+1)
 
         quot, mod = f_div(action_id, 8)
         cur = quot * 8

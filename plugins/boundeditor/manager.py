@@ -6,78 +6,25 @@ from .option import OptionApp
 from .pattern import PatternApp
 from .testmode import TestPatternApp
 
-'''
-Global Variable
-1. Effect player - default: Computer player
-2. Effect unit - (loc maximum size~) scourge, overlord, battlecruiser
-3. Obstacle unit - Terran Machine Shop, Psi Emitter
-4. Start / End location
-5. runner force: Force1
-6. runner unit: Zerg Zergling
-
-*****
-variable, only output - Death var 
-
-*****
-Location plugin
- * location chooser (on screen locations)
-    - track mouse, select
- * add new location w/ name
-
-*****
-Mode
-1. Test mode (some EUDLightVariable)
-  - Start - create "runner"
-2. Edit location
-3. Edit pattern
-(trig_actions~...)
-  - [<<] [<] $PATTERN [>] [>>]
-  - Append, Insert, Copy, Delete
-
-Function
-1. Output to bridge - select death variable (player * unit)
- * macro - BOMB
- * macro - Obstacle
-
-Effect action ~ unit, location
- * Create and Kill
- * Create
- * Kill
- * Remove
-
-Obstacle action ~ unit, location
- * Create
- * Kill
- * Remove
-
-Runner action
- * Kill
- * Move ~ unit, location, location
-
-ENTITY: wait(N) or TriggerAction
-MODE: None, EUDTurbo, Turbo
-
-############### STRUCTURE ###################
-memory structure
-round 1: action count, wait value, 
-round N: 
-'''
-
 class BoundManagerApp(Application):
     def loop(self):
         if EUDIf()(appManager.keyPress("ESC")):
             appManager.requestDestruct()
             EUDReturn()
-        if EUDElseIf()(appManager.keyPress("O")):
+        if EUDElseIf()(appManager.keyPress("O", hold=["LCTRL"])):
             appManager.startApplication(OptionApp)
-        if EUDElseIf()(appManager.keyPress("P")):
+        if EUDElseIf()(appManager.keyPress("P", hold=["LCTRL"])):
             appManager.startApplication(PatternApp)
-        if EUDElseIf()(appManager.keyPress("T")):
+        if EUDElseIf()(appManager.keyPress("T", hold=["LCTRL"])):
             appManager.startApplication(TestPatternApp)
         EUDEndIf()
 
     def print(self, writer):
         writer.write_f("\x16Bound Editor Manager\n")
+        writer.write_f("LCTRL + O: Option\n")
+        writer.write_f("LCTRL + P: Pattern\n")
+        writer.write_f("LCTRL + T: Test\n")
+        writer.write_f("Chat maphack() to turn on maphack\n")
         writer.write(0)
 
     @AppCommand([])
