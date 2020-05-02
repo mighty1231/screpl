@@ -5,6 +5,7 @@ from . import appManager, superuser
 from .option import OptionApp
 from .pattern import PatternApp
 from .testmode import TestPatternApp
+from .exporter import ExporterApp
 
 def deleteSelectedUnit():
     # 0x6284B8  CurrentUnitSelection     CUNIT *CurrentUnitSelection[12]
@@ -58,6 +59,8 @@ class BoundManagerApp(Application):
             appManager.startApplication(PatternApp)
         if EUDElseIf()(appManager.keyPress("T", hold=["LCTRL"])):
             appManager.startApplication(TestPatternApp)
+        if EUDElseIf()(appManager.keyPress("E", hold=["LCTRL"])):
+            appManager.startApplication(ExporterApp)
         if EUDElseIf()(appManager.keyPress("delete")):
             deleteSelectedUnit()
         EUDEndIf()
@@ -67,6 +70,7 @@ class BoundManagerApp(Application):
         writer.write_f("LCTRL + O: Option\n")
         writer.write_f("LCTRL + P: Pattern\n")
         writer.write_f("LCTRL + T: Test\n")
+        writer.write_f("LCTRL + E: Exporter\n")
         writer.write_f("Chat maphack() to turn on maphack\n")
         writer.write_f("Press DELETE key to remove selected units\n")
         writer.write(0)

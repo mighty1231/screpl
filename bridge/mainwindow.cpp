@@ -102,6 +102,7 @@ void MainWindow::metREPL(bool met)
 
 void MainWindow::setError(QString msg)
 {
+    qDebug() << "error" << msg;
     ui->statusbar->showMessage(msg, 5000);
 }
 

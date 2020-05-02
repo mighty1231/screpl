@@ -176,6 +176,8 @@ bool Worker::searchREPL()
         last_framecount = -1;
         emit metREPL(true);
         return true;
+    } else {
+        emit signalError("REPL not found");
     }
     return false;
 }
@@ -279,6 +281,7 @@ void Worker::process()
     }
 
     // app output
+    region->app_output[region->app_output_sz] = 0;
     QString app_output = QString::fromUtf8(region->app_output);
 
     // log
