@@ -13,10 +13,14 @@ from eudplib import *
 
 from repl import Application, writeAction_epd
 from . import appManager, focused_pattern_id, p_actionCount, p_actionArrayEPD
+from ..location.rect import drawRectangle
 
 action_id = EUDVariable(0)
 actionCount = EUDVariable(0)
 actionArrayEPD = EUDVariable(0)
+frame = EUDVariable(0)
+
+FRAME_PERIOD = 24
 
 @EUDFunc
 def focusActionID(new_actionid):
@@ -76,9 +80,29 @@ class DetailedActionApp(Application):
             deleteAction()
         EUDEndIf()
 
+        if EUDIfNot()(action_id == -1):
+            action_epd = actionArrayEPD + (32//4) * action_id
+
+            locid1 = f_dwread_epd(action_epd)
+            if EUDIfNot()(locid1 == 0):
+                drawRectangle(locid1, frame, FRAME_PERIOD)
+            EUDEndIf()
+
+            # graphical set
+            DoActions(frame.AddNumber(1))
+            if EUDIf()(frame == FRAME_PERIOD):
+                DoActions(frame.SetNumber(0))
+            EUDEndIf()
+        EUDEndIf()
+
     def print(self, writer):
         writer.write_f("Pattern %D action editor, "\
                 "press 'ESC' to go back (F7, F8, Delete)\n", focused_pattern_id+1)
+
+        if EUDIf()(action_id == -1):
+            writer.write(0)
+            EUDReturn()
+        EUDEndIf()
 
         quot, mod = f_div(action_id, 8)
         cur = quot * 8
