@@ -118,8 +118,8 @@ class LocationManagerApp(Application):
         appManager.requestUpdate()
 
     def print(self, writer):
-        writer.write_f("\x16Location (sizeX, sizeY, flags) ( %D / 255 ) // CenterView: ",
-                self.location)
+        writer.write_f("\x16Location (sizeX, sizeY, flags) F7,F8 to navigate // press '{}' to edit " \
+            "// CenterView: ".format(keymap["manager"]["open_editor"]))
         if EUDIfNot()(self.centerview == 0):
             writer.write_f("\x07ON\n")
         if EUDElse()():
