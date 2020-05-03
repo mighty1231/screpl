@@ -47,7 +47,7 @@ euddraft0.*.*.*
 1. Append following text in your euddraft project file (\*.edd).
 
 ```
-[prepl.py]
+[prepl]
 superuser: P1
 plugins: plugins.location plugins.memory plugins.variable
 ```
