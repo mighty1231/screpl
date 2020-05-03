@@ -102,7 +102,7 @@ bool Worker::searchREPL()
     SIZE_T written;
     bool found = false;
     int buffer_startAddr = 0;
-    while (startAddr  <= 0x7FFF0000) {
+    while (startAddr  <= 0xFFFE0000) {
         if (!VirtualQueryEx(hProcess, (void *)startAddr, &mbi, sizeof(mbi))) {
             status = STATUS_NOPROCESS_FOUND;
             emit metProcess(false);
@@ -110,7 +110,9 @@ bool Worker::searchREPL()
             CloseHandle(hProcess);
             return false;
         }
-        if ((mbi.State & MEM_COMMIT) && (mbi.Protect & PAGE_READWRITE)) {
+        if ((mbi.State & MEM_COMMIT)
+                && (mbi.Protect & PAGE_READWRITE)
+                && !(mbi.Protect & PAGE_GUARD)) {
             int last_offset;
             if (buffer) {
                 last_offset = buffer->size();
