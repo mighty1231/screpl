@@ -2,7 +2,7 @@
 input: base.scx
 output: repl.scx
 
-[prepl.py]
+[prepl]
 superuser: P1
 plugins: plugins.location plugins.memory plugins.variable sample
 
