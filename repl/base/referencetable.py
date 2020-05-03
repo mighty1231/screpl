@@ -98,12 +98,17 @@ class ReferenceTable(EUDObject):
         '''
         func receives i, key_epd, value_epd and do something
         '''
+        if not IsEUDVariable(table_epd):
+            _table_epd = EUDVariable()
+            _table_epd << table_epd
+        else:
+            _table_epd = table_epd
         i = EUDVariable()
-        k_epd = table_epd + 1
-        v_epd = table_epd + 2
+        k_epd = _table_epd + 1
+        v_epd = _table_epd + 2
         i << 0
         if EUDInfLoop()():
-            EUDBreakIf(MemoryEPD(table_epd, AtMost, i))
+            EUDBreakIf(MemoryEPD(_table_epd, AtMost, i))
             func(i, k_epd, v_epd)
             DoActions([
                 i.AddNumber(1),

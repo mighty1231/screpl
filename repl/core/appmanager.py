@@ -12,6 +12,8 @@ BRIDGE_OFF = 0
 BRIDGE_ON = 1
 BRIDGE_BLIND = 2
 
+trigger_framedelay = EUDVariable(-1)
+
 def getAppManager():
     global _manager
     assert _manager
@@ -110,15 +112,19 @@ class AppManager:
         self.mouse_pos = EUDCreateVariables(2)
         self.current_frame_number = EUDVariable(0)
 
+        # 64, 96, 128, 192, 256
+        # Multiply 32 to get pixel coordinate
+        dim = GetChkTokenized().getsection(b'DIM ')
+        self.mapWidth = b2i2(dim, 0)
+        self.mapHeight = b2i2(dim, 2)
+
         # bridge_mode
         bridge_mode = bridge_mode.lower()
         if bridge_mode == 'on':
             self.bridge_mode = BRIDGE_ON
-            bridge_init()
             self.is_blind_mode = EUDVariable(0)
         elif bridge_mode == 'blind':
             self.bridge_mode = BRIDGE_BLIND
-            bridge_init()
             self.is_blind_mode = EUDVariable(1)
         elif bridge_mode == 'off':
             self.bridge_mode = BRIDGE_OFF
@@ -312,10 +318,6 @@ class AppManager:
         f_repmovsd_epd(prev_states, EPD(0x596A18), 0x100//4)
 
     def keyDown(self, key):
-        # Example. shift + f7
-        # if EUDIf()([manager.keyDown(0xA0), manager.keyDown(0x76))]):
-        #     event()
-        # EUDEndIf()
         key = getKeyCode(key)
         return MemoryEPD(self.keystates + key, Exactly, 1)
 
@@ -323,10 +325,17 @@ class AppManager:
         key = getKeyCode(key)
         return MemoryEPD(self.keystates + key, Exactly, 2**32-1)
 
-    def keyPress(self, key):
+    def keyPress(self, key, hold=[]):
+        '''
+        hold: list of keys, such as LCTRL, LSHIFT, LALT, etc...
+        '''
         key = getKeyCode(key)
-        return [MemoryEPD(self.keystates + key, AtLeast, 1),
+        actions = [MemoryEPD(self.keystates + key, AtLeast, 1),
             MemoryEPD(self.keystates_sub + key, Exactly, 1)]
+        for holdkey in hold:
+            holdkey = getKeyCode(holdkey)
+            actions.append(MemoryEPD(self.keystates + holdkey, AtLeast, 1))
+        return actions
 
     @EUDMethod
     def getCurrentFrameNumber(self):
@@ -358,7 +367,7 @@ class AppManager:
                 actions=self.mouse_prev_state.SetNumberX(0, c)
             )
 
-        # mouse posiition
+        # mouse position
         x, y = self.mouse_pos
         x << f_dwread_epd(EPD(0x0062848C)) + f_dwread_epd(EPD(0x006CDDC4))
         y << f_dwread_epd(EPD(0x006284A8)) + f_dwread_epd(EPD(0x006CDDC8))
@@ -375,16 +384,27 @@ class AppManager:
     def mouseRPress(self):
         return MemoryEPD(EPD(self.mouse_state+1), AtLeast, 2)
 
-    def mouseRClick(self):
+    def mouseMClick(self):
         return MemoryEPD(EPD(self.mouse_state+2), Exactly, 0)
 
-    def mouseRPress(self):
+    def mouseMPress(self):
         return MemoryEPD(EPD(self.mouse_state+2), AtLeast, 2)
 
     @EUDMethod
     def getMousePositionXY(self):
         x, y = self.mouse_pos
         EUDReturn([x, y])
+
+    def getMapWidth(self):
+        # 64, 96, 128, 192, 256
+        # Multiply 32 to get pixel coordinate
+        return self.mapWidth
+
+    def getMapHeight(self):
+        # 64, 96, 128, 192, 256
+        # Multiply 32 to get pixel coordinate
+        return self.mapHeight
+
 
     def requestUpdate(self):
         '''
@@ -405,6 +425,36 @@ class AppManager:
             f_raiseError("FATAL ERROR: startApplication <-> requestDestruct")
         EUDEndIf()
         self.is_terminating_app << 1
+
+    def setTriggerDelay(self, delay):
+        trigger_framedelay << delay
+
+    def unsetTriggerDelay(self):
+        trigger_framedelay << -1
+
+    def isBridgeMode(self):
+        return self.bridge_mode != BRIDGE_OFF
+
+    @EUDMethod
+    def exportAppOutputToBridge(self, src_buffer, size):
+        from .bridge import APP_OUTPUT_MAXSIZE, app_output_sz, app_output
+        assert self.isBridgeMode()
+
+        if EUDIfNot()(app_output_sz == 0):
+            EUDReturn(0)
+        EUDEndIf()
+
+        written = EUDVariable()
+        if EUDIf()(size >= APP_OUTPUT_MAXSIZE):
+            written << APP_OUTPUT_MAXSIZE
+        if EUDElse()():
+            written << size
+        EUDEndIf()
+
+        f_memcpy(app_output, src_buffer, written)
+        app_output_sz << written
+
+        EUDReturn(written)
 
     def cleanText(self):
         # clean text UI of previous app
@@ -427,17 +477,25 @@ class AppManager:
         from ..apps.repl import REPL
         from .appcommand import AppCommand
 
-        if self.bridge_mode:
-            @AppCommand([])
-            def toggleBlind(repl):
-                self.is_blind_mode << 1 - self.is_blind_mode
-            REPL.addCommand("blind", toggleBlind)
         if EUDExecuteOnce()():
+            if self.isBridgeMode():
+                bridge_init()
+
+                # bridge command
+                @AppCommand([])
+                def toggleBlind(repl):
+                    self.is_blind_mode << 1 - self.is_blind_mode
+                REPL.addCommand("blind", toggleBlind)
             self.startApplication(REPL)
         EUDEndExecuteOnce()
 
         self.updateMouseState()
         self.updateKeyState()
+
+        # turbo mode
+        if EUDIfNot()(trigger_framedelay.Exactly(-1)):
+            DoActions(SetMemory(0x6509A0, SetTo, trigger_framedelay))
+        EUDEndIf()
 
         if EUDIfNot()([self.is_terminating_app == 0, self.is_starting_app == 0]):
             self.initOrTerminateApplication()

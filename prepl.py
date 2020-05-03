@@ -35,5 +35,5 @@ def onPluginStart():
         if plugin:
             importlib.import_module(plugin)
 
-def beforeTriggerExec():
+def afterTriggerExec():
     getAppManager().loop()

@@ -4,7 +4,7 @@ output: repl.scx
 
 [prepl.py]
 superuser: P1
-plugins: replplugins.location replplugins.memory replplugins.variable sample
+plugins: plugins.location plugins.memory plugins.variable sample
 
 [freeze]
 freeze: 0

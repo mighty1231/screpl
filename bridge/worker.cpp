@@ -25,6 +25,13 @@ Worker::Worker(QObject *parent) : QThread(parent),
 
     regiontmp = new SharedRegion();
     region = new SharedRegion();
+    app_output_buffer = new char[APP_OUTPUT_MAXSIZE + 1];
+}
+
+Worker::~Worker() {
+    delete[] app_output_buffer;
+    delete region;
+    delete regiontmp;
 }
 
 void Worker::run()
@@ -49,8 +56,6 @@ void Worker::run()
             msleep(50);
         }
     }
-    delete region;
-    delete regiontmp;
 }
 
 bool Worker::searchProcess()
@@ -94,8 +99,8 @@ bool Worker::searchREPL()
     QByteArray *buffer = NULL;
     SIZE_T written;
     bool found = false;
-    int idx;
-    while (startAddr  <= 0x7FFF0000) {
+    int buffer_startAddr = 0;
+    while (startAddr  <= 0xFFFE0000) {
         if (!VirtualQueryEx(hProcess, (void *)startAddr, &mbi, sizeof(mbi))) {
             status = STATUS_NOPROCESS_FOUND;
             emit metProcess(false);
@@ -103,13 +108,25 @@ bool Worker::searchREPL()
             CloseHandle(hProcess);
             return false;
         }
-        if ((mbi.State & MEM_COMMIT) && (mbi.Protect & PAGE_READWRITE)) {
-            buffer = new QByteArray(mbi.RegionSize, 0);
+        if ((mbi.State & MEM_COMMIT)
+                && (mbi.Protect & PAGE_READWRITE)
+                && !(mbi.Protect & PAGE_GUARD)) {
+            int last_offset;
+            if (buffer) {
+                last_offset = buffer->size();
+                buffer->resize(last_offset + mbi.RegionSize);
+            } else {
+                last_offset = 0;
+                buffer = new QByteArray(mbi.RegionSize, 0);
+                buffer_startAddr = startAddr;
+            }
 
             // get buffer
-            if (!ReadProcessMemory(hProcess, (void *)startAddr, buffer->data(), mbi.RegionSize, &written)) {
-                if (GetLastError() == 299)
+            if (!ReadProcessMemory(hProcess, (void *)startAddr, buffer->data() + last_offset, mbi.RegionSize, &written)) {
+                if (GetLastError() == 299) {
+                    buffer->resize(last_offset);
                     goto next;
+                }
 
                 status = STATUS_NOPROCESS_FOUND;
                 emit metProcess(false);
@@ -126,28 +143,48 @@ bool Worker::searchREPL()
                 delete buffer;
                 return false;
             }
-
-            // search REPL-signature
-            idx = buffer->indexOf(SIGNATURE);
-            if (idx != -1) {
-                if (found) {
-                    makeError("Duplicate!");
-                    delete buffer;
-                    return false;
-                }
-                found = true;
-                REPLRegion = startAddr + idx;
-            }
+        } else {
         next:
-            delete buffer;
+            if (buffer) {
+                // search REPL-signature
+                int idx = buffer->indexOf(SIGNATURE);
+                if (idx != -1) {
+                    if (found) {
+                        makeError("SC-REPL Signature duplicate");
+                        delete buffer;
+                        return false;
+                    }
+                    found = true;
+                    REPLRegion = buffer_startAddr + idx;
+                }
+                delete buffer;
+                buffer = NULL;
+            }
         }
         startAddr += mbi.RegionSize;
     }
+    if (buffer) {
+        // search REPL-signature
+        int idx = buffer->indexOf(SIGNATURE);
+        if (idx != -1) {
+            if (found) {
+                makeError("SC-REPL Signature duplicate");
+                delete buffer;
+                return false;
+            }
+            found = true;
+            REPLRegion = buffer_startAddr + idx;
+        }
+        delete buffer;
+    }
+
     if (found) {
         status = STATUS_REPL_FOUND;
         last_framecount = -1;
         emit metREPL(true);
         return true;
+    } else {
+        emit signalError("REPL not found");
     }
     return false;
 }
@@ -251,6 +288,8 @@ void Worker::process()
     }
 
     // app output
+    memcpy(app_output_buffer, region->app_output, region->app_output_sz);
+    region->app_output[region->app_output_sz] = 0;
     QString app_output = QString::fromUtf8(region->app_output);
 
     // log
@@ -259,8 +298,7 @@ void Worker::process()
     for (int i=last_log_index; i<region->log_index; i++) {
         int line = i % LOGGER_LINE_COUNT;
         logger_log.append(ignoreColor(region->logger_log[line]));
-        if (i != region->log_index - 1)
-            logger_log.append('\n');
+        logger_log.append('\n');
     }
     last_log_index = region->log_index;
 

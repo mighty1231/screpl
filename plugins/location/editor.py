@@ -3,10 +3,12 @@ from repl import (
     Application,
     AppTypedMethod,
     AppCommand,
-    argEncNumber
+    argEncNumber,
+    ChatReaderApp,
+    GetLocationNameEPDPointer
 )
 
-from . import appManager, locstrings, keymap, FRAME_PERIOD
+from . import appManager, keymap, FRAME_PERIOD
 from .rect import drawRectangle
 
 '''
@@ -317,43 +319,26 @@ class LocationEditorApp(Application):
         prev_mY << cur_mY
 
 
-        ######################
-        #   Draw Locastion   #
-        ######################
-
-        # backup Scanner Sweep and prepare effect
-        prev_im = f_dwread_epd(EPD(0x666160 + 2*380))
-        prev_is = f_dwread_epd(EPD(0x66EC48 + 4*232))
-        DoActions([
-            SetMemoryX(0x666160 + 2*380, SetTo, 232, 0xFFFF),
-            SetMemory(0x66EC48 + 4*232, SetTo, 250)
-        ])
+        #####################
+        #   Draw Location   #
+        #####################
 
         # draw location with "Scanner Sweep"
         drawRectangle(target, frame, FRAME_PERIOD)
 
-        # restore "Scanner Sweep"
-        DoActions([
-            RemoveUnit("Scanner Sweep", appManager.superuser),
-            SetMemoryX(0x666160 + 2*380, SetTo, prev_im, 0xFFFF),
-            SetMemory(0x66EC48 + 4*232, SetTo, prev_is)
-        ])
-
         # graphical set
         DoActions(frame.AddNumber(1))
-        if EUDIf()(frame == FRAME_PERIOD):
-            DoActions(frame.SetNumber(0))
-        EUDEndIf()
+        Trigger(
+            conditions = frame.Exactly(FRAME_PERIOD),
+            actions = frame.SetNumber(0)
+        )
         appManager.requestUpdate()
 
     def print(self, writer):
         # Title, tells its editing mode
         writer.write_f("Location Editor #%D ", target)
 
-        str_epd = locstrings[target]
-        if EUDIfNot()(str_epd == 0):
-            writer.write_f("'%E' ", str_epd)
-        EUDEndIf()
+        writer.write_f("'%E' ", GetLocationNameEPDPointer(target))
 
         writer.write_f("Mode: ")
         to_pass = Forward()
@@ -409,3 +394,8 @@ class LocationEditorApp(Application):
     @AppCommand([argEncNumber])
     def setFlag(self, flag):
         f_wwrite_epd(cur_epd+4, 2, flag)
+
+    @AppCommand([])
+    def changeName(self):
+        ChatReaderApp.setResult_epd(GetLocationNameEPDPointer(target))
+        appManager.startApplication(ChatReaderApp)

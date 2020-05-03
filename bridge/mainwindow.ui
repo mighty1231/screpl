@@ -87,7 +87,7 @@
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_6">
             <item>
-             <widget class="QTextEdit" name="from_log"/>
+             <widget class="QTextEdit" name="from_appoutput"/>
             </item>
            </layout>
           </widget>
@@ -97,11 +97,7 @@
            </property>
            <layout class="QHBoxLayout" name="horizontalLayout_5">
             <item>
-             <widget class="QTextEdit" name="from_logger">
-              <property name="readOnly">
-               <bool>true</bool>
-              </property>
-             </widget>
+             <widget class="QTextEdit" name="from_logger"/>
             </item>
            </layout>
           </widget>
