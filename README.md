@@ -1,20 +1,16 @@
 # SC-REPL
 
-SC-REPL is a plugin for [euddraft](https://github.com/armoha/euddraft)
+SC-REPL is a text-UI framework on StarCraft I UMS maps, built on [euddraft](https://github.com/armoha/euddraft).
 
 It helps to debug UMS maps in Starcraft I.
 
-Unlike other plugins, SC-REPL manages detailed plugins (app) on its own.
-
-
-
 ## Example
 
-* using location plugin - [video](https://youtu.be/f3M0CDGIX2A)
-and corresponding [source](https://github.com/mighty1231/screpl/tree/master/plugins/location)
-* euddraft project with sample plugin - [video](https://www.youtube.com/watch?v=6RexCF3SBFU)
-and corresponding [source](https://github.com/mighty1231/screpl/blob/master/example/sample/myapp.py)
+UMS maps applied SC-ERPL with...
 
+* `location` plugin - [video](https://youtu.be/f3M0CDGIX2A)
+, [source](https://github.com/mighty1231/screpl/tree/master/plugins/location)
+* `sample` plugin - [video](https://www.youtube.com/watch?v=6RexCF3SBFU), [source](https://github.com/mighty1231/screpl/blob/master/example/sample/myapp.py)
 
 ## Required
 
@@ -23,9 +19,8 @@ and corresponding [source](https://github.com/mighty1231/screpl/blob/master/exam
 
 
 ## Installation
-
-* Move a directory `repl` to `euddraft/lib`
-* Move a directory `plugins` to `euddraft/lib` and rename it into `replplugins`.
+* Install one of [release versions](https://github.com/mighty1231/screpl/releases)
+* Move a directory `repl` and `plugins` to `euddraft/lib`.
 * Move a file `prepl.py` to `euddraft/plugins`.
 
 ```bash
@@ -35,23 +30,27 @@ euddraft0.*.*.*
 │   │   ├── apps
 │   │   ├── base
 │   │   └── ...
-│   └── plugins -> replplugins
+│   └── plugins //plugins of repl
 │       ├── location
+│       ├── memory
 │       └── ...
-├── plugins
+├── plugins //plugins of euddraft
 │   └── prepl.py
 └── euddraft.exe
 ```
 
-## How to build
+* You may install *SC-REPL Bridge Client* if you want.
+
+## Apply SC-REPL on your map
 
 1. Append following text in your euddraft project file (\*.edd).
 
 ```
 [prepl.py]
 superuser: P1
-plugins: replplugins.location replplugins.memory replplugins.variable
+plugins: plugins.location plugins.memory plugins.variable
 ```
+* Check [how to write edd file](https://github.com/mighty1231/screpl/wiki/How-to-write-edd-file)
 
 2. Run your euddraft project file with euddraft.
 
@@ -62,7 +61,7 @@ You can make your customized application as a plugin of SC-REPL. Check it [here]
 
 ## Documentation
 
-Documentation is provided with [wiki](https://github.com/mighty1231/screpl/wiki)
+Documentation is provided with [Github wiki](https://github.com/mighty1231/screpl/wiki)
 
 ## Contribution Guide
 
