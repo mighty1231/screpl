@@ -59,8 +59,9 @@ class BoundManagerApp(Application):
             appManager.startApplication(PatternApp)
         if EUDElseIf()(appManager.keyPress("T", hold=["LCTRL"])):
             appManager.startApplication(TestPatternApp)
-        if EUDElseIf()(appManager.keyPress("E", hold=["LCTRL"])):
-            appManager.startApplication(ExporterApp)
+        if appManager.isBridgeMode():
+            if EUDElseIf()(appManager.keyPress("E", hold=["LCTRL"])):
+                appManager.startApplication(ExporterApp)
         if EUDElseIf()(appManager.keyPress("delete")):
             deleteSelectedUnit()
         EUDEndIf()
@@ -70,7 +71,8 @@ class BoundManagerApp(Application):
         writer.write_f("LCTRL + O: Option\n")
         writer.write_f("LCTRL + P: Pattern\n")
         writer.write_f("LCTRL + T: Test\n")
-        writer.write_f("LCTRL + E: Exporter\n")
+        if appManager.isBridgeMode():
+            writer.write_f("LCTRL + E: Exporter\n")
         writer.write_f("Chat maphack() to turn on maphack\n")
         writer.write_f("Press DELETE key to remove selected units\n")
         writer.write(0)

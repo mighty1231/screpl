@@ -1,15 +1,5 @@
 from eudplib import *
 
-from ...base import SearchTableInv
-from ..table.tables import (
-    GetDefaultUnitNameEPDPointer,
-    GetLocationNameEPDPointer,
-    tb_swMap,
-    tb_swSub,
-    tb_AIScript
-)
-from ..offset import off_unitsdat_UnitMapString
-
 _writer = None
 def getWriter():
     global _writer
@@ -18,9 +8,9 @@ def getWriter():
         _writer = getAppManager().getWriter()
     return _writer
 
-def makeSCMDConstDecoder(encoder, kvmap):
+def makeSCMDConstWriter(encoder, kvmap):
     @EUDFunc
-    def decodeVar(var):
+    def writeVar(var):
         for i, (k, v) in enumerate(kvmap):
             _br = EUDIf if i == 0 else EUDElseIf
             _br()(var.Exactly(encoder(k)))
@@ -29,9 +19,9 @@ def makeSCMDConstDecoder(encoder, kvmap):
         getWriter().write_decimal(var)
         EUDEndIf()
 
-    def decode(value):
+    def write(value):
         if IsEUDVariable(value):
-            decodeVar(value)
+            writeVar(value)
         else:
             for k, v in kvmap:
                 if encoder(k) == encoder(value):
@@ -39,9 +29,9 @@ def makeSCMDConstDecoder(encoder, kvmap):
                     return
             getWriter().write_decimal(encoder(value))
 
-    return decode
+    return write
 
-def SCMDDecoder_Number(value):
+def SCMDWriteNumber(value):
     if IsEUDVariable(value):
         getWriter().write_decimal(value)
     else:
@@ -57,7 +47,7 @@ def writeTrigger(player, conditions, actions, preserve = True):
     '''
 
     getWriter().write_f("Trigger(")
-    SCMDDecoder_Player(player)
+    SCMDWritePlayer(player)
 
     getWriter().write_f("){\nConditions:\n")
     for cond in conditions:
@@ -102,7 +92,7 @@ def writeTrigger(player, conditions, actions, preserve = True):
     getWriter().write_f("}\n\n")
 
 
-SCMDMap_Player = [
+SCMDWritePlayer = makeSCMDConstWriter(EncodePlayer, [
     (Player1, "\"Player 1\""),
     (Player2, "\"Player 2\""),
     (Player3, "\"Player 3\""),
@@ -118,24 +108,21 @@ SCMDMap_Player = [
     (Force4, "\"Force 4\""),
     (AllPlayers, "\"All Players\""),
     (CurrentPlayer, "\"Current Player\""),
-]
-SCMDDecoder_Player = makeSCMDConstDecoder(EncodePlayer, SCMDMap_Player)
+])
 
-SCMDMap_Modifier = [
+SCMDWriteModifier = makeSCMDConstWriter(EncodeModifier, [
     (SetTo, "Set To"),
     (Add, "Add"),
     (Subtract, "Subtract")
-]
-SCMDDecoder_Modifier = makeSCMDConstDecoder(EncodeModifier, SCMDMap_Modifier)
+])
 
-SCMDMap_Comparison = [
+SCMDWriteComparison = makeSCMDConstWriter(EncodeComparison, [
     (AtLeast, "At least"),
     (AtMost, "At most"),
     (Exactly, "Exactly"),
-]
-SCMDDecoder_Comparison = makeSCMDConstDecoder(EncodeComparison, SCMDMap_Comparison)
+])
 
-SCMDDecoder_Order = makeSCMDConstDecoder(EncodeOrder, [
+SCMDWriteOrder = makeSCMDConstWriter(EncodeOrder, [
     (Move, "move"),
     (Patrol, "patrol"),
     (Attack, "attack"),

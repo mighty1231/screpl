@@ -122,11 +122,9 @@ class AppManager:
         bridge_mode = bridge_mode.lower()
         if bridge_mode == 'on':
             self.bridge_mode = BRIDGE_ON
-            bridge_init()
             self.is_blind_mode = EUDVariable(0)
         elif bridge_mode == 'blind':
             self.bridge_mode = BRIDGE_BLIND
-            bridge_init()
             self.is_blind_mode = EUDVariable(1)
         elif bridge_mode == 'off':
             self.bridge_mode = BRIDGE_OFF
@@ -434,6 +432,30 @@ class AppManager:
     def unsetTriggerDelay(self):
         trigger_framedelay << -1
 
+    def isBridgeMode(self):
+        return self.bridge_mode != BRIDGE_OFF
+
+    @EUDMethod
+    def exportAppOutputToBridge(self, src_buffer, size):
+        from .bridge import APP_OUTPUT_MAXSIZE, app_output_sz, app_output
+        assert self.isBridgeMode()
+
+        if EUDIfNot()(app_output_sz == 0):
+            EUDReturn(0)
+        EUDEndIf()
+
+        written = EUDVariable()
+        if EUDIf()(size >= APP_OUTPUT_MAXSIZE):
+            written << APP_OUTPUT_MAXSIZE
+        if EUDElse()():
+            written << size
+        EUDEndIf()
+
+        f_memcpy(app_output, src_buffer, written)
+        app_output_sz << written
+
+        EUDReturn(written)
+
     def cleanText(self):
         # clean text UI of previous app
         if self.bridge_mode:
@@ -455,14 +477,15 @@ class AppManager:
         from ..apps.repl import REPL
         from .appcommand import AppCommand
 
-        # bridge command
-        if self.bridge_mode:
-            @AppCommand([])
-            def toggleBlind(repl):
-                self.is_blind_mode << 1 - self.is_blind_mode
-            REPL.addCommand("blind", toggleBlind)
-
         if EUDExecuteOnce()():
+            if self.isBridgeMode():
+                bridge_init()
+
+                # bridge command
+                @AppCommand([])
+                def toggleBlind(repl):
+                    self.is_blind_mode << 1 - self.is_blind_mode
+                REPL.addCommand("blind", toggleBlind)
             self.startApplication(REPL)
         EUDEndExecuteOnce()
 

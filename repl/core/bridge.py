@@ -27,6 +27,7 @@ struct SharedRegion {
 '''
 LOGGER_LINE_SIZE = 216
 LOGGER_LINE_COUNT = 500
+APP_OUTPUT_MAXSIZE = 2000
 
 members = [
     ('signature', 160),
@@ -35,7 +36,7 @@ members = [
     ('command', 300),
     ('frameCount', 4),
     ('app_output_sz', 4),
-    ('app_output', 2000),
+    ('app_output', APP_OUTPUT_MAXSIZE),
     ('log_index', 4),
     ('logger_log', LOGGER_LINE_COUNT * LOGGER_LINE_SIZE),
     ('displayIndex', 4),
@@ -79,8 +80,9 @@ for off in offsets:
 
 # temporary storage
 buf_command = Db(300)
+
 app_output_sz = EUDVariable(0)
-app_output = Db(2000)
+app_output = Db(APP_OUTPUT_MAXSIZE)
 
 def bridge_init():
     cp = f_getcurpl()
@@ -90,10 +92,13 @@ def bridge_init():
          SetMemory(0x6509B0, Add, 1)] for _ in range(160 // 4)
     ])
 
+    from ..apps import Logger
+    Logger.format("Bridge shared region ptr = %D", EUDVariable(shared_region))
+
     f_setcurpl(cp)
 
 def bridge_loop(manager):
-    from ..apps.logger import buf_start_epd, next_epd_to_write, log_index
+    from ..apps.logger import buf_start_epd, log_index
     prev_log_index = EUDVariable(0)
 
     # Too-much milk solution #3
@@ -112,7 +117,7 @@ def bridge_loop(manager):
         ############## tp bridge ################
         # app output
         if EUDIf()(Memory(offsets["app_output_sz"], Exactly, 0)):
-            f_repmovsd_epd(EPD(offsets["app_output"]), EPD(app_output), 2000//4)
+            f_repmovsd_epd(EPD(offsets["app_output"]), EPD(app_output), APP_OUTPUT_MAXSIZE//4)
             f_dwwrite_epd(EPD(offsets["app_output_sz"]), app_output_sz)
             app_output_sz << 0
         EUDEndIf()

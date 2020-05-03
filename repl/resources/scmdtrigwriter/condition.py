@@ -1,7 +1,8 @@
 from eudplib import *
-from ..writer import writeUnit, writeLocation
+from ..writer import writeLocation
 from ..writer.condition import _condmap
 from . import *
+from .unit import SCMDWriteUnit
 
 def SCMDWriteCondition(cond):
     assert isinstance(cond, Condition)
@@ -20,11 +21,11 @@ def _writeDeaths(cond):
     assert cond.fields[8] == 0, "eudx is currently not supported"
 
     getWriter().write_f("Deaths(")
-    SCMDDecoder_Player(cond.fields[1])
+    SCMDWritePlayer(cond.fields[1])
     getWriter().write_f(", ")
-    writeUnit(cond.fields[3])
+    SCMDWriteUnit(cond.fields[3])
     getWriter().write_f(", ")
-    SCMDDecoder_Comparison(cond.fields[4])
+    SCMDWriteComparison(cond.fields[4])
     getWriter().write_f(", ")
-    SCMDDecoder_Number(cond.fields[2])
+    SCMDWriteNumber(cond.fields[2])
     getWriter().write_f(");\n")
