@@ -109,7 +109,7 @@ class TestPatternApp(Application):
         writer.write_f("Observed trigger delay = %D " \
                 "(1:eudturbo, 2:turbo, 31:noturbo)\n", obs_trig_delay)
 
-        writer.write_f("Set trigger delay mode: ", )
+        writer.write_f("Set trigger delay mode (T): ", )
         if EUDIf()(v_turbomode == TURBOMODE_EUDTURBO):
             writer.write_f("eudturbo")
             if EUDIfNot()(obs_trig_delay == 1):

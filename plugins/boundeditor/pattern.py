@@ -18,6 +18,7 @@ from ..location.rect import drawRectangle
 from .detail import DetailedActionApp
 from . import (
     appManager,
+    superuser,
     MAX_ACTION_COUNT,
     focused_pattern_id,
     g_effectplayer,
@@ -263,6 +264,10 @@ class PatternApp(Application):
         if EUDElseIf()(appManager.keyPress('N')):
             # confirm
             if EUDIfNot()(chosen_location.Exactly(0)):
+                cp = f_getcurpl()
+                f_setcurpl(superuser)
+                DoActions(PlayWAV("sound\\Misc\\Button.wav"))
+                f_setcurpl(cp)
                 if EUDIf()(macro_mode.Exactly(MACRO_BOMB)):
 
                     # evaluate size of chosen_location
@@ -325,42 +330,42 @@ class PatternApp(Application):
         appManager.requestUpdate()
 
     def print(self, writer):
-        writer.write_f("Bound Editor - Pattern mode\n")
-        writer.write_f("[<<(Q)] [<(W)] %D / %D [>(E)] [>>(R)]\n",
+        writer.write_f("\x04Bound Editor - Pattern mode\n")
+        writer.write_f("[<<\x07(Q)\x04] [<\x07(W)\x04] \x03%D / %D\x04 [>\x07(E)\x04] [>>\x07(R)\x04]\n",
             focused_pattern_id+1, p_count)
-        writer.write_f("Append(A), Insert(I), Delete(D), Test(T)\n")
-        writer.write_f("Wait value(,.): %D\n", cur_wait_value)
+        writer.write_f("Append\x07(A)\x04, Insert\x07(I)\x04, Delete\x07(D)\x04, Test\x07(T)\x04\n")
+        writer.write_f("Wait value\x07(,.)\x04: %D\n", cur_wait_value)
 
 
-        writer.write_f("Total %D actions, press 'P' to see detail\n",
+        writer.write_f("\x04Total \x03%D\x04 actions, press \x07'P'\x04 to see detail\n",
             p_actionCount[focused_pattern_id])
-        writer.write_f("Mode(M): ")
+        writer.write_f("Mode\x07(M)\x04: ")
         if EUDIf()(macro_mode == MACRO_BOMB):
             writer.write(0x11)
         if EUDElse()():
-            writer.write(2)
+            writer.write(0x04)
         EUDEndIf()
         writer.write_f("Bomb ")
         if EUDIf()(macro_mode == MACRO_OBSTACLE):
             writer.write(0x11)
         if EUDElse()():
-            writer.write(2)
+            writer.write(0x04)
         EUDEndIf()
         writer.write_f("Obstacle ")
         if EUDIf()(macro_mode == MACRO_OBSTACLEDESTRUCT):
             writer.write(0x11)
         if EUDElse()():
-            writer.write(2)
+            writer.write(0x04)
         EUDEndIf()
         writer.write_f("ObstacleDestruct\n")
 
-        writer.write_f("\x02LClick with mouse - choose location, "\
-            "press 'N' to confirm it and insert actions\n")
+        writer.write_f("\x07LClick\x04 with mouse - choose location, "\
+            "press \x07'N'\x04 to confirm it and insert actions\n")
 
         if EUDIf()(chosen_location.Exactly(0)):
             writer.write_f("No Location is chosen")
         if EUDElse()():
-            writer.write_f("Chosen location: ")
+            writer.write_f("Chosen location: \x03")
             writeLocation(chosen_location)
         EUDEndIf()
         writer.write_f("\n")
