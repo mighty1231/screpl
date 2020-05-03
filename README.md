@@ -8,9 +8,10 @@ It helps to debug UMS maps in Starcraft I.
 
 UMS maps applied SC-ERPL with...
 
-* `location` plugin - [video](https://youtu.be/f3M0CDGIX2A)
-, [source](https://github.com/mighty1231/screpl/tree/master/plugins/location)
-* `sample` plugin - [video](https://www.youtube.com/watch?v=6RexCF3SBFU), [source](https://github.com/mighty1231/screpl/blob/master/example/sample/myapp.py)
+* `sample` plugin - [video](https://youtu.be/6RexCF3SBFU), [source](example/sample/myapp.py)
+* `location` plugin - [video](https://youtu.be/f3M0CDGIX2A), [source](plugins/location)
+* `boundeditor` plugin - [video](https://youtu.be/c_VYYc7Ozy8), [source](plugins/boundeditor
+)
 
 ## Required
 
@@ -65,8 +66,7 @@ Documentation is provided with [Github wiki](https://github.com/mighty1231/screp
 
 ## Contribution Guide
 
-You may make your own plugin, but also you can contribute to this project. Check [contribution guide](CONTRIBUTING.md).
-
+You can contribute to this project. Check [contribution guide](CONTRIBUTING.md).
 
 ## LICENSE
 
