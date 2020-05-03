@@ -56,8 +56,6 @@ void Worker::run()
             msleep(50);
         }
     }
-    delete region;
-    delete regiontmp;
 }
 
 bool Worker::searchProcess()
