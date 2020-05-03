@@ -44,27 +44,20 @@ def _log(self):
 @AppCommand([argEncNumber])
 def _setTriggerDelay(self, delay):
     getAppManager().setTriggerDelay(delay)
+    writer = getAppManager().getWriter()
+    writer.seekepd(self.cmd_output_epd)
+    writer.write_f("Now trigger delay is %D (0:eudturbo, 1:turbo)", delay)
+    writer.write(0)
 
 @AppCommand([])
 def _unsetTriggerDelay(self):
     getAppManager().unsetTriggerDelay()
-
-@AppCommand([])
-def _setEUDTurbo(self):
-    getAppManager().setTriggerDelay(0)
-
-@AppCommand([])
-def _setTurbo(self):
-    getAppManager().setTriggerDelay(1)
-
-@AppCommand([])
-def _unsetTurbo(self):
-    getAppManager().unsetTriggerDelay()
+    writer = getAppManager().getWriter()
+    writer.seekepd(self.cmd_output_epd)
+    writer.write_f("Unset trigger delay")
+    writer.write(0)
 
 REPL.addCommand("help", _help)
 REPL.addCommand("log", _log)
-REPL.addCommand("trigdelay", _setTriggerDelay)
-REPL.addCommand("trigdelayOFF", _unsetTriggerDelay)
-REPL.addCommand("eudturboON", _setEUDTurbo)
-REPL.addCommand("turboON", _setTurbo)
-REPL.addCommand("turboOFF", _unsetTurbo)
+REPL.addCommand("delay", _setTriggerDelay)
+REPL.addCommand("delayOFF", _unsetTriggerDelay)
