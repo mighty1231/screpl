@@ -27,7 +27,10 @@ from . import (
     p_count,
     p_actionCount,
     p_actionArrayEPD,
-    p_waitValue
+    p_waitValue,
+    g_runner_force,
+    g_runner_unit,
+    g_start_location
 )
 from repl.resources.scmdtrigwriter import writeTrigger
 
@@ -52,26 +55,30 @@ def writeBoundTriggers():
     global writer
     writer.seekepd(EPD(storage))
 
-    # turbo, timer, ...
-    if EUDIf()(v_turbo_mode.Exactly(TURBO_EUD)):
-        writeTrigger(
-            g_effectplayer,
-            [Always()],
-            ["MemoryAddr(0x6509A0, Set To, 0);\n"]
-        )
-    if EUDElseIf()(v_turbo_mode.Exactly(TURBO_NORMAL)):
-        for i in range(3):
-            writeTrigger(
-                g_effectplayer,
-                [Always()],
-                ["Wait(0);\n" for _ in range(63)]
-            )
-    EUDEndIf()
+    writeTrigger(
+        g_runner_force,
+        [Always()],
+        ["Comment(\"Score\");\n",
+         "Leader Board Points(\"\\x007Deaths\", Custom);\n",
+         "Leaderboard Computer Players(disabled);\n",
+         SetScore(g_runner_force, SetTo, 0, Custom)],
+        preserved = False
+    )
+    writeTrigger(
+        g_effectplayer,
+        ["Command(\"Player 12\", \"Men\", At least, 1);\n"],
+        ["Remove Unit(\"Player 12\", \"Men\");\n"]
+    )
+    writeTrigger(
+        AllPlayers,
+        [Always()],
+        ["Set Alliance Status(\"All players\", Ally);\n"],
+        preserved = False
+    )
 
     # main bound triggers
-    next_timer = EUDVariable()
+    next_timer, pattern_id = EUDCreateVariables(2)
     next_timer << 0
-    pattern_id = EUDVariable()
     pattern_id << 0
     if EUDInfLoop()():
         # for each pattern...
@@ -95,7 +102,8 @@ def writeBoundTriggers():
 
             writeTrigger(
                 g_effectplayer,
-                [Deaths(g_effectplayer, Exactly, next_timer, v_death_unit)],
+                ["// EXTRA_CONDITION\n",
+                 Deaths(g_effectplayer, Exactly, next_timer, v_death_unit)],
                 (num_actions_to_send, action_epd)
             )
 
@@ -110,14 +118,41 @@ def writeBoundTriggers():
     # making loop
     writeTrigger(
         g_effectplayer,
-        [Always()],
+        ["// EXTRA_CONDITION\n",
+         Always()],
         [SetDeaths(g_effectplayer, Add, 1, v_death_unit)]
     )
     writeTrigger(
         g_effectplayer,
-        [Deaths(g_effectplayer, Exactly, next_timer, v_death_unit)],
+        ["// EXTRA_CONDITION\n",
+         Deaths(g_effectplayer, Exactly, next_timer, v_death_unit)],
         [SetDeaths(g_effectplayer, SetTo, 0, v_death_unit)]
     )
+
+    # death condition
+    writeTrigger(
+        g_runner_force,
+        ["// EXTRA_CONDITION\n",
+         Command(CurrentPlayer, Exactly, 0, g_runner_unit)],
+        [CreateUnit(1, g_runner_unit, g_start_location, CurrentPlayer),
+         SetScore(CurrentPlayer, Add, 1, Custom)]
+    )
+
+    # turbo, timer, ...
+    if EUDIf()(v_turbo_mode.Exactly(TURBO_EUD)):
+        writeTrigger(
+            g_effectplayer,
+            [Always()],
+            ["MemoryAddr(0x6509A0, Set To, 0);\n"]
+        )
+    if EUDElseIf()(v_turbo_mode.Exactly(TURBO_NORMAL)):
+        for i in range(3):
+            writeTrigger(
+                g_effectplayer,
+                [Always()],
+                ["Wait(0);\n" * 63]
+            )
+    EUDEndIf()
 
     writer.write(0)
 

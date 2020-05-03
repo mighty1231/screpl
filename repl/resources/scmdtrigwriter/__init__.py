@@ -37,7 +37,7 @@ def SCMDWriteNumber(value):
     else:
         getWriter().write_f(str(value))
 
-def writeTrigger(player, conditions, actions, preserve = True):
+def writeTrigger(player, conditions, actions, preserved = True):
     from .condition import SCMDWriteCondition
     from .action import SCMDWriteAction, SCMDWriteAction_epd
     '''
@@ -53,6 +53,8 @@ def writeTrigger(player, conditions, actions, preserve = True):
     for cond in conditions:
         if type(cond) == str:
             getWriter().write_f(cond)
+        elif type(cond) == tuple:
+            getWriter().write_f(*cond)
         elif type(cond) == Condition:
             SCMDWriteCondition(cond)
         else:
@@ -67,6 +69,8 @@ def writeTrigger(player, conditions, actions, preserve = True):
         for act in actions:
             if type(act) == str:
                 getWriter().write_f(act)
+            elif type(act) == tuple:
+                getWriter().write_f(*act)
             elif type(act) == Action:
                 SCMDWriteAction(act)
             else:
@@ -87,7 +91,7 @@ def writeTrigger(player, conditions, actions, preserve = True):
     from repl import f_raiseWarning
     f_raiseWarning("Writing actions.. done!")
 
-    if preserve:
+    if preserved:
         getWriter().write_f("Preserve Trigger();\n")
     getWriter().write_f("}\n\n")
 
@@ -126,4 +130,15 @@ SCMDWriteOrder = makeSCMDConstWriter(EncodeOrder, [
     (Move, "move"),
     (Patrol, "patrol"),
     (Attack, "attack"),
+])
+
+SCMDWriteScore = makeSCMDConstWriter(EncodeScore, [
+    (Total, "Total"),
+    (Units, "Units"),
+    (Buildings, "Buildings"),
+    (UnitsAndBuildings, "Units and buildings"),
+    (Kills, "Kills"),
+    (Razings, "Razings"),
+    (KillsAndRazings, "Kills and razings"),
+    (Custom, "Custom"),
 ])

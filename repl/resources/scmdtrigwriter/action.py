@@ -12,10 +12,14 @@ def SCMDWriteAction(act):
 
     if acttype == 3:
         getWriter().write_f("Preserve Trigger();\n")
+    elif acttype == 44:
+        _writeCreateUnit(act)
     elif acttype == 45:
         _writeSetDeaths(act)
+    elif acttype == 27:
+        _writeSetScore(act)
     else:
-        print("WARNING: Unknown action type %d" % acttype)
+        raise RuntimeError("Unknown action type %d" % acttype)
 
 @EUDFunc
 def SCMDWriteAction_epd(epd):
@@ -42,6 +46,30 @@ def _writeSetDeaths(act):
     SCMDWriteModifier(act.fields[8])
     getWriter().write_f(", ")
     SCMDWriteNumber(act.fields[5])
+    getWriter().write_f(");\n")
+
+def _writeSetScore(act):
+    # Set Score("Force 1", Set To, 0, Custom);
+    getWriter().write_f("Set Score(")
+    SCMDWritePlayer(act.fields[4])
+    getWriter().write_f(", ")
+    SCMDWriteModifier(act.fields[8])
+    getWriter().write_f(", ")
+    SCMDWriteNumber(act.fields[5])
+    getWriter().write_f(", ")
+    SCMDWriteScore(act.fields[6])
+    getWriter().write_f(");\n")
+
+def _writeCreateUnit(act):
+    # Create Unit("Players", "Unit Name", Unit Amount(#), "Location");
+    getWriter().write_f("Create Unit(")
+    SCMDWritePlayer(act.fields[4])
+    getWriter().write_f(", ")
+    SCMDWriteUnit(act.fields[6])
+    getWriter().write_f(", ")
+    SCMDWriteNumber(act.fields[8])
+    getWriter().write_f(", ")
+    writeLocation(act.fields[0])
     getWriter().write_f(");\n")
 
 @EUDFunc
