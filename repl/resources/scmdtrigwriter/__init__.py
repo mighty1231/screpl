@@ -62,9 +62,6 @@ def writeTrigger(player, conditions, actions, preserved = True):
 
     getWriter().write_f("\nActions:\n")
 
-    from repl import f_raiseWarning
-    f_raiseWarning("Writing actions..")
-
     if isinstance(actions, list):
         for act in actions:
             if type(act) == str:
@@ -87,9 +84,6 @@ def writeTrigger(player, conditions, actions, preserved = True):
             SCMDWriteAction_epd(cur_epd)
             cur_epd += (32//4)
         EUDEndInfLoop()
-
-    from repl import f_raiseWarning
-    f_raiseWarning("Writing actions.. done!")
 
     if preserved:
         getWriter().write_f("Preserve Trigger();\n")
