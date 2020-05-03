@@ -3,6 +3,7 @@
 
 #include <Windows.h>
 #include <QDebug>
+#include <QTextCursor>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -62,13 +63,25 @@ bool MainWindow::initialize(Worker *_worker) {
 void MainWindow::update(QString applog, QString loggerlog, QString display)
 {
     if (!applog.isEmpty()) {
-        ui->from_log->append(applog);
+        QTextCursor prev_cursor = ui->from_log->textCursor();
+        ui->from_log->moveCursor(QTextCursor::End);
+        ui->from_log->insertPlainText(applog);
+        ui->from_log->moveCursor(QTextCursor::End);
+        if (prev_cursor.atEnd())
+            ui->from_log->moveCursor(QTextCursor::End);
+        else
+            ui->from_log->setTextCursor(prev_cursor);
     }
 
     if (!loggerlog.isEmpty()) {
-        ui->from_logger->append(loggerlog);
+        QTextCursor prev_cursor = ui->from_logger->textCursor();
+        ui->from_logger->moveCursor(QTextCursor::End);
+        ui->from_logger->insertPlainText(loggerlog);
+        if (prev_cursor.atEnd())
+            ui->from_logger->moveCursor(QTextCursor::End);
+        else
+            ui->from_logger->setTextCursor(prev_cursor);
     }
-
 
     QString prev = ui->from_display->toPlainText();
     if (prev.compare(display)) {

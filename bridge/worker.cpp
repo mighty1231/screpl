@@ -300,8 +300,7 @@ void Worker::process()
     for (int i=last_log_index; i<region->log_index; i++) {
         int line = i % LOGGER_LINE_COUNT;
         logger_log.append(ignoreColor(region->logger_log[line]));
-        if (i != region->log_index - 1)
-            logger_log.append('\n');
+        logger_log.append('\n');
     }
     last_log_index = region->log_index;
 
