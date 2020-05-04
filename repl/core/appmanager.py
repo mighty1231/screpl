@@ -319,19 +319,33 @@ class AppManager:
 
     def keyDown(self, key):
         key = getKeyCode(key)
-        return MemoryEPD(self.keystates + key, Exactly, 1)
+        ret = [
+            Memory(0x512684, Exactly, self.superuser),  # superuser check
+            Memory(0x68C144, Exactly, 0),               # chat status - not chatting
+            MemoryEPD(self.keystates + key, Exactly, 1)
+        ]
+        return ret
 
     def keyUp(self, key):
         key = getKeyCode(key)
-        return MemoryEPD(self.keystates + key, Exactly, 2**32-1)
+        ret = [
+            Memory(0x512684, Exactly, self.superuser),  # superuser check
+            Memory(0x68C144, Exactly, 0),               # chat status - not chatting
+            MemoryEPD(self.keystates + key, Exactly, 2**32-1)
+        ]
+        return ret
 
     def keyPress(self, key, hold=[]):
         '''
         hold: list of keys, such as LCTRL, LSHIFT, LALT, etc...
         '''
         key = getKeyCode(key)
-        actions = [MemoryEPD(self.keystates + key, AtLeast, 1),
-            MemoryEPD(self.keystates_sub + key, Exactly, 1)]
+        actions = [
+            Memory(0x512684, Exactly, self.superuser),  # superuser check
+            Memory(0x68C144, Exactly, 0),               # chat status - not chatting
+            MemoryEPD(self.keystates + key, AtLeast, 1),
+            MemoryEPD(self.keystates_sub + key, Exactly, 1)
+        ]
         for holdkey in hold:
             holdkey = getKeyCode(holdkey)
             actions.append(MemoryEPD(self.keystates + holdkey, AtLeast, 1))
