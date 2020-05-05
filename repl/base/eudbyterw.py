@@ -14,9 +14,12 @@ class EUDByteRW:
         self.off << 0
 
     def seekoffset(self, ptr):
+        if not IsEUDVariable(ptr):
+            raise RuntimeError("If you want to seek offset of EUDObject," \
+                    "use seekepd(EPD(EUDObject))")
+
         epd, off = f_div(ptr, 4)
         epd += -0x58A364 // 4
-
         self.epd << epd
         self.off << off
 
