@@ -23,12 +23,6 @@ v_mode = EUDVariable(MODE_INSERT)
 tmp_storage = Db(10000)
 tmp_storage_epd = EPD(tmp_storage)
 
-'''
-the way to emphasize the cursor
-cursor_epd     : 0D xx xx xx (0D -> '|' or color code)
-cursor_epd + 1 : 0D xx xx xx (0D -> restored color code )
-'''
-
 class StringEditorApp(Application):
     def onInit(self):
         v_string_epd << allocateForBuffer(cur_string_id)
@@ -185,7 +179,11 @@ class StringEditorApp(Application):
         if EUDIf()(v_frame >= BLINK_PERIOD):
             # emphasize
             if EUDIf()(v_mode == MODE_OVERWRITE):
-                # evaluate last color codes
+                '''
+                the way to emphasize the cursor
+                cursor_epd     : 0D xx xx xx (0D -> '|' or color code)
+                cursor_epd + 1 : 0D xx xx xx (0D -> restored color code )
+                '''
                 v_color, v_tmp_epd = EUDCreateVariables(2)
 
                 v_color << 0x01 # default color code
