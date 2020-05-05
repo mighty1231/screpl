@@ -14,7 +14,7 @@ v_string_epd = EUDVariable()
 v_cursor_epd = EUDVariable()
 v_frame = EUDVariable(0)
 
-# if string does not changed, restore previous string pointer
+# if string is not changed, restore previous string pointer
 v_changed = EUDVariable()
 v_oldbuf_offset = EUDVariable()
 v_previous_alloc_epd = EUDVariable()
@@ -224,13 +224,12 @@ class StringEditorApp(Application):
         v_cursor_val  << f_dwread_epd(v_cursor_epd)
         v_cursor_val2 << f_dwread_epd(v_cursor_epd + 1)
         if EUDIf()(v_frame < BLINK_PERIOD):
-            # emphasize
+            '''
+            the way to show cursor
+            cursor_epd     : 0D xx xx xx (0D -> '|' or color code)
+            cursor_epd + 1 : 0D xx xx xx (0D -> restored color code )
+            '''
             if EUDIf()(v_mode == MODE_OVERWRITE):
-                '''
-                the way to emphasize the cursor
-                cursor_epd     : 0D xx xx xx (0D -> '|' or color code)
-                cursor_epd + 1 : 0D xx xx xx (0D -> restored color code )
-                '''
                 v_color, v_tmp_epd = EUDCreateVariables(2)
 
                 v_color << 0x01 # default color code

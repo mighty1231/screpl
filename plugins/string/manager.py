@@ -1,11 +1,9 @@
 from eudplib import *
 from repl import (
     Application,
-    AppTypedMethod,
     AppCommand,
     argEncNumber,
-    EUDByteRW,
-    Logger
+    EUDByteRW
 )
 
 from . import *
@@ -44,12 +42,6 @@ def setStringID(new_string_id):
     EUDEndIf()
 
 class StringManagerApp(Application):
-    def onInit(self):
-        pass
-
-    def onChat(self, offset):
-        pass
-
     def loop(self):
         if EUDIf()(appManager.keyPress("ESC")):
             appManager.requestDestruct()
@@ -68,9 +60,15 @@ class StringManagerApp(Application):
         appManager.requestUpdate()
 
     def print(self, writer):
-        writer.write_f("\x04StringManager id=%D / total %D strings, " \
-                "press F7, F8 to navigate\n", cur_string_id, string_count)
+        writer.write_f("\x04StringManager id=%D / total %D strings\n", cur_string_id, string_count)
         writeFirstLine(STRSection + f_dwread_epd(cur_string_offset_epd))
         writer.write_f("\n\n\x04LCTRL+E Edit String...\n")
         writer.write_f("LCTRL+B Export to Bridge...\n")
+        writer.write_f("To navigate strings, ...\n")
+        writer.write_f("  - Press F7 or F8\n")
+        writer.write_f("  - Use a command \"id(##)\"\n")
         writer.write(0)
+
+    @AppCommand([argEncNumber])
+    def id(self, new_string_id):
+        setStringID(new_string_id)
