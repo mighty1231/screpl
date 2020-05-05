@@ -4,7 +4,8 @@ from repl import (
     AppTypedMethod,
     AppCommand,
     argEncNumber,
-    Logger
+    Logger,
+    f_raiseWarning
 )
 
 from . import *
@@ -38,6 +39,7 @@ class StringEditorApp(Application):
 
         reader = EUDByteRW()
         reader.seekoffset(offset)
+        clear_overwrite, clear_insert = Forward(), Forward()
         if EUDIf()(v_mode == MODE_OVERWRITE):
             null_met = EUDVariable()
             null_met << 0
@@ -48,6 +50,33 @@ class StringEditorApp(Application):
                 # string became longer
                 if EUDIf()(MemoryEPD(v_cursor_epd, Exactly, 0)):
                     null_met << 1
+                EUDEndIf()
+
+                # string escape character
+                if EUDIf()(b1 == ord('\\')):
+                    eb2 = reader.read()
+                    if EUDIf()(eb2 == ord('\\')):
+                        b1 << ord('\\')
+                    if EUDElseIf()(eb2 == ord('x')):
+                        b1 << 0
+                        for nnn in range(2):
+                            hexb = reader.read()
+                            if EUDIf()([hexb >= ord('0'), hexb <= ord('9')]):
+                                b1 += (hexb - ord('0'))
+                            if EUDElseIf()([hexb >= ord('a'), hexb <= ord('f')]):
+                                b1 += (hexb - ord('a') + 10)
+                            if EUDElseIf()([hexb >= ord('A'), hexb <= ord('F')]):
+                                b1 += (hexb - ord('A') + 10)
+                            if EUDElse()():
+                                f_raiseWarning("String escape character '\\' usage-> '\\\\' or '\\x##'")
+                                EUDJump(clear_overwrite)
+                            EUDEndIf()
+                            if nnn == 0:
+                                b1 *= 16
+                    if EUDElse()():
+                        f_raiseWarning("String escape character '\\' usage-> '\\\\' or '\\x##'")
+                        EUDJump(clear_overwrite)
+                    EUDEndIf()
                 EUDEndIf()
 
                 if EUDIf()(b1 < 128):
@@ -63,6 +92,7 @@ class StringEditorApp(Application):
                 v_cursor_epd += 1
             EUDEndInfLoop()
 
+            clear_overwrite << NextTrigger()
             if EUDIf()(null_met == 1):
                 f_dwwrite_epd(v_cursor_epd, 0)
             EUDEndIf()
@@ -71,6 +101,33 @@ class StringEditorApp(Application):
             if EUDInfLoop()():
                 b1 = reader.read()
                 EUDBreakIf(b1 == 0)
+
+                # string escape character
+                if EUDIf()(b1 == ord('\\')):
+                    eb2 = reader.read()
+                    if EUDIf()(eb2 == ord('\\')):
+                        b1 << ord('\\')
+                    if EUDElseIf()(eb2 == ord('x')):
+                        b1 << 0
+                        for nnn in range(2):
+                            hexb = reader.read()
+                            if EUDIf()([hexb >= ord('0'), hexb <= ord('9')]):
+                                b1 += (hexb - ord('0'))
+                            if EUDElseIf()([hexb >= ord('a'), hexb <= ord('f')]):
+                                b1 += (hexb - ord('a') + 10)
+                            if EUDElseIf()([hexb >= ord('A'), hexb <= ord('F')]):
+                                b1 += (hexb - ord('A') + 10)
+                            if EUDElse()():
+                                f_raiseWarning("String escape character '\\' usage-> '\\\\' or '\\x##'")
+                                EUDJump(clear_overwrite)
+                            EUDEndIf()
+                            if nnn == 0:
+                                b1 *= 16
+                    if EUDElse()():
+                        f_raiseWarning("String escape character '\\' usage-> '\\\\' or '\\x##'")
+                        EUDJump(clear_overwrite)
+                    EUDEndIf()
+                EUDEndIf()
 
                 if EUDIf()(b1 < 128):
                     f_dwwrite_epd(v_cursor_epd, 0x0D0D0D + b1*0x01000000)
@@ -85,6 +142,7 @@ class StringEditorApp(Application):
                 v_cursor_epd += 1
             EUDEndInfLoop()
 
+            clear_insert << NextTrigger()
             f_strcpy_epd(v_cursor_epd, tmp_storage_epd)
         EUDEndIf()
 
