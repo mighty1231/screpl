@@ -124,9 +124,9 @@ def allocateForBuffer(string_id):
 
     # Extra space. Give more spaces.
     ret_epd = EUDVariable()
-    epddiff = cur_epd - new_alloc_epd
+    epd_diff = cur_epd - new_alloc_epd
     ret_epd << new_alloc_epd
-    new_alloc_epd += (epddiff + 500)
+    new_alloc_epd += (epd_diff + 500)
 
     f_dwwrite_epd(string_offset_epd, (ret_epd - STRSection_epd) * 4)
 
@@ -169,6 +169,36 @@ def UTF8Check(offset):
     EUDEndInfLoop()
 
     EUDReturn(1)
+
+@EUDFunc
+def f_strcpy_epd(dstepdp, srcepdp):
+    '''
+    dstepdp <- srcepdp
+    returns updated dstepdp
+    '''
+    cpmoda = Forward()
+
+    VProc([dstepdp, srcepdp], [
+        SetMemory(cpmoda, SetTo, -1),
+        dstepdp.QueueAddTo(EPD(cpmoda)),
+        srcepdp.SetDest(EPD(0x6509B0))
+    ])
+
+    if EUDInfLoop()():
+        cpmod = f_dwread_cp(0)
+        cpmoda << cpmod.getDestAddr()
+
+        VProc(cpmod, [
+            cpmod.AddDest(1),
+            SetMemory(0x6509B0, Add, 1)
+        ])
+
+        EUDBreakIf(cpmod.Exactly(0))
+    EUDEndInfLoop()
+
+    f_setcurpl2cpcache()
+
+    # EUDReturn(f_dwread_epd(EPD(cpmoda)))
 
 # make commands
 from .manager import StringManagerApp
