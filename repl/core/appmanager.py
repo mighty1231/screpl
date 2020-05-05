@@ -320,7 +320,6 @@ class AppManager:
     def keyDown(self, key):
         key = getKeyCode(key)
         ret = [
-            Memory(0x512684, Exactly, self.superuser),  # superuser check
             Memory(0x68C144, Exactly, 0),               # chat status - not chatting
             MemoryEPD(self.keystates + key, Exactly, 1)
         ]
@@ -329,7 +328,6 @@ class AppManager:
     def keyUp(self, key):
         key = getKeyCode(key)
         ret = [
-            Memory(0x512684, Exactly, self.superuser),  # superuser check
             Memory(0x68C144, Exactly, 0),               # chat status - not chatting
             MemoryEPD(self.keystates + key, Exactly, 2**32-1)
         ]
@@ -341,7 +339,6 @@ class AppManager:
         '''
         key = getKeyCode(key)
         actions = [
-            Memory(0x512684, Exactly, self.superuser),  # superuser check
             Memory(0x68C144, Exactly, 0),               # chat status - not chatting
             MemoryEPD(self.keystates + key, AtLeast, 1),
             MemoryEPD(self.keystates_sub + key, Exactly, 1)
@@ -503,8 +500,10 @@ class AppManager:
             self.startApplication(REPL)
         EUDEndExecuteOnce()
 
-        self.updateMouseState()
-        self.updateKeyState()
+        if EUDIf()(Memory(0x512684, Exactly, self.superuser)):
+            self.updateMouseState()
+            self.updateKeyState()
+        EUDEndIf()
 
         # turbo mode
         if EUDIfNot()(trigger_framedelay.Exactly(-1)):
