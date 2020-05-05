@@ -14,6 +14,11 @@ v_string_epd = EUDVariable()
 v_cursor_epd = EUDVariable()
 v_frame = EUDVariable(0)
 
+# if string does not changed, restore previous string pointer
+v_changed = EUDVariable()
+v_oldbuf_offset = EUDVariable()
+v_previous_alloc_epd = EUDVariable()
+
 BLINK_PERIOD = 4
 
 MODE_INSERT = 0
@@ -25,11 +30,51 @@ tmp_storage_epd = EPD(tmp_storage)
 
 class StringEditorApp(Application):
     def onInit(self):
-        v_string_epd << allocateForBuffer(cur_string_id)
+        string_offset_epd = STRSection_epd + cur_string_id
+        v_oldbuf_offset << f_dwread_epd(string_offset_epd)
+        string_ptr = STRSection + v_oldbuf_offset
+        if EUDIf()([string_ptr >= string_buffer, string_ptr <= (string_buffer_end - 1)]):
+            # already allocated
+            v_changed << 1
+            v_string_epd << EPD(string_ptr)
+        if EUDElse()():
+            v_changed << 0
+            v_previous_alloc_epd << new_alloc_epd
+            v_string_epd << allocateForBuffer(cur_string_id)
+        EUDEndIf()
         v_cursor_epd << v_string_epd
+
+    def onDestruct(self):
+        if EUDIf()(v_changed == 0):
+            # fill null bytes for allocated buffer
+            temp_epd = EUDVariable()
+            temp_epd << v_previous_alloc_epd
+            cond, act = Forward(), Forward()
+
+            # cur_epd = v_previous_alloc_epd
+            SeqCompute([
+                (EPD(cond + 4), SetTo, EPD(act + 16)),
+                (EPD(cond + 8), SetTo, new_alloc_epd),
+                (EPD(act + 16), SetTo, v_previous_alloc_epd),
+            ])
+            if EUDInfLoop()():
+                EUDBreakIf(cond << Memory(0, AtLeast, 0)) # Memory(cur_epd, AtLeast, new_alloc_epd)
+
+                DoActions([
+                    act << SetMemory(0, SetTo, 0), # SetMemory(cur_epd, Add, 1)
+                    SetMemory(act + 16, Add, 1),   # cur_epd += 1
+                ])
+            EUDEndInfLoop()
+
+            # restore pointers
+            f_dwwrite_epd(STRSection_epd + cur_string_id, v_oldbuf_offset)
+            new_alloc_epd << v_previous_alloc_epd
+        EUDEndIf()
 
     def onChat(self, offset):
         global v_cursor_epd
+
+        v_changed << 1
 
         reader = EUDByteRW()
         reader.seekoffset(offset)
@@ -113,13 +158,13 @@ class StringEditorApp(Application):
                                 b1 += (hexb - ord('A') + 10)
                             if EUDElse()():
                                 f_raiseWarning("String escape character '\\' usage-> '\\\\' or '\\x##'")
-                                EUDJump(clear_overwrite)
+                                EUDJump(clear_insert)
                             EUDEndIf()
                             if nnn == 0:
                                 b1 *= 16
                     if EUDElse()():
                         f_raiseWarning("String escape character '\\' usage-> '\\\\' or '\\x##'")
-                        EUDJump(clear_overwrite)
+                        EUDJump(clear_insert)
                     EUDEndIf()
                 EUDEndIf()
 
@@ -131,7 +176,7 @@ class StringEditorApp(Application):
                 if EUDElseIf()(b1.ExactlyX(0b11100000, 0b11110000)):
                     b2 = reader.read()
                     b3 = reader.read()
-                    f_dwwrite_epd(v_cursor_epd, 0x0D + b1*0x100 + b2*0x10000 +b3*0x1000000)
+                    f_dwwrite_epd(v_cursor_epd, 0x0D + b1*0x100 + b2*0x10000 + b3*0x1000000)
                 EUDEndIf()
                 v_cursor_epd += 1
             EUDEndInfLoop()
@@ -152,10 +197,12 @@ class StringEditorApp(Application):
         if EUDElseIf()(appManager.keyPress("F7")):
             if EUDIfNot()(v_cursor_epd == v_string_epd):
                 v_cursor_epd -= 1
+                v_frame << BLINK_PERIOD * 2 - 1
             EUDEndIf()
         if EUDElseIf()(appManager.keyPress("F8")):
             if EUDIfNot()(f_dwread_epd(v_cursor_epd) == 0):
                 v_cursor_epd += 1
+                v_frame << BLINK_PERIOD * 2 - 1
             EUDEndIf()
         EUDEndIf()
         appManager.requestUpdate()
@@ -176,7 +223,7 @@ class StringEditorApp(Application):
         v_cursor_val, v_cursor_val2 = EUDCreateVariables(2)
         v_cursor_val  << f_dwread_epd(v_cursor_epd)
         v_cursor_val2 << f_dwread_epd(v_cursor_epd + 1)
-        if EUDIf()(v_frame >= BLINK_PERIOD):
+        if EUDIf()(v_frame < BLINK_PERIOD):
             # emphasize
             if EUDIf()(v_mode == MODE_OVERWRITE):
                 '''
