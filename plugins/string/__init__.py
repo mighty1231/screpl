@@ -12,6 +12,12 @@ string_buffer = Db(STRING_BUFFER_SZ)
 string_buffer_end = string_buffer + STRING_BUFFER_SZ
 new_alloc_epd = EUDVariable(EPD(string_buffer))
 
+string_count = f_dwread_epd(STRSection_epd)
+
+cur_string_id = EUDVariable(1)
+cur_string_offset_epd = EUDVariable()
+cur_string_offset_epd << STRSection_epd + 1
+
 from eudplib.eudlib.stringf.cputf8 import cp949_table
 cvtb = [0] * 65536
 for (ch1, ch2), tab in cp949_table:
