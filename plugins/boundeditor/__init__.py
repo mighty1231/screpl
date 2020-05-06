@@ -2,6 +2,9 @@ from eudplib import *
 
 from repl import REPL, getAppManager, AppCommand
 
+# plugin dependencies
+from .. import location, unit
+
 # initialize variables
 appManager = getAppManager()
 superuser = appManager.superuser
