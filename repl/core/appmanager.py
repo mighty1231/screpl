@@ -496,7 +496,7 @@ class AppManager:
         '''
         return self.writer
 
-    @EUDFunc
+    @EUDMethod
     def getSTRSectionSize(self):
         return self.payload_size
 
