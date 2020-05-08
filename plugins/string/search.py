@@ -41,7 +41,7 @@ code
 from eudplib import *
 
 from . import *
-from repl import Application, f_strlen, EUDByteRW, Logger, print_f
+from repl import Application, f_strlen, EUDByteRW
 
 MAX_SEARCH_CNT = 4096
 LINE_BUF_SZ = 300
@@ -268,12 +268,12 @@ class StringSearchApp(Application):
 
     def onDestruct(self):
         if EUDIf()([v_return_epd >= 1, v_search_cnt >= 1]):
-            f_dwwrite_epd(v_return_epd, v_focused)
+            f_dwwrite_epd(v_return_epd, v_search_ids[v_focused])
         EUDEndIf()
         v_return_epd << 0
 
     def onChat(self, pattern):
-        v_string_id, v_next_empty_result_buffer = EUDCreateVariables(2)
+        v_string_id, v_result_line_ptr = EUDCreateVariables(2)
         c_dupcheck = Forward()
         trig_cpoint = Forward() # continue point
         result_buf_writer = EUDByteRW()
@@ -284,8 +284,8 @@ class StringSearchApp(Application):
 
         v_search_cnt << 0
         v_string_id << 1
-        v_next_empty_result_buffer << db_result_buffer
-        result_buf_writer.seekoffset(v_next_empty_result_buffer)
+        v_result_line_ptr << db_result_buffer
+        result_buf_writer.seekepd(EPD(db_result_buffer))
         if EUDInfLoop()():
             offset = f_dwread_epd(STRSection_epd + v_string_id)
 
@@ -304,14 +304,14 @@ class StringSearchApp(Application):
                 if EUDIf()(found == 1):
                     DoActions([
                         SetMemoryEPD(EPD(v_search_ids) + v_search_cnt, SetTo, v_string_id),
-                        SetMemoryEPD(EPD(v_search_strings) + v_search_cnt, SetTo, v_next_empty_result_buffer),
+                        SetMemoryEPD(EPD(v_search_strings) + v_search_cnt, SetTo, v_result_line_ptr),
                         v_search_cnt.AddNumber(1)
                     ])
 
                     # allocate line
-                    result_buf_writer.write_strn(v_textptr, length)
+                    result_buf_writer.write_f("%E", EPD(db_line_buffer))
                     result_buf_writer.write(0)
-                    v_next_empty_result_buffer += length + 1
+                    v_result_line_ptr << result_buf_writer.getoffset()
 
                     EUDBreak()
                 EUDEndIf()
@@ -345,7 +345,7 @@ class StringSearchApp(Application):
 
     def print(self, writer):
         if EUDIf()(v_search_cnt == 0):
-            writer.write_f("Search results \"%E\" - not found\n",
+            writer.write_f("Search results \"%E\" - not found\n" + "\n" * 8,
                 EPD(db_target))
         if EUDElse()():
             writer.write_f("Search results \"%E\" - %D / total %D found\n",

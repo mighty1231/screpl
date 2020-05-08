@@ -15,8 +15,6 @@ new_alloc_epd = EUDVariable(EPD(string_buffer))
 string_count = f_dwread_epd(STRSection_epd)
 
 cur_string_id = EUDVariable(1)
-cur_string_offset_epd = EUDVariable()
-cur_string_offset_epd << STRSection_epd + 1
 
 from eudplib.eudlib.stringf.cputf8 import cp949_table
 cvtb = [0] * 65536
