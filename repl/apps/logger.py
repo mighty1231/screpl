@@ -29,10 +29,11 @@ multiline_buffer = Db(3000)
 class MultilineLogWriter:
     def __init__(self, name):
         self.name = name
-        writer.seekepd(EPD(multiline_buffer))
+        self.writer = EUDByteRW()
+        self.writer.seekepd(EPD(multiline_buffer))
 
     def __enter__(self):
-        return writer
+        return self.writer
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         reader = EUDByteRW()

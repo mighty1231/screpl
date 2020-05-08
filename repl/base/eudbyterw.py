@@ -11,6 +11,7 @@ class EUDByteRW:
 
     def seekepd(self, epd):
         self.epd << epd
+        DoActions(self.epd.SetNumberX(0, 0xC0000000))
         self.off << 0
 
     def seekoffset(self, ptr):
@@ -21,6 +22,7 @@ class EUDByteRW:
         epd, off = f_div(ptr, 4)
         epd += -0x58A364 // 4
         self.epd << epd
+        DoActions(self.epd.SetNumberX(0, 0xC0000000))
         self.off << off
 
     @EUDMethod
