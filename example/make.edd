@@ -4,7 +4,7 @@ output: repl.scx
 
 [prepl]
 superuser: P1
-plugins: plugins.location plugins.memory plugins.variable sample
+plugins: plugins.location plugins.memory plugins.variable plugins.string sample
 
 [freeze]
 freeze: 0

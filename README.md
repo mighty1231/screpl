@@ -12,6 +12,7 @@ UMS maps applied SC-ERPL with...
 * `location` plugin - [video](https://youtu.be/f3M0CDGIX2A), [source](plugins/location)
 * `boundeditor` plugin - [video](https://youtu.be/c_VYYc7Ozy8), [source](plugins/boundeditor
 )
+* `variable` and `string`  plugin - [video](https://youtu.be/s9jIWKP2bfE)
 
 ## Required
 
