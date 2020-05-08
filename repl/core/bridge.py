@@ -93,7 +93,7 @@ def bridge_init():
     ])
 
     from ..apps import Logger
-    Logger.format("Bridge shared region ptr = %D", EUDVariable(shared_region))
+    Logger.format("Bridge shared region ptr = %H", EUDVariable(shared_region))
 
     f_setcurpl(cp)
 

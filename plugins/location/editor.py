@@ -377,6 +377,15 @@ class LocationEditorApp(Application):
         writer.write_f("Top %D\n", cur_tv)
         writer.write_f("Bottom %D\n", cur_bv)
 
+        if EUDIf()([cur_lv <= 0x80000000, cur_rv <= 0x80000000]):
+            if EUDIfNot()(cur_lv <= cur_rv):
+                writer.write_f("\x06X-FLIPPED\n")
+            EUDEndIf()
+            if EUDIfNot()(cur_tv <= cur_bv):
+                writer.write_f("\x06Y-FLIPPED\n")
+            EUDEndIf()
+        EUDEndIf()
+
         writer.write(0)
 
     @AppCommand([argEncNumber])

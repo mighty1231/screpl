@@ -20,6 +20,17 @@ def getAppManager():
 
     return _manager
 
+class PayloadSizeObj(EUDObject):
+    def GetDataSize(self):
+        return 4
+
+    def CollectDependency(self, emitbuffer):
+        pass
+
+    def WritePayload(self, emitbuffer):
+        from eudplib.core.allocator.payload import _payload_size
+        emitbuffer.WriteDword(_payload_size)
+
 class AppManager:
     _APP_MAX_COUNT_ = 30
 
@@ -131,6 +142,8 @@ class AppManager:
         else:
             raise RuntimeError("Unknown 'bridge_mode' = '%s', "\
                     "expected 'on', 'off', or 'blind'" % bridge_mode)
+
+        self.payload_size = f_dwread_epd(EPD(PayloadSizeObj()))
 
     def allocVariable(self, count):
         return self.varpool.alloc(count)
@@ -319,19 +332,30 @@ class AppManager:
 
     def keyDown(self, key):
         key = getKeyCode(key)
-        return MemoryEPD(self.keystates + key, Exactly, 1)
+        ret = [
+            Memory(0x68C144, Exactly, 0),               # chat status - not chatting
+            MemoryEPD(self.keystates + key, Exactly, 1)
+        ]
+        return ret
 
     def keyUp(self, key):
         key = getKeyCode(key)
-        return MemoryEPD(self.keystates + key, Exactly, 2**32-1)
+        ret = [
+            Memory(0x68C144, Exactly, 0),               # chat status - not chatting
+            MemoryEPD(self.keystates + key, Exactly, 2**32-1)
+        ]
+        return ret
 
     def keyPress(self, key, hold=[]):
         '''
         hold: list of keys, such as LCTRL, LSHIFT, LALT, etc...
         '''
         key = getKeyCode(key)
-        actions = [MemoryEPD(self.keystates + key, AtLeast, 1),
-            MemoryEPD(self.keystates_sub + key, Exactly, 1)]
+        actions = [
+            Memory(0x68C144, Exactly, 0),               # chat status - not chatting
+            MemoryEPD(self.keystates + key, AtLeast, 1),
+            MemoryEPD(self.keystates_sub + key, Exactly, 1)
+        ]
         for holdkey in hold:
             holdkey = getKeyCode(holdkey)
             actions.append(MemoryEPD(self.keystates + holdkey, AtLeast, 1))
@@ -405,7 +429,6 @@ class AppManager:
         # Multiply 32 to get pixel coordinate
         return self.mapHeight
 
-
     def requestUpdate(self):
         '''
         Request update of application
@@ -473,6 +496,10 @@ class AppManager:
         '''
         return self.writer
 
+    @EUDMethod
+    def getSTRSectionSize(self):
+        return self.payload_size
+
     def loop(self):
         from ..apps.repl import REPL
         from .appcommand import AppCommand
@@ -489,8 +516,10 @@ class AppManager:
             self.startApplication(REPL)
         EUDEndExecuteOnce()
 
-        self.updateMouseState()
-        self.updateKeyState()
+        if EUDIf()(Memory(0x512684, Exactly, self.superuser)):
+            self.updateMouseState()
+            self.updateKeyState()
+        EUDEndIf()
 
         # turbo mode
         if EUDIfNot()(trigger_framedelay.Exactly(-1)):
