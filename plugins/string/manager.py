@@ -38,7 +38,6 @@ def writeFirstLine(string):
 def setStringID(new_string_id):
     if EUDIf()([new_string_id >= 1, new_string_id <= string_count]):
         cur_string_id << new_string_id
-        cur_string_offset_epd << STRSection_epd + cur_string_id
     EUDEndIf()
 
 class StringManagerApp(Application):
@@ -56,13 +55,18 @@ class StringManagerApp(Application):
         if EUDElseIf()(appManager.keyPress("B", hold=["LCTRL"])):
             from .exporter import StringExporterApp
             appManager.startApplication(StringExporterApp)
+        if EUDElseIf()(appManager.keyPress("F", hold=["LCTRL"])):
+            from .search import StringSearchApp
+            StringSearchApp.setReturn_epd(EPD(cur_string_id.getValueAddr()))
+            appManager.startApplication(StringSearchApp)
         EUDEndIf()
         appManager.requestUpdate()
 
     def print(self, writer):
         writer.write_f("\x04StringManager id=%D / total %D strings\n", cur_string_id, string_count)
-        writeFirstLine(STRSection + f_dwread_epd(cur_string_offset_epd))
-        writer.write_f("\n\n\x04LCTRL+E Edit String...\n")
+        writeFirstLine(STRSection + f_dwread_epd(STRSection_epd + cur_string_id))
+        writer.write_f("\n\n\x04LCTRL+E Edit string...\n")
+        writer.write_f("LCTRL+F Search strings...\n")
         writer.write_f("LCTRL+B Export to Bridge...\n")
         writer.write_f("To navigate strings, ...\n")
         writer.write_f("  - Press F7 or F8\n")

@@ -2,7 +2,8 @@ from .utils import (
     EPDConstString,
     f_raiseError,
     f_raiseWarning,
-    print_f
+    print_f,
+    f_strlen
 )
 
 from .base import (
