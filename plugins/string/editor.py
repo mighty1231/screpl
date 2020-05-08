@@ -1,10 +1,6 @@
 from eudplib import *
 from repl import (
     Application,
-    AppTypedMethod,
-    AppCommand,
-    argEncNumber,
-    Logger,
     f_raiseWarning
 )
 
@@ -30,6 +26,7 @@ tmp_storage_epd = EPD(tmp_storage)
 
 class StringEditorApp(Application):
     def onInit(self):
+        v_mode << MODE_INSERT
         string_offset_epd = STRSection_epd + cur_string_id
         v_oldbuf_offset << f_dwread_epd(string_offset_epd)
         string_ptr = STRSection + v_oldbuf_offset
@@ -254,7 +251,6 @@ class StringEditorApp(Application):
                     f_bwrite_epd(v_cursor_epd, 0, 0x11)
                 EUDEndIf()
                 f_bwrite_epd(v_cursor_epd + 1, 0, v_color) # restoring color
-                Logger.format("EPD %H colorcode %D", v_string_epd, v_color)
 
             if EUDElse()(): # insert
                 f_bwrite_epd(v_cursor_epd, 0, ord('|'))

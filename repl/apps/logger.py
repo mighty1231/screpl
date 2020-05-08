@@ -24,14 +24,49 @@ mode = EUDVariable(MODE_REALTIME)
 
 writer = EUDByteRW()
 
+multiline_buffer = Db(3000)
+
+class MultilineLogWriter:
+    def __init__(self, name):
+        self.name = name
+        self.writer = EUDByteRW()
+        self.writer.seekepd(EPD(multiline_buffer))
+
+    def __enter__(self):
+        return self.writer
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        reader = EUDByteRW()
+        reader.seekepd(EPD(multiline_buffer))
+        prev, cur = EUDCreateVariables(2)
+        prev << reader.getoffset()
+        cur << prev
+
+        Logger.format("Multiline [%s]" % self.name)
+        if EUDInfLoop()():
+            b = reader.read()
+            EUDBreakIf(b == 0)
+
+            if EUDIf()(b == ord('\n')):
+                f_bwrite(cur, 0)
+                Logger.format("%S", prev, simple=True)
+                prev << cur + 1
+            EUDEndIf()
+            cur += 1
+        EUDEndInfLoop()
+        Logger.format("%S", prev, simple=True)
+
 class Logger(ScrollApp):
     @staticmethod
-    def format(fmtstring, *args):
+    def format(fmtstring, *args, simple=False):
         writer.seekepd(next_epd_to_write)
-        writer.write_f("\x16%D: [frame %D] ",
-            log_index,
-            getAppManager().getCurrentFrameNumber()
-        )
+        if not simple:
+            writer.write_f("\x16%D: [frame %D] ",
+                log_index,
+                getAppManager().getCurrentFrameNumber()
+            )
+        else:
+            writer.write_f("\x16%D: ", log_index)
         writer.write_f(fmtstring, *args)
         writer.write(0)
 
@@ -42,6 +77,10 @@ class Logger(ScrollApp):
         if EUDIf()(next_epd_to_write == buf_end_epd):
             next_epd_to_write << buf_start_epd
         EUDEndIf()
+
+    @staticmethod
+    def multilineWriter(name):
+        return MultilineLogWriter(name)
 
     def onInit(self):
         mode << MODE_REALTIME
