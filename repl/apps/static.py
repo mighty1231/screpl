@@ -64,7 +64,7 @@ class StaticApp(Application):
     def print(self, writer):
         # title
         offset, linecount = self.offset, self.linecount
-        writer.write_f("%E ( %D / %D )",
+        writer.write_f("%E ( %D / %D )\n",
                 self.title_epd, offset, linecount)
 
         cur, pageend, until = EUDCreateVariables(3)
@@ -79,8 +79,8 @@ class StaticApp(Application):
         # fill with contents
         if EUDInfLoop()():
             EUDBreakIf(cur >= until)
-            writer.write(ord('\n'))
             writer.write_strepd(f_dwread_epd(self.content_epd + cur))
+            writer.write(ord('\n'))
 
             DoActions(cur.AddNumber(1))
         EUDEndInfLoop()

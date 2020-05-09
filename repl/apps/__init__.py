@@ -33,7 +33,7 @@ def _help(self):
         + '\n'
         + 'builtin functions\n'
         + 'help() - See manual\n'
-        + 'cmds() - See registered commands\n'
+        + 'cmds() - See registered commands'
     )
     getAppManager().startApplication(StaticApp)
 

@@ -2,7 +2,7 @@ from eudplib import *
 
 from ..base.eudbyterw import EUDByteRW
 from ..base.pool import DbPool, VarPool
-from ..utils import f_raiseError, f_raiseWarning, getKeyCode, f_strlen
+from ..utils import f_raiseError, f_raiseWarning, getKeyCode, f_strlen, print_f
 from .bridge import bridge_init, bridge_loop
 
 KEYPRESS_DELAY = 8
@@ -111,7 +111,7 @@ class AppManager:
 
         # text ui
         self.writer = EUDByteRW()
-        self.displayBuffer = DBString(5000)
+        self.displayBuffer = Db(5000)
         self.update = EUDVariable(initval=0)
         self.cur_cmdtable_epd = EUDVariable()
 
@@ -574,7 +574,7 @@ class AppManager:
             previous_gameText = Db(11*218 + 2)
 
         if EUDIfNot()(self.update == 0):
-            self.writer.seekepd(EPD(self.displayBuffer.GetStringMemoryAddr()))
+            self.writer.seekepd(EPD(self.displayBuffer))
 
             # print() uses self.writer internally
             self.current_app_instance.print()
@@ -588,7 +588,7 @@ class AppManager:
                 f_repmovsd_epd(EPD(previous_gameText), EPD(0x640B60), (11*218+2) // 4)
             EUDEndIf()
 
-        self.displayBuffer.Display()
+        print_f("%E", EPD(self.displayBuffer))
         SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
 
         self.current_frame_number += 1

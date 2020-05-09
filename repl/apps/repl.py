@@ -124,10 +124,17 @@ class REPL(Application):
 
     @AppCommand([])
     def cmds(self):
+        '''
+        print REPL commands
+        '''
         content = ''
         cmd_id = 1
         for name, cmd in REPL._commands_.orderedItems():
             argspec = inspect.getfullargspec(cmd.func)
+            try:
+                docstring = ': ' + cmd.func.__doc__.strip().split('\n')[0]
+            except AttributeError:
+                docstring = ''
             # encoders = cmd.arg_encoders
 
             arg_description = []
@@ -135,12 +142,15 @@ class REPL(Application):
                 arg_description.append('{}'.format(
                     argspec.args[i+1]
                 ))
-            content += '\x16{}. {}({})\n'.format(
+            content += '\x16{}. {}({}){}\n'.format(
                 cmd_id,
                 name,
-                ', '.join(arg_description)
+                ', '.join(arg_description),
+                docstring
             )
             cmd_id += 1
+        if content[-1] == '\n':
+            content = content[:-1]
 
         StaticApp.setContent('\x16SC-REPL commands', content)
         getAppManager().startApplication(StaticApp)
