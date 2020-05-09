@@ -12,6 +12,9 @@ class ScrollApp(Application):
         "offset", # top line number
     ]
 
+    def onInit(self):
+        self.offset = 0
+
     @AppTypedMethod([], [], getWriterAsParam=True)
     def writeTitle(self, writer):
         ''' OVERRIDE THIS METHOD '''
