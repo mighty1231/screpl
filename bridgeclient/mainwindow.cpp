@@ -40,14 +40,14 @@ bool MainWindow::initialize(Worker *_worker) {
     }
 
     worker = _worker;
-    connect(worker, SIGNAL(update(QString, QString, QString)),
-            this, SLOT(update(QString, QString, QString)),
+    connect(worker, SIGNAL(update(QString, QString, QString, QString)),
+            this, SLOT(update(QString, QString, QString, QString)),
             Qt::QueuedConnection);
     connect(worker, SIGNAL(metProcess(bool)),
             this, SLOT(metProcess(bool)),
             Qt::QueuedConnection);
-    connect(worker, SIGNAL(metREPL(bool)),
-            this, SLOT(metREPL(bool)),
+    connect(worker, SIGNAL(metREPL(bool, int)),
+            this, SLOT(metREPL(bool, int)),
             Qt::QueuedConnection);
     connect(worker, SIGNAL(signalError(QString)),
             this, SLOT(setError(QString)),
@@ -60,7 +60,7 @@ bool MainWindow::initialize(Worker *_worker) {
     return true;
 }
 
-void MainWindow::update(QString applog, QString loggerlog, QString display)
+void MainWindow::update(QString applog, QString loggerlog, QString display, QString blindmode_display)
 {
     if (!applog.isEmpty()) {
         QTextCursor prev_cursor = ui->from_appoutput->textCursor();
@@ -87,6 +87,11 @@ void MainWindow::update(QString applog, QString loggerlog, QString display)
     if (prev.compare(display)) {
         ui->from_display->setText(display);
     }
+
+    prev = ui->from_blindmodedisplay->toPlainText();
+    if (prev.compare(blindmode_display)) {
+        ui->from_blindmodedisplay->setText(blindmode_display);
+    }
 }
 
 void MainWindow::metProcess(bool met)
@@ -100,15 +105,17 @@ void MainWindow::metProcess(bool met)
     }
 }
 
-void MainWindow::metREPL(bool met)
+void MainWindow::metREPL(bool met, int sharedregion_ptr)
 {
     if (met) {
         ui->statusbar->showMessage("REPL found!", 4000);
         ui->sendcmdbtn->setEnabled(true);
+        ui->label_sharedregion->setText(QString::asprintf("SharedRegion on 0x%08X", sharedregion_ptr));
         label_repl->setText(QString("REPL %1").arg(string_found));
     } else {
         ui->statusbar->showMessage("REPL lost", 4000);
         ui->sendcmdbtn->setEnabled(false);
+        ui->label_sharedregion->setText("SharedRegion");
         label_repl->setText(QString("REPL %1").arg(string_notfound));
     }
 }

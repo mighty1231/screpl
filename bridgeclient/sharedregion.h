@@ -6,6 +6,7 @@
 #define LOGGER_LINE_SIZE 216
 #define LOGGER_LINE_COUNT 500
 #define APP_OUTPUT_MAXSIZE 2000
+#define DISPLAYBUFFER_SIZE 4000
 
 struct SharedRegion {
     char signature[160];
@@ -29,6 +30,8 @@ struct SharedRegion {
     int displayIndex;
     char display[13][218];
     char _unused[2];
+
+    char blindmode_display[DISPLAYBUFFER_SIZE];
 };
 
 #pragma pack(pop)

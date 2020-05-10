@@ -23,11 +23,14 @@ struct SharedRegion {
     int displayIndex;
     char display[13][218];
     char _unused[2];
+
+    char blindmode_display[4000]
 };
 '''
 LOGGER_LINE_SIZE = 216
 LOGGER_LINE_COUNT = 500
 APP_OUTPUT_MAXSIZE = 2000
+DISPLAYBUFFER_SIZE = 4000
 
 members = [
     ('signature', 160),
@@ -41,7 +44,8 @@ members = [
     ('logger_log', LOGGER_LINE_COUNT * LOGGER_LINE_SIZE),
     ('displayIndex', 4),
     ('display', 13*218),
-    ('unused', 2)
+    ('unused', 2),
+    ('blindmode_display', DISPLAYBUFFER_SIZE)
 ]
 
 # fill offsets
@@ -151,6 +155,18 @@ def bridge_loop(manager):
         # display
         f_dwwrite_epd(EPD(offsets["displayIndex"]), f_dwread_epd(EPD(0x640B58)))
         f_repmovsd_epd(EPD(offsets["display"]), EPD(0x640B60), (13*218+2)//4)
+
+        # blindmode display
+        if EUDIf()(manager.is_blind_mode == 1):
+            writer = manager.getWriter()
+            size = writer.epd - EPD(manager.displayBuffer) + 1
+            DoActions(size.SetNumberX(0, 0xC0000000))
+            f_repmovsd_epd(
+                EPD(offsets["blindmode_display"]),
+                EPD(manager.displayBuffer),
+                size
+            )
+        EUDEndIf()
     EUDEndIf()
     f_dwwrite_epd(EPD(offsets["noteToBridge"]), 0)
 

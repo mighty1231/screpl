@@ -181,7 +181,7 @@ bool Worker::searchREPL()
     if (found) {
         status = STATUS_REPL_FOUND;
         last_framecount = -1;
-        emit metREPL(true);
+        emit metREPL(true, REPLRegion);
         return true;
     } else {
         emit signalError("REPL not found");
@@ -194,7 +194,7 @@ void Worker::communicateREPL()
     // Too much milk solution #3, busy-waiting by A
     if (!writeRegionInt(offsetof(SharedRegion, noteToSC), 1)) { // leave note A
         status = STATUS_PROCESS_FOUND;
-        emit metREPL(false);
+        emit metREPL(false, REPLRegion);
         makeError("WriteProcessMemory, leave note A");
         return;
     }
@@ -202,7 +202,7 @@ void Worker::communicateREPL()
     for (int i=0; i<10; i++) {
         if (!readRegionInt(offsetof(SharedRegion, noteFromSC), &noteB)) {
             status = STATUS_PROCESS_FOUND;
-            emit metREPL(false);
+            emit metREPL(false, REPLRegion);
             makeError("ReadProcessMemory, leave note B");
             return;
         }
@@ -213,7 +213,7 @@ void Worker::communicateREPL()
     }
     if (noteB == 1) {
         status = STATUS_PROCESS_FOUND;
-        emit metREPL(false);
+        emit metREPL(false, REPLRegion);
         makeError("ReadRegionInt 10 times");
         return;
     }
@@ -232,7 +232,7 @@ void Worker::process()
                 sizeof(SharedRegion),
                 &written) || written != sizeof(SharedRegion)) {
         status = STATUS_PROCESS_FOUND;
-        emit metREPL(false);
+        emit metREPL(false, REPLRegion);
         makeError("ReadProcessMemory, read region");
         return;
     }
@@ -260,7 +260,7 @@ void Worker::process()
                 sizeof(SharedRegion),
                 &written) || written != sizeof(SharedRegion)){
         status = STATUS_PROCESS_FOUND;
-        emit metREPL(false);
+        emit metREPL(false, REPLRegion);
         makeError("WriteProcessMemory, write region");
         return;
     }
@@ -277,7 +277,7 @@ void Worker::process()
             // (Note. REPL signature is not disappeared automatically on game exit)
             status = STATUS_PROCESS_FOUND;
             writeRegionInt(0, 0); // invalidate signature
-            emit metREPL(false);
+            emit metREPL(false, REPLRegion);
             makeError("REPL interaction timeout");
             return;
         }
@@ -318,7 +318,10 @@ void Worker::process()
     display.append(ignoreColor(region->display[12]));
     display.append('\n');
 
-    emit update(app_output, logger_log, display);
+    // blindmode display
+    QString blindmode_display = ignoreColor(region->blindmode_display);
+
+    emit update(app_output, logger_log, display, blindmode_display);
 }
 
 bool Worker::writeRegionInt(int offset, int value)

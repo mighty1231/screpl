@@ -111,7 +111,7 @@ class AppManager:
 
         # text ui
         self.writer = EUDByteRW()
-        self.displayBuffer = Db(5000)
+        self.displayBuffer = Db(4000)
         self.update = EUDVariable(initval=0)
         self.cur_cmdtable_epd = EUDVariable()
 
@@ -564,14 +564,7 @@ class AppManager:
         self.current_app_instance.loop()
 
         # print top of the screen, enables chat simultaneously
-        # option - blind mode
-        #    1. save gametext
-        #    2. print text ui
-        #    3. send displayed text to bridge
-        #    4. restore gametext
         txtPtr = f_dwread_epd(EPD(0x640B58))
-        if self.bridge_mode:
-            previous_gameText = Db(11*218 + 2)
 
         if EUDIfNot()(self.update == 0):
             self.writer.seekepd(EPD(self.displayBuffer))
@@ -584,20 +577,16 @@ class AppManager:
         f_setcurpl(self.superuser)
 
         if self.bridge_mode:
-            if EUDIf()(self.is_blind_mode == 1):
-                f_repmovsd_epd(EPD(previous_gameText), EPD(0x640B60), (11*218+2) // 4)
+            if EUDIfNot()(self.is_blind_mode == 1):
+                print_f("%E", EPD(self.displayBuffer))
+                SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
             EUDEndIf()
-
-        print_f("%E", EPD(self.displayBuffer))
-        SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
+            bridge_loop(self)
+        else:
+            print_f("%E", EPD(self.displayBuffer))
+            SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
 
         self.current_frame_number += 1
-        if self.bridge_mode:
-            bridge_loop(self)
-            if EUDIf()(self.is_blind_mode == 1):
-                f_repmovsd_epd(EPD(0x640B60), EPD(previous_gameText), (11*218+2) // 4)
-            EUDEndIf()
-
 
 playerMap = {
     'P1':P1,

@@ -21,9 +21,9 @@ public:
     bool initialize(Worker *worker);
 
 public slots:
-    void update(QString applog, QString loggerlog, QString display);
+    void update(QString applog, QString loggerlog, QString display, QString blindmode_display);
     void metProcess(bool met);
-    void metREPL(bool met);
+    void metREPL(bool met, int sharedregion_ptr);
 
     void setError(QString msg);
 
