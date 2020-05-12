@@ -484,8 +484,7 @@ class AppManager:
         if self.bridge_mode:
             EUDIf()(self.is_blind_mode == 0)
 
-        f_setcurpl(self.superuser)
-        DoActions(DisplayText("\n" * 12))
+        print_f("\n" * 12)
 
         if self.bridge_mode:
             EUDEndIf()
@@ -571,7 +570,6 @@ class AppManager:
 
             # print() uses self.writer internally
             self.current_app_instance.print()
-
             self.update << 0
         EUDEndIf()
         f_setcurpl(self.superuser)

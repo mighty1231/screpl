@@ -3,21 +3,34 @@ from repl import Application
 
 from . import *
 
-MODE_CONFIG    = 0
-MODE_EXPORTING = 1
-v_mode = EUDVariable(MODE_CONFIG)
+STATE_CONFIG    = 0
+STATE_EXPORTING = 1
+v_state = EUDVariable(STATE_CONFIG)
+
+MODE_SCMD    = 0
+MODE_EUDPLIB = 1
+MODE_END     = 2
+v_mode = EUDVariable(MODE_SCMD)
 
 storage = Db(STRING_BUFFER_SZ)
 remaining_bytes = EUDVariable(0)
 written = EUDVariable(0)
 
 def writeStrings():
-    global string_buffer, new_alloc_epd
+    global string_buffer, new_alloc_epd, v_mode
     writer = appManager.getWriter()
     writer.seekepd(EPD(storage))
 
     cur_epd = EUDVariable()
     cur_epd << EPD(string_buffer)
+
+    # mode branch
+    br_mode, br_mode_scmd, br_mode_eudplib, br_mode_end = [Forward() for _ in range(4)]
+    if EUDIf()(v_mode == MODE_SCMD):
+        DoActions(SetNextPtr(br_mode, br_mode_scmd))
+    if EUDElse()():
+        DoActions(SetNextPtr(br_mode, br_mode_eudplib))
+    EUDEndIf()
 
     if EUDInfLoop()():
         EUDBreakIf(cur_epd == new_alloc_epd)
@@ -28,9 +41,19 @@ def writeStrings():
                 if EUDIf()([b >= 9, b <= 10]): # \t and \n
                     writer.write(b)
                 if EUDElse()():
+                    br_mode << RawTrigger()
+
+                    br_mode_scmd << NextTrigger()
                     writer.write(ord('<'))
                     writer.write_bytehex(b)
                     writer.write(ord('>'))
+                    SetNextTrigger(br_mode_end)
+
+                    br_mode_eudplib << NextTrigger()
+                    writer.write_f("\\x")
+                    writer.write_bytehex(b)
+
+                    br_mode_end << NextTrigger()
                 EUDEndIf()
             if EUDElse()():
                 writer.write(b)
@@ -73,17 +96,23 @@ class StringExporterApp(Application):
         pass
 
     def loop(self):
-        global written, remaining_bytes
+        global written, remaining_bytes, v_mode
 
         if EUDIf()(appManager.keyPress("ESC")):
             appManager.requestDestruct()
             EUDReturn()
         EUDEndIf()
 
-        if EUDIf()(v_mode == MODE_CONFIG):
+        if EUDIf()(v_state == STATE_CONFIG):
             if EUDIf()(appManager.keyPress("Y", hold = ["LCTRL"])):
-                v_mode << MODE_EXPORTING
+                v_state << STATE_EXPORTING
                 writeStrings()
+            if EUDElseIf()(appManager.keyPress("O", hold = ["LCTRL"])):
+                v_mode += 1
+                Trigger(
+                    conditions=v_mode.Exactly(MODE_END),
+                    actions=v_mode.SetNumber(0)
+                )
             EUDEndIf()
         if EUDElse()():
             new_written = appManager.exportAppOutputToBridge(storage + written, remaining_bytes)
@@ -91,17 +120,28 @@ class StringExporterApp(Application):
             remaining_bytes -= new_written
             written += new_written
             if EUDIf()(remaining_bytes == 0):
-                v_mode << MODE_CONFIG
+                v_state << STATE_CONFIG
             EUDEndIf()
         EUDEndIf()
         appManager.requestUpdate()
 
     def print(self, writer):
         writer.write_f("String Editor - Exporter (Bridge Client required)\n")
-        if EUDIf()(v_mode == MODE_CONFIG):
-            writer.write_f("\n\x16Press CTRL+Y to EXPORT\n")
+        if EUDIf()(v_state == STATE_CONFIG):
+            em_scmd, em_eudplib = EUDCreateVariables(2)
+            if EUDIf()(v_mode == MODE_SCMD):
+                DoActions([em_scmd.SetNumber(0x11), em_eudplib.SetNumber(0x16)])
+            if EUDElse()():
+                DoActions([em_scmd.SetNumber(0x16), em_eudplib.SetNumber(0x11)])
+            EUDEndIf()
+            writer.write_f("\n\x16Mode: %CSCMDraft2 %Ceudplib\n", em_scmd, em_eudplib)
+            writer.write_f("\x16Press CTRL+O to change mode\n")
+            writer.write_f("\x16Press CTRL+Y to export\n")
         if EUDElse()():
-            writer.write_f("\x13Sent %D bytes / Remaining %D bytes\n\n\n\n", written, remaining_bytes)
+            writer.write_f("\x13Sent %D bytes / Remaining %D bytes\n\n\n\n",
+                written,
+                remaining_bytes
+            )
         EUDEndIf()
 
         writer.write(0)
