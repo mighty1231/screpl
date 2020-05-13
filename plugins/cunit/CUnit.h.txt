@@ -1,0 +1,638 @@
+/*
+                   GNU LESSER GENERAL PUBLIC LICENSE
+                       Version 3, 29 June 2007
+
+ Copyright (C) 2007 Free Software Foundation, Inc. <http://fsf.org/>
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+
+  This version of the GNU Lesser General Public License incorporates
+the terms and conditions of version 3 of the GNU General Public
+License, supplemented by the additional permissions listed below.
+
+  0. Additional Definitions.
+
+  As used herein, "this License" refers to version 3 of the GNU Lesser
+General Public License, and the "GNU GPL" refers to version 3 of the GNU
+General Public License.
+
+  "The Library" refers to a covered work governed by this License,
+other than an Application or a Combined Work as defined below.
+
+  An "Application" is any work that makes use of an interface provided
+by the Library, but which is not otherwise based on the Library.
+Defining a subclass of a class defined by the Library is deemed a mode
+of using an interface provided by the Library.
+
+  A "Combined Work" is a work produced by combining or linking an
+Application with the Library.  The particular version of the Library
+with which the Combined Work was made is also called the "Linked
+Version".
+
+  The "Minimal Corresponding Source" for a Combined Work means the
+Corresponding Source for the Combined Work, excluding any source code
+for portions of the Combined Work that, considered in isolation, are
+based on the Application, and not on the Linked Version.
+
+  The "Corresponding Application Code" for a Combined Work means the
+object code and/or source code for the Application, including any data
+and utility programs needed for reproducing the Combined Work from the
+Application, but excluding the System Libraries of the Combined Work.
+
+  1. Exception to Section 3 of the GNU GPL.
+
+  You may convey a covered work under sections 3 and 4 of this License
+without being bound by section 3 of the GNU GPL.
+
+  2. Conveying Modified Versions.
+
+  If you modify a copy of the Library, and, in your modifications, a
+facility refers to a function or data to be supplied by an Application
+that uses the facility (other than as an argument passed when the
+facility is invoked), then you may convey a copy of the modified
+version:
+
+   a) under this License, provided that you make a good faith effort to
+   ensure that, in the event an Application does not supply the
+   function or data, the facility still operates, and performs
+   whatever part of its purpose remains meaningful, or
+
+   b) under the GNU GPL, with none of the additional permissions of
+   this License applicable to that copy.
+
+  3. Object Code Incorporating Material from Library Header Files.
+
+  The object code form of an Application may incorporate material from
+a header file that is part of the Library.  You may convey such object
+code under terms of your choice, provided that, if the incorporated
+material is not limited to numerical parameters, data structure
+layouts and accessors, or small macros, inline functions and templates
+(ten or fewer lines in length), you do both of the following:
+
+   a) Give prominent notice with each copy of the object code that the
+   Library is used in it and that the Library and its use are
+   covered by this License.
+
+   b) Accompany the object code with a copy of the GNU GPL and this license
+   document.
+
+  4. Combined Works.
+
+  You may convey a Combined Work under terms of your choice that,
+taken together, effectively do not restrict modification of the
+portions of the Library contained in the Combined Work and reverse
+engineering for debugging such modifications, if you also do each of
+the following:
+
+   a) Give prominent notice with each copy of the Combined Work that
+   the Library is used in it and that the Library and its use are
+   covered by this License.
+
+   b) Accompany the Combined Work with a copy of the GNU GPL and this license
+   document.
+
+   c) For a Combined Work that displays copyright notices during
+   execution, include the copyright notice for the Library among
+   these notices, as well as a reference directing the user to the
+   copies of the GNU GPL and this license document.
+
+   d) Do one of the following:
+
+       0) Convey the Minimal Corresponding Source under the terms of this
+       License, and the Corresponding Application Code in a form
+       suitable for, and under terms that permit, the user to
+       recombine or relink the Application with a modified version of
+       the Linked Version to produce a modified Combined Work, in the
+       manner specified by section 6 of the GNU GPL for conveying
+       Corresponding Source.
+
+       1) Use a suitable shared library mechanism for linking with the
+       Library.  A suitable mechanism is one that (a) uses at run time
+       a copy of the Library already present on the user's computer
+       system, and (b) will operate properly with a modified version
+       of the Library that is interface-compatible with the Linked
+       Version.
+
+   e) Provide Installation Information, but only if you would otherwise
+   be required to provide such information under section 6 of the
+   GNU GPL, and only to the extent that such information is
+   necessary to install and execute a modified version of the
+   Combined Work produced by recombining or relinking the
+   Application with a modified version of the Linked Version. (If
+   you use option 4d0, the Installation Information must accompany
+   the Minimal Corresponding Source and Corresponding Application
+   Code. If you use option 4d1, you must provide the Installation
+   Information in the manner specified by section 6 of the GNU GPL
+   for conveying Corresponding Source.)
+
+  5. Combined Libraries.
+
+  You may place library facilities that are a work based on the
+Library side by side in a single library together with other library
+facilities that are not Applications and are not covered by this
+License, and convey such a combined library under terms of your
+choice, if you do both of the following:
+
+   a) Accompany the combined library with a copy of the same work based
+   on the Library, uncombined with any other library facilities,
+   conveyed under the terms of this License.
+
+   b) Give prominent notice with the combined library that part of it
+   is a work based on the Library, and explaining where to find the
+   accompanying uncombined form of the same work.
+
+  6. Revised Versions of the GNU Lesser General Public License.
+
+  The Free Software Foundation may publish revised and/or new versions
+of the GNU Lesser General Public License from time to time. Such new
+versions will be similar in spirit to the present version, but may
+differ in detail to address new problems or concerns.
+
+  Each version is given a distinguishing version number. If the
+Library as you received it specifies that a certain numbered version
+of the GNU Lesser General Public License "or any later version"
+applies to it, you have the option of following the terms and
+conditions either of that published version or of any later version
+published by the Free Software Foundation. If the Library as you
+received it does not specify a version number of the GNU Lesser
+General Public License, you may choose any version of the GNU Lesser
+General Public License ever published by the Free Software Foundation.
+
+  If the Library as you received it specifies that a proxy can decide
+whether future versions of the GNU Lesser General Public License shall
+apply, that proxy's public statement of acceptance of any version is
+permanent authorization for you to choose that version for the
+Library.
+*/
+#pragma once
+
+#include <Util/Types.h>
+#include <BW/Position.h>
+#include <BW/Target.h>
+#include <BW/Path.h>
+#include <BWAPI.h>
+
+#pragma pack(1)
+namespace BWAPI
+{
+  class UnitType;
+}
+namespace BW
+{
+  // Forwards
+  class CSprite;
+  class COrder;
+  struct Path;  
+
+  /** Broodwar CUnit class.
+   * Started from http://farty1billion.dyndns.org/EUDDB/?pg=ref&a=unitnode
+   * Heavily altered and corrected.
+   * Most members are known, including some padding/alignment bytes that have been identified.
+   * Members that are marked as "unknown", "todo", "maybe", etc. must still be researched.
+   *
+   * Additional notes: possibly missing a "Cloaked" link, has a static member "nSorted"
+   */
+  class CUnit
+  {
+  public:
+    BWAPI::UnitType type() const;
+    bool movementFlag(u8 flags) const;
+    bool statusFlag(u32 flags) const;
+
+    const CUnit* getDamageDealer() const;
+
+    bool isAttacking() const;
+    int getGroundWeaponCooldown() const;
+    int getAirWeaponCooldown() const;
+
+// v-- POSSIBLE SHARED BULLET/UNIT STRUCTURE BEGIN
+    // CLink<CUnit> link;
+    /*0x000*/ BW::CUnit*    prev;
+    /*0x004*/ BW::CUnit*    next;      /**< Pointer to next unit in the unit linked list, we use
+                                          *   it to iterate units.
+                                          *   @see BW#BWXFN_UnitNodeTable_FirstElement
+                                          **/
+    /*0x008*/ s32           hitPoints;  // Hit points of unit, note that the displayed value in broodwar is ceil(healthPoints/256)
+                                        // Officially called "xLife"
+    /*0x00C*/ BW::CSprite*  sprite;
+                                                    // One of these Position structs are just called "swLocX" and "swLocY"
+    /*0x010*/ BW::Target    moveTarget;             // The position or unit to move to. It is NOT an order target.
+    /*0x018*/ BW::Position  nextMovementWaypoint;   /**< The next way point in the path the unit is following to get to its destination.
+                                                      * Equal to moveToPos for air units since they don't need to navigate around buildings
+                                                      * or other units.
+                                                      */
+    /*0x01C*/ BW::Position  nextTargetWaypoint;   // The desired position
+    /*0x020*/ u8            movementFlags;        // Flags specifying movement type - defined in BW#MovementFlags.
+    /*0x021*/ u8            currentDirection1;    // The current direction the unit is facing
+    /*0x022*/ u8            flingyTurnRadius;
+    /*0x023*/ u8            velocityDirection1;  /**< This usually only differs from the currentDirection field for units that can accelerate
+                                                 *   and travel in a different direction than they are facing. For example Mutalisks can change
+                                                 *   the direction they are facing faster than then can change the direction they are moving.
+                                                 */
+    /*0x024*/ u16           flingyID;
+    /*0x026*/ u8            _unknown_0x026;
+    /*0x027*/ u8            flingyMovementType;
+    /*0x028*/ BW::Position  position;         // Current position of the unit
+    /*0x02C*/ point         halt;             // @todo Unknown    // Either this or current_speed is officially called "xDX, xDY" (no POINT struct)
+    /*0x034*/ u32           flingyTopSpeed;
+    /*0x038*/ s32           current_speed1;
+    /*0x03C*/ s32           current_speed2;
+    /*0x040*/ point         current_speed;
+
+    /*0x048*/ u16           flingyAcceleration;
+    /*0x04A*/ u8            currentDirection2;
+    /*0x04B*/ u8            velocityDirection2;   // pathing related, gets this value from Path::unk_1A?
+    /*0x04C*/ u8            playerID;             // Specification of owner of this unit.
+    /*0x04D*/ u8            orderID;              // Specification of type of order currently given.
+    /*0x04E*/ u8            orderState;  //< Additional order info (mostly unknown, wander property investigated so far)  // officially "ubActionState"
+                                         /*  0x01  Moving/Following Order
+                                             0x02  No collide (Larva)?
+                                             0x04  Harvesting? Working?
+                                             0x08  Constructing Stationary
+                                             Note: I don't actually think these are flags
+                                           */
+    /*0x04F*/ u8            orderSignal;  /*  0x01  Update building graphic/state
+                                              0x02  Casting spell
+                                              0x04  Reset collision? Always enabled for hallucination...
+                                              0x10  Lift/Land state
+                                          */
+    /*0x050*/ u16           orderUnitType;      // officially "uwFoggedTarget"
+    
+    u16 __0x52;  // 2-byte padding
+
+    /*0x054*/ u8            mainOrderTimer;       // A timer for orders, example: time left before minerals are harvested
+    /*0x055*/ u8            groundWeaponCooldown;
+    /*0x056*/ u8            airWeaponCooldown;
+    /*0x057*/ u8            spellCooldown;
+    /*0x058*/ BW::Target    orderTarget;        // officially called ActionFocus
+// ^-- POSSIBLE SHARED BULLET/UNIT STRUCTURE END
+
+    /*0x060*/ u32         shieldPoints;      // BW shows this value/256, possibly not u32?
+    /*0x064*/ u16         unitType;        // Specifies the type of unit.
+    
+    u16 __0x66;  // 2-byte padding
+
+    // CLink<CUnit> player_link;
+    /*0x068*/ BW::CUnit*  previousPlayerUnit;
+    /*0x06C*/ BW::CUnit*  nextPlayerUnit;
+
+    /*0x070*/ BW::CUnit*  subUnit;
+
+    // CLink<COrder> orderQueue_link;
+// NOT SUPPORTED BY REMASTER    /*0x074*/ BW::COrder*   orderQueueHead;
+// NOT SUPPORTED BY REMASTER    /*0x078*/ BW::COrder*   orderQueueTail;
+
+    /*0x07C*/ BW::CUnit*  autoTargetUnit;      // The auto-acquired target (Note: This field is actually used for different targets internally, especially by the AI)
+    /*0x080*/ BW::CUnit*  connectedUnit;       // Addon is connected to building (addon has conntected building, but not in other direction  (officially "pAttached")
+    /*0x084*/ u8          orderQueueCount;      // @todo Verify   // officially "ubQueuedOrders"
+    /*0x085*/ u8          orderQueueTimer;      // counts/cycles down from from 8 to 0 (inclusive). See also 0x122.
+    /*0x086*/ u8          _unknown_0x086;       // pathing related?
+    /*0x087*/ u8          attackNotifyTimer;    // Prevent "Your forces are under attack." on every attack
+// NOT SUPPORTED BY REMASTER    /*0x088*/ u16         previousUnitType;     // Stores the type of the unit prior to being morphed/constructed
+    /*0x08A*/ u8          lastEventTimer;       // countdown that stops being recent when it hits 0 
+    /*0x08B*/ u8          lastEventColor;       // 17 = was completed (train, morph), 174 = was attacked
+    /*0x08C*/ u16         _unused_0x08C;        // might have originally been RGB from lastEventColor
+    /*0x08E*/ u8          rankIncrease;         // Adds this value to the unit's base rank
+    /*0x08F*/ u8          killCount;            // Killcount
+    /*0x090*/ u8          lastAttackingPlayer;  // the player that last attacked this unit
+    /*0x091*/ u8          secondaryOrderTimer;
+    /*0x092*/ u8          AIActionFlag;           // Internal use by AI only
+    /*0x093*/ u8          userActionFlags;        // some flags that change when the user interacts with the unit
+                                                  // 2 = issued an order, 3 = interrupted an order, 4 = self destructing
+
+    /*0x094*/ u16         currentButtonSet;       // The u16 is a guess, used to be u8
+    /*0x096*/ bool        isCloaked;
+    /*0x097*/ UnitMovementState movementState;          // A value based on conditions related to pathing, see Path.h for info
+              enum UnitMovementState : u8
+              {
+                // Names are official
+                UM_Init          = 0x00,
+                UM_InitSeq       = 0x01,
+                UM_Lump          = 0x02,
+                UM_Turret        = 0x03,
+                UM_Bunker        = 0x04,
+                UM_BldgTurret    = 0x05,
+                UM_Hidden        = 0x06,
+                UM_Flyer         = 0x07,
+                UM_FakeFlyer     = 0x08,
+                UM_AtRest        = 0x09,
+                UM_Dormant       = 0x0A,
+                UM_AtMoveTarget  = 0x0B,
+                UM_CheckIllegal  = 0x0C,
+                UM_MoveToLegal   = 0x0D,
+                UM_LumpWannabe   = 0x0E,
+                UM_FailedPath    = 0x0F,
+                UM_RetryPath     = 0x10,
+                UM_StartPath     = 0x11,
+                UM_UIOrderDelay  = 0x12,
+                UM_TurnAndStart  = 0x13,
+                UM_FaceTarget    = 0x14,
+                UM_NewMoveTarget = 0x15,
+                UM_AnotherPath   = 0x16,
+                UM_Repath        = 0x17,
+                UM_RepathMovers  = 0x18,
+                UM_FollowPath    = 0x19,
+                UM_ScoutPath     = 0x1A,
+                UM_ScoutFree     = 0x1B,
+                UM_FixCollision  = 0x1C,
+                UM_WaitFree      = 0x1D,
+                UM_GetFree       = 0x1E,
+                UM_SlidePrep     = 0x1F,
+                UM_SlideFree     = 0x20,
+                UM_ForceMoveFree = 0x21,
+                UM_FixTerrain    = 0x22,
+                UM_TerrainSlide  = 0x23
+              };
+    /*0x098*/ u16         buildQueue[5];          //< Queue of units to build. Note that it doesn't begin with index 0, but with #buildQueueSlot index. 
+    /*0x0A2*/ u16         energy;                 //< Energy Points   // officially "xwMagic"
+    /*0x0A4*/ u8          buildQueueSlot;         //< Index of active unit in #buildQueue. 
+    /*0x0A5*/ u8          uniquenessIdentifier;   //< A byte used to determine uniqueness of the unit
+    /*0x0A6*/ u8          secondaryOrderID;       //< (Build addon verified) @todo verify (Cloak, Build, ExpandCreep suggested by EUDDB) 
+    /*0x0A7*/ u8          buildingOverlayState;   // 0 means the building has the largest amount of fire/blood
+    /*0x0A8*/ u16         hpGain;                 //< hp gained on construction or repair
+    /*0x0AA*/ u16         shieldGain;             //< Shield gain on construction
+    /*0x0AC*/ u16         remainingBuildTime;     //< Remaining bulding time; This is also the timer for powerups (flags) to return to their original location.
+    /*0x0AE*/ u16         previousHP;             // The HP of the unit before it changed (example Drone->Hatchery, the Drone's HP will be stored here)
+// NOT SUPPORTED BY REMASTER    /*0x0B0*/ u16         loadedUnitIndex[8];     // officially called "uwTransport[8]"
+    ///////////////
+    /*0x0C0*/ union
+              {
+                struct
+                {
+                  u8 spiderMineCount; // 0
+                } vulture;
+                
+                struct
+                {
+                  BW::CUnit*  pInHanger;     // 0   first child inside the hanger    // official
+                  BW::CUnit*  pOutHanger;    // 4   first child outside the hanger
+                  u8          inHangerCount;      // 8   number inside the hanger (used for scarab count)
+                  u8          outHangerCount;     // 9   number outside the hanger
+                } carrier; // also applies to reaver (Carrier is official)
+                
+                struct
+                {
+                  BW::CUnit*  parent;    // 0
+                  // CLink<CUnit> hanger_link;
+                  BW::CUnit*  prev;      // 4
+                  BW::CUnit*  next;      // 8
+                  bool        inHanger;   // C
+                } fighter;  // also applies to scarab
+                
+                struct
+                {
+                  u32 _unknown_00;
+                  u32 _unknown_04;
+                  u32 flagSpawnFrame; // flag beacons, the frame that the flag will spawn
+                } beacon;
+
+                struct
+                {
+                  BW::CUnit*  addon;               // 0
+                  u16         addonBuildType;       // 4
+                  u16         upgradeResearchTime;  // 6
+                  u8          techType;             // 8
+                  u8          upgradeType;          // 9
+                  u8          larvaTimer;           // A
+                  u8          landingTimer;         // B
+                  u8          creepTimer;           // C
+                  u8          upgradeLevel;         // D
+                  u16 __E;  // 2-byte padding
+                } building;
+                
+                struct 
+                {
+                  BW::CUnit*  pPowerup;                // 0    // official
+                  points      targetResource;           // 4
+                  BW::CUnit*  targetResourceUnit;      // 8
+                  u16         repairResourceLossTimer;  // C
+                  bool        isCarryingSomething;      // E    // There is a "ubIsHarvesting" somewhere
+                  u8          resourceCarryCount;       // F
+                } worker;   // Official name, but there is also a "CUnit::WorkerList::pHarvestBldg" somewhere
+              };
+    ///////////////
+    /*0x0D0*/ union
+              {
+                struct
+                {
+                  u16         resourceCount;  // amount of resources
+                  u8          resourceIscript;
+                  u8          gatherQueueCount;
+                  BW::CUnit*  nextGatherer;    // 4  // pointer to the next workerunit waiting in line to gather
+                  u8          resourceGroup;    // 8
+                  u8          resourceBelongsToAI;
+                } resource;  // When the unit is resource container
+                struct { BW::CUnit*   exit; } nydus; // connected nydius canal
+                struct { BW::CSprite* nukeDot; } ghost;
+                struct { BW::CSprite* pPowerTemplate; } Pylon;
+                struct
+                {
+                  BW::CUnit* pNuke;   // attached nuke    // official name
+                  bool bReady;      // 4   // official name
+                } silo;   // Should be "CUnit::Silo::"
+                struct
+                {
+                  ::rect harvestValue;
+                } hatchery; // wtf???
+                struct { points origin; } powerup;
+                struct
+                {
+                  BW::CUnit* harvestTarget;           // 0
+                  // CLINK<CUnit> harvest_link;
+                  BW::CUnit* prevHarvestUnit;         // 4   // When there is a gather conflict
+                  BW::CUnit* nextHarvestUnit;         // 8
+                } gatherer; //there is also a "CUnit::WorkerList::pHarvestBldg" somewhere
+              };
+    /*0x0DC*/ u32       statusFlags;
+    /*0x0E0*/ u8        resourceType;         // Resource being held by worker: 1 = gas, 2 = ore
+    /*0x0E1*/ u8        wireframeRandomizer;
+    /*0x0E2*/ u8        secondaryOrderState;
+    /*0x0E3*/ u8        recentOrderTimer;     // Counts down from 15 to 0 when most orders are given,
+                                              // or when the unit moves after reaching a patrol location
+    /*0x0E4*/ s32       visibilityStatus;     // Flags specifying which players can detect this unit (cloaked/burrowed)
+    /*0x0E8*/ BW::Position secondaryOrderPosition;       // unused
+    /*0x0EC*/ BW::CUnit* currentBuildUnit;    // tied to secondary order
+    // CLink<CUnit> burrow_link;
+// NOT SUPPORTED BY REMASTER    /*0x0F0*/ BW::CUnit* previousBurrowedUnit;
+// NOT SUPPORTED BY REMASTER    /*0x0F4*/ BW::CUnit* nextBurrowedUnit;
+// NOT SUPPORTED BY REMASTER    /*0x0F8*/ union
+// NOT SUPPORTED BY REMASTER              {
+// NOT SUPPORTED BY REMASTER                struct
+// NOT SUPPORTED BY REMASTER                { 
+// NOT SUPPORTED BY REMASTER                  points      position;
+// NOT SUPPORTED BY REMASTER                  BW::CUnit*  unit;
+// NOT SUPPORTED BY REMASTER                } rally;  // If the unit is rally type
+// NOT SUPPORTED BY REMASTER
+// NOT SUPPORTED BY REMASTER                struct
+// NOT SUPPORTED BY REMASTER                { // CLink<CUnit> power_link;
+// NOT SUPPORTED BY REMASTER                  BW::CUnit*  prevPsiProvider;
+// NOT SUPPORTED BY REMASTER                  BW::CUnit*  nextPsiProvider;
+// NOT SUPPORTED BY REMASTER                } PsiProvider;  // If the unit is psi provider
+// NOT SUPPORTED BY REMASTER              };
+// NOT SUPPORTED BY REMASTER    /*0x100*/ BW::Path* path;    // officially "unitPath"
+// NOT SUPPORTED BY REMASTER    /*0x104*/ u8        pathingCollisionInterval; // unknown
+// NOT SUPPORTED BY REMASTER    /*0x105*/ u8        pathingFlags;             // 0x01 = uses pathing; 0x02 = ?; 0x04 = ?
+// NOT SUPPORTED BY REMASTER    /*0x106*/ u8        _unused_0x106;
+// NOT SUPPORTED BY REMASTER    /*0x107*/ bool      isBeingHealed;    // 1 if a medic is currently healing this unit
+// NOT SUPPORTED BY REMASTER    /*0x108*/ rect      contourBounds;    // a rect that specifies the closest contour (collision) points
+    struct
+    {
+      /*0x110*/ u16         removeTimer;      //  does not apply to scanner sweep
+      /*0x112*/ u16         defenseMatrixDamage;
+      /*0x114*/ u8          defenseMatrixTimer;
+      /*0x115*/ u8          stimTimer;
+      /*0x116*/ u8          ensnareTimer;
+      /*0x117*/ u8          lockdownTimer;
+      /*0x118*/ u8          irradiateTimer;
+      /*0x119*/ u8          stasisTimer;
+      /*0x11A*/ u8          plagueTimer;
+      /*0x11B*/ u8          stormTimer;
+      /*0x11C*/ BW::CUnit*  irradiatedBy;
+      /*0x120*/ u8          irradiatePlayerID;
+      /*0x121*/ u8          parasiteFlags;    // bitmask identifying which players have parasited this unit
+      /*0x122*/ u8          cycleCounter;     // counts/cycles up from 0 to 7 (inclusive). See also 0x85.
+      /*0x123*/ bool        isBlind;
+      /*0x124*/ u8          maelstromTimer;
+      /*0x125*/ u8          _unused_0x125;    // ?? Might be afterburner timer or ultralisk roar timer
+      /*0x126*/ u8          acidSporeCount;
+      /*0x127*/ u8          acidSporeTime[9];
+    } status;
+// NOT SUPPORTED BY REMASTER    /*0x130*/ u16   bulletBehaviour3by3AttackSequence;  // Counts up for the number of bullets shot by a unit using
+                                                        // this weapon behaviour and resets after it reaches 12
+
+// NOT SUPPORTED BY REMASTER    u16   _padding_0x132;   // 2-byte padding
+
+// NOT SUPPORTED BY REMASTER    /*0x134*/ void* pAI;            // pointer to AI class, we're not using this though  // official name
+// NOT SUPPORTED BY REMASTER    /*0x138*/ u16   airStrength;
+// NOT SUPPORTED BY REMASTER    /*0x13A*/ u16   groundStrength;
+// NOT SUPPORTED BY REMASTER    struct
+// NOT SUPPORTED BY REMASTER    {             // Official names are "posSortXL, posSortXR, posSortYT, posSortYB"
+// NOT SUPPORTED BY REMASTER      u32 left, right, top, bottom; // Ordering for unit boundries in unit finder for binary search
+// NOT SUPPORTED BY REMASTER    } finder;
+    /*0x14C*/ u8    _repulseUnknown;        // @todo Unknown
+    /*0x14D*/ u8    repulseAngle;           // updated only when air unit is being pushed
+    /*0x14E*/ u8    bRepMtxX;              //  (mapsizex/1.5 max)   // repulse matrix X/Y
+    /*0x14F*/ u8    bRepMtxY;              //  (mapsizex/1.5 max)
+
+    ////////////////////////////////////////////////////////////////////
+    // Official Broodwar methods (from beta), ignore these
+    /*
+    bool  IsAddOn() const;
+    bool  IsATransport() const;
+    bool  IsBuilding() const;     // Checks unit status flags
+    bool  IsBuildingEx() const;   // Checks unit type (special ability flags)
+    bool  IsBurrower() const;
+    bool  IsCarrier() const;
+    bool  IsCarrierType() const;
+    bool  IsCloakable() const;
+    bool  IsCloaker() const;
+    bool  IsCompleted() const;
+    bool  IsConstructing() const;
+    bool  IsDead() const;
+    bool  IsDoodad() const;
+    bool  IsDoorType() const;
+    bool  IsFighterType() const;
+    bool  IsGhostType() const;
+    bool  IsGoliathHead() const;
+    bool  IsHallucination() const;
+    bool  IsHidden() const;
+    bool  IsJuiceMaker() const;     // same as IsPylon
+    bool  IsMedic() const;
+    bool  IsMobileBuilding() const;
+    bool  IsMoving() const;
+    bool  IsNydusCanal() const;
+    bool  IsPowerup() const;
+    bool  IsPylonType() const;
+    bool  IsQueenType() const;
+    bool  IsRallyer() const;
+    bool  IsReaver() const;
+    bool  IsRevealer() const;
+    bool  IsResourceDest() const;
+    bool  IsResourceSrc() const;
+    bool  IsScanner() const;
+    bool  IsSelected() const;
+    bool  IsShieldBattery() const;
+    bool  IsSiloType() const;
+    bool  IsTemplar() const;
+    u16   IsTrainingUnit(int id) const;
+    bool  IsTurret() const;
+    bool  IsVulture() const;
+    bool  IsWorker() const;
+    bool  IsZergBldgUpgrading() const;
+    bool  IsZergTownhall() const;
+    
+    bool  HasAI() const;
+    CAIControl  *GetAI() const;
+    
+    CUnit *GetAddOn() const;
+    u16   GetAddOn2BldType() const;
+    CUnit *GetAttached() const;
+    u8    GetBGOrder() const;
+    int   GetFixedMaxHP() const;
+    int   GetHangarCapacity() const;
+    int   GetMaxHP() const;
+    int   GetNumInterceptors() const;
+    u8    GetOrder() const;
+    u8    GetOwner() const;
+    u16   GetType() const;
+    u16   GetUnitID() const;
+    u8    GetWeaponGndEx() const;
+
+    bool  HasGas() const;
+    bool  HasMinerals() const;
+    bool  HasNuke() const;
+    bool  HasPath() const;
+
+    bool  CompletionCounted() const;
+    bool  ExistenceCounted() const;
+    COrder  *PeekOrder() const;
+    CUnit *Target() const;
+    bool  CantBeHit() const;
+    bool  AtMoveTarget() const;
+    bool  CanEnterTransport(CUnit *trans) const;
+    bool  InTransport() const;
+    int   UnitPlaceboxWidth() const;  // Also has a global version taking unit type as param
+    int   UnitPlaceboxHeight() const; // Also has a global version taking unit type as param
+    int   ProvidedFood() const;
+    int   TownSpot() const;   // resource base ID (0-250)
+    int   X() const;
+    int   Y() const;
+    void  FindFree_FromUnit(Position *pResult, CUnit *) const;
+    bool  CanTarget(CUnit *pTarg, bool) const;
+
+    void  DispatchEnterTransport();
+    void  DispatchDecloak();
+    void  RunBGOrders();
+    void  RunTransportOrders();
+    void  RunBGTransportOrders();
+    SetOrderEx
+    AppendOrderEx
+    void FixupAIPointer(bool);
+    void UnfixupAIPointer(bool);
+    void RemoveFromStatusBar();
+    void AddToHarvestWaitingList(CUnit *pWorker);
+    void PlaceUnplaceBldg(short x, short y, bool);
+
+    bool  StdTargetTracking();
+    void  PathCalcMove();
+    bool  CheckResolveCollision();
+    bool  SetMoveTarget_CUnit(CUnit *pUnit);
+    bool  SetMoveTarget_xy(int x, int y);
+    bool  ApproachMoveTarget_CUnit(CUnit *pUnit);
+    bool  ApproachMoveTarget_xy(int x, int y);
+    void  SetSubTarget(int x, int y);
+
+    CUnit *NextNode() const;
+    CUnit *PrevNode() const;
+    bool  OnUsedList() const;   // scrapped (used in debug)
+    bool  OnTransList() const;  // scrapped
+    bool  OnFreeList() const;   // scrapped
+    bool  OnDeadList() const;   // scrapped
+
+    */
+  };
+
+  static_assert( sizeof(CUnit) == 336, "BW::CUnit is incorrect." );
+};
+#pragma pack()
