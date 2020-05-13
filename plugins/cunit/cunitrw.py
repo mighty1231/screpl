@@ -1,6 +1,5 @@
 from eudplib import *
-from . import *
-
+from . import appManager
 """
 type
 CUnit, CSprite
@@ -15,6 +14,7 @@ Target: Position pt; CUnit *pUnit;
 Position: Point<s16, 1>
 point: s32 x, y;
 rect: s16 l, t, r, b;
+points: s16 x, y;
 """
 writer = appManager.getWriter()
 
@@ -68,6 +68,11 @@ def cw_point(epd, off):
     writer.write_f("point(x=%I32d, y=%I32d)", x, y)
 
 @EUDFunc
+def cw_points(epd, off):
+    x, y = f_wread_epd(epd, 0), f_wread_epd(epd, 2)
+    writer.write_f("points(x=%I16d, y=%I16d)", x, y)
+
+@EUDFunc
 def cw_rect(epd, off):
     l = f_wread_epd(epd, 0)
     t = f_wread_epd(epd, 2)
@@ -76,17 +81,76 @@ def cw_rect(epd, off):
     writer.write_f("rect(l=%I16d, t=%I16d, r=%I16d, b=%I16d",
         l, t, r, b)
 
-class Entry:
-    def __init__(self, offset, writef, name, comments = ""):
-        self.off_epd = offset // 4
-        self.off = offset % 4
-        self.writef = writef
-        self.name = name
-        self.comments = comments
+class Entry(ExprProxy):
+    def __init__(self, offset, write_f, name, comments = None):
+        _off_epd, _off = divmod(offset, 4)
+        _name = EPDConstString(name)
+        if comments is None:
+            _comments = EPD(0)
+        else:
+            _comments = EPDConstString(comments)
 
-entries = [
+        baseobj = EUDVArrayData(5)([
+            _off_epd, _off, write_f, _name, _comments
+        ])
+        super().__init__(baseobj)
+        self.dontFlatten = True
+        self._epd = EPD(self)
+        self._attrmap = {
+            "off_epd": 0, "off": 1, "write_f": 2, "name": 3, "comments": 4
+        }
+
+    def __getattr__(self, attr):
+        if attr in self._attrmap:
+            return self._get(self._attrmap[attr])
+        return super().__getattr__(self, attr)
+
+    def __setattr__(self, attr, value):
+        if attr in self._attrmap:
+            self._set(self._attrmap[attr], value)
+        else:
+            super().__setattr__(self, attr, value)
+
+    def _get(self, i):
+        # This function is hand-optimized
+        r = EUDVariable()
+        vtproc = Forward()
+        nptr = Forward()
+        a0, a2 = Forward(), Forward()
+
+        SeqCompute([
+            (EPD(vtproc + 4), SetTo, self + 72 * i),
+            (EPD(a0 + 16), SetTo, self._epd + (18 * i + 344 // 4)),
+            (EPD(a2 + 16), SetTo, self._epd + (18 * i + 1)),
+        ])
+
+        vtproc << RawTrigger(
+            nextptr=0,
+            actions=[
+                a0 << SetDeaths(0, SetTo, EPD(r.getValueAddr()), 0),
+                a2 << SetDeaths(0, SetTo, nptr, 0),
+            ]
+        )
+
+        nptr << NextTrigger()
+        return r
+
+    def set(self, i, value):
+        # This function is hand-optimized
+        a0, t = Forward(), Forward()
+        SeqCompute([
+            (EPD(a0 + 16), bt.SetTo, self._epd + (18 * i + 348 // 4)),
+            (EPD(a0 + 20), bt.SetTo, value),
+        ])
+        t << bt.RawTrigger(
+            actions=[
+                a0 << bt.SetDeaths(0, bt.SetTo, 0, 0),
+            ]
+        )
+
+cu_members = [
     Entry(0x000, cw_CUnit, "prev"),
-    Entry(0x004, cw_CSprite, "next"),
+    Entry(0x004, cw_CUnit, "next"),
     Entry(0x008, cw_s32, "hitPoints",
             "Hit points of unit, note that the displayed value in broodwar is ceil(healthPoints/256)"),
     Entry(0x00C, cw_CSprite, "sprite"),
@@ -306,4 +370,3 @@ entries = [
     Entry(0x14E, cw_u8, "bRepMtxX", "(mapsizex/1.5 max)"),
     Entry(0x14F, cw_u8, "bRepMtxY", "(mapsizex/1.5 max)"),
 ]
-
