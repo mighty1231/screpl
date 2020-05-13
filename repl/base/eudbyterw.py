@@ -340,11 +340,17 @@ class EUDByteRW:
         CAUTION: This does NOT make null end
 
         Available formats:
-         - %H: Write hexadecimal value starts with 0x
-         - %D: Write decimal value
-         - %S: Write string with ptr
-         - %E: Write string with epd
-         - %C: Write single character
+         - %H: hexadecimal value starts with 0x
+         - %D: decimal value
+         - %I8d: write_s8
+         - %I16d: write_s16
+         - %I32d: write_s32
+         - %I8u: write_u8
+         - %I16u: write_u16
+         - %I32u: write_u32
+         - %S: string with ptr
+         - %E: string with epd
+         - %C: single character
 
         Write %% to represent %
         '''
@@ -378,6 +384,18 @@ class EUDByteRW:
             elif fmt[pos+1] == 'D':
                 items.append(('D', curarg))
                 argidx += 1
+            elif fmt[pos+1] == 'I':
+                check = False
+                for fs in ['8d', '16d', '32d', '8u', '16u', '32u']:
+                    if fmt[pos+2:].startswith(fs):
+                        items.append(('I' + fs, curarg))
+                        pos += len(fs)
+                        argidx += 1
+                        check = True
+                        break
+                if not check:
+                    print(fmt[pos:])
+                    raise RuntimeError("Unable to parse {}".format(fmt))
             elif fmt[pos+1] == 'S':
                 items.append(('S', curarg))
                 argidx += 1
@@ -393,7 +411,7 @@ class EUDByteRW:
             pos += 2
         if len(args) != argidx:
             raise RuntimeError("Mismatch on count between " \
-                "format string and argument counton write_f")
+                "format string and argument count on write_f")
 
         # Due to %%, several const string could be
         #   located consecutively, so merge it
@@ -406,6 +424,14 @@ class EUDByteRW:
                 merged_items.append((fm, arg))
 
         # Short constants are written with bytes, otherwise use EPDConstString
+        func_matches = {
+            'I8d': self.write_s8,
+            'I16d': self.write_s16,
+            'I32d': self.write_s32,
+            'I8u': self.write_u8,
+            'I16u': self.write_u16,
+            'I32u': self.write_u32
+        }
         for fm, arg in merged_items:
             if fm == 'const':
                 if len(arg) == 1:
@@ -422,3 +448,5 @@ class EUDByteRW:
                 self.write_strepd(arg)
             elif fm == 'C':
                 self.write(arg)
+            else:
+                func_matches[fm](arg)
