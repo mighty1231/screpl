@@ -245,6 +245,89 @@ class EUDByteRW:
         EUDEndInfLoop()
 
     @EUDMethod
+    def write_bool(self, value):
+        if EUDIfNot()(self.value == 0):
+            self.write_strepd(EPDConstString("True"))
+        if EUDElse()():
+            self.write_strepd(EPDConstString("False"))
+        EUDEndIf()
+
+    @EUDMethod
+    def write_u8(self, value):
+        DoActions(value.SetNumberX(0, 0xFFFFFF00))
+        skipper = [Forward() for _ in range(2)]
+        digits = []
+
+        for i in range(2):
+            value, r = f_div(value, 10)
+            digits.append(r)
+            EUDJumpIf(value == 0, skipper[i])
+
+        self.write(value + ord('0'))
+        skipper[1] << NextTrigger()
+        self.write(digits[1] + ord('0'))
+        skipper[0] << NextTrigger()
+        self.write(digits[0] + ord('0'))
+
+    @EUDMethod
+    def write_u16(self, value):
+        DoActions(value.SetNumberX(0, 0xFFFF0000))
+        skipper = [Forward() for _ in range(4)]
+        digits = []
+
+        for i in range(4):
+            value, r = f_div(value, 10)
+            digits.append(r)
+            EUDJumpIf(value == 0, skipper[i])
+
+        self.write(value + ord('0'))
+        for i in range(3, -1, -1):
+            skipper[i] << NextTrigger()
+            self.write(digits[i] + ord('0'))
+
+    @EUDMethod
+    def write_u32(self, value):
+        skipper = [Forward() for _ in range(9)]
+        digits = []
+
+        for i in range(9):
+            value, r = f_div(value, 10)
+            digits.append(r)
+            EUDJumpIf(value == 0, skipper[i])
+
+        self.write(value + ord('0'))
+        for i in range(8, -1, -1):
+            skipper[i] << NextTrigger()
+            self.write(digits[i] + ord('0'))
+
+    @EUDMethod
+    def write_s8(self, value):
+        if EUDIf()(value.ExactlyX(0x80, 0x80)):
+            self.write(ord('-'))
+            self.write_u8(-value)
+        if EUDElse()():
+            self.write_u8(value)
+        EUDEndIf()
+
+    @EUDMethod
+    def write_s16(self, value):
+        if EUDIf()(value.ExactlyX(0x8000, 0x8000)):
+            self.write(ord('-'))
+            self.write_u16(-value)
+        if EUDElse()():
+            self.write_u16(value)
+        EUDEndIf()
+
+    @EUDMethod
+    def write_s32(self, value):
+        if EUDIf()(value.ExactlyX(0x80000000, 0x80000000)):
+            self.write(ord('-'))
+            self.write_u32(-value)
+        if EUDElse()():
+            self.write_u32(value)
+        EUDEndIf()
+
+    @EUDMethod
     def write_STR_string(self, strId):
         strsect = f_dwread_epd(EPD(0x5993D4))
         self.write_str(strsect + f_dwread(strsect + strId*4))
