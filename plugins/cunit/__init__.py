@@ -9,7 +9,8 @@ v_cur_cunit, v_cur_cunitepd = EUDCreateVariables(2)
 
 # members
 from .cunitrw import cu_members
-for entry in cu_members:
+cu_activated_cnt = EUDVariable(len(cu_members.length))
+cu_activated_members = EUDArray(list(range(cu_members.length)))
 
 
 # make commands
