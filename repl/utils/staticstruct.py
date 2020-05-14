@@ -28,24 +28,33 @@ class _StaticStruct_Metaclass(type):
                 name, ty = member
                 if ty is selftype:
                     ty = cls
-            assert name not in ['_epd', '_from'], "'%s' is reserved" % name
+            assert name not in ['_epd', '_from'], "attribute '%s' is reserved" % name
             fields[name] = (index, ty)
         _StaticStruct_Metaclass.fieldmap[cls] = fields
         return cls
 
     def __call__(cls, *args, **kwargs):
         if '_from' in kwargs:
-            # cast from EUDVariable
-            assert args == []
-            return super().__call__(kwargs['_from'])
+            # cast
+            assert args == [] and len(kwargs) == 1
+            _from = kwargs['_from']
+            if IsConstExpr(_from):
+                baseobj = _from
+            else:
+                baseobj = EUDVariable()
+                baseobj << _from
+        else:
+            # statically construct
+            args = cls.build(*args, **kwargs)
+            fields = _StaticStruct_Metaclass.fieldmap[cls]
+            assert isinstance(args, tuple) and len(args) == len(fields)
 
-        args = cls.build(*args, **kwargs)
+            baseobj = EUDVArrayData(len(fields))(fields)
 
-        fields = _StaticStruct_Metaclass.fieldmap[cls]
-        assert isinstance(args, tuple) and len(args) == len(fields)
+        instance = super().__call__(baseobj)
+        instance._epd = EPD(instance)
 
-        baseobj = EUDVArrayData(len(fields))(fields)
-        return super().__call__(baseobj)
+        return instance
 
     def getfield(cls, instance, name):
         attrid, attrtype = _StaticStruct_Metaclass.fieldmap[cls][name]
@@ -92,16 +101,6 @@ class _StaticStruct_Metaclass(type):
 
 class StaticStruct(ExprProxy, metaclass=_StaticStruct_Metaclass):
     fields = []
-
-    def __init__(self, arg):
-        if IsEUDVariable(arg):
-            baseobj = EUDVariable()
-            baseobj << arg
-        else:
-            assert IsConstExpr(arg)
-            baseobj = arg
-        super().__init__(baseobj)
-        self._epd = EPD(self)
 
     @staticmethod
     def build(*args):
