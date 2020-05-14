@@ -28,7 +28,8 @@ class _StaticStruct_Metaclass(type):
                 name, ty = member
                 if ty is selftype:
                     ty = cls
-            assert name not in ['_epd', '_from'], "attribute '%s' is reserved" % name
+            assert name not in ['_epd', '_from', '_value'], \
+                    "attribute '%s' is reserved" % name
             fields[name] = (index, ty)
         _StaticStruct_Metaclass.fieldmap[cls] = fields
         return cls
@@ -134,5 +135,5 @@ class StaticStruct(ExprProxy, metaclass=_StaticStruct_Metaclass):
         try:
             type(self).setfield(self, name, value)
         except KeyError:
-            assert name in ['_epd']
+            assert name in ['_epd', '_value']
             super().__setattr__(self, name, value)
