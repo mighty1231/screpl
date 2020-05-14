@@ -39,6 +39,13 @@ class CUnitOptionApp(Application):
             setFocus(v_focused + 8)
         if EUDElseIf()(appManager.keyPress("F8")):
             setFocus(v_focused + 1)
+        if EUDElseIf()(appManager.keyPress("H")):
+            member = cu_members[v_focused]
+            if EUDIf()(member.activated == 1):
+                member.activated = 0
+            if EUDElse()():
+                member.activated = 1
+            EUDEndIf()
         EUDEndIf()
 
     def print(self, writer):
