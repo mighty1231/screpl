@@ -1,5 +1,6 @@
 from eudplib import *
 from .staticstruct import StaticStruct
+from .debug import f_raiseError
 
 class Array(StaticStruct):
     fields = [
@@ -25,7 +26,23 @@ class Array(StaticStruct):
 
     @EUDMethod
     def at(self, index):
+        if EUDIf()(index >= self.size):
+            f_raiseError("IndexError: array index out of range")
+        EUDEndIf()
         return f_dwread_epd(self.contents + index)
+
+    @EUDMethod
+    def append(self, value):
+        size = self.size
+        end = self.end
+        if EUDIf()(size == self.max_size):
+            f_raiseError("BufferOverflowError: array size exceeds max_size")
+        EUDEndIf()
+
+        f_dwwrite_epd(end, value)
+
+        self.end = end + 1
+        self.size = size + 1
 
     @EUDMethod
     def insert(self, index, value):
@@ -39,6 +56,13 @@ class Array(StaticStruct):
         size = self.size
         end = self.end
 
+        if EUDIf()(size == self.max_size):
+            f_raiseError("BufferOverflowError: array size exceeds max_size")
+        EUDEndIf()
+        if EUDIfNot()(index <= size):
+            f_raiseError("IndexError: array index out of range")
+        EUDEndIf()
+
         cpmoda, loopc = Forward(), Forward()
         dstepdp = end
         srcepdp = end-1
@@ -50,11 +74,13 @@ class Array(StaticStruct):
             index.QueueAddTo(EPD(loopc+8))
         ])
 
-        # while (cp != &(contents+index))
+        # while (src != &(contents+index))
         if EUDWhileNot()(loopc << Memory(cpmoda, Exactly, 0)):
+            # cpmod = *src
             cpmod = f_dwread_cp(0)
             cpmoda << cpmod.getDestAddr()
 
+            # *(--dst) = --cpmod
             VProc(cpmod, [
                 SetMemory(cpmoda, Add, -1),
                 SetMemory(0x6509B0, Add, -1)
@@ -76,6 +102,10 @@ class Array(StaticStruct):
         contents = self.contents
         size = self.size
         end = self.end
+
+        if EUDIf()(index >= size):
+            f_raiseError("IndexError: array index out of range")
+        EUDEndIf()
 
         dst = contents + index
         src = dst + 1

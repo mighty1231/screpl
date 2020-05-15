@@ -19,6 +19,10 @@ class ArrayTestApp(Application):
         EUDEndIf()
         appManager.requestUpdate()
 
+    @AppCommand([argEncNumber])
+    def append(self, value):
+        array.append(value)
+
     @AppCommand([argEncNumber, argEncNumber])
     def insert(self, i, value):
         array.insert(i, value)
