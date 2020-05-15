@@ -45,7 +45,7 @@ class _StaticStruct_Metaclass(type):
 
         return instance
 
-    def withMembers(cls, *args):
+    def initializeWith(cls, *args):
         from eudplib.core.eudstruct.vararray import EUDVArrayData
         fields = _StaticStruct_Metaclass.fieldmap[cls]
         assert len(args) == len(fields)

@@ -16,21 +16,16 @@ from .detail import CUnitDetailApp
 from .option import CUnitOptionApp
 
 class CUnitManagerApp(Application):
-    def onInit(self):
-        pass
-
-    def onDestruct(self):
-        pass
-
     def loop(self):
         if EUDIf()(appManager.keyPress("ESC")):
             appManager.requestDestruct()
             EUDReturn()
         if EUDElseIf()(appManager.keyPress("H", hold=["LCTRL"])):
-            dw, epd = f_dwepdcunitread_epd(EPD(0x6284B8))
+            dw, epd = f_cunitepdread_epd(EPD(0x6284B8))
             v_cur_cunit << dw
             v_cur_cunitepd << epd
         if EUDElseIf()(appManager.keyPress("E", hold=["LCTRL"])):
+            CUnitDetailApp.setFocus_epd(v_cur_cunitepd)
             appManager.startApplication(CUnitDetailApp)
         if EUDElseIf()(appManager.keyPress("O", hold=["LCTRL"])):
             appManager.startApplication(CUnitOptionApp)

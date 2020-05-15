@@ -275,7 +275,7 @@ class EUDByteRW:
 
     @EUDMethod
     def write_bool(self, value):
-        if EUDIfNot()(self.value == 0):
+        if EUDIfNot()(value == 0):
             self.write_strepd(EPDConstString("True"))
         if EUDElse()():
             self.write_strepd(EPDConstString("False"))

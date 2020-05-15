@@ -7,7 +7,7 @@ from repl import (
 )
 
 from . import *
-from .cunitrw import cu_members, Entry
+from .cunitrw import cu_members, CUnitMemberEntry
 
 v_focused = EUDVariable()
 
@@ -40,10 +40,36 @@ class CUnitOptionApp(Application):
         if EUDElseIf()(appManager.keyPress("F8")):
             setFocus(v_focused + 1)
         if EUDElseIf()(appManager.keyPress("H")):
-            member = cu_members[v_focused]
+            member = CUnitMemberEntry.cast(cu_members[v_focused])
             if EUDIf()(member.activated == 1):
+                idx = cu_mem_activeids.index(v_focused)
+                cu_mem_activeids.delete(idx)
                 member.activated = 0
             if EUDElse()():
+                # ascending order
+                # binary search
+                i, epd = EUDCreateVariables(2)
+                i << 0
+                compc, endc = Forward(), Forward()
+                epd = EPD(compc + 4)
+                SeqCompute([
+                    (epd, SetTo, cu_mem_activeid_contents),
+                    (EPD(compc + 8), SetTo, v_focused),
+                    (EPD(endc + 8), SetTo, cu_mem_activeids.end)
+                ])
+                if EUDInfLoop()():
+                    EUDBreakIf(endc << MemoryEPD(epd, Exactly, 0))
+
+                    if EUDIf()(compc << Memory(0, AtLeast, 0)):
+                        EUDBreak()
+                    EUDEndIf()
+
+                    DoActions([
+                        i.AddNumber(1),
+                        SetMemoryEPD(epd, Add, 1)
+                    ])
+                EUDEndInfLoop()
+                cu_mem_activeids.insert(i, v_focused)
                 member.activated = 1
             EUDEndIf()
         EUDEndIf()
@@ -67,7 +93,7 @@ class CUnitOptionApp(Application):
         if EUDInfLoop()():
             EUDBreakIf(cur >= until)
 
-            cur_entry = Entry(cu_members[cur])
+            cur_entry = CUnitMemberEntry(cu_members[cur])
 
             if EUDIf()(cur == v_focused):
                 writer.write(0x11) # orange
@@ -82,19 +108,27 @@ class CUnitOptionApp(Application):
             q, offd1 = f_div(offset, 16)
             offd3, offd2 = f_div(q, 16)
 
+            for offd in [offd1, offd2, offd3]:
+                if EUDIf()(offd <= 9):
+                    offd += ord('0')
+                if EUDElse()():
+                    offd += ord('A') - 10
+                EUDEndIf()
+
             writer.write_f(" +0x%C%C%C %E ",
-                offd3+ord('0'),
-                offd2+ord('0'),
-                offd1+ord('0'),
+                offd3,
+                offd2,
+                offd1,
                 cur_entry.name
             )
-            if EUDIfNot()(cur_entry.comments == EPD(0)):
-                written = writer.write_strnepd(cur_entry.comments, 10)
+            comments = cur_entry.comments
+            if EUDIfNot()(comments == EPD(0)):
+                written = writer.write_strnepd(comments, 10)
                 if EUDIf()(written == 10):
                     writer.write_f("...")
                 EUDEndIf()
             EUDEndIf()
-            writer.write("\n")
+            writer.write(ord('\n'))
 
             DoActions([cur.AddNumber(1)])
         EUDEndInfLoop()

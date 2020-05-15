@@ -1,6 +1,6 @@
 from eudplib import *
 
-from repl import REPL, getAppManager, AppCommand, EUDByteRW, f_raiseWarning
+from repl import REPL, getAppManager, AppCommand, Array
 
 # initialize variables
 appManager = getAppManager()
@@ -9,9 +9,8 @@ v_cur_cunit, v_cur_cunitepd = EUDCreateVariables(2)
 
 # members
 from .cunitrw import cu_members
-cu_activated_cnt = EUDVariable(len(cu_members.length))
-cu_activated_members = EUDArray(list(range(cu_members.length)))
-
+cu_mem_activeids = Array.construct(cu_members.length, list(range(cu_members.length)))
+cu_mem_activeid_contents = cu_mem_activeids.contents
 
 # make commands
 from .manager import CUnitManagerApp

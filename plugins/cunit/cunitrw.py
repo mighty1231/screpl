@@ -1,5 +1,5 @@
 from eudplib import *
-from repl import EPDConstString
+from repl import EPDConstString, StaticStruct
 from . import appManager
 
 """
@@ -80,177 +80,120 @@ def cw_rect(epd, off):
     t = f_wread_epd(epd, 2)
     r = f_wread_epd(epd+1, 0)
     b = f_wread_epd(epd+1, 2)
-    writer.write_f("rect(l=%I16d, t=%I16d, r=%I16d, b=%I16d",
+    writer.write_f("rect(l=%I16d, t=%I16d, r=%I16d, b=%I16d)",
         l, t, r, b)
 
-class Entry(ExprProxy):
-    def __init__(self, _from):
-        if IsEUDVariable(_from):
-            baseobj = EUDVariable()
-            baseobj << _from
-        else:
-            assert IsConstExpr(_from)
-            baseobj = _from
-        super().__init__(baseobj)
-        self._epd = EPD(self)
-        self._attrmap = {
-            "off_epd"   : (0, None),
-            "off"       : (1, None),
-            "write_f"   : (2, EUDFuncPtr(2, 0)),
-            "name"      : (3, None),
-            "comments"  : (4, None),
-            "activated" : (5, None)
-        }
+class CUnitMemberEntry(StaticStruct):
+    fields = [
+        'off_epd',
+        'off',
+        ('write_f', EUDFuncPtr(2, 0)),
+        'name',
+        'comments',
+        'activated'
+    ]
 
     @staticmethod
     def data(offset, write_f, name, comments = None):
-        _off_epd, _off = divmod(offset, 4)
-        _name = EPDConstString(name)
-        _write_f = EUDFuncPtr(2, 0)(write_f)
+        off_epd, off = divmod(offset, 4)
+        name = EPDConstString(name)
+        write_f = EUDFuncPtr(2, 0)(write_f)
         if comments is None:
-            _comments = EPD(0)
+            comments = EPD(0)
         else:
-            _comments = EPDConstString(comments)
+            comments = EPDConstString(comments)
 
-        baseobj = EUDVArrayData(6)([
-            _off_epd, _off, write_f, _name, _comments, 1
-        ])
-        return Entry(baseobj)
-
-    def __getattr__(self, attr):
-        if attr in self._attrmap:
-            attrid, ty = self.get(self._attrmap[attr])
-            if ty:
-                return ty.cast(self.get(i))
-            return self.get(i)
-        return super().__getattr__(self, attr)
-
-    def __setattr__(self, attr, value):
-        if attr in self._attrmap:
-            self.set(self._attrmap[attr], value)
-        elif attr in ['_value', '_epd', '_attrmap']:
-            super().__setattr__(self, attr, value)
-        else:
-            raise AttributeError
-
-    def get(self, i):
-        # This function is hand-optimized
-        r = EUDVariable()
-        vtproc = Forward()
-        nptr = Forward()
-        a0, a2 = Forward(), Forward()
-
-        SeqCompute([
-            (EPD(vtproc + 4), SetTo, self + 72 * i),
-            (EPD(a0 + 16), SetTo, self._epd + (18 * i + 344 // 4)),
-            (EPD(a2 + 16), SetTo, self._epd + (18 * i + 1)),
-        ])
-
-        vtproc << RawTrigger(
-            nextptr=0,
-            actions=[
-                a0 << SetDeaths(0, SetTo, EPD(r.getValueAddr()), 0),
-                a2 << SetDeaths(0, SetTo, nptr, 0),
-            ]
+        entry = CUnitMemberEntry.initializeWith(
+            off_epd,
+            off,
+            write_f,
+            name,
+            comments,
+            1
         )
-
-        nptr << NextTrigger()
-        return r
-
-    def set(self, i, value):
-        # This function is hand-optimized
-        a0, t = Forward(), Forward()
-        SeqCompute([
-            (EPD(a0 + 16), SetTo, self._epd + (18 * i + 348 // 4)),
-            (EPD(a0 + 20), SetTo, value),
-        ])
-        t << RawTrigger(
-            actions=[
-                a0 << SetDeaths(0, SetTo, 0, 0),
-            ]
-        )
+        return entry
 
 cu_members = EUDArray([
-    Entry.data(0x000, cw_CUnit, "prev"),
-    Entry.data(0x004, cw_CUnit, "next"),
-    Entry.data(0x008, cw_s32, "hitPoints",
+    CUnitMemberEntry.data(0x000, cw_CUnit, "prev"),
+    CUnitMemberEntry.data(0x004, cw_CUnit, "next"),
+    CUnitMemberEntry.data(0x008, cw_s32, "hitPoints",
             "Hit points of unit, note that the displayed value in broodwar is ceil(healthPoints/256)"),
-    Entry.data(0x00C, cw_CSprite, "sprite"),
-    Entry.data(0x010, cw_Target, "moveTarget",
+    CUnitMemberEntry.data(0x00C, cw_CSprite, "sprite"),
+    CUnitMemberEntry.data(0x010, cw_Target, "moveTarget",
             "The position or unit to move to. It is NOT an order target."),
-    Entry.data(0x018, cw_Position, "nextMovementWaypoint",
+    CUnitMemberEntry.data(0x018, cw_Position, "nextMovementWaypoint",
             "The next way point in the path the unit is following to get to its destination.\n"     + \
             "Equal to moveToPos for air units since they don't need to navigate around buildings\n" + \
             "or other units."),
-    Entry.data(0x01C, cw_Position, "nextTargetWaypoint", "The desired position"),
-    Entry.data(0x020, cw_u8, "movementFlags", "Flags specifying movement type - defined in BW#MovementFlags."),
-    Entry.data(0x021, cw_u8, "currentDirection1", "The current direction the unit is facing"),
-    Entry.data(0x022, cw_u8, "flingyTurnRadius"),
-    Entry.data(0x023, cw_u8, "velocityDirection1",
+    CUnitMemberEntry.data(0x01C, cw_Position, "nextTargetWaypoint", "The desired position"),
+    CUnitMemberEntry.data(0x020, cw_u8, "movementFlags", "Flags specifying movement type - defined in BW#MovementFlags."),
+    CUnitMemberEntry.data(0x021, cw_u8, "currentDirection1", "The current direction the unit is facing"),
+    CUnitMemberEntry.data(0x022, cw_u8, "flingyTurnRadius"),
+    CUnitMemberEntry.data(0x023, cw_u8, "velocityDirection1",
             "This usually only differs from the currentDirection field for units that can accelerate\n"    + \
             "and travel in a different direction than they are facing. For example Mutalisks can change\n" + \
             "the direction they are facing faster than then can change the direction they are moving."),
-    Entry.data(0x024, cw_u16, "flingyID"),
-    Entry.data(0x027, cw_u8, "flingyMovementType"),
-    Entry.data(0x028, cw_Position, "position", "Current position of the unit"),
-    Entry.data(0x02C, cw_point, "halt", "@todo Unknown // Either this or current_speed is officially called \"xDX, xDY\" (no POINT struct)")
-    Entry.data(0x034, cw_u32, "flingyTopSpeed"),
-    Entry.data(0x038, cw_s32, "current_speed1"),
-    Entry.data(0x03C, cw_s32, "current_speed2"),
-    Entry.data(0x040, cw_point, "current_speed"),
-    Entry.data(0x048, cw_u16, "flingyAcceleration"),
-    Entry.data(0x04A, cw_u8, "currentDirection2"),
-    Entry.data(0x04B, cw_u8, "velocityDirection2", "pathing related, gets this value from Path::unk_1A?"),
-    Entry.data(0x04C, cw_u8, "playerID", "Specification of owner of this unit."),
-    Entry.data(0x04D, cw_u8, "orderID", "Specification of type of order currently given."),
-    Entry.data(0x04E, cw_u8, "orderState",
+    CUnitMemberEntry.data(0x024, cw_u16, "flingyID"),
+    CUnitMemberEntry.data(0x027, cw_u8, "flingyMovementType"),
+    CUnitMemberEntry.data(0x028, cw_Position, "position", "Current position of the unit"),
+    CUnitMemberEntry.data(0x02C, cw_point, "halt", "@todo Unknown // Either this or current_speed is officially called \"xDX, xDY\" (no POINT struct)"),
+    CUnitMemberEntry.data(0x034, cw_u32, "flingyTopSpeed"),
+    CUnitMemberEntry.data(0x038, cw_s32, "current_speed1"),
+    CUnitMemberEntry.data(0x03C, cw_s32, "current_speed2"),
+    CUnitMemberEntry.data(0x040, cw_point, "current_speed"),
+    CUnitMemberEntry.data(0x048, cw_u16, "flingyAcceleration"),
+    CUnitMemberEntry.data(0x04A, cw_u8, "currentDirection2"),
+    CUnitMemberEntry.data(0x04B, cw_u8, "velocityDirection2", "pathing related, gets this value from Path::unk_1A?"),
+    CUnitMemberEntry.data(0x04C, cw_u8, "playerID", "Specification of owner of this unit."),
+    CUnitMemberEntry.data(0x04D, cw_u8, "orderID", "Specification of type of order currently given."),
+    CUnitMemberEntry.data(0x04E, cw_u8, "orderState",
             "Additional order info (mostly unknown, wander property investigated so far)  // officially \"ubActionState\"\n" + \
             "0x01  Moving/Following Order\n" + \
             "0x02  No collide (Larva)?\n" + \
             "0x04  Harvesting? Working?\n" + \
             "0x08  Constructing Stationary\n" + \
             "Note: I don't actually think these are flags"),
-    Entry.data(0x04F, cw_u8, "orderSignal",
+    CUnitMemberEntry.data(0x04F, cw_u8, "orderSignal",
             "0x01  Update building graphic/state\n" + \
             "0x02  Casting spell\n" + \
             "0x04  Reset collision? Always enabled for hallucination...\n" + \
             "0x10  Lift/Land state"),
-    Entry.data(0x050, cw_u16, "orderUnitType", "officially \"uwFoggedTarget\""),
-    Entry.data(0x054, cw_u8, "mainOrderTimer", "A timer for orders, example: time left before minerals are harvested"),
-    Entry.data(0x055, cw_u8, "groundWeaponCooldown"),
-    Entry.data(0x056, cw_u8, "airWeaponCooldown"),
-    Entry.data(0x057, cw_u8, "spellCooldown"),
-    Entry.data(0x058, cw_Target, "orderTarget", "officially called ActionFocus"),
-    Entry.data(0x060, cw_u32, "shieldPoints", "BW shows this value/256, possibly not u32?"),
-    Entry.data(0x064, cw_u16, "unitType", "Specifies the type of unit."),
+    CUnitMemberEntry.data(0x050, cw_u16, "orderUnitType", "officially \"uwFoggedTarget\""),
+    CUnitMemberEntry.data(0x054, cw_u8, "mainOrderTimer", "A timer for orders, example: time left before minerals are harvested"),
+    CUnitMemberEntry.data(0x055, cw_u8, "groundWeaponCooldown"),
+    CUnitMemberEntry.data(0x056, cw_u8, "airWeaponCooldown"),
+    CUnitMemberEntry.data(0x057, cw_u8, "spellCooldown"),
+    CUnitMemberEntry.data(0x058, cw_Target, "orderTarget", "officially called ActionFocus"),
+    CUnitMemberEntry.data(0x060, cw_u32, "shieldPoints", "BW shows this value/256, possibly not u32?"),
+    CUnitMemberEntry.data(0x064, cw_u16, "unitType", "Specifies the type of unit."),
 
-    Entry.data(0x068, cw_CUnit, "previousPlayerUnit"),
-    Entry.data(0x06C, cw_CUnit, "nextPlayerUnit"),
-    Entry.data(0x070, cw_CUnit, "subUnit"),
-    Entry.data(0x07C, cw_CUnit, "autoTargetUnit", "The auto-acquired target (Note: This field is actually used for different targets internally, especially by the AI)"),
-    Entry.data(0x080, cw_CUnit, "connectedUnit", "Addon is connected to building (addon has conntected building, but not in other direction  (officially \"pAttached\")"),
-    Entry.data(0x084, cw_u8, "orderQueueCount", "@todo Verify   // officially \"ubQueuedOrders\""),
-    Entry.data(0x085, cw_u8, "orderQueueTimer", "counts/cycles down from from 8 to 0 (inclusive). See also 0x122."),
-    Entry.data(0x086, cw_u8, "_unknown_0x086", "pathing related?"),
-    Entry.data(0x087, cw_u8, "attackNotifyTimer", "Prevent \"Your forces are under attack.\" on every attack"),
+    CUnitMemberEntry.data(0x068, cw_CUnit, "previousPlayerUnit"),
+    CUnitMemberEntry.data(0x06C, cw_CUnit, "nextPlayerUnit"),
+    CUnitMemberEntry.data(0x070, cw_CUnit, "subUnit"),
+    CUnitMemberEntry.data(0x07C, cw_CUnit, "autoTargetUnit", "The auto-acquired target (Note: This field is actually used for different targets internally, especially by the AI)"),
+    CUnitMemberEntry.data(0x080, cw_CUnit, "connectedUnit", "Addon is connected to building (addon has conntected building, but not in other direction  (officially \"pAttached\")"),
+    CUnitMemberEntry.data(0x084, cw_u8, "orderQueueCount", "@todo Verify   // officially \"ubQueuedOrders\""),
+    CUnitMemberEntry.data(0x085, cw_u8, "orderQueueTimer", "counts/cycles down from from 8 to 0 (inclusive). See also 0x122."),
+    CUnitMemberEntry.data(0x086, cw_u8, "_unknown_0x086", "pathing related?"),
+    CUnitMemberEntry.data(0x087, cw_u8, "attackNotifyTimer", "Prevent \"Your forces are under attack.\" on every attack"),
 
     # 0x8A: ?
-    Entry.data(0x088, cw_u16, "previousUnitType", "Stores the type of the unit prior to being morphed/constructed"),
-    Entry.data(0x08A, cw_u8, "lastEventTimer", "countdown that stops being recent when it hits 0"),
-    Entry.data(0x08B, cw_u8, "lastEventColor", "17 = was completed (train, morph), 174 = was attacked"),
-    Entry.data(0x08C, cw_u16, "_unused_0x08C", "might have originally been RGB from lastEventColor"),
-    Entry.data(0x08E, cw_u8, "rankIncrease", "Adds this value to the unit's base rank"),
-    Entry.data(0x08F, cw_u8, "killCount", "Killcount"),
-    Entry.data(0x090, cw_u8, "lastAttackingPlayer", "the player that last attacked this unit"),
-    Entry.data(0x091, cw_u8, "secondaryOrderTimer"),
-    Entry.data(0x092, cw_u8, "AIActionFlag", "Internal use by AI only"),
-    Entry.data(0x093, cw_u8, "userActionFlags",
+    CUnitMemberEntry.data(0x088, cw_u16, "previousUnitType", "Stores the type of the unit prior to being morphed/constructed"),
+    CUnitMemberEntry.data(0x08A, cw_u8, "lastEventTimer", "countdown that stops being recent when it hits 0"),
+    CUnitMemberEntry.data(0x08B, cw_u8, "lastEventColor", "17 = was completed (train, morph), 174 = was attacked"),
+    CUnitMemberEntry.data(0x08C, cw_u16, "_unused_0x08C", "might have originally been RGB from lastEventColor"),
+    CUnitMemberEntry.data(0x08E, cw_u8, "rankIncrease", "Adds this value to the unit's base rank"),
+    CUnitMemberEntry.data(0x08F, cw_u8, "killCount", "Killcount"),
+    CUnitMemberEntry.data(0x090, cw_u8, "lastAttackingPlayer", "the player that last attacked this unit"),
+    CUnitMemberEntry.data(0x091, cw_u8, "secondaryOrderTimer"),
+    CUnitMemberEntry.data(0x092, cw_u8, "AIActionFlag", "Internal use by AI only"),
+    CUnitMemberEntry.data(0x093, cw_u8, "userActionFlags",
             "some flags that change when the user interacts with the unit\n" + \
             "2 = issued an order, 3 = interrupted an order, 4 = self destructing"),
 
-    Entry.data(0x094, cw_u16, "currentButtonSet", "The u16 is a guess, used to be u8"),
-    Entry.data(0x096, cw_bool, "isCloaked"),
-    Entry.data(0x097, cw_u8, "movementState",
+    CUnitMemberEntry.data(0x094, cw_u16, "currentButtonSet", "The u16 is a guess, used to be u8"),
+    CUnitMemberEntry.data(0x096, cw_bool, "isCloaked"),
+    CUnitMemberEntry.data(0x097, cw_u8, "movementState",
             "A value based on conditions related to pathing\n" + \
             "0x00: UM_Init\n"          + \
             "0x01: UM_InitSeq\n"       + \
@@ -288,106 +231,105 @@ cu_members = EUDArray([
             "0x21: UM_ForceMoveFree\n" + \
             "0x22: UM_FixTerrain\n"    + \
             "0x23: UM_TerrainSlide\n"
-        )
-
-    Entry.data(0x098, cw_u16, "buildQueue[0]", "Queue of units to build. Note that it doesn't begin with index 0, but with #buildQueueSlot index."),
-    Entry.data(0x09A, cw_u16, "buildQueue[1]", "Queue of units to build. Note that it doesn't begin with index 0, but with #buildQueueSlot index."),
-    Entry.data(0x09C, cw_u16, "buildQueue[2]", "Queue of units to build. Note that it doesn't begin with index 0, but with #buildQueueSlot index."),
-    Entry.data(0x09E, cw_u16, "buildQueue[3]", "Queue of units to build. Note that it doesn't begin with index 0, but with #buildQueueSlot index."),
-    Entry.data(0x0A0, cw_u16, "buildQueue[4]", "Queue of units to build. Note that it doesn't begin with index 0, but with #buildQueueSlot index."),
-    Entry.data(0x0A2, cw_u16, "energy", "Energy Points   // officially \"xwMagic\""),
-    Entry.data(0x0A4, cw_u8, "buildQueueSlot", "Index of active unit in #buildQueue."),
-    Entry.data(0x0A5, cw_u8, "uniquenessIdentifier", "A byte used to determine uniqueness of the unit"),
-    Entry.data(0x0A6, cw_u8, "secondaryOrderID", "(Build addon verified) @todo verify (Cloak, Build, ExpandCreep suggested by EUDDB)"),
-    Entry.data(0x0A7, cw_u8, "buildingOverlayState", "0 means the building has the largest amount of fire/blood"),
-    Entry.data(0x0A8, cw_u16, "hpGain", "hp gained on construction or repair"),
-    Entry.data(0x0AA, cw_u16, "shieldGain", "Shield gain on construction"),
-    Entry.data(0x0AC, cw_u16, "remainingBuildTime", "Remaining bulding time; This is also the timer for powerups (flags) to return to their original location."),
-    Entry.data(0x0AE, cw_u16, "previousHP", "The HP of the unit before it changed (example Drone->Hatchery, the Drone's HP will be stored here)"),
+        ),
+    CUnitMemberEntry.data(0x098, cw_u16, "buildQueue[0]", "Queue of units to build. Note that it doesn't begin with index 0, but with #buildQueueSlot index."),
+    CUnitMemberEntry.data(0x09A, cw_u16, "buildQueue[1]", "Queue of units to build. Note that it doesn't begin with index 0, but with #buildQueueSlot index."),
+    CUnitMemberEntry.data(0x09C, cw_u16, "buildQueue[2]", "Queue of units to build. Note that it doesn't begin with index 0, but with #buildQueueSlot index."),
+    CUnitMemberEntry.data(0x09E, cw_u16, "buildQueue[3]", "Queue of units to build. Note that it doesn't begin with index 0, but with #buildQueueSlot index."),
+    CUnitMemberEntry.data(0x0A0, cw_u16, "buildQueue[4]", "Queue of units to build. Note that it doesn't begin with index 0, but with #buildQueueSlot index."),
+    CUnitMemberEntry.data(0x0A2, cw_u16, "energy", "Energy Points   // officially \"xwMagic\""),
+    CUnitMemberEntry.data(0x0A4, cw_u8, "buildQueueSlot", "Index of active unit in #buildQueue."),
+    CUnitMemberEntry.data(0x0A5, cw_u8, "uniquenessIdentifier", "A byte used to determine uniqueness of the unit"),
+    CUnitMemberEntry.data(0x0A6, cw_u8, "secondaryOrderID", "(Build addon verified) @todo verify (Cloak, Build, ExpandCreep suggested by EUDDB)"),
+    CUnitMemberEntry.data(0x0A7, cw_u8, "buildingOverlayState", "0 means the building has the largest amount of fire/blood"),
+    CUnitMemberEntry.data(0x0A8, cw_u16, "hpGain", "hp gained on construction or repair"),
+    CUnitMemberEntry.data(0x0AA, cw_u16, "shieldGain", "Shield gain on construction"),
+    CUnitMemberEntry.data(0x0AC, cw_u16, "remainingBuildTime", "Remaining bulding time; This is also the timer for powerups (flags) to return to their original location."),
+    CUnitMemberEntry.data(0x0AE, cw_u16, "previousHP", "The HP of the unit before it changed (example Drone->Hatchery, the Drone's HP will be stored here)"),
 
     # union on 0xC0 ~ 0xCF
-    Entry.data(0x0C0, cw_u8, "vulture.spiderMineCount"),
-    Entry.data(0x0C0, cw_CUnit, "carrier/reaver.pInHanger", "first child inside the hanger"),
-    Entry.data(0x0C4, cw_CUnit, "carrier/reaver.pOutHanger", "first child outside the hanger"),
-    Entry.data(0x0C8, cw_u8, "carrier/reaver.inHangerCount", "number inside the hanger (used for scarab count)"),
-    Entry.data(0x0C9, cw_u8, "carrier/reaver.outHangerCount", "number outside the hanger"),
-    Entry.data(0x0C0, cw_CUnit, "fighter/scarab.parent"),
-    Entry.data(0x0C4, cw_CUnit, "fighter/scarab.prev"),
-    Entry.data(0x0C8, cw_CUnit, "fighter/scarab.next"),
-    Entry.data(0x0CC, cw_bool, "fighter/scarab.inHanger"),
-    Entry.data(0x0C8, cw_u32, "beacon.flagSpawnFrame"),
-    Entry.data(0x0C0, cw_CUnit, "building.addon"),
-    Entry.data(0x0C4, cw_u16, "building.addonBuildType"),
-    Entry.data(0x0C6, cw_u16, "building.upgradeResearchTime"),
-    Entry.data(0x0C8, cw_u8, "building.techType"),
-    Entry.data(0x0C9, cw_u8, "building.upgradeType"),
-    Entry.data(0x0CA, cw_u8, "building.larvaTimer"),
-    Entry.data(0x0CB, cw_u8, "building.landingTimer"),
-    Entry.data(0x0CC, cw_u8, "building.creepTimer"),
-    Entry.data(0x0CD, cw_u8, "building.upgradeLevel"),
-    Entry.data(0x0C0, cw_CUnit, "worker.pPowerup"),
-    Entry.data(0x0C4, cw_points, "worker.targetResource"),
-    Entry.data(0x0C8, cw_CUnit, "worker.targetResourceUnit"),
-    Entry.data(0x0CC, cw_u16, "worker.repairResourceLossTimer"),
-    Entry.data(0x0CE, cw_bool, "worker.isCarryingSomething", "There is a \"ubIsHarvesting\" somewhere"),
-    Entry.data(0x0CF, cw_u8, "worker.resourceCarryCount"),
+    CUnitMemberEntry.data(0x0C0, cw_u8, "vulture.spiderMineCount"),
+    CUnitMemberEntry.data(0x0C0, cw_CUnit, "carrier/reaver.pInHanger", "first child inside the hanger"),
+    CUnitMemberEntry.data(0x0C4, cw_CUnit, "carrier/reaver.pOutHanger", "first child outside the hanger"),
+    CUnitMemberEntry.data(0x0C8, cw_u8, "carrier/reaver.inHangerCount", "number inside the hanger (used for scarab count)"),
+    CUnitMemberEntry.data(0x0C9, cw_u8, "carrier/reaver.outHangerCount", "number outside the hanger"),
+    CUnitMemberEntry.data(0x0C0, cw_CUnit, "fighter/scarab.parent"),
+    CUnitMemberEntry.data(0x0C4, cw_CUnit, "fighter/scarab.prev"),
+    CUnitMemberEntry.data(0x0C8, cw_CUnit, "fighter/scarab.next"),
+    CUnitMemberEntry.data(0x0CC, cw_bool, "fighter/scarab.inHanger"),
+    CUnitMemberEntry.data(0x0C8, cw_u32, "beacon.flagSpawnFrame"),
+    CUnitMemberEntry.data(0x0C0, cw_CUnit, "building.addon"),
+    CUnitMemberEntry.data(0x0C4, cw_u16, "building.addonBuildType"),
+    CUnitMemberEntry.data(0x0C6, cw_u16, "building.upgradeResearchTime"),
+    CUnitMemberEntry.data(0x0C8, cw_u8, "building.techType"),
+    CUnitMemberEntry.data(0x0C9, cw_u8, "building.upgradeType"),
+    CUnitMemberEntry.data(0x0CA, cw_u8, "building.larvaTimer"),
+    CUnitMemberEntry.data(0x0CB, cw_u8, "building.landingTimer"),
+    CUnitMemberEntry.data(0x0CC, cw_u8, "building.creepTimer"),
+    CUnitMemberEntry.data(0x0CD, cw_u8, "building.upgradeLevel"),
+    CUnitMemberEntry.data(0x0C0, cw_CUnit, "worker.pPowerup"),
+    CUnitMemberEntry.data(0x0C4, cw_points, "worker.targetResource"),
+    CUnitMemberEntry.data(0x0C8, cw_CUnit, "worker.targetResourceUnit"),
+    CUnitMemberEntry.data(0x0CC, cw_u16, "worker.repairResourceLossTimer"),
+    CUnitMemberEntry.data(0x0CE, cw_bool, "worker.isCarryingSomething", "There is a \"ubIsHarvesting\" somewhere"),
+    CUnitMemberEntry.data(0x0CF, cw_u8, "worker.resourceCarryCount"),
 
     # union on 0xD0 ~ 0xDB
-    Entry.data(0x0D0, cw_u16, "resource.resourceCount", "amount of resources"),
-    Entry.data(0x0D2, cw_u8, "resource.resourceIscript"),
-    Entry.data(0x0D3, cw_u8, "resource.gatherQueueCount"),
-    Entry.data(0x0D4, cw_CUnit, "resource.nextGatherer", "pointer to the next workerunit waiting in line to gather"),
-    Entry.data(0x0D8, cw_u8, "resource.resourceGroup"),
-    Entry.data(0x0D9, cw_u8, "resource.resourceBelongsToAI"),
-    Entry.data(0x0D0, cw_CUnit, "nydus.exit", "connected nydus canal"),
-    Entry.data(0x0D0, cw_CSprite, "pylon.pPowerTemplate"),
-    Entry.data(0x0D0, cw_CUnit, "silo.pNuke", "attacked nuke // offical name"),
-    Entry.data(0x0D4, cw_bool, "silo.bReady", "offical name"),
-    Entry.data(0x0D0, cw_rect, "hatchery.harvestValue", "wtf???"),
-    Entry.data(0x0D0, cw_points, "powerup.origin"),
-    Entry.data(0x0D0, cw_CUnit, "gatherer.harvestTarget"),
-    Entry.data(0x0D4, cw_CUnit, "gatherer.prevHarvestUnit", "When there is a gather conflict"),
-    Entry.data(0x0D8, cw_CUnit, "gatherer.nextHarvestUnit"),
+    CUnitMemberEntry.data(0x0D0, cw_u16, "resource.resourceCount", "amount of resources"),
+    CUnitMemberEntry.data(0x0D2, cw_u8, "resource.resourceIscript"),
+    CUnitMemberEntry.data(0x0D3, cw_u8, "resource.gatherQueueCount"),
+    CUnitMemberEntry.data(0x0D4, cw_CUnit, "resource.nextGatherer", "pointer to the next workerunit waiting in line to gather"),
+    CUnitMemberEntry.data(0x0D8, cw_u8, "resource.resourceGroup"),
+    CUnitMemberEntry.data(0x0D9, cw_u8, "resource.resourceBelongsToAI"),
+    CUnitMemberEntry.data(0x0D0, cw_CUnit, "nydus.exit", "connected nydus canal"),
+    CUnitMemberEntry.data(0x0D0, cw_CSprite, "pylon.pPowerTemplate"),
+    CUnitMemberEntry.data(0x0D0, cw_CUnit, "silo.pNuke", "attacked nuke // offical name"),
+    CUnitMemberEntry.data(0x0D4, cw_bool, "silo.bReady", "offical name"),
+    CUnitMemberEntry.data(0x0D0, cw_rect, "hatchery.harvestValue", "wtf???"),
+    CUnitMemberEntry.data(0x0D0, cw_points, "powerup.origin"),
+    CUnitMemberEntry.data(0x0D0, cw_CUnit, "gatherer.harvestTarget"),
+    CUnitMemberEntry.data(0x0D4, cw_CUnit, "gatherer.prevHarvestUnit", "When there is a gather conflict"),
+    CUnitMemberEntry.data(0x0D8, cw_CUnit, "gatherer.nextHarvestUnit"),
 
-    Entry.data(0x0DC, cw_u32, "statusFlags"),
-    Entry.data(0x0E0, cw_u8, "resourceType", "Resource being held by worker: 1 = gas, 2 = ore"),
-    Entry.data(0x0E1, cw_u8, "wireframeRandomizer"),
-    Entry.data(0x0E2, cw_u8, "secondaryOrderState"),
-    Entry.data(0x0E3, cw_u8, "recentOrderTimer",
+    CUnitMemberEntry.data(0x0DC, cw_u32, "statusFlags"),
+    CUnitMemberEntry.data(0x0E0, cw_u8, "resourceType", "Resource being held by worker: 1 = gas, 2 = ore"),
+    CUnitMemberEntry.data(0x0E1, cw_u8, "wireframeRandomizer"),
+    CUnitMemberEntry.data(0x0E2, cw_u8, "secondaryOrderState"),
+    CUnitMemberEntry.data(0x0E3, cw_u8, "recentOrderTimer",
             "Counts down from 15 to 0 when most orders are given,\n" +  \
             "or when the unit moves after reaching a patrol location"),
-    Entry.data(0x0E4, cw_s32, "visibilityStatus", "Flags specifying which players can detect this unit (cloaked/burrowed)"),
-    Entry.data(0x0E8, cw_Position, "secondaryOrderPosition", "unused"),
-    Entry.data(0x0EC, cw_CUnit, "currentBuildUnit", "tied to secondary order"),
-    Entry.data(0x110, cw_u16, "removeTimer", "does not apply to scanner sweep"),
-    Entry.data(0x112, cw_u16, "defenseMatrixDamage"),
-    Entry.data(0x114, cw_u8, "defenseMatrixTimer"),
-    Entry.data(0x115, cw_u8, "stimTimer"),
-    Entry.data(0x116, cw_u8, "ensnareTimer"),
-    Entry.data(0x117, cw_u8, "lockdownTimer"),
-    Entry.data(0x118, cw_u8, "irradiateTimer"),
-    Entry.data(0x119, cw_u8, "stasisTimer"),
-    Entry.data(0x11A, cw_u8, "plagueTimer"),
-    Entry.data(0x11B, cw_u8, "stormTimer"),
-    Entry.data(0x11C, cw_CUnit, "irradiatedBy"),
-    Entry.data(0x120, cw_u8, "irradiatePlayerID"),
-    Entry.data(0x121, cw_u8, "parasiteFlags", "bitmask identifying which players have parasited this unit"),
-    Entry.data(0x122, cw_u8, "cycleCounter", "counts/cycles up from 0 to 7 (inclusive). See also 0x85."),
-    Entry.data(0x123, cw_bool, "isBlind"),
-    Entry.data(0x124, cw_u8, "maelstromTimer"),
-    Entry.data(0x125, cw_u8, "_unused_0x125", "?? Might be afterburner timer or ultralisk roar timer"),
-    Entry.data(0x126, cw_u8, "acidSporeCount"),
-    Entry.data(0x127, cw_u8, "acidSporeTime[0]"),
-    Entry.data(0x128, cw_u8, "acidSporeTime[1]"),
-    Entry.data(0x129, cw_u8, "acidSporeTime[2]"),
-    Entry.data(0x12A, cw_u8, "acidSporeTime[3]"),
-    Entry.data(0x12B, cw_u8, "acidSporeTime[4]"),
-    Entry.data(0x12C, cw_u8, "acidSporeTime[5]"),
-    Entry.data(0x12D, cw_u8, "acidSporeTime[6]"),
-    Entry.data(0x12E, cw_u8, "acidSporeTime[7]"),
-    Entry.data(0x12F, cw_u8, "acidSporeTime[8]"),
-    Entry.data(0x14C, cw_u8, "_repulseUnknown", "@todo Unknown"),
-    Entry.data(0x14D, cw_u8, "repulseAngle", "updated only when air unit is being pushed"),
-    Entry.data(0x14E, cw_u8, "bRepMtxX", "(mapsizex/1.5 max)"),
-    Entry.data(0x14F, cw_u8, "bRepMtxY", "(mapsizex/1.5 max)"),
+    CUnitMemberEntry.data(0x0E4, cw_s32, "visibilityStatus", "Flags specifying which players can detect this unit (cloaked/burrowed)"),
+    CUnitMemberEntry.data(0x0E8, cw_Position, "secondaryOrderPosition", "unused"),
+    CUnitMemberEntry.data(0x0EC, cw_CUnit, "currentBuildUnit", "tied to secondary order"),
+    CUnitMemberEntry.data(0x110, cw_u16, "removeTimer", "does not apply to scanner sweep"),
+    CUnitMemberEntry.data(0x112, cw_u16, "defenseMatrixDamage"),
+    CUnitMemberEntry.data(0x114, cw_u8, "defenseMatrixTimer"),
+    CUnitMemberEntry.data(0x115, cw_u8, "stimTimer"),
+    CUnitMemberEntry.data(0x116, cw_u8, "ensnareTimer"),
+    CUnitMemberEntry.data(0x117, cw_u8, "lockdownTimer"),
+    CUnitMemberEntry.data(0x118, cw_u8, "irradiateTimer"),
+    CUnitMemberEntry.data(0x119, cw_u8, "stasisTimer"),
+    CUnitMemberEntry.data(0x11A, cw_u8, "plagueTimer"),
+    CUnitMemberEntry.data(0x11B, cw_u8, "stormTimer"),
+    CUnitMemberEntry.data(0x11C, cw_CUnit, "irradiatedBy"),
+    CUnitMemberEntry.data(0x120, cw_u8, "irradiatePlayerID"),
+    CUnitMemberEntry.data(0x121, cw_u8, "parasiteFlags", "bitmask identifying which players have parasited this unit"),
+    CUnitMemberEntry.data(0x122, cw_u8, "cycleCounter", "counts/cycles up from 0 to 7 (inclusive). See also 0x85."),
+    CUnitMemberEntry.data(0x123, cw_bool, "isBlind"),
+    CUnitMemberEntry.data(0x124, cw_u8, "maelstromTimer"),
+    CUnitMemberEntry.data(0x125, cw_u8, "_unused_0x125", "?? Might be afterburner timer or ultralisk roar timer"),
+    CUnitMemberEntry.data(0x126, cw_u8, "acidSporeCount"),
+    CUnitMemberEntry.data(0x127, cw_u8, "acidSporeTime[0]"),
+    CUnitMemberEntry.data(0x128, cw_u8, "acidSporeTime[1]"),
+    CUnitMemberEntry.data(0x129, cw_u8, "acidSporeTime[2]"),
+    CUnitMemberEntry.data(0x12A, cw_u8, "acidSporeTime[3]"),
+    CUnitMemberEntry.data(0x12B, cw_u8, "acidSporeTime[4]"),
+    CUnitMemberEntry.data(0x12C, cw_u8, "acidSporeTime[5]"),
+    CUnitMemberEntry.data(0x12D, cw_u8, "acidSporeTime[6]"),
+    CUnitMemberEntry.data(0x12E, cw_u8, "acidSporeTime[7]"),
+    CUnitMemberEntry.data(0x12F, cw_u8, "acidSporeTime[8]"),
+    CUnitMemberEntry.data(0x14C, cw_u8, "_repulseUnknown", "@todo Unknown"),
+    CUnitMemberEntry.data(0x14D, cw_u8, "repulseAngle", "updated only when air unit is being pushed"),
+    CUnitMemberEntry.data(0x14E, cw_u8, "bRepMtxX", "(mapsizex/1.5 max)"),
+    CUnitMemberEntry.data(0x14F, cw_u8, "bRepMtxY", "(mapsizex/1.5 max)"),
 ])
