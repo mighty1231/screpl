@@ -177,10 +177,9 @@ cu_members = EUDArray([
     CUnitMemberEntry.data(0x086, cw_u8, "_unknown_0x086", "pathing related?"),
     CUnitMemberEntry.data(0x087, cw_u8, "attackNotifyTimer", "Prevent \"Your forces are under attack.\" on every attack"),
 
-    # 0x8A: ?
-    CUnitMemberEntry.data(0x088, cw_u16, "previousUnitType", "Stores the type of the unit prior to being morphed/constructed"),
-    CUnitMemberEntry.data(0x08A, cw_u8, "lastEventTimer", "countdown that stops being recent when it hits 0"),
-    CUnitMemberEntry.data(0x08B, cw_u8, "lastEventColor", "17 = was completed (train, morph), 174 = was attacked"),
+    # CUnitMemberEntry.data(0x088, cw_u16, "previousUnitType", "Stores the type of the unit prior to being morphed/constructed"),
+    # CUnitMemberEntry.data(0x08A, cw_u8, "lastEventTimer", "countdown that stops being recent when it hits 0"),
+    # CUnitMemberEntry.data(0x08B, cw_u8, "lastEventColor", "17 = was completed (train, morph), 174 = was attacked"),
     CUnitMemberEntry.data(0x08C, cw_u16, "_unused_0x08C", "might have originally been RGB from lastEventColor"),
     CUnitMemberEntry.data(0x08E, cw_u8, "rankIncrease", "Adds this value to the unit's base rank"),
     CUnitMemberEntry.data(0x08F, cw_u8, "killCount", "Killcount"),

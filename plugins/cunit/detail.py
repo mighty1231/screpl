@@ -33,10 +33,30 @@ class CUnitDetailApp(Application):
         activemem_contents << cu_mem_activeids.contents
         _cunit_epd << EPD(0)
 
+    def focusMemID(self, new_memid):
+        Trigger(
+            conditions = new_memid.AtLeast(0x80000000),
+            actions = new_memid.SetNumber(0)
+        )
+        Trigger(
+            conditions = new_memid.AtLeast(activemem_size),
+            actions = new_memid.SetNumber(activemem_size-1)
+        )
+        self.focused_memid = new_memid
+
     def loop(self):
+        focused_memid = self.focused_memid
         if EUDIf()(appManager.keyPress("ESC")):
             appManager.requestDestruct()
             EUDReturn()
+        if EUDElseIf()(appManager.keyPress("F7", hold=["LCTRL"])):
+            self.focusMemID(focused_memid - 8)
+        if EUDElseIf()(appManager.keyPress("F7")):
+            self.focusMemID(focused_memid - 1)
+        if EUDElseIf()(appManager.keyPress("F8", hold=["LCTRL"])):
+            self.focusMemID(focused_memid + 8)
+        if EUDElseIf()(appManager.keyPress("F8")):
+            self.focusMemID(focused_memid + 1)
         EUDEndIf()
         appManager.requestUpdate()
 
@@ -68,7 +88,7 @@ class CUnitDetailApp(Application):
             cu_member = cu_members[f_dwread_epd(activemem_contents + cur)]
             cu_member = CUnitMemberEntry.cast(cu_member)
 
-            writer.write_f(" %E= ", cu_member.name)
+            writer.write_f(" %E: ", cu_member.name)
             cu_member.write_f(cunit_epd + cu_member.off_epd, cu_member.off)
             writer.write(ord('\n'))
 
