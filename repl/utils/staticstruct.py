@@ -34,29 +34,24 @@ class _StaticStruct_Metaclass(type):
         _StaticStruct_Metaclass.fieldmap[cls] = fields
         return cls
 
-    def __call__(cls, *args, **kwargs):
-        from eudplib.core.eudstruct.vararray import EUDVArrayData
-        if '_from' in kwargs:
-            # cast
-            assert args == [] and len(kwargs) == 1
-            _from = kwargs['_from']
-            if IsConstExpr(_from):
-                baseobj = _from
-            else:
-                baseobj = EUDVariable()
-                baseobj << _from
+    def __call__(cls, _from):
+        if IsConstExpr(_from):
+            baseobj = _from
         else:
-            # statically construct
-            args = cls.build(*args, **kwargs)
-            fields = _StaticStruct_Metaclass.fieldmap[cls]
-            assert isinstance(args, tuple) and len(args) == len(fields)
-
-            baseobj = EUDVArrayData(len(args))(args)
-
+            baseobj = EUDVariable()
+            baseobj << _from
         instance = super().__call__(baseobj)
         instance._epd = EPD(instance)
 
         return instance
+
+    def withMembers(cls, *args):
+        from eudplib.core.eudstruct.vararray import EUDVArrayData
+        fields = _StaticStruct_Metaclass.fieldmap[cls]
+        assert len(args) == len(fields)
+
+        baseobj = EUDVArrayData(len(args))(args)
+        return cls(baseobj)
 
     def getfield(cls, instance, name):
         attrid, attrtype = _StaticStruct_Metaclass.fieldmap[cls][name]
@@ -104,27 +99,9 @@ class _StaticStruct_Metaclass(type):
 class StaticStruct(ExprProxy, metaclass=_StaticStruct_Metaclass):
     fields = []
 
-    @staticmethod
-    def build(*args):
-        '''
-        Tuple used on initialize variables on EUDVArray
-
-        class SomeStruct(StaticStruct):
-            fields = ['a', 'b']
-            @staticmethod
-            def build(a, b = 4):
-                return (a, b)
-
-        Then, you can construct SomeStruct instance, like
-            SomeStruct(10) or SomeStruct(4, b=30)
-        
-        Invoked on _StaticStruct_Metaclass.__call__
-        '''
-        return args
-
     @classmethod
     def cast(cls, _from):
-        return cls(_from=_from)
+        return cls(_from)
 
     def __getattr__(self, name):
         try:

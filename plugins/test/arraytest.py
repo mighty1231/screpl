@@ -8,7 +8,7 @@ from repl import (
 
 from . import appManager
 
-array = Array(10, [1, 2, 3])
+array = Array.construct(10, [1, 2, 3])
 ret = EUDVariable()
 
 class ArrayTestApp(Application):
@@ -39,6 +39,14 @@ class ArrayTestApp(Application):
     def contains(self, i):
         ret << array.contains(i)
 
+    @AppCommand([])
+    def pop(self):
+        ret << array.pop()
+
+    @AppCommand([])
+    def sort(self):
+        array.sort()
+
     def print(self, writer):
         max_size = array.max_size
         size     = array.size
@@ -54,5 +62,17 @@ class ArrayTestApp(Application):
         writer.write_f("\n")
         for i in range(10):
             writer.write_f("%D ", f_dwread_epd(contents + i))
+        writer.write_f("\n")
+
+        # cast test
+        arr2 = EUDVariable()
+        arr2 << array
+
+        arr3 = Array(arr2)
+        for value in arr3.values():
+            writer.write_f("%D ", value)
+        writer.write_f("\n")
+        for i in range(10):
+            writer.write_f("%D ", f_dwread_epd(arr3.contents + i))
         writer.write_f("\n")
         writer.write(0)
