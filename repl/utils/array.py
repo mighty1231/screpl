@@ -44,14 +44,13 @@ class Array(StaticStruct):
         srcepdp = end-1
         VProc([dstepdp, srcepdp, contents, index], [
             SetMemory(cpmoda, SetTo, 1),
-            SetMemory(loopc+8, SetTo, -1),
             dstepdp.QueueAddTo(EPD(cpmoda)),
             srcepdp.QueueAssignTo(EPD(0x6509B0)),
-            contents.QueueAddTo(EPD(loopc+8)),
+            contents.QueueAssignTo(EPD(loopc+8)),
             index.QueueAddTo(EPD(loopc+8))
         ])
 
-        # while (cp != &(contents+index-1))
+        # while (cp != &(contents+index))
         if EUDWhileNot()(loopc << Memory(cpmoda, Exactly, 0)):
             cpmod = f_dwread_cp(0)
             cpmoda << cpmod.getDestAddr()

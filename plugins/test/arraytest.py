@@ -46,7 +46,7 @@ class ArrayTestApp(Application):
             ret
         )
         for value in array.values():
-            writer.write_f("%D ", array)
+            writer.write_f("%D ", value)
         writer.write_f("\n")
         for i in range(10):
             writer.write_f("%D ", f_dwread_epd(contents + i))
