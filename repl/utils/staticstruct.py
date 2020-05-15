@@ -35,6 +35,7 @@ class _StaticStruct_Metaclass(type):
         return cls
 
     def __call__(cls, *args, **kwargs):
+        from eudplib.core.eudstruct.vararray import EUDVArrayData
         if '_from' in kwargs:
             # cast
             assert args == [] and len(kwargs) == 1
@@ -50,7 +51,7 @@ class _StaticStruct_Metaclass(type):
             fields = _StaticStruct_Metaclass.fieldmap[cls]
             assert isinstance(args, tuple) and len(args) == len(fields)
 
-            baseobj = EUDVArrayData(len(fields))(fields)
+            baseobj = EUDVArrayData(len(args))(args)
 
         instance = super().__call__(baseobj)
         instance._epd = EPD(instance)
@@ -136,4 +137,4 @@ class StaticStruct(ExprProxy, metaclass=_StaticStruct_Metaclass):
             type(self).setfield(self, name, value)
         except KeyError:
             assert name in ['_epd', '_value']
-            super().__setattr__(self, name, value)
+            super().__setattr__(name, value)

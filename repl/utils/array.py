@@ -39,7 +39,7 @@ class Array(StaticStruct):
         size = self.size
         end = self.end
 
-        cpmoda, cond = Forward(), Forward()
+        cpmoda, loopc = Forward(), Forward()
         dstepdp = end
         srcepdp = end-1
         VProc([dstepdp, srcepdp, contents, index], [
@@ -60,7 +60,7 @@ class Array(StaticStruct):
                 SetMemory(cpmoda, Add, -1),
                 SetMemory(0x6509B0, Add, -1)
             ])
-        EUDEndInfLoop()
+        EUDEndWhile()
 
         f_setcurpl2cpcache()
         f_dwwrite_epd(contents + index, value)
@@ -105,3 +105,26 @@ class Array(StaticStruct):
             DoActions(SetMemory(cond2 + 4, Add, 1))
         EUDEndInfLoop()
         EUDReturn(0)
+
+    def values(self):
+        '''
+        iterate over values in array
+        '''
+        blockname = 'arrayloop'
+        EUDCreateBlock(blockname, self)
+
+        epd = self.contents
+        end = self.end
+        cond = Forward()
+        SeqCompute([(EPD(cond + 8), SetTo, end)])
+        EUDWhileNot()(cond << epd.Exactly(0))
+
+        yield f_dwread_epd(epd)
+        EUDSetContinuePoint()
+        epd += 1
+        EUDEndWhile()
+
+        ep_assert(
+            EUDPopBlock(blockname)[1] is self,
+            'arrayloop mismatch'
+        )

@@ -11,7 +11,8 @@ from repl import (
 )
 from repl.core.application import ApplicationInstance
 
-manager = getAppManager()
+from . import appManager
+appManager = getAppManager()
 
 inputs = EUDCreateVariables(2)
 outputs = EUDCreateVariables(2)
@@ -26,6 +27,9 @@ def getMax(a, b):
     EUDEndIf()
     return 100, 100
 
+a = Db(2000)
+printval = EUDVariable()
+
 class TestApp(Application):
     fields = [
         'var',
@@ -35,6 +39,13 @@ class TestApp(Application):
     def onInit(self):
         self.var = 0
         self.locV = 1
+        STRSection, STRSection_epd = f_dwepdread_epd(EPD(0x5993D4))
+        _offset_1 = STRSection_epd + 1
+        Logger.format("%H %H", STRSection, STRSection_epd)
+        for i in [0, 1, 2, 3, 2, 1]:
+            Logger.format(str(i) + " %D %D",
+                EUDVariable(RlocInt_C(i, 4)) - STRSection,
+                EUDVariable(RlocInt_C(i, 1)) - STRSection_epd)
 
     def onChat(self, offset):
         '''
@@ -48,27 +59,47 @@ class TestApp(Application):
         DoActions([CreateUnit(self.locV, "Terran SCV", 0, P1)])
 
     def loop(self):
-        if EUDIf()(manager.keyPress("ESC")):
-            manager.requestDestruct()
+        global a
+        vv = EUDVariable(a)
+        Logger.format("%H %H %H", vv, EPD(vv), EUDVariable(EPD(a)))
+        if EUDIf()(appManager.keyPress("ESC")):
+            appManager.requestDestruct()
             EUDReturn()
-        if EUDElseIf()(manager.keyPress("K")):
+        if EUDElseIf()(appManager.keyPress("K")):
             self.var += 1
-        if EUDElseIf()(manager.keyPress("G")):
-            manager.startApplication(Logger)
+        if EUDElseIf()(appManager.keyPress("G")):
+            appManager.startApplication(Logger)
             EUDReturn()
         EUDEndIf()
-        manager.requestUpdate()
+        appManager.requestUpdate()
+
+        a, b = Forward(), Forward()
+        a << RawTrigger(
+            actions = [SetNextPtr(a, b)]
+            )
+        Logger.format("ab")
+
+        b  << NextTrigger()
+        Logger.format("bbb")
+
 
     def print(self, writer):
         writer.write_f("var %D\n", self.var)
         writer.write_f("loc %D\n", self.locV)
 
-        v1 = f_dwread_epd(manager.keystates + ord('A'))
-        v2 = f_dwread_epd(manager.keystates_sub + ord('A'))
+        v1 = f_dwread_epd(appManager.keystates + ord('A'))
+        v2 = f_dwread_epd(appManager.keystates_sub + ord('A'))
         writer.write_f("%D %D", v1, v2)
         writer.write_f("Input %D %D\n", *inputs)
         writer.write_f("Output %D %D\n", *outputs)
+        writer.write_f("%I8d %I8u\n", printval, printval)
+        writer.write_f("%I16d %I16u\n", printval, printval)
+        writer.write_f("%I32d %I32u\n", printval, printval)
         writer.write(0)
+
+    @AppCommand([argEncNumber])
+    def pp(self, number):
+        printval << number
 
     @IOCheck
     @AppTypedMethod([None, None], [None, None])
