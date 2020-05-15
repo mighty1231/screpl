@@ -5,7 +5,6 @@ from repl import REPL, getAppManager, AppCommand, Array
 # initialize variables
 appManager = getAppManager()
 superuser = appManager.superuser
-v_cur_cunit, v_cur_cunitepd = EUDCreateVariables(2)
 
 # members
 from .cunitrw import cu_members

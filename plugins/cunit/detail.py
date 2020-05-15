@@ -3,7 +3,8 @@ from repl import (
     Application,
     AppTypedMethod,
     AppCommand,
-    argEncNumber
+    argEncNumber,
+    print_f
 )
 
 from . import *
@@ -15,13 +16,13 @@ def f_epd2ptr(epd):
     return 0x58A364 + (epd * 4)
 
 activemem_size = EUDVariable()
-activemem_contents = EUDVariable()
 
 class CUnitDetailApp(Application):
     fields = [
         "cunit_epd",
         "focused_memid"
     ]
+
     @staticmethod
     def setFocus_epd(cunit_epd):
         _cunit_epd << cunit_epd
@@ -30,7 +31,6 @@ class CUnitDetailApp(Application):
         self.focused_memid = 0
         self.cunit_epd = _cunit_epd
         activemem_size << cu_mem_activeids.size
-        activemem_contents << cu_mem_activeids.contents
         _cunit_epd << EPD(0)
 
     def focusMemID(self, new_memid):
@@ -57,11 +57,20 @@ class CUnitDetailApp(Application):
             self.focusMemID(focused_memid + 8)
         if EUDElseIf()(appManager.keyPress("F8")):
             self.focusMemID(focused_memid + 1)
+        if EUDElseIf()(appManager.keyPress("H", hold=["LCTRL"])):
+            dw, epd = f_cunitepdread_epd(EPD(0x6284B8))
+            self.cunit_epd = epd
         EUDEndIf()
         appManager.requestUpdate()
 
     def print(self, writer):
         cunit_epd = self.cunit_epd
+        if EUDIf()(cunit_epd == 0):
+            writer.write_f("\x04CUnit Detail (ptr=NULL)\n" + "\n"*8)
+            writer.write(0)
+            EUDReturn()
+        EUDEndIf()
+
         writer.write_f("\x04CUnit Detail (ptr=%H)\n", f_epd2ptr(cunit_epd))
 
         focused_memid = self.focused_memid
@@ -85,7 +94,7 @@ class CUnitDetailApp(Application):
                 writer.write(0x02) # pale blue
             EUDEndIf()
 
-            cu_member = cu_members[f_dwread_epd(activemem_contents + cur)]
+            cu_member = cu_members[f_dwread_epd(cu_mem_activeid_contents + cur)]
             cu_member = CUnitMemberEntry.cast(cu_member)
 
             writer.write_f(" %E: ", cu_member.name)
@@ -102,3 +111,22 @@ class CUnitDetailApp(Application):
         EUDEndInfLoop()
 
         writer.write(0)
+
+    @AppCommand([argEncNumber])
+    def p(self, ptr):
+        label_error = Forward()
+
+        # validity check
+        idx, r = f_div(ptr - 0x59CCA8, 336)
+        if EUDIfNot()(r == 0):
+            EUDJump(label_error)
+        EUDEndIf()
+        if EUDIf()(idx >= 1700):
+            EUDJump(label_error)
+        EUDEndIf()
+
+        self.cunit_epd = EPD(ptr)
+        EUDReturn()
+
+        label_error << NextTrigger()
+        print_f("Warning: ptr %D is not valid CUnit pointer", ptr)

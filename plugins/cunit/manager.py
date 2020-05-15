@@ -20,12 +20,7 @@ class CUnitManagerApp(Application):
         if EUDIf()(appManager.keyPress("ESC")):
             appManager.requestDestruct()
             EUDReturn()
-        if EUDElseIf()(appManager.keyPress("H", hold=["LCTRL"])):
-            dw, epd = f_cunitepdread_epd(EPD(0x6284B8))
-            v_cur_cunit << dw
-            v_cur_cunitepd << epd
         if EUDElseIf()(appManager.keyPress("E", hold=["LCTRL"])):
-            CUnitDetailApp.setFocus_epd(v_cur_cunitepd)
             appManager.startApplication(CUnitDetailApp)
         if EUDElseIf()(appManager.keyPress("O", hold=["LCTRL"])):
             appManager.startApplication(CUnitOptionApp)
@@ -33,10 +28,7 @@ class CUnitManagerApp(Application):
         appManager.requestUpdate()
 
     def print(self, writer):
-        writer.write_f("\x04CUnit Manager (Current ptr=%H)\n", v_cur_cunit)
-        writer.write_f("LCTRL+H Set CUnit pointer as selected\n")
-        if EUDIfNot()(v_cur_cunit == 0):
-            writer.write_f("LCTRL+E Open CUnitDetailApp\n")
-        EUDEndIf()
+        writer.write_f("\x04CUnit Manager\n")
+        writer.write_f("LCTRL+E Open CUnitDetailApp\n")
         writer.write_f("LCTRL+O Options\n")
         writer.write(0)
