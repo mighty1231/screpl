@@ -11,7 +11,7 @@ from repl import (
     IOCheck
 )
 from repl.core.application import ApplicationInstance
-from . import manager
+from . import appManager
 
 a = EUDVariable()
 b = EUDVariable()
@@ -40,21 +40,21 @@ class TestApp2(ScrollApp):
 
     def loop(self):
         global a, b
-        if EUDIf()(manager.keyPress('F')):
+        if EUDIf()(appManager.keyPress('F')):
             a += 1
             b += 2
             self.var += 1
         EUDEndIf()
-        if EUDIf()(manager.keyPress('G')):
+        if EUDIf()(appManager.keyPress('G')):
             a += 100
             b += 200
             self.var = 0
         EUDEndIf()
-        if EUDIf()(manager.keyPress('Q')):
+        if EUDIf()(appManager.keyPress('Q')):
             self.test(a, b)
         EUDEndIf()
-        if EUDIf()(manager.keyPress("E")):
-            manager.startApplication(Logger)
+        if EUDIf()(appManager.keyPress("E")):
+            appManager.startApplication(Logger)
             EUDReturn()
         EUDEndIf()
         ScrollApp.loop(self)

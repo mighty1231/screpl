@@ -3,7 +3,9 @@ from .utils import (
     f_raiseError,
     f_raiseWarning,
     print_f,
-    f_strlen
+    f_strlen,
+    StaticStruct,
+    Array
 )
 
 from .base import (

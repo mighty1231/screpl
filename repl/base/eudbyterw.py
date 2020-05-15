@@ -132,6 +132,8 @@ class EUDByteRW:
         reader = EUDByteRW()
         reader.seekoffset(srcptr)
 
+        written = EUDVariable()
+        written << 0
         if EUDWhile()(n >= 1):
             # read
             b = reader.read()
@@ -141,8 +143,12 @@ class EUDByteRW:
 
             # copy
             self.write(b)
-            n -= 1
+            DoActions([
+                n.SubtractNumber(1),
+                written.AddNumber(1)
+            ])
         EUDEndWhile()
+        EUDReturn(written)
 
     @EUDMethod
     def write_strepd(self, srcepd):
@@ -159,6 +165,29 @@ class EUDByteRW:
             # copy
             self.write(b)
         EUDEndInfLoop()
+
+    @EUDMethod
+    def write_strnepd(self, srcepd, n):
+        reader = EUDByteRW()
+        reader.seekepd(srcepd)
+
+        written = EUDVariable()
+        written << 0
+        if EUDWhile()(n >= 1):
+            # read
+            b = reader.read()
+
+            # break
+            EUDBreakIf(b == 0)
+
+            # copy
+            self.write(b)
+            DoActions([
+                n.SubtractNumber(1),
+                written.AddNumber(1)
+            ])
+        EUDEndWhile()
+        EUDReturn(written)
 
     @EUDMethod
     def write_decimal(self, number):
