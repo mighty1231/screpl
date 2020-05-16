@@ -93,6 +93,10 @@ class StringEditorApp(Application):
                     eb2 = reader.read()
                     if EUDIf()(eb2 == ord('\\')):
                         b1 << ord('\\')
+                    if EUDElseIf()(eb2 == ord('n')):
+                        b1 << ord('\n')
+                    if EUDElseIf()(eb2 == ord('t')):
+                        b1 << ord('\t')
                     if EUDElseIf()(eb2 == ord('x')):
                         b1 << 0
                         for nnn in range(2):
@@ -104,13 +108,13 @@ class StringEditorApp(Application):
                             if EUDElseIf()([hexb >= ord('A'), hexb <= ord('F')]):
                                 b1 += (hexb - ord('A') + 10)
                             if EUDElse()():
-                                f_raiseWarning("String escape character '\\' usage-> '\\\\' or '\\x##'")
+                                f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                                 EUDJump(clear_overwrite)
                             EUDEndIf()
                             if nnn == 0:
                                 b1 *= 16
                     if EUDElse()():
-                        f_raiseWarning("String escape character '\\' usage-> '\\\\' or '\\x##'")
+                        f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                         EUDJump(clear_overwrite)
                     EUDEndIf()
                 EUDEndIf()
@@ -143,6 +147,10 @@ class StringEditorApp(Application):
                     eb2 = reader.read()
                     if EUDIf()(eb2 == ord('\\')):
                         b1 << ord('\\')
+                    if EUDElseIf()(eb2 == ord('n')):
+                        b1 << ord('\n')
+                    if EUDElseIf()(eb2 == ord('t')):
+                        b1 << ord('\t')
                     if EUDElseIf()(eb2 == ord('x')):
                         b1 << 0
                         for nnn in range(2):
@@ -154,13 +162,13 @@ class StringEditorApp(Application):
                             if EUDElseIf()([hexb >= ord('A'), hexb <= ord('F')]):
                                 b1 += (hexb - ord('A') + 10)
                             if EUDElse()():
-                                f_raiseWarning("String escape character '\\' usage-> '\\\\' or '\\x##'")
+                                f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                                 EUDJump(clear_insert)
                             EUDEndIf()
                             if nnn == 0:
                                 b1 *= 16
                     if EUDElse()():
-                        f_raiseWarning("String escape character '\\' usage-> '\\\\' or '\\x##'")
+                        f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                         EUDJump(clear_insert)
                     EUDEndIf()
                 EUDEndIf()
