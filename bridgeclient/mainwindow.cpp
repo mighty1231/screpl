@@ -5,10 +5,7 @@
 #include <QDebug>
 #include <QTextCursor>
 #include <QFileDialog>
-#include <QMessageBox>
-#include <QFile>
-#include <QIODevice>
-#include <QDataStream>
+#include <QSaveFile>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -159,12 +156,11 @@ void MainWindow::dumpOutput()
     if (fileName.isEmpty())
         return;
     else {
-        QFile file(fileName);
+        QSaveFile file(fileName);
         if (!file.open(QIODevice::WriteOnly)) {
             return;
         }
-
-        QDataStream out(&file);
-        out << QByteArray::fromHex(text.toLatin1());
+        file.write(QByteArray::fromHex(text.toLatin1()));
+        file.commit();
     }
 }
