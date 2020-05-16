@@ -99,7 +99,6 @@ bool Worker::searchREPL()
     QByteArray *buffer = NULL;
     SIZE_T written;
     bool found = false;
-    int buffer_startAddr = 0;
     while (startAddr  <= 0xFFFE0000) {
         if (!VirtualQueryEx(hProcess, (void *)startAddr, &mbi, sizeof(mbi))) {
             status = STATUS_NOPROCESS_FOUND;
@@ -111,20 +110,11 @@ bool Worker::searchREPL()
         if ((mbi.State & MEM_COMMIT)
                 && (mbi.Protect & PAGE_READWRITE)
                 && !(mbi.Protect & PAGE_GUARD)) {
-            int last_offset;
-            if (buffer) {
-                last_offset = buffer->size();
-                buffer->resize(last_offset + mbi.RegionSize);
-            } else {
-                last_offset = 0;
-                buffer = new QByteArray(mbi.RegionSize, 0);
-                buffer_startAddr = startAddr;
-            }
+            buffer = new QByteArray(mbi.RegionSize, 0);
 
             // get buffer
-            if (!ReadProcessMemory(hProcess, (void *)startAddr, buffer->data() + last_offset, mbi.RegionSize, &written)) {
+            if (!ReadProcessMemory(hProcess, (void *)startAddr, buffer->data(), mbi.RegionSize, &written)) {
                 if (GetLastError() == 299) {
-                    buffer->resize(last_offset);
                     goto next;
                 }
 
@@ -143,39 +133,22 @@ bool Worker::searchREPL()
                 delete buffer;
                 return false;
             }
-        } else {
-        next:
-            if (buffer) {
-                // search REPL-signature
-                int idx = buffer->indexOf(SIGNATURE);
-                if (idx != -1) {
-                    if (found) {
-                        makeError("SC-REPL Signature duplicate");
-                        delete buffer;
-                        return false;
-                    }
-                    found = true;
-                    REPLRegion = buffer_startAddr + idx;
+
+            // search REPL-signature
+            int idx = buffer->indexOf(SIGNATURE);
+            if (idx != -1) {
+                if (found) {
+                    makeError("SC-REPL Signature duplicate");
+                    delete buffer;
+                    return false;
                 }
-                delete buffer;
-                buffer = NULL;
+                found = true;
+                REPLRegion = startAddr + idx;
             }
+        next:
+            delete buffer;
         }
         startAddr += mbi.RegionSize;
-    }
-    if (buffer) {
-        // search REPL-signature
-        int idx = buffer->indexOf(SIGNATURE);
-        if (idx != -1) {
-            if (found) {
-                makeError("SC-REPL Signature duplicate");
-                delete buffer;
-                return false;
-            }
-            found = true;
-            REPLRegion = buffer_startAddr + idx;
-        }
-        delete buffer;
     }
 
     if (found) {
