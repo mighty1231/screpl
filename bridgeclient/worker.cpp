@@ -189,6 +189,47 @@ bool Worker::searchREPL()
     return false;
 }
 
+QString Worker::traverseHeaps()
+{
+    HEAPLIST32 hl;
+
+    HANDLE hHeapSnap = CreateToolhelp32Snapshot(TH32CS_SNAPHEAPLIST, GetProcessId(hProcess));
+
+    hl.dwSize = sizeof(HEAPLIST32);
+
+    if ( hHeapSnap == INVALID_HANDLE_VALUE )
+    {
+        return QString::asprintf("CreateToolhelp32Snapshot failed (%d)\n", GetLastError());
+    }
+
+    QString string;
+    if( Heap32ListFirst( hHeapSnap, &hl ) )
+    {
+        do
+        {
+            HEAPENTRY32 he;
+            ZeroMemory(&he, sizeof(HEAPENTRY32));
+            he.dwSize = sizeof(HEAPENTRY32);
+
+            if( Heap32First( &he, GetProcessId(hProcess), hl.th32HeapID ) ) {
+                string += QString::asprintf( "\nHeap ID: %d\n", hl.th32HeapID );
+                do
+                {
+                    string += QString::asprintf( "Block size: %d\n", he.dwBlockSize );
+                    he.dwSize = sizeof(HEAPENTRY32);
+                } while( Heap32Next(&he) );
+            }
+            hl.dwSize = sizeof(HEAPLIST32);
+        } while (Heap32ListNext( hHeapSnap, &hl ));
+    }
+    else
+        string += QString::asprintf ("Cannot list first heap (%d)\n", GetLastError());
+
+    CloseHandle(hHeapSnap);
+    qDebug() << string;
+    return string;
+}
+
 void Worker::communicateREPL()
 {
     // Too much milk solution #3, busy-waiting by A

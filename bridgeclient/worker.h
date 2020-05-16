@@ -31,6 +31,7 @@ private:
     void communicateREPL();
 
     void process();
+    QString traverseHeaps();
 
     QMutex command_mutex;
     QString command;
