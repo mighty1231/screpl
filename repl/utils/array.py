@@ -69,12 +69,12 @@ class Array(StaticStruct):
             size = 0
             contents = EPD(EUDArray(max_size))
 
-        return Array.withMembers(max_size, size, contents, contents+size)
+        return Array.initializeWith(max_size, size, contents, contents+size)
 
     @staticmethod
     def allocate(max_size):
         contents = pool.alloc_epd(max_size)
-        instance = Array.withMembers(0, 0, 0, 0)
+        instance = Array.initializeWith(0, 0, 0, 0)
         instance.max_size = max_size
         instance.contents = contents
         instance.end = contents
@@ -215,6 +215,37 @@ class Array(StaticStruct):
         EUDEndInfLoop()
         EUDReturn(0)
 
+    @EUDMethod
+    def index(self, item):
+        '''
+        returns the smallest index which has item.
+        if there is no such index, returns -1
+        '''
+        cond1, cond2 = Forward(), Forward()
+        SeqCompute([
+            (EPD(cond2 + 4), SetTo, self.contents),
+            (EPD(cond2 + 8), SetTo, item),
+            (EPD(cond1 + 8), SetTo, self.end)
+        ])
+        ret = EUDVariable()
+        ret << 0
+        if EUDInfLoop()():
+            # break if *ptr == end
+            EUDBreakIf(cond1 << Memory(cond2 + 4, Exactly, 0))
+
+            # if (*ptr == item)
+            if EUDIf()(cond2 << Memory(0, Exactly, 0)):
+                EUDReturn(ret)
+            EUDEndIf()
+
+            # ptr++
+            DoActions([
+                SetMemory(cond2 + 4, Add, 1),
+                ret.AddNumber(1)
+            ])
+        EUDEndInfLoop()
+        EUDReturn(-1)
+
     def sort(self, comp=None):
         if comp is None:
             comp = default_compare
@@ -234,7 +265,7 @@ class Array(StaticStruct):
         size = self.size
 
         # non-recursive quicksort
-        stack = Array.allocate(size + 1)
+        stack = Array.allocate(size * 2)
         stack.append(0)
         stack.append(size-1)
         if EUDWhileNot()(stack.size == 0):
