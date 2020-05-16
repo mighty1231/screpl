@@ -107,9 +107,10 @@ bool Worker::searchREPL()
             CloseHandle(hProcess);
             return false;
         }
-        if ((mbi.State & MEM_COMMIT)
-                && (mbi.Protect & PAGE_READWRITE)
-                && !(mbi.Protect & PAGE_GUARD)) {
+        if ((mbi.State == MEM_COMMIT)
+                && (mbi.Type == MEM_PRIVATE)
+                && (mbi.Protect == PAGE_READWRITE)
+                && (mbi.AllocationBase == mbi.BaseAddress)) {
             buffer = new QByteArray(mbi.RegionSize, 0);
 
             // get buffer
