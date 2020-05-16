@@ -30,6 +30,8 @@ public slots:
     void tryCommand();
     void sentCommand(QString command);
 
+    void dumpOutput();
+
 private:
     Ui::MainWindow *ui;
     Worker *worker;

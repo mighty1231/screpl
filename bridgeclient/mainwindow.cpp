@@ -4,6 +4,11 @@
 #include <Windows.h>
 #include <QDebug>
 #include <QTextCursor>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QFile>
+#include <QIODevice>
+#include <QDataStream>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -18,6 +23,8 @@ MainWindow::MainWindow(QWidget *parent)
     label_repl= new QLabel(QString("REPL %1").arg(string_notfound));
     ui->statusbar->addPermanentWidget(label_proc);
     ui->statusbar->addPermanentWidget(label_repl);
+
+    connect(ui->from_dumpbtn, SIGNAL(clicked()), this, SLOT(dumpOutput()));
 }
 
 MainWindow::~MainWindow()
@@ -141,4 +148,23 @@ void MainWindow::sentCommand(QString command)
     ui->statusbar->showMessage(QString("Command %1 sent!").arg(command), 5000);
     ui->to_cmdlog->append(command);
     ui->sendcmdbtn->setEnabled(true);
+}
+
+void MainWindow::dumpOutput()
+{
+    QString text = ui->from_appoutput->textCursor().selectedText();
+    QString fileName = QFileDialog::getSaveFileName(this,
+        tr("Save Dump file"), "",
+        tr("All Files (*)"));
+    if (fileName.isEmpty())
+        return;
+    else {
+        QFile file(fileName);
+        if (!file.open(QIODevice::WriteOnly)) {
+            return;
+        }
+
+        QDataStream out(&file);
+        out << QByteArray::fromHex(text.toLatin1());
+    }
 }
