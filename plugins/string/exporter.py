@@ -7,9 +7,10 @@ STATE_CONFIG    = 0
 STATE_EXPORTING = 1
 v_state = EUDVariable(STATE_CONFIG)
 
-MODE_SCMD    = 0
-MODE_EUDPLIB = 1
-MODE_END     = 2
+MODE_SCMD      = 0
+MODE_EUDPLIB   = 1
+MODE_EUDEDITOR = 2
+MODE_END     = 3
 v_mode = EUDVariable(MODE_SCMD)
 
 storage = Db(STRING_BUFFER_SZ)
@@ -25,11 +26,17 @@ def writeStrings():
     cur_epd << EPD(string_buffer)
 
     # mode branch
-    br_mode, br_mode_scmd, br_mode_eudplib, br_mode_end = [Forward() for _ in range(4)]
+    br_mode = Forward()
+    br_mode_scmd = Forward()
+    br_mode_eudplib = Forward()
+    br_mode_eudeditor = Forward()
+    br_mode_end = Forward()
     if EUDIf()(v_mode == MODE_SCMD):
         DoActions(SetNextPtr(br_mode, br_mode_scmd))
-    if EUDElse()():
+    if EUDElseIf()(v_mode == MODE_EUDPLIB):
         DoActions(SetNextPtr(br_mode, br_mode_eudplib))
+    if EUDElseIf()(v_mode == MODE_EUDEDITOR):
+        DoActions(SetNextPtr(br_mode, br_mode_eudeditor))
     EUDEndIf()
 
     if EUDInfLoop()():
@@ -52,6 +59,10 @@ def writeStrings():
                     br_mode_eudplib << NextTrigger()
                     writer.write_f("\\x")
                     writer.write_bytehex(b)
+                    SetNextTrigger(br_mode_end)
+
+                    br_mode_eudeditor << NextTrigger()
+                    writer.write_f("<%D>", b)
 
                     br_mode_end << NextTrigger()
                 EUDEndIf()
@@ -128,13 +139,30 @@ class StringExporterApp(Application):
     def print(self, writer):
         writer.write_f("String Editor - Exporter (Bridge Client required)\n")
         if EUDIf()(v_state == STATE_CONFIG):
-            em_scmd, em_eudplib = EUDCreateVariables(2)
+            em_scmd, em_eudplib, em_eudeditor = EUDCreateVariables(3)
             if EUDIf()(v_mode == MODE_SCMD):
-                DoActions([em_scmd.SetNumber(0x11), em_eudplib.SetNumber(0x16)])
+                DoActions([
+                    em_scmd.SetNumber(0x11),
+                    em_eudplib.SetNumber(0x16),
+                    em_eudeditor.SetNumber(0x16)
+                ])
+            if EUDElseIf()(v_mode == MODE_EUDPLIB):
+                DoActions([
+                    em_scmd.SetNumber(0x16),
+                    em_eudplib.SetNumber(0x11),
+                    em_eudeditor.SetNumber(0x16)
+                ])
             if EUDElse()():
-                DoActions([em_scmd.SetNumber(0x16), em_eudplib.SetNumber(0x11)])
+                DoActions([
+                    em_scmd.SetNumber(0x16),
+                    em_eudplib.SetNumber(0x16),
+                    em_eudeditor.SetNumber(0x11)
+                ])
             EUDEndIf()
-            writer.write_f("\n\x16Mode: %CSCMDraft2 %Ceudplib\n", em_scmd, em_eudplib)
+            writer.write_f("\n\x16Mode: %CSCMDraft2 %Ceudplib %CEUDEditor\n",
+                em_scmd,
+                em_eudplib,
+                em_eudeditor)
             writer.write_f("\x16Press CTRL+O to change mode\n")
             writer.write_f("\x16Press CTRL+Y to export\n")
         if EUDElse()():
