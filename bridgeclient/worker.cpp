@@ -2,7 +2,13 @@
 #include <string.h>
 
 #include <QtDebug>
+#include <QtGlobal>
 
+static inline bool IsSTRSectionMBI(MEMORY_BASIC_INFORMATION *mbi) {
+    return (mbi->State == MEM_COMMIT)
+                    && (mbi->Type == MEM_PRIVATE)
+                    && (mbi->Protect == PAGE_READWRITE);
+}
 
 Worker::Worker(QObject *parent) : QThread(parent),
     SIGNATURE("\xc1\xfa\x55\x60\x5f\xca\x38\x5e\x91\xe4\x38\x43\x08\x64\x6a\x1c"
@@ -26,9 +32,11 @@ Worker::Worker(QObject *parent) : QThread(parent),
     regiontmp = new SharedRegion();
     region = new SharedRegion();
     app_output_buffer = new char[APP_OUTPUT_MAXSIZE + 1];
+    query_buffer = new QByteArray();
 }
 
 Worker::~Worker() {
+    delete query_buffer;
     delete[] app_output_buffer;
     delete region;
     delete regiontmp;
@@ -96,10 +104,8 @@ bool Worker::searchREPL()
     // query memory
     MEMORY_BASIC_INFORMATION mbi;
     unsigned int startAddr = pageSize;
-    QByteArray *buffer = NULL;
-    SIZE_T written;
+    uint written;
     bool found = false;
-    int buffer_startAddr = 0;
     while (startAddr  <= 0xFFFE0000) {
         if (!VirtualQueryEx(hProcess, (void *)startAddr, &mbi, sizeof(mbi))) {
             status = STATUS_NOPROCESS_FOUND;
@@ -108,74 +114,31 @@ bool Worker::searchREPL()
             CloseHandle(hProcess);
             return false;
         }
-        if ((mbi.State & MEM_COMMIT)
-                && (mbi.Protect & PAGE_READWRITE)
-                && !(mbi.Protect & PAGE_GUARD)) {
-            int last_offset;
-            if (buffer) {
-                last_offset = buffer->size();
-                buffer->resize(last_offset + mbi.RegionSize);
-            } else {
-                last_offset = 0;
-                buffer = new QByteArray(mbi.RegionSize, 0);
-                buffer_startAddr = startAddr;
-            }
-
-            // get buffer
-            if (!ReadProcessMemory(hProcess, (void *)startAddr, buffer->data() + last_offset, mbi.RegionSize, &written)) {
-                if (GetLastError() == 299) {
-                    buffer->resize(last_offset);
-                    goto next;
-                }
-
+        if (IsSTRSectionMBI(&mbi)) {
+            query_buffer->resize(mbi.RegionSize + SIGNATURE.length());
+            written = readSTRSection(startAddr, query_buffer->data(), mbi.RegionSize + SIGNATURE.length());
+            if (written == 0) {
                 status = STATUS_NOPROCESS_FOUND;
                 emit metProcess(false);
                 makeError("ReadProcessMemory");
                 CloseHandle(hProcess);
-                delete buffer;
                 return false;
             }
-            if (written != mbi.RegionSize) {
-                status = STATUS_NOPROCESS_FOUND;
-                emit metProcess(false);
-                makeError("ReadProcessMemory, size");
-                CloseHandle(hProcess);
-                delete buffer;
-                return false;
-            }
-        } else {
-        next:
-            if (buffer) {
-                // search REPL-signature
-                int idx = buffer->indexOf(SIGNATURE);
-                if (idx != -1) {
-                    if (found) {
-                        makeError("SC-REPL Signature duplicate");
-                        delete buffer;
-                        return false;
-                    }
-                    found = true;
-                    REPLRegion = buffer_startAddr + idx;
+
+            query_buffer->resize(written);
+
+            // search REPL-signature
+            int idx = query_buffer->indexOf(SIGNATURE);
+            if (idx != -1) {
+                if (found) {
+                    makeError("SC-REPL Signature duplicate");
+                    return false;
                 }
-                delete buffer;
-                buffer = NULL;
+                found = true;
+                REPLRegion = startAddr + idx;
             }
         }
         startAddr += mbi.RegionSize;
-    }
-    if (buffer) {
-        // search REPL-signature
-        int idx = buffer->indexOf(SIGNATURE);
-        if (idx != -1) {
-            if (found) {
-                makeError("SC-REPL Signature duplicate");
-                delete buffer;
-                return false;
-            }
-            found = true;
-            REPLRegion = buffer_startAddr + idx;
-        }
-        delete buffer;
     }
 
     if (found) {
@@ -223,14 +186,9 @@ void Worker::communicateREPL()
 
 void Worker::process()
 {
-    SIZE_T written;
     QString _command_tmp;
-    if (!ReadProcessMemory(
-                hProcess,
-                (void *) REPLRegion,
-                regiontmp,
-                sizeof(SharedRegion),
-                &written) || written != sizeof(SharedRegion)) {
+    SIZE_T written = readSTRSection(REPLRegion, regiontmp, sizeof(SharedRegion));
+    if (written != sizeof(SharedRegion)) {
         status = STATUS_PROCESS_FOUND;
         emit metREPL(false, REPLRegion);
         makeError("ReadProcessMemory, read region");
@@ -253,12 +211,8 @@ void Worker::process()
     regiontmp->app_output_sz = 0;
 
     // restore note
-    if (!WriteProcessMemory(
-                hProcess,
-                (void *) REPLRegion,
-                regiontmp,
-                sizeof(SharedRegion),
-                &written) || written != sizeof(SharedRegion)){
+    written = writeSTRSection(REPLRegion, regiontmp, sizeof(SharedRegion));
+    if (written != sizeof(SharedRegion)) {
         status = STATUS_PROCESS_FOUND;
         emit metREPL(false, REPLRegion);
         makeError("WriteProcessMemory, write region");
@@ -435,4 +389,78 @@ QString Worker::ignoreColor(const char *ptr)
     }
 
     return QString::fromUtf8(ba);
+}
+
+SIZE_T Worker::readSTRSection(uint address, void *buf, SIZE_T length)
+{
+    /*
+     * read memory (address ~ address+length-1) and write to buf.
+     * returns length of written bytes
+     * */
+
+    char *dest = (char *)buf;
+
+    SIZE_T totalRemainingLength = length;
+    uint currentAddress = address;
+    SIZE_T total_written = 0;
+
+    MEMORY_BASIC_INFORMATION mbi;
+    while (totalRemainingLength > 0)
+    {
+        if (!VirtualQueryEx(hProcess, (void *)currentAddress, &mbi, sizeof(mbi))
+                || !IsSTRSectionMBI(&mbi)) {
+            return total_written;
+        }
+
+        uint memoryEndAddress = (uint) mbi.BaseAddress + mbi.RegionSize;
+        SIZE_T bytesToRead = qMin((SIZE_T)memoryEndAddress - currentAddress, totalRemainingLength);
+        SIZE_T written;
+
+        if (!ReadProcessMemory(hProcess, (void *)currentAddress, dest + total_written, bytesToRead, &written)
+                || written != bytesToRead) {
+            return total_written;
+        }
+        total_written += bytesToRead;
+        currentAddress += bytesToRead;
+        totalRemainingLength -= bytesToRead;
+    }
+
+    return total_written;
+}
+
+SIZE_T Worker::writeSTRSection(uint address, const void *buf, SIZE_T length)
+{
+    /*
+     * read memory (address ~ address+length-1) and write to buf.
+     * returns length of written bytes
+     * */
+
+    char *src = (char *)buf;
+
+    SIZE_T totalRemainingLength = length;
+    uint currentAddress = address;
+    SIZE_T total_written = 0;
+
+    MEMORY_BASIC_INFORMATION mbi;
+    while (totalRemainingLength > 0)
+    {
+        if (!VirtualQueryEx(hProcess, (void *)currentAddress, &mbi, sizeof(mbi))
+                || !IsSTRSectionMBI(&mbi)) {
+            return total_written;
+        }
+
+        uint memoryEndAddress = (uint) mbi.BaseAddress + mbi.RegionSize;
+        SIZE_T bytesToRead = qMin((SIZE_T)memoryEndAddress - currentAddress, totalRemainingLength);
+        SIZE_T written;
+
+        if (!WriteProcessMemory(hProcess, (void *)currentAddress, src + total_written, bytesToRead, &written)
+                || written != bytesToRead) {
+            return total_written;
+        }
+        total_written += bytesToRead;
+        currentAddress += bytesToRead;
+        totalRemainingLength -= bytesToRead;
+    }
+
+    return total_written;
 }

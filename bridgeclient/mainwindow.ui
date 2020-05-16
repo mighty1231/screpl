@@ -95,9 +95,19 @@
            <property name="title">
             <string>App Output</string>
            </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_6">
+           <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
              <widget class="QTextEdit" name="from_appoutput"/>
+            </item>
+            <item>
+             <widget class="QPushButton" name="from_dumpbtn">
+              <property name="toolTip">
+               <string>선택한 텍스트를 헥스로 읽어 파일로 만들어 저장합니다.</string>
+              </property>
+              <property name="text">
+               <string>덤프</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
