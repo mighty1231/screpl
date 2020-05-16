@@ -31,15 +31,15 @@ private:
     void communicateREPL();
 
     void process();
-    QString traverseHeaps();
 
     QMutex command_mutex;
     QString command;
 
     // relative read or write
+    SIZE_T readSTRSection(uint address, void *buf, SIZE_T length);
+    SIZE_T writeSTRSection(uint address, const void *buf, SIZE_T length);
     inline bool writeRegionInt(int offset, int value);
     inline bool readRegionInt(int offset, int *value);
-
 
     QElapsedTimer last_interaction_timer;
     int last_framecount;
@@ -51,8 +51,9 @@ private:
     int pageSize;
     PROCESSENTRY32 entry;
     HANDLE snapshot;
-
     HANDLE hProcess;
+
+    QByteArray *query_buffer;
 
     int REPLRegion;
     SharedRegion *regiontmp;
