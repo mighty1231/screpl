@@ -3,7 +3,6 @@ from eudplib import *
 from ..base.eudbyterw import EUDByteRW
 from ..base.pool import DbPool, VarPool
 from ..utils import f_raiseError, f_raiseWarning, getKeyCode, f_strlen, print_f
-from .bridge import bridge_init, bridge_loop
 
 KEYPRESS_DELAY = 8
 _manager = None
@@ -481,12 +480,12 @@ class AppManager:
 
     def cleanText(self):
         # clean text UI of previous app
-        if self.bridge_mode:
+        if self.isBridgeMode():
             EUDIf()(self.is_blind_mode == 0)
 
         print_f("\n" * 12)
 
-        if self.bridge_mode:
+        if self.isBridgeMode():
             EUDEndIf()
 
     def getWriter(self):
@@ -502,6 +501,9 @@ class AppManager:
     def loop(self):
         from ..apps.repl import REPL
         from .appcommand import AppCommand
+
+        if self.isBridgeMode():
+            from ..bridge import bridge_init, bridge_loop
 
         if EUDExecuteOnce()():
             if self.isBridgeMode():
@@ -574,12 +576,12 @@ class AppManager:
         EUDEndIf()
         f_setcurpl(self.superuser)
 
-        if self.bridge_mode:
+        if self.isBridgeMode():
             if EUDIfNot()(self.is_blind_mode == 1):
                 print_f("%E", EPD(self.displayBuffer))
                 SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
             EUDEndIf()
-            bridge_loop(self)
+            bridge_loop()
         else:
             print_f("%E", EPD(self.displayBuffer))
             SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])

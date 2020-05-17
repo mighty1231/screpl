@@ -6,7 +6,7 @@ struct {
     char logger_log[LOGGER_LINE_COUNT][LOGGER_LINE_SIZE];
 }
 '''
-
+from eudplib import *
 from .block import BridgeBlock
 from ..core import getAppManager
 from ..apps.logger import (

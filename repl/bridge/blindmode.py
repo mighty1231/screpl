@@ -1,7 +1,7 @@
 '''
 BlindModeDisplayBlock provides display for blindmode
 '''
-
+from eudplib import *
 from .block import BridgeBlock
 from ..core import getAppManager
 

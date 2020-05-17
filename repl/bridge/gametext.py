@@ -7,7 +7,7 @@ struct {
     char _unused[2]; # padding
 }
 '''
-
+from eudplib import *
 from .block import BridgeBlock
 from ..core import getAppManager
 

@@ -23,7 +23,7 @@ class _BB_Metaclass(type):
         _BB_Metaclass.sigdict[signature] = cls
 
 
-class BridgeBlock(object, metaclass=_BB_Metaclass):
+class BridgeBlock(EUDObject, metaclass=_BB_Metaclass):
     '''
     Shared memory management class
 
@@ -58,6 +58,6 @@ class BridgeBlock(object, metaclass=_BB_Metaclass):
 
     def WritePayload(self, emitbuffer):
         buf_size = self.GetBufferSize()
-        emitbuffer.WriteDword(type(self)._signature_)
+        emitbuffer.WriteDword(b2i4(type(self)._signature_))
         emitbuffer.WriteDword(buf_size)
         emitbuffer.WriteBytes(bytes(buf_size))

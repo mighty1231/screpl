@@ -51,19 +51,12 @@ class BridgeRegion(EUDObject):
 
         self.updater_forward = Forward()
         self.update_end = Forward()
+        self.update_built = False
 
-    def AddBlock(self, block):
-        assert isinstance(block, BridgeBlock)
+    def AddBlock(self, blockcls):
+        assert issubclass(blockcls, BridgeBlock)
+        block = blockcls()
         self.blocks.append(block)
-
-        # modify UpdateContent
-        PushTriggerScope()
-        self.updater_forward << NextTrigger()
-        block.UpdateContent()
-
-        self.updater_forward = Forward()
-        SetNextTrigger(self.updater_forward)
-        PopTriggerScope()
 
     def UpdateContent(self):
         ############# from bridge ###############
@@ -78,16 +71,23 @@ class BridgeRegion(EUDObject):
         ############## to bridge ################
         # frame Count
         SeqCompute([
-            (EPD(region.off_frameCount), SetTo, appManager.current_frame_number)
+            (EPD(region.off_frameCount), SetTo, getAppManager().current_frame_number)
         ])
 
-        # update blocks
-        SetNextTrigger(self.updater_forward)
+        # update blocks later
+        self.update_start = RawTrigger()
         self.update_end << NextTrigger()
 
     def Evaluate(self):
         # finalize UpdateContent
-        self.updater_forward << self.update_end
+        if not self.update_built:
+            PushTriggerScope()
+            self.update_start._nextptr = NextTrigger()
+            for block in self.blocks:
+                block.UpdateContent()
+            SetNextTrigger(self.update_end)
+            PopTriggerScope()
+            self.update_built = True
         return super().Evaluate()
 
     def DynamicConstructed(self):
@@ -115,6 +115,15 @@ region = BridgeRegion()
 buf_command = Db(300)
 
 def bridge_init():
+    from .gametext import GameTextBlock
+    from .blindmode import BlindModeDisplayBlock
+    from .logger import LoggerBlock
+    from .appoutput import AppOutputBlock
+
+    region.AddBlock(GameTextBlock)
+    region.AddBlock(LoggerBlock)
+    region.AddBlock(AppOutputBlock)
+    region.AddBlock(BlindModeDisplayBlock)
     Logger.format("Bridge shared region ptr = %H", EUDVariable(region))
 
 def bridge_loop():
@@ -132,7 +141,7 @@ def bridge_loop():
     DoActions(SetMemory(region.off_noteToBridge, SetTo, 0))
 
     # keep signature (make bridge to know REPL is alive)
-    f_restoreSign()
+    f_restoreSign(region)
 
     # command from bridge client
     if EUDIfNot()(Memory(buf_command, Exactly, 0)):

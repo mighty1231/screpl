@@ -6,7 +6,7 @@ struct {
     char app_output[2000];
 }
 '''
-
+from eudplib import *
 from .block import BridgeBlock
 from ..core import getAppManager
 
