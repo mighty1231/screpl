@@ -1,12 +1,12 @@
 # SC-REPL Bridge Client
 
-SC-REPL Bridge Client is a GUI tool that helps communicate with the StarCraft client process.
+SC-REPL Bridge Client is a GUI tool that communicate with SC-REPL-applied-map based games.
 
 Check [wiki](https://github.com/mighty1231/screpl/wiki/Bridge) to get description of SC-REPL Bridge.
 
 ## Screenshot
 
-![SC-REPL Bridge Client](https://user-images.githubusercontent.com/10972723/80365420-85ea9e00-88c2-11ea-91aa-72c48cfff740.PNG)
+![SC-REPL Bridge Client](screenshot.JPG)
 
 ## How to build
 
