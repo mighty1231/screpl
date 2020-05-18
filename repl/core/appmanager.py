@@ -459,10 +459,14 @@ class AppManager:
 
     @EUDMethod
     def exportAppOutputToBridge(self, src_buffer, size):
-        from .bridge import APP_OUTPUT_MAXSIZE, app_output_sz, app_output
+        from ..bridge_server.appoutput import (
+            APP_OUTPUT_MAXSIZE,
+            appOutputSize,
+            appOutputBuffer
+        )
         assert self.isBridgeMode()
 
-        if EUDIfNot()(app_output_sz == 0):
+        if EUDIfNot()(appOutputSize == 0):
             EUDReturn(0)
         EUDEndIf()
 
@@ -473,8 +477,8 @@ class AppManager:
             written << size
         EUDEndIf()
 
-        f_memcpy(app_output, src_buffer, written)
-        app_output_sz << written
+        f_memcpy(appOutputBuffer, src_buffer, written)
+        appOutputSize << written
 
         EUDReturn(written)
 
@@ -503,7 +507,7 @@ class AppManager:
         from .appcommand import AppCommand
 
         if self.isBridgeMode():
-            from ..bridge import bridge_init, bridge_loop
+            from ..bridge_server import bridge_init, bridge_loop
 
         if EUDExecuteOnce()():
             if self.isBridgeMode():
