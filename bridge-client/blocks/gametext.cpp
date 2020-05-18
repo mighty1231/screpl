@@ -1,5 +1,4 @@
 #include "gametext.h"
-#include <QDebug>
 
 GameTextBlock::GameTextBlock()
 {

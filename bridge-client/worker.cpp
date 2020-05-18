@@ -8,6 +8,7 @@
 #include "blocks/blindmode.h"
 #include "blocks/gametext.h"
 #include "blocks/logger.h"
+#include "blocks/profile.h"
 
 static inline bool IsSTRSectionMBI(MEMORY_BASIC_INFORMATION *mbi) {
     return (mbi->State == MEM_COMMIT)
@@ -42,6 +43,7 @@ void Worker::setConnection(MainWindow *_window)
 {
     QObject *window = reinterpret_cast<QObject *>(_window);
     // initialize blocks
+    qRegisterMetaType<QVector<uint>>("QVector<uint>");
 
     connect(this, SIGNAL(metProcess(bool)),
             window, SLOT(metProcess(bool)),
@@ -83,6 +85,16 @@ void Worker::setConnection(MainWindow *_window)
             window, SLOT(updateLoggerLog(QString)),
             Qt::QueuedConnection);
     blocks.push_back(lb);
+
+    ProfileBlock *pb = new ProfileBlock();
+    pb->moveToThread(this);
+    connect(pb, SIGNAL(updateProfileNames(QStringList)),
+            window, SLOT(updateProfileNames(QStringList)),
+            Qt::QueuedConnection);
+    connect(pb, SIGNAL(updateProfiles(QVector<uint>, QVector<uint>)),
+            window, SLOT(updateProfiles(QVector<uint>, QVector<uint>)),
+            Qt::QueuedConnection);
+    blocks.push_back(pb);
 }
 
 

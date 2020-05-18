@@ -25,6 +25,8 @@ public slots:
     void updateLoggerLog(QString);
     void updateBlindModeDisplay(QString);
     void updateGameText(QString);
+    void updateProfileNames(QStringList);
+    void updateProfiles(QVector<uint>, QVector<uint>);
 
     void metProcess(bool met);
     void metREPL(bool met, int sharedregion_ptr);

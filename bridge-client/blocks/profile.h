@@ -26,15 +26,11 @@ private:
     uint buf_size;
 
     int count;
-    QVector<QString> names;
-    QVector<uint> total_ms;
-    QVector<uint> counter;
-
-    bool name_sent;
+    QStringList prev_names;
 
 signals:
-    void updateProfileNames(QVector<QString> names);
-    void updateProfile(QVector<uint> total_ms, QVector<uint> counter);
+    void updateProfileNames(QStringList names);
+    void updateProfiles(QVector<uint> counter, QVector<uint> total_ms);
 };
 
 #endif // PROFILEBLOCK_H
