@@ -21,7 +21,11 @@ public:
     bool initialize(Worker *worker);
 
 public slots:
-    void update(QString applog, QString loggerlog, QString display, QString blindmode_display);
+    void updateAppOutput(QString);
+    void updateLoggerLog(QString);
+    void updateBlindModeDisplay(QString);
+    void updateGameText(QString);
+
     void metProcess(bool met);
     void metREPL(bool met, int sharedregion_ptr);
 

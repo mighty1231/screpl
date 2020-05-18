@@ -3,7 +3,6 @@ from eudplib import *
 from ..base.eudbyterw import EUDByteRW
 from ..base.pool import DbPool, VarPool
 from ..utils import f_raiseError, f_raiseWarning, getKeyCode, f_strlen, print_f
-from .bridge import bridge_init, bridge_loop
 
 KEYPRESS_DELAY = 8
 _manager = None
@@ -460,10 +459,14 @@ class AppManager:
 
     @EUDMethod
     def exportAppOutputToBridge(self, src_buffer, size):
-        from .bridge import APP_OUTPUT_MAXSIZE, app_output_sz, app_output
+        from ..bridge_server.appoutput import (
+            APP_OUTPUT_MAXSIZE,
+            appOutputSize,
+            appOutputBuffer
+        )
         assert self.isBridgeMode()
 
-        if EUDIfNot()(app_output_sz == 0):
+        if EUDIfNot()(appOutputSize == 0):
             EUDReturn(0)
         EUDEndIf()
 
@@ -474,19 +477,19 @@ class AppManager:
             written << size
         EUDEndIf()
 
-        f_memcpy(app_output, src_buffer, written)
-        app_output_sz << written
+        f_memcpy(appOutputBuffer, src_buffer, written)
+        appOutputSize << written
 
         EUDReturn(written)
 
     def cleanText(self):
         # clean text UI of previous app
-        if self.bridge_mode:
+        if self.isBridgeMode():
             EUDIf()(self.is_blind_mode == 0)
 
         print_f("\n" * 12)
 
-        if self.bridge_mode:
+        if self.isBridgeMode():
             EUDEndIf()
 
     def getWriter(self):
@@ -502,6 +505,9 @@ class AppManager:
     def loop(self):
         from ..apps.repl import REPL
         from .appcommand import AppCommand
+
+        if self.isBridgeMode():
+            from ..bridge_server import bridge_init, bridge_loop
 
         if EUDExecuteOnce()():
             if self.isBridgeMode():
@@ -574,12 +580,12 @@ class AppManager:
         EUDEndIf()
         f_setcurpl(self.superuser)
 
-        if self.bridge_mode:
+        if self.isBridgeMode():
             if EUDIfNot()(self.is_blind_mode == 1):
                 print_f("%E", EPD(self.displayBuffer))
                 SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
             EUDEndIf()
-            bridge_loop(self)
+            bridge_loop()
         else:
             print_f("%E", EPD(self.displayBuffer))
             SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])

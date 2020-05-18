@@ -44,57 +44,49 @@ bool MainWindow::initialize(Worker *_worker) {
     }
 
     worker = _worker;
-    connect(worker, SIGNAL(update(QString, QString, QString, QString)),
-            this, SLOT(update(QString, QString, QString, QString)),
-            Qt::QueuedConnection);
-    connect(worker, SIGNAL(metProcess(bool)),
-            this, SLOT(metProcess(bool)),
-            Qt::QueuedConnection);
-    connect(worker, SIGNAL(metREPL(bool, int)),
-            this, SLOT(metREPL(bool, int)),
-            Qt::QueuedConnection);
-    connect(worker, SIGNAL(signalError(QString)),
-            this, SLOT(setError(QString)),
-            Qt::QueuedConnection);
-    connect(worker, SIGNAL(sentCommand(QString)),
-            this, SLOT(sentCommand(QString)),
-            Qt::QueuedConnection);
+    worker->setConnection(this);
+
     connect(ui->sendcmdbtn, SIGNAL(clicked()),
             this, SLOT(tryCommand()));
     return true;
 }
 
-void MainWindow::update(QString applog, QString loggerlog, QString display, QString blindmode_display)
+void MainWindow::updateAppOutput(QString app_output)
 {
-    if (!applog.isEmpty()) {
-        QTextCursor prev_cursor = ui->from_appoutput->textCursor();
+    QTextCursor prev_cursor = ui->from_appoutput->textCursor();
+    ui->from_appoutput->moveCursor(QTextCursor::End);
+    ui->from_appoutput->insertPlainText(app_output);
+    ui->from_appoutput->moveCursor(QTextCursor::End);
+    if (prev_cursor.atEnd())
         ui->from_appoutput->moveCursor(QTextCursor::End);
-        ui->from_appoutput->insertPlainText(applog);
-        ui->from_appoutput->moveCursor(QTextCursor::End);
-        if (prev_cursor.atEnd())
-            ui->from_appoutput->moveCursor(QTextCursor::End);
-        else
-            ui->from_appoutput->setTextCursor(prev_cursor);
-    }
+    else
+        ui->from_appoutput->setTextCursor(prev_cursor);
+}
 
-    if (!loggerlog.isEmpty()) {
-        QTextCursor prev_cursor = ui->from_logger->textCursor();
+void MainWindow::updateLoggerLog(QString logger_log)
+{
+    QTextCursor prev_cursor = ui->from_logger->textCursor();
+    ui->from_logger->moveCursor(QTextCursor::End);
+    ui->from_logger->insertPlainText(logger_log);
+    if (prev_cursor.atEnd())
         ui->from_logger->moveCursor(QTextCursor::End);
-        ui->from_logger->insertPlainText(loggerlog);
-        if (prev_cursor.atEnd())
-            ui->from_logger->moveCursor(QTextCursor::End);
-        else
-            ui->from_logger->setTextCursor(prev_cursor);
-    }
+    else
+        ui->from_logger->setTextCursor(prev_cursor);
+}
 
+void MainWindow::updateBlindModeDisplay(QString blindmode_text)
+{
+    QString prev = ui->from_blindmodedisplay->toPlainText();
+    if (prev.compare(blindmode_text)) {
+        ui->from_blindmodedisplay->setText(blindmode_text);
+    }
+}
+
+void MainWindow::updateGameText(QString text)
+{
     QString prev = ui->from_display->toPlainText();
-    if (prev.compare(display)) {
-        ui->from_display->setText(display);
-    }
-
-    prev = ui->from_blindmodedisplay->toPlainText();
-    if (prev.compare(blindmode_display)) {
-        ui->from_blindmodedisplay->setText(blindmode_display);
+    if (prev.compare(text)) {
+        ui->from_display->setText(text);
     }
 }
 
