@@ -116,11 +116,13 @@ def bridge_init():
     from .blindmode import BlindModeDisplayBlock
     from .logger import LoggerBlock
     from .appoutput import AppOutputBlock
+    from .profiler import ProfileBlock
 
     region.AddBlock(GameTextBlock)
     region.AddBlock(LoggerBlock)
     region.AddBlock(AppOutputBlock)
     region.AddBlock(BlindModeDisplayBlock)
+    region.AddBlock(ProfileBlock)
 
     Logger.format("Bridge region ptr = %H, size = %D",
         EUDVariable(region),

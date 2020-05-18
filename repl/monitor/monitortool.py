@@ -1,35 +1,43 @@
 from eudplib import *
 from ..apps.logger import Logger
 
-class TraceLog:
+class ProfileTable:
     '''
-    Object required by communication between bridge client
+    Class required by communication between bridge client
     '''
     def __init__(self):
-        self.trace_vars = []
+        self.table = []
 
     def append(self, name, total, count):
-        self.trace_vars.append((name, total, count))
+        '''
+        name : variable name
+        total: total milliseconds
+        count: monitored count
+        '''
+        self.table.append((name, total, count))
 
-tracelog = TraceLog()
+    def getSize(self):
+        return len(self.table)
 
-def REPLTracePush(name, logger_log = True):
+profile_table = ProfileTable()
+
+def REPLMonitorPush(name, logger_log = True):
     if logger_log:
         Logger.format("[{}] <--".format(name))
 
     v_start = f_dwread_epd(EPD(0x51CE8C)) # inversed tickcount
     v_total, v_count = EUDCreateVariables(2)
-    tracelog.append(name, v_total, v_count)
+    profile_table.append(name, v_total, v_count)
 
-    EUDCreateBlock("repltraceblock", {
+    EUDCreateBlock("replmonitorblock", {
         'start': v_start,
         'total': v_total,
         'count': v_count,
         'logger_log': logger_log
     })
 
-def REPLTracePop():
-    name, userdata = EUDPopBlock("repltraceblock")
+def REPLMonitorPop():
+    name, userdata = EUDPopBlock("replmonitorblock")
 
     v_end = f_dwread_epd(EPD(0x51CE8C)) # inversed tickcount
     v_start = userdata['start']
