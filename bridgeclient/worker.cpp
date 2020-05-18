@@ -1,8 +1,12 @@
 #include "worker.h"
 #include <string.h>
-
 #include <QtDebug>
 #include <QtGlobal>
+
+#include "blocks/appoutput.h"
+#include "blocks/blindmode.h"
+#include "blocks/gametext.h"
+#include "blocks/logger.h"
 
 static inline bool IsSTRSectionMBI(MEMORY_BASIC_INFORMATION *mbi) {
     return (mbi->State == MEM_COMMIT)
@@ -29,11 +33,49 @@ Worker::Worker(QObject *parent) : QThread(parent),
 
     entry.dwSize = sizeof(PROCESSENTRY32);
 
-    regiontmp = new SharedRegion();
-    region = new SharedRegion();
+    regiontmp = new SharedRegionHeader();
+    region = new SharedRegionHeader();
     app_output_buffer = new char[APP_OUTPUT_MAXSIZE + 1];
     query_buffer = new QByteArray();
 }
+
+void Worker::setConnection(MainWindow *_window)
+{
+    QObject *window = reinterpret_cast<QObject *>(_window);
+    // initialize blocks
+
+    connect(this, SIGNAL(update(QString, QString, QString, QString)),
+            window, SLOT(update(QString, QString, QString, QString)));
+    connect(this, SIGNAL(metProcess(bool)),
+            window, SLOT(metProcess(bool)));
+    connect(this, SIGNAL(metREPL(bool, int)),
+            window, SLOT(metREPL(bool, int)));
+    connect(this, SIGNAL(signalError(QString)),
+            window, SLOT(setError(QString)));
+    connect(this, SIGNAL(sentCommand(QString)),
+            window, SLOT(sentCommand(QString)));
+
+    AppOutputBlock *aob = new AppOutputBlock();
+    connect(aob, SIGNAL(updateAppOutput(QString)),
+            window, SLOT(updateAppOutput(QString)));
+    blocks.push_back(aob);
+
+    BlindModeDisplayBlock *bmdb = new BlindModeDisplayBlock();
+    connect(bmdb, SIGNAL(updateBlindModeDisplay(QString)),
+            window, SLOT(updateBlindModeDisplay(QString)));
+    blocks.push_back(bmdb);
+
+    GameTextBlock *gtb = new GameTextBlock();
+    connect(gtb, SIGNAL(updateGameText(QString)),
+            window, SLOT(updateGameText(QString)));
+    blocks.push_back(gtb);
+
+    LoggerBlock *lb = new LoggerBlock();
+    connect(lb, SIGNAL(updateLoggerLog(QString)),
+            window, SLOT(updateLoggerLog(QString)));
+    blocks.push_back(lb);
+}
+
 
 Worker::~Worker() {
     delete query_buffer;
@@ -155,7 +197,7 @@ bool Worker::searchREPL()
 void Worker::communicateREPL()
 {
     // Too much milk solution #3, busy-waiting by A
-    if (!writeRegionInt(offsetof(SharedRegion, noteToSC), 1)) { // leave note A
+    if (!writeRegionInt(offsetof(SharedRegionHeader, noteToSC), 1)) { // leave note A
         status = STATUS_PROCESS_FOUND;
         emit metREPL(false, REPLRegion);
         makeError("WriteProcessMemory, leave note A");
@@ -163,7 +205,7 @@ void Worker::communicateREPL()
     }
     int noteB;
     for (int i=0; i<10; i++) {
-        if (!readRegionInt(offsetof(SharedRegion, noteFromSC), &noteB)) {
+        if (!readRegionInt(offsetof(SharedRegionHeader, noteFromSC), &noteB)) {
             status = STATUS_PROCESS_FOUND;
             emit metREPL(false, REPLRegion);
             makeError("ReadProcessMemory, leave note B");
@@ -187,95 +229,95 @@ void Worker::communicateREPL()
 void Worker::process()
 {
     QString _command_tmp;
-    SIZE_T written = readSTRSection(REPLRegion, regiontmp, sizeof(SharedRegion));
-    if (written != sizeof(SharedRegion)) {
+    SIZE_T written = readSTRSection(REPLRegion, regiontmp, sizeof(SharedRegionHeader));
+    if (written != sizeof(SharedRegionHeader)) {
         status = STATUS_PROCESS_FOUND;
         emit metREPL(false, REPLRegion);
         makeError("ReadProcessMemory, read region");
         return;
     }
 
-    // minimal operation between leaving note A
-    // send command
-    if (regiontmp->command[0] == 0) {
-        command_mutex.lock();
-        if (!command.isEmpty()) {
-            strncpy_s(regiontmp->command, command.toLocal8Bit().constData(), 300);
-            _command_tmp = command;
-            command.clear();
-        }
-        command_mutex.unlock();
-    }
-    memcpy(region, regiontmp, sizeof(SharedRegion));
-    regiontmp->noteToSC = 0;
-    regiontmp->app_output_sz = 0;
+//    // minimal operation between leaving note A
+//    // send command
+//    if (regiontmp->command[0] == 0) {
+//        command_mutex.lock();
+//        if (!command.isEmpty()) {
+//            strncpy_s(regiontmp->command, command.toLocal8Bit().constData(), 300);
+//            _command_tmp = command;
+//            command.clear();
+//        }
+//        command_mutex.unlock();
+//    }
+//    memcpy(region, regiontmp, sizeof(SharedRegionHeader));
+//    regiontmp->noteToSC = 0;
+//    regiontmp->app_output_sz = 0;
 
-    // restore note
-    written = writeSTRSection(REPLRegion, regiontmp, sizeof(SharedRegion));
-    if (written != sizeof(SharedRegion)) {
-        status = STATUS_PROCESS_FOUND;
-        emit metREPL(false, REPLRegion);
-        makeError("WriteProcessMemory, write region");
-        return;
-    }
+//    // restore note
+//    written = writeSTRSection(REPLRegion, regiontmp, sizeof(SharedRegionHeader));
+//    if (written != sizeof(SharedRegionHeader)) {
+//        status = STATUS_PROCESS_FOUND;
+//        emit metREPL(false, REPLRegion);
+//        makeError("WriteProcessMemory, write region");
+//        return;
+//    }
 
-    // some heavy evaluations
-    if (!_command_tmp.isNull())
-        emit sentCommand(_command_tmp);
+//    // some heavy evaluations
+//    if (!_command_tmp.isNull())
+//        emit sentCommand(_command_tmp);
 
-    // check framecount
-    if (last_framecount == region->frameCount) {
-        // nothing to do
-        if (last_interaction_timer.elapsed() > 2000) {
-            // called when user returns to lobby.
-            // (Note. REPL signature is not disappeared automatically on game exit)
-            status = STATUS_PROCESS_FOUND;
-            writeRegionInt(0, 0); // invalidate signature
-            emit metREPL(false, REPLRegion);
-            makeError("REPL interaction timeout");
-            return;
-        }
-        return;
-    } else {
-        last_framecount = region->frameCount;
-        last_interaction_timer.start();
-    }
+//    // check framecount
+//    if (last_framecount == region->frameCount) {
+//        // nothing to do
+//        if (last_interaction_timer.elapsed() > 2000) {
+//            // called when user returns to lobby.
+//            // (Note. REPL signature is not disappeared automatically on game exit)
+//            status = STATUS_PROCESS_FOUND;
+//            writeRegionInt(0, 0); // invalidate signature
+//            emit metREPL(false, REPLRegion);
+//            makeError("REPL interaction timeout");
+//            return;
+//        }
+//        return;
+//    } else {
+//        last_framecount = region->frameCount;
+//        last_interaction_timer.start();
+//    }
 
-    // app output
-    memcpy(app_output_buffer, region->app_output, region->app_output_sz);
-    region->app_output[region->app_output_sz] = 0;
-    QString app_output = QString::fromUtf8(region->app_output);
+//    // app output
+//    memcpy(app_output_buffer, region->app_output, region->app_output_sz);
+//    region->app_output[region->app_output_sz] = 0;
+//    QString app_output = QString::fromUtf8(region->app_output);
 
-    // log
-    static int last_log_index = 0;
-    QString logger_log;
-    for (int i=last_log_index; i<region->log_index; i++) {
-        int line = i % LOGGER_LINE_COUNT;
-        logger_log.append(ignoreColor(region->logger_log[line]));
-        logger_log.append('\n');
-    }
-    last_log_index = region->log_index;
+//    // log
+//    static int last_log_index = 0;
+//    QString logger_log;
+//    for (int i=last_log_index; i<region->log_index; i++) {
+//        int line = i % LOGGER_LINE_COUNT;
+//        logger_log.append(ignoreColor(region->logger_log[line]));
+//        logger_log.append('\n');
+//    }
+//    last_log_index = region->log_index;
 
-    // display
-    QString display;
-    int idx = region->displayIndex;
-    for (int i=0; i<11; i++) {
-        QString line = ignoreColor(region->display[idx]);
-        display.append(line);
-        if (!line.endsWith('\n'))
-            display.append('\n');
-        idx += 1;
-        if (idx == 11)
-            idx = 0;
-    }
-    display.append("\n--------\n");
-    display.append(ignoreColor(region->display[12]));
-    display.append('\n');
+//    // display
+//    QString display;
+//    int idx = region->displayIndex;
+//    for (int i=0; i<11; i++) {
+//        QString line = ignoreColor(region->display[idx]);
+//        display.append(line);
+//        if (!line.endsWith('\n'))
+//            display.append('\n');
+//        idx += 1;
+//        if (idx == 11)
+//            idx = 0;
+//    }
+//    display.append("\n--------\n");
+//    display.append(ignoreColor(region->display[12]));
+//    display.append('\n');
 
-    // blindmode display
-    QString blindmode_display = ignoreColor(region->blindmode_display);
+//    // blindmode display
+//    QString blindmode_display = ignoreColor(region->blindmode_display);
 
-    emit update(app_output, logger_log, display, blindmode_display);
+//    emit update(app_output, logger_log, display, blindmode_display);
 }
 
 bool Worker::writeRegionInt(int offset, int value)
@@ -371,20 +413,6 @@ QString Worker::makeString(const char *ptr)
         } else {
             ba.append(c);
         }
-        c = *(++ptr);
-    }
-
-    return QString::fromUtf8(ba);
-}
-
-QString Worker::ignoreColor(const char *ptr)
-{
-    QByteArray ba;
-    unsigned char c = *ptr;
-    while (c != 0) {
-        // string escape
-        if (!(1 <= c && c <= 0x1F && c != '\n') && c!=0x7F)
-            ba.append(c);
         c = *(++ptr);
     }
 
