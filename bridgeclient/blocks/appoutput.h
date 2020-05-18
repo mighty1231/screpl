@@ -14,7 +14,7 @@ public:
         return 0x54554f41; // AOUT
     }
 
-    void immediateProcess(void *block, int size) override;
+    void immediateProcess(void *block, uint size) override;
     void afterProcess() override;
 
 signals:

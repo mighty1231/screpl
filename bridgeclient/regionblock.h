@@ -15,7 +15,7 @@ public:
     static QString ignoreColor(const char *);
 
     virtual int getSignature() = 0;
-    virtual void immediateProcess(void *block, int size) = 0;
+    virtual void immediateProcess(void *block, uint size) = 0;
     virtual void afterProcess() = 0;
 
 };

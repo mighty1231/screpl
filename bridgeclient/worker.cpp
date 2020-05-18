@@ -1,7 +1,8 @@
 #include "worker.h"
 #include <string.h>
-#include <QtDebug>
 #include <QtGlobal>
+#include <QMutexLocker>
+#include <QtDebug>
 
 #include "blocks/appoutput.h"
 #include "blocks/blindmode.h"
@@ -33,8 +34,6 @@ Worker::Worker(QObject *parent) : QThread(parent),
 
     entry.dwSize = sizeof(PROCESSENTRY32);
 
-    regiontmp = new SharedRegionHeader();
-    region = new SharedRegionHeader();
     app_output_buffer = new char[APP_OUTPUT_MAXSIZE + 1];
     query_buffer = new QByteArray();
 }
@@ -45,34 +44,47 @@ void Worker::setConnection(MainWindow *_window)
     // initialize blocks
 
     connect(this, SIGNAL(update(QString, QString, QString, QString)),
-            window, SLOT(update(QString, QString, QString, QString)));
+            window, SLOT(update(QString, QString, QString, QString)),
+            Qt::QueuedConnection);
     connect(this, SIGNAL(metProcess(bool)),
-            window, SLOT(metProcess(bool)));
+            window, SLOT(metProcess(bool)),
+            Qt::QueuedConnection);
     connect(this, SIGNAL(metREPL(bool, int)),
-            window, SLOT(metREPL(bool, int)));
+            window, SLOT(metREPL(bool, int)),
+            Qt::QueuedConnection);
     connect(this, SIGNAL(signalError(QString)),
-            window, SLOT(setError(QString)));
+            window, SLOT(setError(QString)),
+            Qt::QueuedConnection);
     connect(this, SIGNAL(sentCommand(QString)),
-            window, SLOT(sentCommand(QString)));
+            window, SLOT(sentCommand(QString)),
+            Qt::QueuedConnection);
 
     AppOutputBlock *aob = new AppOutputBlock();
+    aob->moveToThread(this);
     connect(aob, SIGNAL(updateAppOutput(QString)),
-            window, SLOT(updateAppOutput(QString)));
+            window, SLOT(updateAppOutput(QString)),
+            Qt::QueuedConnection);
     blocks.push_back(aob);
 
     BlindModeDisplayBlock *bmdb = new BlindModeDisplayBlock();
+    bmdb->moveToThread(this);
     connect(bmdb, SIGNAL(updateBlindModeDisplay(QString)),
-            window, SLOT(updateBlindModeDisplay(QString)));
+            window, SLOT(updateBlindModeDisplay(QString)),
+            Qt::QueuedConnection);
     blocks.push_back(bmdb);
 
     GameTextBlock *gtb = new GameTextBlock();
+    gtb->moveToThread(this);
     connect(gtb, SIGNAL(updateGameText(QString)),
-            window, SLOT(updateGameText(QString)));
+            window, SLOT(updateGameText(QString)),
+            Qt::QueuedConnection);
     blocks.push_back(gtb);
 
     LoggerBlock *lb = new LoggerBlock();
+    lb->moveToThread(this);
     connect(lb, SIGNAL(updateLoggerLog(QString)),
-            window, SLOT(updateLoggerLog(QString)));
+            window, SLOT(updateLoggerLog(QString)),
+            Qt::QueuedConnection);
     blocks.push_back(lb);
 }
 
@@ -80,8 +92,6 @@ void Worker::setConnection(MainWindow *_window)
 Worker::~Worker() {
     delete query_buffer;
     delete[] app_output_buffer;
-    delete region;
-    delete regiontmp;
 }
 
 void Worker::run()
@@ -229,95 +239,98 @@ void Worker::communicateREPL()
 void Worker::process()
 {
     QString _command_tmp;
-    SIZE_T written = readSTRSection(REPLRegion, regiontmp, sizeof(SharedRegionHeader));
-    if (written != sizeof(SharedRegionHeader)) {
+    uint regionSize;
+    if (!readRegionInt(offsetof(SharedRegionHeader, regionSize), (int *)&regionSize)) {
         status = STATUS_PROCESS_FOUND;
         emit metREPL(false, REPLRegion);
-        makeError("ReadProcessMemory, read region");
+        makeError("ReadProcessMemory, read region size");
         return;
     }
 
-//    // minimal operation between leaving note A
-//    // send command
-//    if (regiontmp->command[0] == 0) {
-//        command_mutex.lock();
-//        if (!command.isEmpty()) {
-//            strncpy_s(regiontmp->command, command.toLocal8Bit().constData(), 300);
-//            _command_tmp = command;
-//            command.clear();
-//        }
-//        command_mutex.unlock();
-//    }
-//    memcpy(region, regiontmp, sizeof(SharedRegionHeader));
-//    regiontmp->noteToSC = 0;
-//    regiontmp->app_output_sz = 0;
+    char *all_region = new char[regionSize];
+    SIZE_T written = readSTRSection(REPLRegion, all_region, regionSize);
+    if (written != regionSize) {
+        status = STATUS_PROCESS_FOUND;
+        emit metREPL(false, REPLRegion);
+        makeError("ReadProcessMemory, read region");
+        delete[] all_region;
+        return;
+    }
 
-//    // restore note
-//    written = writeSTRSection(REPLRegion, regiontmp, sizeof(SharedRegionHeader));
-//    if (written != sizeof(SharedRegionHeader)) {
-//        status = STATUS_PROCESS_FOUND;
-//        emit metREPL(false, REPLRegion);
-//        makeError("WriteProcessMemory, write region");
-//        return;
-//    }
+    // minimal operation between leaving note A
+    SharedRegionHeader *header = (SharedRegionHeader *) all_region;
 
-//    // some heavy evaluations
-//    if (!_command_tmp.isNull())
-//        emit sentCommand(_command_tmp);
+    // send command
+    if (header->command[0] == 0) {
+        QMutexLocker locker(&command_mutex);
+        if (!command.isEmpty()) {
+            strncpy_s(header->command, command.toLocal8Bit().constData(), 300);
+            _command_tmp = command;
+            command.clear();
+        }
+    }
 
-//    // check framecount
-//    if (last_framecount == region->frameCount) {
-//        // nothing to do
-//        if (last_interaction_timer.elapsed() > 2000) {
-//            // called when user returns to lobby.
-//            // (Note. REPL signature is not disappeared automatically on game exit)
-//            status = STATUS_PROCESS_FOUND;
-//            writeRegionInt(0, 0); // invalidate signature
-//            emit metREPL(false, REPLRegion);
-//            makeError("REPL interaction timeout");
-//            return;
-//        }
-//        return;
-//    } else {
-//        last_framecount = region->frameCount;
-//        last_interaction_timer.start();
-//    }
+    // restore note
+    header->noteToSC = 0;
 
-//    // app output
-//    memcpy(app_output_buffer, region->app_output, region->app_output_sz);
-//    region->app_output[region->app_output_sz] = 0;
-//    QString app_output = QString::fromUtf8(region->app_output);
+    // blocks
+    int *blockptr = (int *)(((char *)all_region) + sizeof(SharedRegionHeader));
+    uint offset = sizeof(SharedRegionHeader);
+    bool processed;
+    while (offset < regionSize) {
+        int signature = *blockptr++;
+        uint block_size = *blockptr++;
+        Q_ASSERT(offset + block_size <= regionSize);
 
-//    // log
-//    static int last_log_index = 0;
-//    QString logger_log;
-//    for (int i=last_log_index; i<region->log_index; i++) {
-//        int line = i % LOGGER_LINE_COUNT;
-//        logger_log.append(ignoreColor(region->logger_log[line]));
-//        logger_log.append('\n');
-//    }
-//    last_log_index = region->log_index;
+        processed = false;
+        for (auto b:blocks) {
+            if (b->getSignature() == signature){
+                b->immediateProcess(blockptr, block_size);
+                processed = true;
+                break;
+            }
+        }
+        Q_ASSERT(processed);
 
-//    // display
-//    QString display;
-//    int idx = region->displayIndex;
-//    for (int i=0; i<11; i++) {
-//        QString line = ignoreColor(region->display[idx]);
-//        display.append(line);
-//        if (!line.endsWith('\n'))
-//            display.append('\n');
-//        idx += 1;
-//        if (idx == 11)
-//            idx = 0;
-//    }
-//    display.append("\n--------\n");
-//    display.append(ignoreColor(region->display[12]));
-//    display.append('\n');
+        offset += 8 + block_size;
+        blockptr += block_size / 4;
+    }
 
-//    // blindmode display
-//    QString blindmode_display = ignoreColor(region->blindmode_display);
+    written = writeSTRSection(REPLRegion, all_region, regionSize);
+    if (written != regionSize) {
+        status = STATUS_PROCESS_FOUND;
+        emit metREPL(false, REPLRegion);
+        makeError("WriteProcessMemory, write region");
+        return;
+    }
 
-//    emit update(app_output, logger_log, display, blindmode_display);
+    // some heavy evaluations
+    if (!_command_tmp.isNull())
+        emit sentCommand(_command_tmp);
+
+    // check framecount
+    if (last_framecount == header->frameCount) {
+        // nothing to do
+        if (last_interaction_timer.elapsed() > 2000) {
+            // called when user returns to lobby.
+            // (Note. REPL signature is not disappeared automatically on game exit)
+            status = STATUS_PROCESS_FOUND;
+            writeRegionInt(0, 0); // invalidate signature
+            emit metREPL(false, REPLRegion);
+            makeError("REPL interaction timeout");
+            return;
+        }
+        return;
+    } else {
+        last_framecount = header->frameCount;
+        last_interaction_timer.start();
+    }
+
+    delete[] all_region;
+
+    for (auto b:blocks) {
+        b->afterProcess();
+    }
 }
 
 bool Worker::writeRegionInt(int offset, int value)

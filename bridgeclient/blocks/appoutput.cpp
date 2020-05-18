@@ -4,11 +4,13 @@ AppOutputBlock::AppOutputBlock()
 {
 
 }
-void AppOutputBlock::immediateProcess(void *block, int size)
+void AppOutputBlock::immediateProcess(void *block, uint size)
 {
-    Q_ASSERT(size == sizeof(AppOutputBlock));
-    memcpy(this, block, size);
-    ((AppOutputBlock *)block)->app_output_size= 0;
+    Q_ASSERT(size + sizeof(QObject) == sizeof(AppOutputBlock));
+    memcpy(&this->app_output_size, block, size);
+
+    // empty
+    memset(block, 0, 4);
 }
 
 void AppOutputBlock::afterProcess()

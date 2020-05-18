@@ -56,8 +56,6 @@ private:
     QByteArray *query_buffer;
 
     int REPLRegion;
-    SharedRegionHeader *regiontmp;
-    SharedRegionHeader *region;
     char *app_output_buffer;
 
     QVector<RegionBlock *> blocks;

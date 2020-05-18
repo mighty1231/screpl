@@ -14,7 +14,7 @@ public:
         return 0x54584554; // TEXT
     }
 
-    void immediateProcess(void *block, int size) override;
+    void immediateProcess(void *block, uint size) override;
     void afterProcess() override;
 
 signals:

@@ -17,7 +17,7 @@ public:
         return 0x42474f4c; // LOGB
     }
 
-    void immediateProcess(void *block, int size) override;
+    void immediateProcess(void *block, uint size) override;
     void afterProcess() override;
 
 private:

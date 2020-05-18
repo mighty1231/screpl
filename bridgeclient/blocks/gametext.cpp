@@ -1,13 +1,15 @@
 #include "gametext.h"
+#include <QDebug>
 
 GameTextBlock::GameTextBlock()
 {
 
 }
-void GameTextBlock::immediateProcess(void *block, int size)
+
+void GameTextBlock::immediateProcess(void *block, uint size)
 {
-    Q_ASSERT(size == sizeof(GameTextBlock));
-    memcpy(this, block, size);
+    Q_ASSERT(size + sizeof(QObject) == sizeof(GameTextBlock));
+    memcpy(&displayIndex, block, size);
 }
 
 void GameTextBlock::afterProcess()

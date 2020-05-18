@@ -5,10 +5,10 @@ LoggerBlock::LoggerBlock()
 
 }
 
-void LoggerBlock::immediateProcess(void *block, int size)
+void LoggerBlock::immediateProcess(void *block, uint size)
 {
-    Q_ASSERT(size == sizeof(LoggerBlock));
-    memcpy(this, block, size);
+    Q_ASSERT(size + sizeof(QObject) == sizeof(LoggerBlock));
+    memcpy(&log_index, block, size);
 }
 
 void LoggerBlock::afterProcess()
