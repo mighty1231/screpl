@@ -73,9 +73,6 @@ public:
 
 signals:
     void signalError(QString string);
-
-    // outputlog, loggerlog, display
-    void update(QString applog, QString loggerlog, QString display, QString blindmode_display);
     void metProcess(bool met);
     void metREPL(bool met, int sharedregion_ptr);
 

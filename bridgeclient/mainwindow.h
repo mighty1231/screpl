@@ -26,7 +26,6 @@ public slots:
     void updateBlindModeDisplay(QString);
     void updateGameText(QString);
 
-    void update(QString applog, QString loggerlog, QString display, QString blindmode_display);
     void metProcess(bool met);
     void metREPL(bool met, int sharedregion_ptr);
 

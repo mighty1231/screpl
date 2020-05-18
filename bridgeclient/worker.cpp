@@ -43,9 +43,6 @@ void Worker::setConnection(MainWindow *_window)
     QObject *window = reinterpret_cast<QObject *>(_window);
     // initialize blocks
 
-    connect(this, SIGNAL(update(QString, QString, QString, QString)),
-            window, SLOT(update(QString, QString, QString, QString)),
-            Qt::QueuedConnection);
     connect(this, SIGNAL(metProcess(bool)),
             window, SLOT(metProcess(bool)),
             Qt::QueuedConnection);
@@ -238,6 +235,7 @@ void Worker::communicateREPL()
 
 void Worker::process()
 {
+    QVector<RegionBlock *> block_computed;
     QString _command_tmp;
     uint regionSize;
     if (!readRegionInt(offsetof(SharedRegionHeader, regionSize), (int *)&regionSize)) {
@@ -287,6 +285,7 @@ void Worker::process()
             if (b->getSignature() == signature){
                 b->immediateProcess(blockptr, block_size);
                 processed = true;
+                block_computed.push_back(b);
                 break;
             }
         }
@@ -328,7 +327,7 @@ void Worker::process()
 
     delete[] all_region;
 
-    for (auto b:blocks) {
+    for (auto b:block_computed) {
         b->afterProcess();
     }
 }

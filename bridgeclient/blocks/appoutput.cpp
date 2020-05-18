@@ -15,5 +15,6 @@ void AppOutputBlock::immediateProcess(void *block, uint size)
 
 void AppOutputBlock::afterProcess()
 {
+    app_output[app_output_size] = 0;
     emit updateAppOutput(QString::fromUtf8(app_output));
 }

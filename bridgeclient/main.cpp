@@ -14,9 +14,7 @@ int main(int argc, char *argv[])
     if (w.initialize(&worker) == false) {
         return 0;
     }
-    qDebug()<< "start!";
     worker.start();
-    qDebug()<< "window!";
     w.show();
     a.exec();
     worker.requestInterruption();

@@ -90,40 +90,6 @@ void MainWindow::updateGameText(QString text)
     }
 }
 
-void MainWindow::update(QString applog, QString loggerlog, QString display, QString blindmode_display)
-{
-    if (!applog.isEmpty()) {
-        QTextCursor prev_cursor = ui->from_appoutput->textCursor();
-        ui->from_appoutput->moveCursor(QTextCursor::End);
-        ui->from_appoutput->insertPlainText(applog);
-        ui->from_appoutput->moveCursor(QTextCursor::End);
-        if (prev_cursor.atEnd())
-            ui->from_appoutput->moveCursor(QTextCursor::End);
-        else
-            ui->from_appoutput->setTextCursor(prev_cursor);
-    }
-
-    if (!loggerlog.isEmpty()) {
-        QTextCursor prev_cursor = ui->from_logger->textCursor();
-        ui->from_logger->moveCursor(QTextCursor::End);
-        ui->from_logger->insertPlainText(loggerlog);
-        if (prev_cursor.atEnd())
-            ui->from_logger->moveCursor(QTextCursor::End);
-        else
-            ui->from_logger->setTextCursor(prev_cursor);
-    }
-
-    QString prev = ui->from_display->toPlainText();
-    if (prev.compare(display)) {
-        ui->from_display->setText(display);
-    }
-
-    prev = ui->from_blindmodedisplay->toPlainText();
-    if (prev.compare(blindmode_display)) {
-        ui->from_blindmodedisplay->setText(blindmode_display);
-    }
-}
-
 void MainWindow::metProcess(bool met)
 {
     if (met) {
