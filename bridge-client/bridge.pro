@@ -20,6 +20,7 @@ SOURCES += \
     blocks/blindmode.cpp \
     blocks/gametext.cpp \
     blocks/logger.cpp \
+    blocks/profile.cpp \
     main.cpp \
     mainwindow.cpp \
     regionblock.cpp \
@@ -35,6 +36,7 @@ HEADERS += \
     blocks/blindmode.h \
     blocks/gametext.h \
     blocks/logger.h \
+    blocks/profile.h \
     mainwindow.h \
     regionblock.h \
     sharedregionheader.h \
