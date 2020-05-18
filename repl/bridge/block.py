@@ -11,10 +11,6 @@ class _BB_Metaclass(type):
         signature = dct['_signature_']
 
         if type(cls).sigdict and (not isinstance(signature, bytes) or len(signature) != 4):
-            print(bool(type(cls).sigdict))
-            print(type(cls).sigdict)
-            print(bool({}))
-            print()
             raise RuntimeError("Signature should be bytes object with length 4")
 
         if signature in _BB_Metaclass.sigdict:
@@ -23,7 +19,7 @@ class _BB_Metaclass(type):
         _BB_Metaclass.sigdict[signature] = cls
 
 
-class BridgeBlock(EUDObject, metaclass=_BB_Metaclass):
+class BridgeBlock(ConstExpr, metaclass=_BB_Metaclass):
     '''
     Shared memory management class
 
@@ -34,11 +30,14 @@ class BridgeBlock(EUDObject, metaclass=_BB_Metaclass):
     '''
     _signature_ = None
 
+    def __init__(self, region):
+        super().__init__(self)
+        self.region = region
+
     def UpdateContent(self):
         '''
-        Override the method, using EPD(self)
+        Override the method
         '''
-        buffer_epd = EPD(self)
         raise NotImplemented
 
     def GetBufferSize(self):
@@ -47,14 +46,11 @@ class BridgeBlock(EUDObject, metaclass=_BB_Metaclass):
         '''
         raise NotImplemented
 
-    def DynamicConstructed(self):
-        return True
-
     def Evaluate(self):
-        return GetObjectAddr(self) + 8
+        return self.region.GetBlockAddr(self) + 8
 
-    def GetDataSize(self):
-        return self.GetBufferSize() + 8
+    def CollectDependency(self, emitbuffer):
+        pass
 
     def WritePayload(self, emitbuffer):
         buf_size = self.GetBufferSize()

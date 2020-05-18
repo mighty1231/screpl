@@ -49,13 +49,9 @@ class BridgeRegion(EUDObject):
         self.off_command        = self + 172
         self.off_frameCount     = self + 472
 
-        self.updater_forward = Forward()
-        self.update_end = Forward()
-        self.update_built = False
-
     def AddBlock(self, blockcls):
         assert issubclass(blockcls, BridgeBlock)
-        block = blockcls()
+        block = blockcls(self)
         self.blocks.append(block)
 
     def UpdateContent(self):
@@ -74,30 +70,31 @@ class BridgeRegion(EUDObject):
             (EPD(region.off_frameCount), SetTo, getAppManager().current_frame_number)
         ])
 
-        # update blocks later
-        self.update_start = RawTrigger()
-        self.update_end << NextTrigger()
+        # update blocks
+        for b in self.blocks:
+            b.UpdateContent()
 
     def Evaluate(self):
-        # finalize UpdateContent
-        if not self.update_built:
-            PushTriggerScope()
-            self.update_start._nextptr = NextTrigger()
-            for block in self.blocks:
-                block.UpdateContent()
-            SetNextTrigger(self.update_end)
-            PopTriggerScope()
-            self.update_built = True
-        return super().Evaluate()
+        ret = super().Evaluate()
+        return ret
 
-    def DynamicConstructed(self):
-        return True
+    def GetBlockAddr(self, block):
+        offset = 160 + 4*3 + 300 + 4
+        for b in self.blocks:
+            if b is block:
+                return self.Evaluate() + offset
+            offset += b.GetBufferSize() + 8
+        raise RuntimeError
 
     def GetDataSize(self):
         size = 160 + 4*3 + 300 + 4
         for block in self.blocks:
-            size += block.GetDataSize()
+            size += block.GetBufferSize() + 8
         return size
+
+    def CollectDependency(self, emitbuffer):
+        for block in self.blocks:
+            block.CollectDependency(emitbuffer)
 
     def WritePayload(self, emitbuffer):
         emitbuffer.WriteBytes(deadSign)
@@ -124,7 +121,11 @@ def bridge_init():
     region.AddBlock(LoggerBlock)
     region.AddBlock(AppOutputBlock)
     region.AddBlock(BlindModeDisplayBlock)
-    Logger.format("Bridge shared region ptr = %H", EUDVariable(region))
+
+    Logger.format("Bridge region ptr = %H, size = %D",
+        EUDVariable(region),
+        f_dwread_epd(EPD(region + 160 + 4 + 4))
+    )
 
 def bridge_loop():
     appManager = getAppManager()
