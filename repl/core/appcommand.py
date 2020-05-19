@@ -95,7 +95,7 @@ def encodeArguments():
         EUDEndInfLoop()
     EUDEndIf()
 
-class _AppCommand:
+class AppCommandN:
     def __init__(self, arg_encoders, func, *, traced):
         # Get argument number of fdecl_func
         argspec = inspect.getargspec(func)
@@ -179,8 +179,8 @@ class _AppCommand:
 
         self.status = 'allocated'
 
-''' Decorator to make _AppMethod '''
+''' Decorator to make AppMethodN '''
 def AppCommand(arg_encoders, *, traced=False):
     def ret(method):
-        return _AppCommand(arg_encoders, method, traced=traced)
+        return AppCommandN(arg_encoders, method, traced=traced)
     return ret

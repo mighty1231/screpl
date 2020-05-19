@@ -6,7 +6,7 @@ from eudplib.core.eudfunc.eudfptr import createIndirectCaller
 
 import inspect
 
-class _AppMethod:
+class AppMethodN:
     def __init__(self, argtypes, rettypes, method, *, getWriterAsParam, traced):
         # Step 1 from parameters
         self.argtypes = argtypes
@@ -171,10 +171,10 @@ class _AppMethod:
         assert id(instance) == id(getAppManager().getCurrentAppInstance())
         return self.funcn(*args, **kwargs)
 
-''' Decorator to make _AppMethod '''
+''' Decorator to make AppMethodN '''
 def AppTypedMethod(argtypes, rettypes = [], *, getWriterAsParam=False, traced=False):
     def ret(method):
-        return _AppMethod(argtypes, rettypes, method,
+        return AppMethodN(argtypes, rettypes, method,
                 getWriterAsParam=getWriterAsParam, traced=traced)
     return ret
 

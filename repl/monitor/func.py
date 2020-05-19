@@ -2,8 +2,8 @@ from eudplib import *
 
 from ..apps import Logger
 from ..core.application import ApplicationInstance
-from ..core.appmethod import _AppMethod
-from ..core.appcommand import _AppCommand
+from ..core.appmethod import AppMethodN
+from ..core.appcommand import AppCommandN
 from .profile import REPLMonitorPush, REPLMonitorPop
 
 import inspect
@@ -16,10 +16,10 @@ def REPLMonitorF(io=True, profile=True):
     def monitor(func):
         if isinstance(func, EUDFuncN):
             return REPLMonitorEUDFunc(func, io, profile)
-        elif isinstance(func, _AppMethod):
+        elif isinstance(func, AppMethodN):
             REPLMonitorAppMethod(func, io, profile)
             return func
-        elif isinstance(func, _AppCommand):
+        elif isinstance(func, AppCommandN):
             REPLMonitorAppCommand(func, io, profile)
             return func
         raise RuntimeError(
