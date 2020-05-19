@@ -543,10 +543,14 @@ class AppManager:
         EUDEndIf()
 
         # parse updated lines
-        cur_txtPtr = f_dwread_epd(EPD(0x640B58))
+        # since onChat may change text, temporary buffer is required
+        db_GameText = Db(13*218+2)
         i = EUDVariable()
+        cur_txtPtr = f_dwread_epd(EPD(0x640B58))
+        f_repmovsd_epd(EPD(db_GameText), EPD(0x640B60), (13*218+2)//4)
+
         i << prev_txtPtr
-        chat_off = 0x640B60 + 218 * i
+        chat_off = db_GameText + 218 * i
         if EUDInfLoop()():
             EUDBreakIf(i == cur_txtPtr)
             if EUDIf()(f_memcmp(chat_off, self.su_prefix, self.su_prefixlen) == 0):
@@ -556,7 +560,7 @@ class AppManager:
             # search next updated lines
             if EUDIf()(i == 10):
                 i << 0
-                chat_off << 0x640B60
+                chat_off << db_GameText
             if EUDElse()():
                 i += 1
                 chat_off += 218
