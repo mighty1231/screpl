@@ -568,9 +568,7 @@ class AppManager:
         # loop
         self.current_app_instance.loop()
 
-        # print top of the screen, enables chat simultaneously
-        txtPtr = f_dwread_epd(EPD(0x640B58))
-
+        # evaluate display buffer
         if EUDIfNot()(self.update == 0):
             self.writer.seekepd(EPD(self.displayBuffer))
 
@@ -579,6 +577,9 @@ class AppManager:
             self.update << 0
         EUDEndIf()
         f_setcurpl(self.superuser)
+
+        # print top of the screen, enables chat simultaneously
+        txtPtr = f_dwread_epd(EPD(0x640B58))
 
         if self.isBridgeMode():
             if EUDIfNot()(self.is_blind_mode == 1):
