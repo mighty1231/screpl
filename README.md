@@ -33,8 +33,9 @@ euddraft0.*.*.*
 │   │   ├── base
 │   │   └── ...
 │   └── plugins //plugins of repl
-│       ├── location
-│       ├── memory
+│       ├── boundeditor
+│       ├── cunit
+│       ├── dump
 │       └── ...
 ├── plugins //plugins of euddraft
 │   └── prepl.py
@@ -50,7 +51,7 @@ euddraft0.*.*.*
 ```
 [prepl]
 superuser: P1
-plugins: plugins.location plugins.memory plugins.variable
+plugins: plugins.location plugins.string plugins.cunit
 ```
 * Check [how to write edd file](https://github.com/mighty1231/screpl/wiki/How-to-write-edd-file)
 
