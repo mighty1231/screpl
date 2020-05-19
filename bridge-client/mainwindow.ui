@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>772</width>
-    <height>642</height>
+    <width>906</width>
+    <height>802</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>SC-REPL Bridge Client</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_3">
@@ -24,19 +24,10 @@
        <property name="title">
         <string>to Starcraft</string>
        </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
        <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QGroupBox" name="groupBox_2">
-          <property name="title">
-           <string>Input command log</string>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QTextEdit" name="to_cmdlog"/>
-           </item>
-          </layout>
-         </widget>
-        </item>
         <item>
          <widget class="QLabel" name="label_sharedregion">
           <property name="text">
@@ -48,9 +39,38 @@
          </widget>
         </item>
         <item>
+         <widget class="Line" name="line">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="title">
+           <string>Input command log</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <item>
+            <widget class="QTextEdit" name="to_cmdlog">
+             <property name="acceptRichText">
+              <bool>false</bool>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
          <widget class="QGroupBox" name="groupBox_3">
           <property name="title">
            <string>Input command</string>
+          </property>
+          <property name="flat">
+           <bool>true</bool>
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
@@ -85,39 +105,93 @@
        <property name="title">
         <string>from Starcraft-1</string>
        </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
        <layout class="QGridLayout" name="gridLayout_2">
         <item row="0" column="0">
          <widget class="QSplitter" name="splitter_2">
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
-          <widget class="QGroupBox" name="groupBox_5">
+          <widget class="QGroupBox" name="groupBox_6">
            <property name="title">
-            <string>App Output</string>
+            <string>logs from Logger</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
             <item>
-             <widget class="QTextEdit" name="from_appoutput"/>
-            </item>
-            <item>
-             <widget class="QPushButton" name="from_dumpbtn">
-              <property name="toolTip">
-               <string>선택한 텍스트를 헥스로 읽어 파일로 만들어 저장합니다.</string>
-              </property>
-              <property name="text">
-               <string>덤프</string>
+             <widget class="QTextEdit" name="from_logger">
+              <property name="acceptRichText">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
            </layout>
           </widget>
-          <widget class="QGroupBox" name="groupBox_6">
+          <widget class="QGroupBox" name="groupBox">
            <property name="title">
-            <string>logs from Logger</string>
+            <string>Profile</string>
            </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_5">
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
             <item>
-             <widget class="QTextEdit" name="from_logger"/>
+             <widget class="QTableWidget" name="from_profiletable">
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="horizontalScrollMode">
+               <enum>QAbstractItemView::ScrollPerPixel</enum>
+              </property>
+              <property name="columnCount">
+               <number>5</number>
+              </property>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>90</number>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>8</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>23</number>
+              </attribute>
+              <column/>
+              <column/>
+              <column/>
+              <column/>
+              <column/>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QGroupBox" name="groupBox_5">
+           <property name="title">
+            <string>App Output</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QTextEdit" name="from_appoutput">
+              <property name="acceptRichText">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="from_dumpbtn">
+              <property name="toolTip">
+               <string>앱 출력 중 선택한 텍스트를 헥스로 읽어 파일로 만들어 저장합니다.</string>
+              </property>
+              <property name="text">
+               <string>덤프</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </widget>
@@ -129,6 +203,9 @@
        <property name="title">
         <string>from Starcraft-2</string>
        </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
        <layout class="QGridLayout" name="gridLayout">
         <item row="0" column="0">
          <widget class="QSplitter" name="splitter">
@@ -139,11 +216,17 @@
            <property name="title">
             <string>Display</string>
            </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
            <layout class="QHBoxLayout" name="horizontalLayout_4">
             <item>
              <widget class="QTextEdit" name="from_display">
               <property name="readOnly">
                <bool>true</bool>
+              </property>
+              <property name="acceptRichText">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -153,11 +236,17 @@
            <property name="title">
             <string>Blindmode Display</string>
            </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
            <layout class="QHBoxLayout" name="horizontalLayout_7">
             <item>
              <widget class="QTextEdit" name="from_blindmodedisplay">
               <property name="readOnly">
                <bool>true</bool>
+              </property>
+              <property name="acceptRichText">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
@@ -176,7 +265,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>772</width>
+     <width>906</width>
      <height>21</height>
     </rect>
    </property>

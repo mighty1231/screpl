@@ -3,7 +3,6 @@ from eudplib import *
 from ..base.eudbyterw import EUDByteRW
 from ..base.pool import DbPool, VarPool
 from ..utils import f_raiseError, f_raiseWarning, getKeyCode, f_strlen, print_f
-from .bridge import bridge_init, bridge_loop
 
 KEYPRESS_DELAY = 8
 _manager = None
@@ -460,10 +459,14 @@ class AppManager:
 
     @EUDMethod
     def exportAppOutputToBridge(self, src_buffer, size):
-        from .bridge import APP_OUTPUT_MAXSIZE, app_output_sz, app_output
+        from ..bridge_server.appoutput import (
+            APP_OUTPUT_MAXSIZE,
+            appOutputSize,
+            appOutputBuffer
+        )
         assert self.isBridgeMode()
 
-        if EUDIfNot()(app_output_sz == 0):
+        if EUDIfNot()(appOutputSize == 0):
             EUDReturn(0)
         EUDEndIf()
 
@@ -474,19 +477,19 @@ class AppManager:
             written << size
         EUDEndIf()
 
-        f_memcpy(app_output, src_buffer, written)
-        app_output_sz << written
+        f_memcpy(appOutputBuffer, src_buffer, written)
+        appOutputSize << written
 
         EUDReturn(written)
 
     def cleanText(self):
         # clean text UI of previous app
-        if self.bridge_mode:
+        if self.isBridgeMode():
             EUDIf()(self.is_blind_mode == 0)
 
         print_f("\n" * 12)
 
-        if self.bridge_mode:
+        if self.isBridgeMode():
             EUDEndIf()
 
     def getWriter(self):
@@ -502,6 +505,9 @@ class AppManager:
     def loop(self):
         from ..apps.repl import REPL
         from .appcommand import AppCommand
+
+        if self.isBridgeMode():
+            from ..bridge_server import bridge_init, bridge_loop
 
         if EUDExecuteOnce()():
             if self.isBridgeMode():
@@ -537,10 +543,14 @@ class AppManager:
         EUDEndIf()
 
         # parse updated lines
-        cur_txtPtr = f_dwread_epd(EPD(0x640B58))
+        # since onChat may change text, temporary buffer is required
+        db_GameText = Db(13*218+2)
         i = EUDVariable()
+        cur_txtPtr = f_dwread_epd(EPD(0x640B58))
+        f_repmovsd_epd(EPD(db_GameText), EPD(0x640B60), (13*218+2)//4)
+
         i << prev_txtPtr
-        chat_off = 0x640B60 + 218 * i
+        chat_off = db_GameText + 218 * i
         if EUDInfLoop()():
             EUDBreakIf(i == cur_txtPtr)
             if EUDIf()(f_memcmp(chat_off, self.su_prefix, self.su_prefixlen) == 0):
@@ -550,7 +560,7 @@ class AppManager:
             # search next updated lines
             if EUDIf()(i == 10):
                 i << 0
-                chat_off << 0x640B60
+                chat_off << db_GameText
             if EUDElse()():
                 i += 1
                 chat_off += 218
@@ -562,9 +572,7 @@ class AppManager:
         # loop
         self.current_app_instance.loop()
 
-        # print top of the screen, enables chat simultaneously
-        txtPtr = f_dwread_epd(EPD(0x640B58))
-
+        # evaluate display buffer
         if EUDIfNot()(self.update == 0):
             self.writer.seekepd(EPD(self.displayBuffer))
 
@@ -574,12 +582,15 @@ class AppManager:
         EUDEndIf()
         f_setcurpl(self.superuser)
 
-        if self.bridge_mode:
+        # print top of the screen, enables chat simultaneously
+        txtPtr = f_dwread_epd(EPD(0x640B58))
+
+        if self.isBridgeMode():
             if EUDIfNot()(self.is_blind_mode == 1):
                 print_f("%E", EPD(self.displayBuffer))
                 SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
             EUDEndIf()
-            bridge_loop(self)
+            bridge_loop()
         else:
             print_f("%E", EPD(self.displayBuffer))
             SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
