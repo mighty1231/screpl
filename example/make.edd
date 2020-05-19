@@ -4,7 +4,8 @@ output: repl.scx
 
 [prepl]
 superuser: P1
-plugins: plugins.location plugins.memory plugins.variable plugins.string sample
+plugins: plugins.location plugins.memory plugins.variable plugins.string plugins.dump plugins.cunit sample
+bridge_mode: on
 
 [freeze]
 freeze: 0
