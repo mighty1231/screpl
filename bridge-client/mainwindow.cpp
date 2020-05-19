@@ -56,6 +56,8 @@ bool MainWindow::initialize(Worker *_worker) {
 
 void MainWindow::updateAppOutput(QString app_output)
 {
+    if (app_output.isEmpty())
+        return;
     QTextCursor prev_cursor = ui->from_appoutput->textCursor();
     ui->from_appoutput->moveCursor(QTextCursor::End);
     ui->from_appoutput->insertPlainText(app_output);
@@ -68,6 +70,8 @@ void MainWindow::updateAppOutput(QString app_output)
 
 void MainWindow::updateLoggerLog(QString logger_log)
 {
+    if (logger_log.isEmpty())
+        return;
     QTextCursor prev_cursor = ui->from_logger->textCursor();
     ui->from_logger->moveCursor(QTextCursor::End);
     ui->from_logger->insertPlainText(logger_log);

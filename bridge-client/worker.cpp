@@ -301,6 +301,13 @@ void Worker::process()
                 break;
             }
         }
+        if (!processed) {
+            /* memory has changed */
+            status = STATUS_PROCESS_FOUND;
+            emit metREPL(false, REPLRegion);
+            makeError("process, recognizing blocks");
+            return;
+        }
         Q_ASSERT(processed);
 
         offset += 8 + block_size;
