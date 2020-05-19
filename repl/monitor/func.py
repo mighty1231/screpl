@@ -105,18 +105,37 @@ def REPLMonitorAppCommand(appcmd, io=True, profile=False):
     def cb(old_func):
         def new_func(self, *args):
             assert isinstance(self, ApplicationInstance)
-            _inputs = [EUDVariable() for _ in range(appcmd.argn)]
-            for i, v in zip(_inputs, args):
-                i << v
 
-            # Log format: my_app.my_cmd(arg1=3, arg2=4)
-            argnames = inspect.getfullargspec(old_func).args[1:]
-            fmtstring = "{}({})".format(
-                old_func.__qualname__,
-                ", ".join(["{}=%D".format(name) for name in argnames])
-            )
-            Logger.format(fmtstring, *_inputs)
+            func_name = old_func.__qualname__
 
-            return old_func(self, *args)
+            # log input
+            if io and len(args) > 0:
+                # Log format: <app.cmdname:arg1=3, arg2=4> entered
+                # EUDFuncN / AppMethod both case have their arguments at last
+                argnames = inspect.getfullargspec(old_func).args[1:]
+                Logger.format("<{}:{}> entered".format(
+                    func_name,
+                    ", ".join(["{}=%D".format(name) for name in argnames])
+                ), *args)
+            else:
+                Logger.format("<{}> entered".format(func_name))
+
+            if profile:
+                REPLMonitorPush(func_name, profile=True, log=False)
+
+            # Call original function, and it should return None.
+            # The violation would be checked by AppCommand object
+            ret = old_func(self, *args)
+
+            fmtstring = "<{}> exited".format(func_name)
+            args = []
+            if profile:
+                tickdiff = REPLMonitorPop()
+                fmtstring += ", %D ms"
+                args += [tickdiff]
+
+            Logger.format(fmtstring, *args)
+
+            return ret
         return new_func
     appcmd.setFuncCallback(cb)
