@@ -1,39 +1,51 @@
 from eudplib import *
+from .conststring import EPDConstString
 
 _buf = Db(2048)
+_writer = None
 
-def f_raiseError(txt):
-    f_setcurpl(f_getuserplayerid())
-    DoActions([
-        DisplayText(txt),
-        SetMemory(0, Add, 1),
-    ])
-
-def f_raiseWarning(txt):
-    f_setcurpl(f_getuserplayerid())
-    DoActions([
-        DisplayText(txt),
-    ])
-
-def print_f(*args):
+def getWriter():
+    global _writer
     from ..base.eudbyterw import EUDByteRW
 
+    if _writer is None:
+        _writer = EUDByteRW()
+    return _writer
+
+@EUDFunc
+def _print_buf():
+    # temporarily change string #1 and restore
     if EUDExecuteOnce()():
         STRSection, STRSection_epd = f_dwepdread_epd(EPD(0x5993D4))
+        _offset_1 = STRSection_epd + 1
+        _buf_offset = _buf - STRSection
     EUDEndExecuteOnce()
 
-    writer = EUDByteRW()
-    writer.seekepd(EPD(_buf))
-    writer.write_f(*args)
-    writer.write(0)
+    prev_offset = f_dwread_epd(_offset_1)
     orig_cp = f_getcurpl()
     f_setcurpl(f_getuserplayerid())
-
-    prev_offset = f_dwread_epd(STRSection_epd + 1)
     DoActions([
-        SetMemoryEPD(STRSection_epd + 1, SetTo, _buf - STRSection),
+        SetMemoryEPD(_offset_1, SetTo, _buf_offset),
         DisplayText(1),
-        SetMemoryEPD(STRSection_epd + 1, SetTo, prev_offset)
+        SetMemoryEPD(_offset_1, SetTo, prev_offset)
     ])
-
     f_setcurpl(orig_cp)
+
+def f_raiseError(txt):
+    getWriter().seekepd(EPD(_buf))
+    getWriter().write_strepd(EPDConstString(txt))
+    getWriter().write(0)
+    _print_buf()
+    DoActions(SetMemory(0xDEADBEEF ^ 0xFFFFFFFF, SetTo, 0))
+
+def f_raiseWarning(txt):
+    getWriter().seekepd(EPD(_buf))
+    getWriter().write_strepd(EPDConstString(txt))
+    getWriter().write(0)
+    _print_buf()
+
+def print_f(*args):
+    getWriter().seekepd(EPD(_buf))
+    getWriter().write_f(*args)
+    getWriter().write(0)
+    _print_buf()

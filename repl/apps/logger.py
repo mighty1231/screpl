@@ -83,8 +83,8 @@ class Logger(ScrollApp):
         return MultilineLogWriter(name)
 
     def onInit(self):
-        mode << MODE_REALTIME
         ScrollApp.onInit(self)
+        mode << MODE_REALTIME
 
     def loop(self):
         manager = getAppManager()

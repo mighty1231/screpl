@@ -2,9 +2,9 @@ from eudplib import *
 
 from ..base.referencetable import ReferenceTable
 from ..utils import EPDConstString
-from .appcommand import _AppCommand, runAppCommand
+from .appcommand import AppCommandN, runAppCommand
 from .appmanager import getAppManager
-from .appmethod import _AppMethod, AppMethod, AppMethod_writerParam
+from .appmethod import AppMethodN, AppMethod, AppMethod_writerParam
 
 class _indexPair:
     def __init__(self, items = None):
@@ -67,8 +67,8 @@ class _Application_Metaclass(type):
 
         # methods and commands
         for k, v in dct.items():
-            if isinstance(v, _AppCommand):
-                assert k not in total_dict or isinstance(total_dict[k], _AppCommand), \
+            if isinstance(v, AppCommandN):
+                assert k not in total_dict or isinstance(total_dict[k], AppCommandN), \
                         "Conflict on attribute - %s.%s" % (name, k)
                 if k in commands:
                     commands.replace(k, v)
@@ -76,12 +76,12 @@ class _Application_Metaclass(type):
                     commands.append(k, v)
                 v.initialize(cls)
                 total_dict[k] = v
-            elif callable(v) or isinstance(v, _AppMethod):
+            elif callable(v) or isinstance(v, AppMethodN):
                 assert not (k[:2] == k[-2:] == "__"), \
                         "Illegal method - %s.%s" % (name, k)
-                assert k not in total_dict or isinstance(total_dict[k], _AppMethod), \
+                assert k not in total_dict or isinstance(total_dict[k], AppMethodN), \
                         "Conflict on attribute - %s.%s" % (name, k)
-                if not isinstance(v, _AppMethod):
+                if not isinstance(v, AppMethodN):
                     v = AppMethod(v)
                 setattr(cls, k, v)
                 if k in methods:
@@ -244,7 +244,7 @@ class Application(metaclass=_Application_Metaclass):
 
     @classmethod
     def addCommand(cls, name, cmd):
-        assert isinstance(cmd, _AppCommand), "CMD (%s) must be callable or AppCommand" % cmd
+        assert isinstance(cmd, AppCommandN), "CMD (%s) must be callable or AppCommand" % cmd
 
         if cls._allocated_:
             # case allocated
@@ -263,7 +263,7 @@ class Application(metaclass=_Application_Metaclass):
             # case not allocated
             #   - replace or add
             #   - just initialize
-            assert name not in cls._total_dict_ or isinstance(cls._total_dict_[name], _AppCommand), \
+            assert name not in cls._total_dict_ or isinstance(cls._total_dict_[name], AppCommandN), \
                     "Conflict on attribute - %s.%s" % (cls.__name__, name)
             if name in cls._commands_:
                 cls._commands_.replace(name, cmd)

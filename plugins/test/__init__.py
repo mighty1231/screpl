@@ -1,17 +1,17 @@
 from repl import REPL, getAppManager, AppCommand
 
-manager = getAppManager()
+appManager = getAppManager()
 
-@AppCommand([])
-def startCommand(self):
-    getAppManager().startApplication(TestApp)
+from .array import ArrayTestApp
+from .monitor import MonitorTestApp
 
-@AppCommand([])
-def startCommand2(self):
-    getAppManager().startApplication(TestApp2)
+apps_to_test = [
+    ("testarray", ArrayTestApp),
+    ("testmonitor", MonitorTestApp),
+]
 
-from .app import TestApp
-from .scrolltest import TestApp2
-
-REPL.addCommand('test', startCommand)
-REPL.addCommand('test2', startCommand2)
+for name, app in apps_to_test:
+    @AppCommand([])
+    def cmd(self):
+        appManager.startApplication(app)
+    REPL.addCommand(name, cmd)

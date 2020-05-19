@@ -132,6 +132,8 @@ class EUDByteRW:
         reader = EUDByteRW()
         reader.seekoffset(srcptr)
 
+        written = EUDVariable()
+        written << 0
         if EUDWhile()(n >= 1):
             # read
             b = reader.read()
@@ -141,8 +143,12 @@ class EUDByteRW:
 
             # copy
             self.write(b)
-            n -= 1
+            DoActions([
+                n.SubtractNumber(1),
+                written.AddNumber(1)
+            ])
         EUDEndWhile()
+        EUDReturn(written)
 
     @EUDMethod
     def write_strepd(self, srcepd):
@@ -159,6 +165,29 @@ class EUDByteRW:
             # copy
             self.write(b)
         EUDEndInfLoop()
+
+    @EUDMethod
+    def write_strnepd(self, srcepd, n):
+        reader = EUDByteRW()
+        reader.seekepd(srcepd)
+
+        written = EUDVariable()
+        written << 0
+        if EUDWhile()(n >= 1):
+            # read
+            b = reader.read()
+
+            # break
+            EUDBreakIf(b == 0)
+
+            # copy
+            self.write(b)
+            DoActions([
+                n.SubtractNumber(1),
+                written.AddNumber(1)
+            ])
+        EUDEndWhile()
+        EUDReturn(written)
 
     @EUDMethod
     def write_decimal(self, number):
@@ -245,6 +274,89 @@ class EUDByteRW:
         EUDEndInfLoop()
 
     @EUDMethod
+    def write_bool(self, value):
+        if EUDIfNot()(value == 0):
+            self.write_strepd(EPDConstString("True"))
+        if EUDElse()():
+            self.write_strepd(EPDConstString("False"))
+        EUDEndIf()
+
+    @EUDMethod
+    def write_u8(self, value):
+        DoActions(value.SetNumberX(0, 0xFFFFFF00))
+        skipper = [Forward() for _ in range(2)]
+        digits = []
+
+        for i in range(2):
+            value, r = f_div(value, 10)
+            digits.append(r)
+            EUDJumpIf(value == 0, skipper[i])
+
+        self.write(value + ord('0'))
+        skipper[1] << NextTrigger()
+        self.write(digits[1] + ord('0'))
+        skipper[0] << NextTrigger()
+        self.write(digits[0] + ord('0'))
+
+    @EUDMethod
+    def write_u16(self, value):
+        DoActions(value.SetNumberX(0, 0xFFFF0000))
+        skipper = [Forward() for _ in range(4)]
+        digits = []
+
+        for i in range(4):
+            value, r = f_div(value, 10)
+            digits.append(r)
+            EUDJumpIf(value == 0, skipper[i])
+
+        self.write(value + ord('0'))
+        for i in range(3, -1, -1):
+            skipper[i] << NextTrigger()
+            self.write(digits[i] + ord('0'))
+
+    @EUDMethod
+    def write_u32(self, value):
+        skipper = [Forward() for _ in range(9)]
+        digits = []
+
+        for i in range(9):
+            value, r = f_div(value, 10)
+            digits.append(r)
+            EUDJumpIf(value == 0, skipper[i])
+
+        self.write(value + ord('0'))
+        for i in range(8, -1, -1):
+            skipper[i] << NextTrigger()
+            self.write(digits[i] + ord('0'))
+
+    @EUDMethod
+    def write_s8(self, value):
+        if EUDIf()(value.ExactlyX(0x80, 0x80)):
+            self.write(ord('-'))
+            self.write_u8(-value)
+        if EUDElse()():
+            self.write_u8(value)
+        EUDEndIf()
+
+    @EUDMethod
+    def write_s16(self, value):
+        if EUDIf()(value.ExactlyX(0x8000, 0x8000)):
+            self.write(ord('-'))
+            self.write_u16(-value)
+        if EUDElse()():
+            self.write_u16(value)
+        EUDEndIf()
+
+    @EUDMethod
+    def write_s32(self, value):
+        if EUDIf()(value.ExactlyX(0x80000000, 0x80000000)):
+            self.write(ord('-'))
+            self.write_u32(-value)
+        if EUDElse()():
+            self.write_u32(value)
+        EUDEndIf()
+
+    @EUDMethod
     def write_STR_string(self, strId):
         strsect = f_dwread_epd(EPD(0x5993D4))
         self.write_str(strsect + f_dwread(strsect + strId*4))
@@ -257,11 +369,17 @@ class EUDByteRW:
         CAUTION: This does NOT make null end
 
         Available formats:
-         - %H: Write hexadecimal value starts with 0x
-         - %D: Write decimal value
-         - %S: Write string with ptr
-         - %E: Write string with epd
-         - %C: Write single character
+         - %H: hexadecimal value starts with 0x
+         - %D: decimal value
+         - %I8d: write_s8
+         - %I16d: write_s16
+         - %I32d: write_s32
+         - %I8u: write_u8
+         - %I16u: write_u16
+         - %I32u: write_u32
+         - %S: string with ptr
+         - %E: string with epd
+         - %C: single character
 
         Write %% to represent %
         '''
@@ -295,6 +413,18 @@ class EUDByteRW:
             elif fmt[pos+1] == 'D':
                 items.append(('D', curarg))
                 argidx += 1
+            elif fmt[pos+1] == 'I':
+                check = False
+                for fs in ['8d', '16d', '32d', '8u', '16u', '32u']:
+                    if fmt[pos+2:].startswith(fs):
+                        items.append(('I' + fs, curarg))
+                        pos += len(fs)
+                        argidx += 1
+                        check = True
+                        break
+                if not check:
+                    print(fmt[pos:])
+                    raise RuntimeError("Unable to parse {}".format(fmt))
             elif fmt[pos+1] == 'S':
                 items.append(('S', curarg))
                 argidx += 1
@@ -310,7 +440,7 @@ class EUDByteRW:
             pos += 2
         if len(args) != argidx:
             raise RuntimeError("Mismatch on count between " \
-                "format string and argument counton write_f")
+                "format string and argument count on write_f")
 
         # Due to %%, several const string could be
         #   located consecutively, so merge it
@@ -323,6 +453,14 @@ class EUDByteRW:
                 merged_items.append((fm, arg))
 
         # Short constants are written with bytes, otherwise use EPDConstString
+        func_matches = {
+            'I8d': self.write_s8,
+            'I16d': self.write_s16,
+            'I32d': self.write_s32,
+            'I8u': self.write_u8,
+            'I16u': self.write_u16,
+            'I32u': self.write_u32
+        }
         for fm, arg in merged_items:
             if fm == 'const':
                 if len(arg) == 1:
@@ -339,3 +477,5 @@ class EUDByteRW:
                 self.write_strepd(arg)
             elif fm == 'C':
                 self.write(arg)
+            else:
+                func_matches[fm](arg)

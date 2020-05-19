@@ -93,6 +93,10 @@ class StringEditorApp(Application):
                     eb2 = reader.read()
                     if EUDIf()(eb2 == ord('\\')):
                         b1 << ord('\\')
+                    if EUDElseIf()(eb2 == ord('n')):
+                        b1 << ord('\n')
+                    if EUDElseIf()(eb2 == ord('t')):
+                        b1 << ord('\t')
                     if EUDElseIf()(eb2 == ord('x')):
                         b1 << 0
                         for nnn in range(2):
@@ -104,13 +108,13 @@ class StringEditorApp(Application):
                             if EUDElseIf()([hexb >= ord('A'), hexb <= ord('F')]):
                                 b1 += (hexb - ord('A') + 10)
                             if EUDElse()():
-                                f_raiseWarning("String escape character '\\' usage-> '\\\\' or '\\x##'")
+                                f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                                 EUDJump(clear_overwrite)
                             EUDEndIf()
                             if nnn == 0:
                                 b1 *= 16
                     if EUDElse()():
-                        f_raiseWarning("String escape character '\\' usage-> '\\\\' or '\\x##'")
+                        f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                         EUDJump(clear_overwrite)
                     EUDEndIf()
                 EUDEndIf()
@@ -143,6 +147,10 @@ class StringEditorApp(Application):
                     eb2 = reader.read()
                     if EUDIf()(eb2 == ord('\\')):
                         b1 << ord('\\')
+                    if EUDElseIf()(eb2 == ord('n')):
+                        b1 << ord('\n')
+                    if EUDElseIf()(eb2 == ord('t')):
+                        b1 << ord('\t')
                     if EUDElseIf()(eb2 == ord('x')):
                         b1 << 0
                         for nnn in range(2):
@@ -154,13 +162,13 @@ class StringEditorApp(Application):
                             if EUDElseIf()([hexb >= ord('A'), hexb <= ord('F')]):
                                 b1 += (hexb - ord('A') + 10)
                             if EUDElse()():
-                                f_raiseWarning("String escape character '\\' usage-> '\\\\' or '\\x##'")
+                                f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                                 EUDJump(clear_insert)
                             EUDEndIf()
                             if nnn == 0:
                                 b1 *= 16
                     if EUDElse()():
-                        f_raiseWarning("String escape character '\\' usage-> '\\\\' or '\\x##'")
+                        f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                         EUDJump(clear_insert)
                     EUDEndIf()
                 EUDEndIf()
@@ -197,10 +205,27 @@ class StringEditorApp(Application):
                 v_frame << BLINK_PERIOD * 2 - 1
             EUDEndIf()
         if EUDElseIf()(appManager.keyPress("F8")):
-            if EUDIfNot()(f_dwread_epd(v_cursor_epd) == 0):
+            if EUDIfNot()(MemoryEPD(v_cursor_epd, Exactly, 0)):
                 v_cursor_epd += 1
                 v_frame << BLINK_PERIOD * 2 - 1
             EUDEndIf()
+        if EUDElseIf()(appManager.keyPress("HOME")):
+            if EUDInfLoop()():
+                EUDBreakIf(v_cursor_epd == v_string_epd)
+                v_cursor_epd -= 1
+                if EUDIf()(MemoryEPD(v_cursor_epd, Exactly, 0x0D0D0D + ord('\n') * 0x01000000)):
+                    v_cursor_epd += 1
+                    EUDBreak()
+                EUDEndIf()
+            EUDEndInfLoop()
+            v_frame << BLINK_PERIOD * 2 - 1
+        if EUDElseIf()(appManager.keyPress("END")):
+            if EUDInfLoop()():
+                EUDBreakIf(MemoryEPD(v_cursor_epd, Exactly, 0))
+                EUDBreakIf(MemoryEPD(v_cursor_epd, Exactly, 0x0D0D0D + ord('\n') * 0x01000000))
+                v_cursor_epd += 1
+            EUDEndInfLoop()
+            v_frame << BLINK_PERIOD * 2 - 1
         EUDEndIf()
         appManager.requestUpdate()
 

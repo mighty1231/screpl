@@ -16,8 +16,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    blocks/appoutput.cpp \
+    blocks/blindmode.cpp \
+    blocks/gametext.cpp \
+    blocks/logger.cpp \
+    blocks/profile.cpp \
     main.cpp \
     mainwindow.cpp \
+    regionblock.cpp \
     worker.cpp
 
 LIBS += \
@@ -26,8 +32,14 @@ LIBS += \
 
 
 HEADERS += \
+    blocks/appoutput.h \
+    blocks/blindmode.h \
+    blocks/gametext.h \
+    blocks/logger.h \
+    blocks/profile.h \
     mainwindow.h \
-    sharedregion.h \
+    regionblock.h \
+    sharedregionheader.h \
     worker.h
 
 FORMS += \

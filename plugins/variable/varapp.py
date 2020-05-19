@@ -10,6 +10,7 @@ class VariableApp(ScrollApp):
     fields = []
 
     def onInit(self):
+        ScrollApp.onInit(self)
         watched_eud_vars_size << ReferenceTable.GetSize(EPD(watched_eud_vars))
 
     def writeTitle(self, writer):

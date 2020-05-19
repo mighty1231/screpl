@@ -9,12 +9,15 @@
 #include <QElapsedTimer>
 #include <QMutex>
 
-#include "sharedregion.h"
+#include "sharedregionheader.h"
+#include "regionblock.h"
 
 // status flags
 #define STATUS_NOPROCESS_FOUND 0
 #define STATUS_PROCESS_FOUND 1
 #define STATUS_REPL_FOUND 2
+
+QT_FORWARD_DECLARE_CLASS(MainWindow);
 
 class Worker : public QThread
 {
@@ -22,9 +25,6 @@ class Worker : public QThread
 
 private:
     void run() override;
-
-    static QString makeString(const char *from);
-    static QString ignoreColor(const char *from);
 
     bool searchProcess();
     bool searchREPL();
@@ -36,9 +36,10 @@ private:
     QString command;
 
     // relative read or write
+    SIZE_T readSTRSection(uint address, void *buf, SIZE_T length);
+    SIZE_T writeSTRSection(uint address, const void *buf, SIZE_T length);
     inline bool writeRegionInt(int offset, int value);
     inline bool readRegionInt(int offset, int *value);
-
 
     QElapsedTimer last_interaction_timer;
     int last_framecount;
@@ -50,30 +51,29 @@ private:
     int pageSize;
     PROCESSENTRY32 entry;
     HANDLE snapshot;
-
     HANDLE hProcess;
 
+    QByteArray *query_buffer;
+
     int REPLRegion;
-    SharedRegion *regiontmp;
-    SharedRegion *region;
-    char *app_output_buffer;
+
+    QVector<RegionBlock *> blocks;
 
 public:
     explicit Worker(QObject *parent = nullptr);
     ~Worker();
 
+    static QString makeString(const char *from);
+    static QString ignoreColor(const char *from);
+
+    void setConnection(MainWindow *);
     void makeError(QString string);
-
     bool setCommand(QString new_cmd);
-
 
 signals:
     void signalError(QString string);
-
-    // outputlog, loggerlog, display
-    void update(QString applog, QString loggerlog, QString display);
     void metProcess(bool met);
-    void metREPL(bool met);
+    void metREPL(bool met, int sharedregion_ptr);
 
     void sentCommand(QString cmd);
 };

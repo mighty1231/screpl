@@ -95,7 +95,7 @@ def encodeArguments():
         EUDEndInfLoop()
     EUDEndIf()
 
-class _AppCommand:
+class AppCommandN:
     def __init__(self, arg_encoders, func, *, traced):
         # Get argument number of fdecl_func
         argspec = inspect.getargspec(func)
@@ -123,12 +123,19 @@ class _AppCommand:
         # Step 3 allocate
         self.funcn = None
 
+        self.func_callback = None
         self.traced = traced
         self.status = 'not initialized'
 
     def getCmdPtr(self):
         assert self.cls is not None
         return self.cmdptr
+
+    def setFuncCallback(self, func_callback):
+        if self.status == "allocated":
+            raise RuntimeError("AppCommand already has its body")
+        assert self.func_callback is None
+        self.func_callback = func_callback
 
     def initialize(self, cls):
         assert self.status == 'not initialized'
@@ -137,6 +144,9 @@ class _AppCommand:
 
     def allocate(self):
         assert self.status == 'initialized'
+
+        if self.func_callback:
+            self.func = self.func_callback(self.func)
 
         def call_inner():
             instance = getAppManager().getCurrentAppInstance()
@@ -169,8 +179,8 @@ class _AppCommand:
 
         self.status = 'allocated'
 
-''' Decorator to make _AppMethod '''
+''' Decorator to make AppMethodN '''
 def AppCommand(arg_encoders, *, traced=False):
     def ret(method):
-        return _AppCommand(arg_encoders, method, traced=traced)
+        return AppCommandN(arg_encoders, method, traced=traced)
     return ret
