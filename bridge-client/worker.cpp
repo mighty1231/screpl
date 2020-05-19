@@ -35,7 +35,6 @@ Worker::Worker(QObject *parent) : QThread(parent),
 
     entry.dwSize = sizeof(PROCESSENTRY32);
 
-    app_output_buffer = new char[APP_OUTPUT_MAXSIZE + 1];
     query_buffer = new QByteArray();
 }
 
@@ -99,8 +98,10 @@ void Worker::setConnection(MainWindow *_window)
 
 
 Worker::~Worker() {
+    for (auto b:blocks) {
+        delete b;
+    }
     delete query_buffer;
-    delete[] app_output_buffer;
 }
 
 void Worker::run()
@@ -270,6 +271,18 @@ void Worker::process()
     // minimal operation between leaving note A
     SharedRegionHeader *header = (SharedRegionHeader *) all_region;
 
+    // Check the section is not polluted (exits game...)
+    if (memcmp(header->signature, SIGNATURE.constData(), SIGNATURE.size())
+        || header->noteToSC != 1
+        || header->noteFromSC != 0
+        || header->regionSize != regionSize ) {
+        status = STATUS_PROCESS_FOUND;
+        emit metREPL(false, REPLRegion);
+        makeError("ReadProcessMemory, read region");
+        delete[] all_region;
+        return;
+    }
+
     // send command
     if (header->command[0] == 0) {
         QMutexLocker locker(&command_mutex);
@@ -306,6 +319,7 @@ void Worker::process()
             status = STATUS_PROCESS_FOUND;
             emit metREPL(false, REPLRegion);
             makeError("process, recognizing blocks");
+            delete[] all_region;
             return;
         }
         Q_ASSERT(processed);
@@ -319,6 +333,7 @@ void Worker::process()
         status = STATUS_PROCESS_FOUND;
         emit metREPL(false, REPLRegion);
         makeError("WriteProcessMemory, write region");
+        delete[] all_region;
         return;
     }
 
@@ -336,8 +351,10 @@ void Worker::process()
             writeRegionInt(0, 0); // invalidate signature
             emit metREPL(false, REPLRegion);
             makeError("REPL interaction timeout");
+            delete[] all_region;
             return;
         }
+        delete[] all_region;
         return;
     } else {
         last_framecount = header->frameCount;

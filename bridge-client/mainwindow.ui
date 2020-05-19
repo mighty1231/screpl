@@ -55,7 +55,11 @@
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_2">
            <item>
-            <widget class="QTextEdit" name="to_cmdlog"/>
+            <widget class="QTextEdit" name="to_cmdlog">
+             <property name="acceptRichText">
+              <bool>false</bool>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -104,76 +108,91 @@
        <property name="flat">
         <bool>true</bool>
        </property>
-       <layout class="QVBoxLayout" name="verticalLayout_5">
-        <item>
-         <widget class="QGroupBox" name="groupBox_6">
-          <property name="title">
-           <string>logs from Logger</string>
+       <layout class="QGridLayout" name="gridLayout_2">
+        <item row="0" column="0">
+         <widget class="QSplitter" name="splitter_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
           </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <item>
-            <widget class="QTextEdit" name="from_logger"/>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox">
-          <property name="title">
-           <string>Profile</string>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_3">
-           <item>
-            <widget class="QTableWidget" name="from_profiletable">
-             <property name="editTriggers">
-              <set>QAbstractItemView::NoEditTriggers</set>
-             </property>
-             <property name="cornerButtonEnabled">
-              <bool>false</bool>
-             </property>
-             <property name="columnCount">
-              <number>3</number>
-             </property>
-             <attribute name="horizontalHeaderDefaultSectionSize">
-              <number>70</number>
-             </attribute>
-             <column/>
-             <column/>
-             <column/>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_5">
-          <property name="title">
-           <string>App Output</string>
-          </property>
-          <property name="flat">
-           <bool>true</bool>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <widget class="QTextEdit" name="from_appoutput"/>
-           </item>
-           <item>
-            <widget class="QPushButton" name="from_dumpbtn">
-             <property name="toolTip">
-              <string>앱 출력 중 선택한 텍스트를 헥스로 읽어 파일로 만들어 저장합니다.</string>
-             </property>
-             <property name="text">
-              <string>덤프</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <widget class="QGroupBox" name="groupBox_6">
+           <property name="title">
+            <string>logs from Logger</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QTextEdit" name="from_logger">
+              <property name="acceptRichText">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="title">
+            <string>Profile</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_3">
+            <item>
+             <widget class="QTableWidget" name="from_profiletable">
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="horizontalScrollMode">
+               <enum>QAbstractItemView::ScrollPerItem</enum>
+              </property>
+              <property name="columnCount">
+               <number>3</number>
+              </property>
+              <attribute name="horizontalHeaderDefaultSectionSize">
+               <number>70</number>
+              </attribute>
+              <attribute name="verticalHeaderMinimumSectionSize">
+               <number>8</number>
+              </attribute>
+              <attribute name="verticalHeaderDefaultSectionSize">
+               <number>23</number>
+              </attribute>
+              <column/>
+              <column/>
+              <column/>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QGroupBox" name="groupBox_5">
+           <property name="title">
+            <string>App Output</string>
+           </property>
+           <property name="flat">
+            <bool>true</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
+            <item>
+             <widget class="QTextEdit" name="from_appoutput">
+              <property name="acceptRichText">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="from_dumpbtn">
+              <property name="toolTip">
+               <string>앱 출력 중 선택한 텍스트를 헥스로 읽어 파일로 만들어 저장합니다.</string>
+              </property>
+              <property name="text">
+               <string>덤프</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
        </layout>
@@ -204,6 +223,9 @@
               <property name="readOnly">
                <bool>true</bool>
               </property>
+              <property name="acceptRichText">
+               <bool>false</bool>
+              </property>
              </widget>
             </item>
            </layout>
@@ -220,6 +242,9 @@
              <widget class="QTextEdit" name="from_blindmodedisplay">
               <property name="readOnly">
                <bool>true</bool>
+              </property>
+              <property name="acceptRichText">
+               <bool>false</bool>
               </property>
              </widget>
             </item>
