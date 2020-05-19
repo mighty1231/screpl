@@ -5,8 +5,10 @@ from ..core.application import ApplicationInstance
 from ..core.appmethod import _AppMethod
 from ..core.appcommand import _AppCommand
 from . import profile_table, f_getInversedTickCount
+from .profile import REPLMonitorPush, REPLMonitorPop
 
 import inspect
+import functools
 
 def REPLMonitorF(io=True, profile=True):
     '''
@@ -22,7 +24,7 @@ def REPLMonitorF(io=True, profile=True):
             REPLMonitorAppCommand(func, io, profile)
             return func
         raise RuntimeError(
-            "Currently REPLMonitor supports EUDFuncN, AppCommand, and AppMethod"
+            "Currently REPLMonitorF supports EUDFuncN, AppCommand, and AppMethod"
         )
 
     return monitor
@@ -37,40 +39,52 @@ def REPLMonitorEUDFunc(funcn, io=True, profile=False):
 
     old_caller = funcn._callerfunc
     def new_caller(*args):
-        _inputs = [EUDVariable() for _ in range(funcn._argn)]
-        for i, v in zip(_inputs, args):
-            i << v
+        func_name = funcn._bodyfunc.__qualname__
 
+        # log input
+        if io and funcn._argn:
+            # Log format: <func_name:arg1=3, arg2=4> entered
+            # EUDFuncN / AppMethod both case have their arguments at last
+            argnames = inspect.getfullargspec(funcn._bodyfunc).args[-funcn._argn:]
+            Logger.format("<{}:{}> entered".format(
+                func_name,
+                ", ".join(["{}=%D".format(name) for name in argnames])
+            ), *args)
+        else:
+            Logger.format("<{}> entered".format(func_name))
+
+        if profile:
+            REPLMonitorPush(func_name, profile=True, log=False)
+
+        # call original caller
         final_rets = old_caller(*args)
 
+        # intercept outputs
         if final_rets is not None:
             funcn._AddReturn(Assignable2List(final_rets), False)
         funcn._fend << NextTrigger() # To catch EUDReturn
 
-        if funcn._retn is None:
-            _outputs = []
-        else:
-            _outputs = [EUDVariable() for _ in range(funcn._retn)]
-            for i, v in zip(_outputs, funcn._frets):
-                i << v
+        if profile:
+            tickdiff = REPLMonitorPop()
 
-        # Log format: my_function(arg1=3, arg2=4) -> (2, 4)
-        # EUDFuncN / AppMethod both case have their arguments at last
-        if funcn._argn:
-            argnames = inspect.getfullargspec(funcn._bodyfunc).args[-funcn._argn:]
+        # build log
+        if funcn._retn:
+            outputs = funcn._frets
         else:
-            argnames = []
-        fmtstring = "{}({}) -> ".format(
-            funcn._bodyfunc.__qualname__,
-            ", ".join(["{}=%D".format(name) for name in argnames]),
-        )
-        if len(_outputs) == 0:
-            fmtstring += "."
-        elif len(_outputs) == 1:
-            fmtstring += "%D"
-        else:
-            fmtstring += ", ".join(["%D"] * len(_outputs))
-        Logger.format(fmtstring, *(_inputs + _outputs))
+            outputs = []
+
+        fmtstring = "<{}> exited".format(func_name)
+        args = []
+
+        if io:
+            fmtstring = fmtstring.replace("exited", "returned")
+            fmtstring += " ({})".format(", ".join(["%D"] * len(outputs)))
+            args += outputs
+        if profile:
+            fmtstring += ", %D ms"
+            args += [tickdiff]
+
+        Logger.format(fmtstring, *args)
 
         funcn._fend = Forward()
         return None
@@ -80,7 +94,10 @@ def REPLMonitorEUDFunc(funcn, io=True, profile=False):
     return funcn
 
 def REPLMonitorAppMethod(appmtd, io=True, profile=False):
-    appmtd.setFuncnCallback(REPLMonitorEUDFunc)
+    appmtd.setFuncnCallback(
+        functools.partial(REPLMonitorEUDFunc,
+                          io=io, profile=profile
+    ))
 
 def REPLMonitorAppCommand(appcmd, io=True, profile=False):
     assert appcmd not in monitored_objects, "command should not be monitored twice"

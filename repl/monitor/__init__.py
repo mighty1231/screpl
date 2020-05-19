@@ -22,6 +22,11 @@ profile_table = ProfileTable()
 
 @EUDFunc
 def f_getInversedTickCount():
+    '''
+    0x51CE8C: inversed tick count. 1 for 1 ms
+     * Since it is not updated during trigger execution,
+       EUDDoEvents should be called
+    '''
     countdownTimer = f_dwread_epd(EPD(0x57F0F0 + 0xe604))
     elapsedTime    = f_dwread_epd(EPD(0x57F0F0 + 0xe608))
     triggerTimer   = f_dwread_epd(EPD(0x6509A0))

@@ -2,7 +2,7 @@ from eudplib import *
 from ..apps.logger import Logger
 from . import profile_table, f_getInversedTickCount
 
-def REPLMonitorPush(name, profile = True, log = True):
+def REPLMonitorPush(name, profile=True, log=True):
     blockdata = {
         'name': name,
         'profile': profile,
@@ -10,7 +10,7 @@ def REPLMonitorPush(name, profile = True, log = True):
     }
 
     if log:
-        Logger.format("[{}] <--".format(name))
+        Logger.format("<{}> entered".format(name))
 
     if profile:
         v_start = f_getInversedTickCount()
@@ -21,6 +21,8 @@ def REPLMonitorPush(name, profile = True, log = True):
         blockdata['count'] = v_count
 
     EUDCreateBlock("replmonitorblock", blockdata)
+
+    return True # enables "if REPLMonitorPush():"
 
 def REPLMonitorPop():
     bname, blockdata = EUDPopBlock("replmonitorblock")
@@ -46,6 +48,9 @@ def REPLMonitorPop():
 
     if log:
         if profile:
-            Logger.format("[{}] --> %D ms".format(name), v_start)
+            Logger.format("<{}> exited, %D ms".format(name), v_start)
         else:
-            Logger.format("[{}] -->".format(name))
+            Logger.format("<{}> exited".format(name))
+
+    if profile:
+        return v_start # time diff in ms
