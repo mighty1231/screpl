@@ -16,7 +16,7 @@ struct {
 from eudplib import *
 from .block import BridgeBlock
 from ..core import getAppManager
-from ..monitor.monitortool import profile_table
+from ..monitor import profile_table
 
 appManager = getAppManager()
 

@@ -66,7 +66,7 @@ from .core import (
     AppTypedMethod,
 )
 
-from .monitor.monitortool import (
+from .monitor.profile import (
     REPLMonitorPush,
     REPLMonitorPop
 )
