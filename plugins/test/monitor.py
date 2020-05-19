@@ -93,18 +93,31 @@ class MonitorTestApp(Application):
 
     @AppCommand([])
     def monitor(self):
-        if REPLMonitorPush("loop_pl", profile=True, log=True):
-            pass
+        if REPLMonitorPush("monitor", profile=True, log=True):
+            if REPLMonitorPush("moni_pl", profile=True, log=True):
+                pass
+            REPLMonitorPop()
+            if REPLMonitorPush("moni_p", profile=True, log=False):
+                pass
+            REPLMonitorPop()
+            if REPLMonitorPush("moni_l", profile=False, log=True):
+                pass
+            REPLMonitorPop()
+            if REPLMonitorPush("moni_", profile=False, log=False):
+                pass
+            REPLMonitorPop()
         REPLMonitorPop()
-        if REPLMonitorPush("loop_p", profile=True, log=False):
-            pass
-        REPLMonitorPop()
-        if REPLMonitorPush("loop_l", profile=False, log=True):
-            pass
-        REPLMonitorPop()
-        if REPLMonitorPush("loop_", profile=False, log=False):
-            pass
-        REPLMonitorPop()
+
+    @REPLMonitorF(io=False, profile=True)
+    @AppCommand([])
+    def heavy(self):
+        i = EUDVariable()
+        i << 0
+        if EUDInfLoop()():
+            EUDBreakIf(i >= 10000)
+            f_div(f_dwread_epd(EPD(0x59CCAC)), i)
+            i += 1
+        EUDEndInfLoop()
 
     def loop(self):
         if EUDIf()(appManager.keyPress("ESC")):

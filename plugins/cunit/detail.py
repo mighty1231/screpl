@@ -65,13 +65,13 @@ class CUnitDetailApp(Application):
 
     def print(self, writer):
         cunit_epd = self.cunit_epd
-        if EUDIf()(cunit_epd == 0):
-            writer.write_f("\x04CUnit Detail (ptr=NULL)\n" + "\n"*8)
+        if EUDIf()(cunit_epd == EPD(0)):
+            writer.write_f("\x04CUnit Detail (ptr=NULL) (F7/F8 navigate, CTRL+H selected unit)\n" + "\n"*8)
             writer.write(0)
             EUDReturn()
         EUDEndIf()
 
-        writer.write_f("\x04CUnit Detail (ptr=%H)\n", f_epd2ptr(cunit_epd))
+        writer.write_f("\x04CUnit Detail (ptr=%H) (F7/F8 navigate, CTRL+H selected unit)\n", f_epd2ptr(cunit_epd))
 
         focused_memid = self.focused_memid
         quot, mod = f_div(focused_memid, 8)
@@ -114,6 +114,9 @@ class CUnitDetailApp(Application):
 
     @AppCommand([argEncNumber])
     def p(self, ptr):
+        '''
+        Set current cunit pointer as ptr
+        '''
         label_error = Forward()
 
         # validity check
