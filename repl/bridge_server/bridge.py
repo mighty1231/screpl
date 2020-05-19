@@ -116,7 +116,7 @@ def bridge_init():
     from .blindmode import BlindModeDisplayBlock
     from .logger import LoggerBlock
     from .appoutput import AppOutputBlock
-    from .profiler import ProfileBlock
+    from .profile import ProfileBlock
 
     region.AddBlock(GameTextBlock)
     region.AddBlock(LoggerBlock)

@@ -7,7 +7,7 @@ struct {
     struct {
         int name_offset; // relative to block offset
         int total_ms;
-        int count;
+        int counter;
     } monitor[];
 
     char names[]; // null-ended...
@@ -23,6 +23,7 @@ appManager = getAppManager()
 _buf = None
 
 def get_block():
+    global _buf
     if _buf is None:
 
         count = len(profile_table.table)

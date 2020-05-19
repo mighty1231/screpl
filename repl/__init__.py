@@ -66,6 +66,11 @@ from .core import (
     AppTypedMethod,
 )
 
+from .monitor.monitortool import (
+    REPLMonitorPush,
+    REPLMonitorPop
+)
+
 from .apps import (
     StaticApp,
     ScrollApp,
