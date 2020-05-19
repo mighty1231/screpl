@@ -6,7 +6,7 @@ Check [wiki](https://github.com/mighty1231/screpl/wiki/Bridge) to get descriptio
 
 ## Screenshot
 
-![SC-REPL Bridge Client](screenshot.JPG)
+![SC-REPL Bridge Client](screenshot.PNG)
 
 ## How to build
 
