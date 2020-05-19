@@ -22,8 +22,10 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->from_profiletable->setHorizontalHeaderLabels(QStringList()
                                                      << tr("Count")
-                                                     << tr("Total[ms]")
-                                                     << tr("Avg[ms]"));
+                                                     << tr("Consumed[ms]")
+                                                     << tr("Expected[ms]")
+                                                     << tr("AvgCon[ms]")
+                                                     << tr("AvgExp[ms]"));
     connect(ui->from_dumpbtn, SIGNAL(clicked()), this, SLOT(dumpOutput()));
 }
 
@@ -103,16 +105,18 @@ void MainWindow::updateProfileNames(QStringList names)
     ui->from_profiletable->setVerticalHeaderLabels(names);
 }
 
-void MainWindow::updateProfiles(QVector<uint> counter, QVector<uint> total_ms)
+void MainWindow::updateProfiles(QVector<uint> counter, QVector<uint> total_ms, QVector<uint> total_ems)
 {
     QTableWidgetItem *pCell;
     for (int i=0; i<total_ms.size(); i++) {
         int _counter = counter.at(i);
         int _total_ms = total_ms.at(i);
+        int _total_ems = total_ems.at(i);
 
         pCell = ui->from_profiletable->item(i, 0);
         if(!pCell) {
             pCell = new QTableWidgetItem();
+            pCell->setTextAlignment(Qt::AlignRight);
             ui->from_profiletable->setItem(i, 0, pCell);
         }
         pCell->setText(QString::number(_counter));
@@ -120,6 +124,7 @@ void MainWindow::updateProfiles(QVector<uint> counter, QVector<uint> total_ms)
         pCell = ui->from_profiletable->item(i, 1);
         if(!pCell) {
             pCell = new QTableWidgetItem();
+            pCell->setTextAlignment(Qt::AlignRight);
             ui->from_profiletable->setItem(i, 1, pCell);
         }
         pCell->setText(QString::number(_total_ms));
@@ -127,13 +132,35 @@ void MainWindow::updateProfiles(QVector<uint> counter, QVector<uint> total_ms)
         pCell = ui->from_profiletable->item(i, 2);
         if(!pCell) {
             pCell = new QTableWidgetItem();
+            pCell->setTextAlignment(Qt::AlignRight);
             ui->from_profiletable->setItem(i, 2, pCell);
+        }
+        pCell->setText(QString::number(_total_ems));
+
+        pCell = ui->from_profiletable->item(i, 3);
+        if(!pCell) {
+            pCell = new QTableWidgetItem();
+            pCell->setTextAlignment(Qt::AlignRight);
+            ui->from_profiletable->setItem(i, 3, pCell);
         }
         if (_counter == 0) {
             pCell->setText("N/A");
         } else {
             double average = ((double)_total_ms) / _counter;
-            pCell->setText(QString::number(average));
+            pCell->setText(QString("%1").arg(average, 0, 'f', 1, '0'));
+        }
+
+        pCell = ui->from_profiletable->item(i, 4);
+        if(!pCell) {
+            pCell = new QTableWidgetItem();
+            pCell->setTextAlignment(Qt::AlignRight);
+            ui->from_profiletable->setItem(i, 4, pCell);
+        }
+        if (_counter == 0) {
+            pCell->setText("N/A");
+        } else {
+            double average = ((double)_total_ems) / _counter;
+            pCell->setText(QString("%1").arg(average, 0, 'f', 1, '0'));
         }
     }
 }

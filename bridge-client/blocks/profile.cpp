@@ -23,20 +23,23 @@ void ProfileBlock::afterProcess()
     uint count = *ptr++;
 
     QStringList names;
-    QVector<uint> total_ms;
     QVector<uint> counter;
+    QVector<uint> total_ms;
+    QVector<uint> total_ems;
 
     for (uint i=0; i<count; i++) {
         Q_ASSERT ((uint) ptr < (uint) buf + buf_size);
         uint offset = *ptr++;
-        uint _total_ms = *ptr++;
         uint _counter = *ptr++;
+        uint _total_ms = *ptr++;
+        uint _total_ems = *ptr++;
 
         Q_ASSERT (offset < buf_size);
         names << QString::fromUtf8(buf + offset);
 
-        total_ms.push_back(_total_ms);
         counter.push_back(_counter);
+        total_ms.push_back(_total_ms);
+        total_ems.push_back(_total_ems);
     }
 
     if (prev_names.size() != names.size()) {
@@ -56,5 +59,5 @@ void ProfileBlock::afterProcess()
         }
     }
 
-    emit updateProfiles(counter, total_ms);
+    emit updateProfiles(counter, total_ms, total_ems);
 }

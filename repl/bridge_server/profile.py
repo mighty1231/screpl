@@ -6,8 +6,9 @@ struct {
 
     struct {
         int name_offset; // relative to block offset
-        int total_ms;
         int counter;
+        int total_ms;
+        int total_ticks;
     } monitor[];
 
     char names[]; // null-ended...
@@ -27,7 +28,7 @@ def get_block():
     if _buf is None:
 
         count = len(profile_table.table)
-        base = 4 + 12 * count
+        base = 4 + 16 * count
         str_offsets = []
         str_table = bytes()
 
@@ -41,7 +42,7 @@ def get_block():
         _buf = i2b4(count)
         for i in range(count):
             _buf += i2b4(str_offsets[i])
-            _buf += bytes(8)
+            _buf += bytes(12)
         _buf += str_table
 
         # padding for 4 byte aligning
@@ -66,8 +67,10 @@ class ProfileBlock(BridgeBlock):
 
     def UpdateContent(self):
         computes = []
-        for i, (name, total, count) in enumerate(profile_table.table):
-            computes.append((EPD(self + i * 12 + 8), SetTo, total))
-            computes.append((EPD(self + i * 12 + 12), SetTo, count))
+        for i, (name, counter, total_ms, total_ems) in \
+                enumerate(profile_table.table):
+            computes.append((EPD(self + i * 16 + 8), SetTo, counter))
+            computes.append((EPD(self + i * 16 + 12), SetTo, total_ms))
+            computes.append((EPD(self + i * 16 + 16), SetTo, total_ems))
 
         SeqCompute(computes)

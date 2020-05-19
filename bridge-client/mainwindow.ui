@@ -145,13 +145,13 @@
                <set>QAbstractItemView::NoEditTriggers</set>
               </property>
               <property name="horizontalScrollMode">
-               <enum>QAbstractItemView::ScrollPerItem</enum>
+               <enum>QAbstractItemView::ScrollPerPixel</enum>
               </property>
               <property name="columnCount">
-               <number>3</number>
+               <number>5</number>
               </property>
               <attribute name="horizontalHeaderDefaultSectionSize">
-               <number>70</number>
+               <number>90</number>
               </attribute>
               <attribute name="verticalHeaderMinimumSectionSize">
                <number>8</number>
@@ -159,6 +159,8 @@
               <attribute name="verticalHeaderDefaultSectionSize">
                <number>23</number>
               </attribute>
+              <column/>
+              <column/>
               <column/>
               <column/>
               <column/>

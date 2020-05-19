@@ -1,6 +1,6 @@
 from eudplib import *
 from ..apps.logger import Logger
-from . import profile_table, f_getInversedTickCount
+from . import profile_table, f_getInversedMillis, f_getGameSpeed
 
 def REPLMonitorPush(name, profile=True, log=True):
     blockdata = {
@@ -13,12 +13,17 @@ def REPLMonitorPush(name, profile=True, log=True):
         Logger.format("<{}> entered".format(name))
 
     if profile:
-        v_start = f_getInversedTickCount()
-        v_total, v_count = EUDCreateVariables(2)
-        profile_table.append(name, v_total, v_count)
-        blockdata['start'] = v_start
-        blockdata['total'] = v_total
+        v_count = EUDVariable()
+        v_startMillis = f_getInversedMillis()
+        v_totalMillis = EUDVariable()
+        v_startTick = f_getgametick()
+        v_totalExpected = EUDVariable()
+        profile_table.append(name, v_count, v_totalMillis, v_totalExpected)
         blockdata['count'] = v_count
+        blockdata['start-m'] = v_startMillis
+        blockdata['total-m'] = v_totalMillis
+        blockdata['start-t'] = v_startTick
+        blockdata['total-e'] = v_totalExpected
 
     EUDCreateBlock("replmonitorblock", blockdata)
 
@@ -32,25 +37,39 @@ def REPLMonitorPop():
     log = blockdata['log']
 
     if profile:
-        v_start = blockdata['start']
-        v_total = blockdata['total']
         v_count = blockdata['count']
+        v_startMillis = blockdata['start-m']
+        v_totalMillis = blockdata['total-m']
+        v_startTick = blockdata['start-t']
+        v_totalExpected = blockdata['total-e']
 
-        v_end = f_getInversedTickCount()
+        v_endMillis = f_getInversedMillis()
+        v_endTick = f_getgametick()
 
-        # v_start -= v_end
-        # v_total += v_start
+        # v_startMillis -= v_endMillis
+        # v_totalMillis += v_startMillis
+        # v_endTick -= v_startTick
+        # ==> v_startMillis: millis diff
+        #     v_endTick: tick diff
         SeqCompute([
             (v_count, Add, 1),
-            (v_start, Subtract, v_end),
-            (v_total, Add, v_start),
+            (v_startMillis, Subtract, v_endMillis),
+            (v_totalMillis, Add, v_startMillis),
+            (v_endTick, Subtract, v_startTick)
         ])
+        v_additionalExpected = v_endTick * f_getGameSpeed()
+        v_totalExpected += v_additionalExpected
 
     if log:
         if profile:
-            Logger.format("<{}> exited, %D ms".format(name), v_start)
+            Logger.format("<{}> exited, %D ms (Expected %D)".format(name),
+                v_startMillis,
+                v_additionalExpected
+            )
+            return v_startMillis, v_additionalExpected
         else:
             Logger.format("<{}> exited".format(name))
 
     if profile:
-        return v_start # time diff in ms
+        # consumed_ms, expected_ms
+        return v_startMillis, v_additionalExpected

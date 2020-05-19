@@ -30,7 +30,9 @@ private:
 
 signals:
     void updateProfileNames(QStringList names);
-    void updateProfiles(QVector<uint> counter, QVector<uint> total_ms);
+    void updateProfiles(QVector<uint> counter,
+                        QVector<uint> total_ms,
+                        QVector<uint> total_ems);
 };
 
 #endif // PROFILEBLOCK_H

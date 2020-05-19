@@ -90,8 +90,8 @@ void Worker::setConnection(MainWindow *_window)
     connect(pb, SIGNAL(updateProfileNames(QStringList)),
             window, SLOT(updateProfileNames(QStringList)),
             Qt::QueuedConnection);
-    connect(pb, SIGNAL(updateProfiles(QVector<uint>, QVector<uint>)),
-            window, SLOT(updateProfiles(QVector<uint>, QVector<uint>)),
+    connect(pb, SIGNAL(updateProfiles(QVector<uint>, QVector<uint>, QVector<uint>)),
+            window, SLOT(updateProfiles(QVector<uint>, QVector<uint>, QVector<uint>)),
             Qt::QueuedConnection);
     blocks.push_back(pb);
 }

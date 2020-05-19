@@ -4,7 +4,6 @@ from ..apps import Logger
 from ..core.application import ApplicationInstance
 from ..core.appmethod import _AppMethod
 from ..core.appcommand import _AppCommand
-from . import profile_table, f_getInversedTickCount
 from .profile import REPLMonitorPush, REPLMonitorPop
 
 import inspect
@@ -46,7 +45,7 @@ def REPLMonitorEUDFunc(funcn, io=True, profile=False):
             # Log format: <func_name:arg1=3, arg2=4> entered
             # EUDFuncN / AppMethod both case have their arguments at last
             argnames = inspect.getfullargspec(funcn._bodyfunc).args[-funcn._argn:]
-            Logger.format("<{}:{}> entered".format(
+            Logger.format("<{}/{}> entered".format(
                 func_name,
                 ", ".join(["{}=%D".format(name) for name in argnames])
             ), *args)
@@ -65,7 +64,7 @@ def REPLMonitorEUDFunc(funcn, io=True, profile=False):
         funcn._fend << NextTrigger() # To catch EUDReturn
 
         if profile:
-            tickdiff = REPLMonitorPop()
+            tickdiff, expected = REPLMonitorPop()
 
         # build log
         if funcn._retn:
@@ -81,8 +80,8 @@ def REPLMonitorEUDFunc(funcn, io=True, profile=False):
             fmtstring += " ({})".format(", ".join(["%D"] * len(outputs)))
             args += outputs
         if profile:
-            fmtstring += ", %D ms"
-            args += [tickdiff]
+            fmtstring += ", %D ms (Expected %D)"
+            args += [tickdiff, expected]
 
         Logger.format(fmtstring, *args)
 
@@ -113,7 +112,7 @@ def REPLMonitorAppCommand(appcmd, io=True, profile=False):
                 # Log format: <app.cmdname:arg1=3, arg2=4> entered
                 # EUDFuncN / AppMethod both case have their arguments at last
                 argnames = inspect.getfullargspec(old_func).args[1:]
-                Logger.format("<{}:{}> entered".format(
+                Logger.format("<{}/{}> entered".format(
                     func_name,
                     ", ".join(["{}=%D".format(name) for name in argnames])
                 ), *args)
@@ -130,9 +129,9 @@ def REPLMonitorAppCommand(appcmd, io=True, profile=False):
             fmtstring = "<{}> exited".format(func_name)
             args = []
             if profile:
-                tickdiff = REPLMonitorPop()
-                fmtstring += ", %D ms"
-                args += [tickdiff]
+                tickdiff, expected  = REPLMonitorPop()
+                fmtstring += ", %D ms (Expected %D)"
+                args += [tickdiff, expected]
 
             Logger.format(fmtstring, *args)
 
