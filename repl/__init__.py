@@ -71,12 +71,18 @@ from .monitor.profile import (
     REPLMonitorPop
 )
 
+from .monitor.func import (
+    REPLMonitorF,
+    REPLMonitorEUDFunc,
+    REPLMonitorAppMethod,
+    REPLMonitorAppCommand
+)
+
 from .apps import (
     StaticApp,
     ScrollApp,
     Logger,
     REPL,
-    IOCheck,
     ChatReaderApp,
     AIScriptSelectorApp,
     ModifierSelectorApp,
