@@ -1,0 +1,7 @@
+repl.utils.string module
+========================
+
+.. automodule:: repl.utils.string
+   :members:
+   :undoc-members:
+   :show-inheritance:

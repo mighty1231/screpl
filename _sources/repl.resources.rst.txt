@@ -1,0 +1,29 @@
+repl.resources package
+======================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   repl.resources.encoder
+   repl.resources.scmdtrigwriter
+   repl.resources.table
+   repl.resources.writer
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   repl.resources.offset
+
+Module contents
+---------------
+
+.. automodule:: repl.resources
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+repl.core.appmethod module
+==========================
+
+.. automodule:: repl.core.appmethod
+   :members:
+   :undoc-members:
+   :show-inheritance:

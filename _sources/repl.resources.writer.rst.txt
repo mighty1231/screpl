@@ -1,0 +1,19 @@
+repl.resources.writer package
+=============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   repl.resources.writer.action
+   repl.resources.writer.condition
+
+Module contents
+---------------
+
+.. automodule:: repl.resources.writer
+   :members:
+   :undoc-members:
+   :show-inheritance:

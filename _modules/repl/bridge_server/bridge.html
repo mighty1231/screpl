@@ -1,0 +1,340 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>repl.bridge_server.bridge &mdash; SC-REPL 1.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SC-REPL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SC-REPL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>repl.bridge_server.bridge</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for repl.bridge_server.bridge</h1><div class="highlight"><pre>
+<span></span><span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">Manager for all BridgeBlocks</span>
+
+<span class="sd">struct Block {</span>
+<span class="sd">    char signature[4];</span>
+<span class="sd">    int size;</span>
+<span class="sd">    char block[size]; // dynamic size</span>
+<span class="sd">}</span>
+
+<span class="sd">struct BridgeRegion {</span>
+<span class="sd">    char signature[160];</span>
+
+<span class="sd">    /* Too much milk solution #3, busy-waiting by A */</span>
+<span class="sd">    int noteToSC;</span>
+<span class="sd">    int noteFromSC;</span>
+<span class="sd">    int regionSize;</span>
+
+<span class="sd">    /* To SC */</span>
+<span class="sd">    char command[300];</span>
+
+<span class="sd">    /* From SC */</span>
+<span class="sd">    int frameCount;</span>
+
+<span class="sd">    DisplayBlock displayBlock;</span>
+<span class="sd">    LogBlock logBlock;</span>
+<span class="sd">    AppOutBlock appOutBlock;</span>
+
+<span class="sd">    ...other blocks...</span>
+<span class="sd">}</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.block</span> <span class="kn">import</span> <span class="n">BridgeBlock</span>
+<span class="kn">from</span> <span class="nn">.signature</span> <span class="kn">import</span> <span class="n">deadSign</span><span class="p">,</span> <span class="n">f_restoreSign</span>
+<span class="kn">from</span> <span class="nn">..apps</span> <span class="kn">import</span> <span class="n">Logger</span>
+<span class="kn">from</span> <span class="nn">..core</span> <span class="kn">import</span> <span class="n">getAppManager</span>
+
+<div class="viewcode-block" id="BridgeRegion"><a class="viewcode-back" href="../../../repl.bridge_server.bridge.html#repl.bridge_server.bridge.BridgeRegion">[docs]</a><span class="k">class</span> <span class="nc">BridgeRegion</span><span class="p">(</span><span class="n">EUDObject</span><span class="p">):</span>
+    <span class="n">_signature_</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;BRID&#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">off_noteToBridge</span>   <span class="o">=</span> <span class="bp">self</span> <span class="o">+</span> <span class="mi">160</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">off_noteFromBridge</span> <span class="o">=</span> <span class="bp">self</span> <span class="o">+</span> <span class="mi">164</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">off_regionSize</span>     <span class="o">=</span> <span class="bp">self</span> <span class="o">+</span> <span class="mi">168</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">off_command</span>        <span class="o">=</span> <span class="bp">self</span> <span class="o">+</span> <span class="mi">172</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">off_frameCount</span>     <span class="o">=</span> <span class="bp">self</span> <span class="o">+</span> <span class="mi">472</span>
+
+<div class="viewcode-block" id="BridgeRegion.AddBlock"><a class="viewcode-back" href="../../../repl.bridge_server.bridge.html#repl.bridge_server.bridge.BridgeRegion.AddBlock">[docs]</a>    <span class="k">def</span> <span class="nf">AddBlock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blockcls</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">blockcls</span><span class="p">,</span> <span class="n">BridgeBlock</span><span class="p">)</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="n">blockcls</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">block</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BridgeRegion.UpdateContent"><a class="viewcode-back" href="../../../repl.bridge_server.bridge.html#repl.bridge_server.bridge.BridgeRegion.UpdateContent">[docs]</a>    <span class="k">def</span> <span class="nf">UpdateContent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1">############# from bridge ###############</span>
+        <span class="c1"># read command</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">Memory</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">off_command</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+            <span class="n">f_repmovsd_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">buf_command</span><span class="p">),</span> <span class="n">EPD</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">off_command</span><span class="p">),</span> <span class="mi">300</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span>
+
+            <span class="c1"># notify command is read</span>
+            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">off_command</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="c1">############## to bridge ################</span>
+        <span class="c1"># frame Count</span>
+        <span class="n">SeqCompute</span><span class="p">([</span>
+            <span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">off_frameCount</span><span class="p">),</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">getAppManager</span><span class="p">()</span><span class="o">.</span><span class="n">current_frame_number</span><span class="p">)</span>
+        <span class="p">])</span>
+
+        <span class="c1"># update blocks</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
+            <span class="n">b</span><span class="o">.</span><span class="n">UpdateContent</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BridgeRegion.Evaluate"><a class="viewcode-back" href="../../../repl.bridge_server.bridge.html#repl.bridge_server.bridge.BridgeRegion.Evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">Evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">Evaluate</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="BridgeRegion.GetBlockAddr"><a class="viewcode-back" href="../../../repl.bridge_server.bridge.html#repl.bridge_server.bridge.BridgeRegion.GetBlockAddr">[docs]</a>    <span class="k">def</span> <span class="nf">GetBlockAddr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+        <span class="n">offset</span> <span class="o">=</span> <span class="mi">160</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">300</span> <span class="o">+</span> <span class="mi">4</span>
+        <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">b</span> <span class="ow">is</span> <span class="n">block</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">Evaluate</span><span class="p">()</span> <span class="o">+</span> <span class="n">offset</span>
+            <span class="n">offset</span> <span class="o">+=</span> <span class="n">b</span><span class="o">.</span><span class="n">GetBufferSize</span><span class="p">()</span> <span class="o">+</span> <span class="mi">8</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span></div>
+
+<div class="viewcode-block" id="BridgeRegion.GetDataSize"><a class="viewcode-back" href="../../../repl.bridge_server.bridge.html#repl.bridge_server.bridge.BridgeRegion.GetDataSize">[docs]</a>    <span class="k">def</span> <span class="nf">GetDataSize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="mi">160</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="mi">3</span> <span class="o">+</span> <span class="mi">300</span> <span class="o">+</span> <span class="mi">4</span>
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
+            <span class="n">size</span> <span class="o">+=</span> <span class="n">block</span><span class="o">.</span><span class="n">GetBufferSize</span><span class="p">()</span> <span class="o">+</span> <span class="mi">8</span>
+        <span class="k">return</span> <span class="n">size</span></div>
+
+<div class="viewcode-block" id="BridgeRegion.CollectDependency"><a class="viewcode-back" href="../../../repl.bridge_server.bridge.html#repl.bridge_server.bridge.BridgeRegion.CollectDependency">[docs]</a>    <span class="k">def</span> <span class="nf">CollectDependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">emitbuffer</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
+            <span class="n">block</span><span class="o">.</span><span class="n">CollectDependency</span><span class="p">(</span><span class="n">emitbuffer</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="BridgeRegion.WritePayload"><a class="viewcode-back" href="../../../repl.bridge_server.bridge.html#repl.bridge_server.bridge.BridgeRegion.WritePayload">[docs]</a>    <span class="k">def</span> <span class="nf">WritePayload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">emitbuffer</span><span class="p">):</span>
+        <span class="n">emitbuffer</span><span class="o">.</span><span class="n">WriteBytes</span><span class="p">(</span><span class="n">deadSign</span><span class="p">)</span>
+        <span class="n">emitbuffer</span><span class="o">.</span><span class="n">WriteDword</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">emitbuffer</span><span class="o">.</span><span class="n">WriteDword</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">emitbuffer</span><span class="o">.</span><span class="n">WriteDword</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GetDataSize</span><span class="p">())</span>
+
+        <span class="n">emitbuffer</span><span class="o">.</span><span class="n">WriteBytes</span><span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="mi">300</span><span class="p">))</span>
+        <span class="n">emitbuffer</span><span class="o">.</span><span class="n">WriteDword</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
+            <span class="n">block</span><span class="o">.</span><span class="n">WritePayload</span><span class="p">(</span><span class="n">emitbuffer</span><span class="p">)</span></div></div>
+
+<span class="n">region</span> <span class="o">=</span> <span class="n">BridgeRegion</span><span class="p">()</span>
+<span class="n">buf_command</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">300</span><span class="p">)</span>
+
+<div class="viewcode-block" id="bridge_init"><a class="viewcode-back" href="../../../repl.bridge_server.bridge.html#repl.bridge_server.bridge.bridge_init">[docs]</a><span class="k">def</span> <span class="nf">bridge_init</span><span class="p">():</span>
+    <span class="kn">from</span> <span class="nn">.gametext</span> <span class="kn">import</span> <span class="n">GameTextBlock</span>
+    <span class="kn">from</span> <span class="nn">.blindmode</span> <span class="kn">import</span> <span class="n">BlindModeDisplayBlock</span>
+    <span class="kn">from</span> <span class="nn">.logger</span> <span class="kn">import</span> <span class="n">LoggerBlock</span>
+    <span class="kn">from</span> <span class="nn">.appoutput</span> <span class="kn">import</span> <span class="n">AppOutputBlock</span>
+    <span class="kn">from</span> <span class="nn">.profile</span> <span class="kn">import</span> <span class="n">ProfileBlock</span>
+
+    <span class="n">region</span><span class="o">.</span><span class="n">AddBlock</span><span class="p">(</span><span class="n">GameTextBlock</span><span class="p">)</span>
+    <span class="n">region</span><span class="o">.</span><span class="n">AddBlock</span><span class="p">(</span><span class="n">LoggerBlock</span><span class="p">)</span>
+    <span class="n">region</span><span class="o">.</span><span class="n">AddBlock</span><span class="p">(</span><span class="n">AppOutputBlock</span><span class="p">)</span>
+    <span class="n">region</span><span class="o">.</span><span class="n">AddBlock</span><span class="p">(</span><span class="n">BlindModeDisplayBlock</span><span class="p">)</span>
+    <span class="n">region</span><span class="o">.</span><span class="n">AddBlock</span><span class="p">(</span><span class="n">ProfileBlock</span><span class="p">)</span>
+
+    <span class="n">Logger</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;Bridge region ptr = %H, size = %D&quot;</span><span class="p">,</span>
+        <span class="n">EUDVariable</span><span class="p">(</span><span class="n">region</span><span class="p">),</span>
+        <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">region</span> <span class="o">+</span> <span class="mi">160</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">+</span> <span class="mi">4</span><span class="p">))</span>
+    <span class="p">)</span></div>
+
+<div class="viewcode-block" id="bridge_loop"><a class="viewcode-back" href="../../../repl.bridge_server.bridge.html#repl.bridge_server.bridge.bridge_loop">[docs]</a><span class="k">def</span> <span class="nf">bridge_loop</span><span class="p">():</span>
+    <span class="n">appManager</span> <span class="o">=</span> <span class="n">getAppManager</span><span class="p">()</span>
+
+    <span class="c1"># Too-much milk solution #3</span>
+    <span class="c1"># attach note</span>
+    <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">off_noteToBridge</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">Memory</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">off_noteFromBridge</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+        <span class="c1"># during note be attached, operations should be minimized</span>
+        <span class="n">region</span><span class="o">.</span><span class="n">UpdateContent</span><span class="p">()</span>
+    <span class="n">EUDEndIf</span><span class="p">()</span>
+
+    <span class="c1"># remove note</span>
+    <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">region</span><span class="o">.</span><span class="n">off_noteToBridge</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+    <span class="c1"># keep signature (make bridge to know REPL is alive)</span>
+    <span class="n">f_restoreSign</span><span class="p">(</span><span class="n">region</span><span class="p">)</span>
+
+    <span class="c1"># command from bridge client</span>
+    <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">Memory</span><span class="p">(</span><span class="n">buf_command</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+        <span class="n">appManager</span><span class="o">.</span><span class="n">current_app_instance</span><span class="o">.</span><span class="n">onChat</span><span class="p">(</span><span class="n">buf_command</span><span class="p">)</span>
+        <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">buf_command</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">EUDEndIf</span><span class="p">()</span></div>
+
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright mighty1231
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

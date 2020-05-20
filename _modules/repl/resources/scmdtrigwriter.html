@@ -1,0 +1,324 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>repl.resources.scmdtrigwriter &mdash; SC-REPL 1.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SC-REPL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SC-REPL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>repl.resources.scmdtrigwriter</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for repl.resources.scmdtrigwriter</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">_writer</span> <span class="o">=</span> <span class="kc">None</span>
+<div class="viewcode-block" id="getWriter"><a class="viewcode-back" href="../../../repl.resources.scmdtrigwriter.html#repl.resources.scmdtrigwriter.getWriter">[docs]</a><span class="k">def</span> <span class="nf">getWriter</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">_writer</span>
+    <span class="k">if</span> <span class="n">_writer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span> <span class="nn">...core</span> <span class="kn">import</span> <span class="n">getAppManager</span>
+        <span class="n">_writer</span> <span class="o">=</span> <span class="n">getAppManager</span><span class="p">()</span><span class="o">.</span><span class="n">getWriter</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">_writer</span></div>
+
+<div class="viewcode-block" id="makeSCMDConstWriter"><a class="viewcode-back" href="../../../repl.resources.scmdtrigwriter.html#repl.resources.scmdtrigwriter.makeSCMDConstWriter">[docs]</a><span class="k">def</span> <span class="nf">makeSCMDConstWriter</span><span class="p">(</span><span class="n">encoder</span><span class="p">,</span> <span class="n">kvmap</span><span class="p">):</span>
+    <span class="nd">@EUDFunc</span>
+    <span class="k">def</span> <span class="nf">writeVar</span><span class="p">(</span><span class="n">var</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">kvmap</span><span class="p">):</span>
+            <span class="n">_br</span> <span class="o">=</span> <span class="n">EUDIf</span> <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">EUDElseIf</span>
+            <span class="n">_br</span><span class="p">()(</span><span class="n">var</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">encoder</span><span class="p">(</span><span class="n">k</span><span class="p">)))</span>
+            <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+        <span class="n">EUDElse</span><span class="p">()()</span>
+        <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+            <span class="n">writeVar</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">kvmap</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">encoder</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="o">==</span> <span class="n">encoder</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+                    <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                    <span class="k">return</span>
+            <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">encoder</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">write</span></div>
+
+<div class="viewcode-block" id="SCMDWriteNumber"><a class="viewcode-back" href="../../../repl.resources.scmdtrigwriter.html#repl.resources.scmdtrigwriter.SCMDWriteNumber">[docs]</a><span class="k">def</span> <span class="nf">SCMDWriteNumber</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="writeTrigger"><a class="viewcode-back" href="../../../repl.resources.scmdtrigwriter.html#repl.resources.scmdtrigwriter.writeTrigger">[docs]</a><span class="k">def</span> <span class="nf">writeTrigger</span><span class="p">(</span><span class="n">player</span><span class="p">,</span> <span class="n">conditions</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">preserved</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="kn">from</span> <span class="nn">.condition</span> <span class="kn">import</span> <span class="n">SCMDWriteCondition</span>
+    <span class="kn">from</span> <span class="nn">.action</span> <span class="kn">import</span> <span class="n">SCMDWriteAction</span><span class="p">,</span> <span class="n">SCMDWriteAction_epd</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    actions = [SetDeaths(~~), SetDeaths(~~), ...]</span>
+<span class="sd">    or</span>
+<span class="sd">    actions = (EUDVariable(2), action_array_epd)</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+
+    <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">&quot;Trigger(&quot;</span><span class="p">)</span>
+    <span class="n">SCMDWritePlayer</span><span class="p">(</span><span class="n">player</span><span class="p">)</span>
+
+    <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">&quot;){</span><span class="se">\n</span><span class="s2">Conditions:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">cond</span> <span class="ow">in</span> <span class="n">conditions</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+            <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="o">*</span><span class="n">cond</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span> <span class="o">==</span> <span class="n">Condition</span><span class="p">:</span>
+            <span class="n">SCMDWriteCondition</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown type condition </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cond</span><span class="p">))</span>
+
+    <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Actions:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">actions</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">act</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">act</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">:</span>
+                <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="n">act</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">act</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">:</span>
+                <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="o">*</span><span class="n">act</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">type</span><span class="p">(</span><span class="n">act</span><span class="p">)</span> <span class="o">==</span> <span class="n">Action</span><span class="p">:</span>
+                <span class="n">SCMDWriteAction</span><span class="p">(</span><span class="n">act</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown type action </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">act</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">actcount</span><span class="p">,</span> <span class="n">act_epd</span> <span class="o">=</span> <span class="n">actions</span>
+
+        <span class="n">cur_epd</span><span class="p">,</span> <span class="n">end_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(),</span> <span class="n">EUDVariable</span><span class="p">()</span>
+        <span class="n">cur_epd</span> <span class="o">&lt;&lt;</span> <span class="n">act_epd</span>
+        <span class="n">end_epd</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">act_epd</span> <span class="o">+</span> <span class="p">(</span><span class="mi">32</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="n">actcount</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+            <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cur_epd</span> <span class="o">&gt;=</span> <span class="n">end_epd</span><span class="p">)</span>
+
+            <span class="n">SCMDWriteAction_epd</span><span class="p">(</span><span class="n">cur_epd</span><span class="p">)</span>
+            <span class="n">cur_epd</span> <span class="o">+=</span> <span class="p">(</span><span class="mi">32</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span>
+        <span class="n">EUDEndInfLoop</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">preserved</span><span class="p">:</span>
+        <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">&quot;Preserve Trigger();</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">&quot;}</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+<span class="n">SCMDWritePlayer</span> <span class="o">=</span> <span class="n">makeSCMDConstWriter</span><span class="p">(</span><span class="n">EncodePlayer</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">Player1</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">Player 1</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Player2</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">Player 2</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Player3</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">Player 3</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Player4</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">Player 4</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Player5</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">Player 5</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Player6</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">Player 6</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Player7</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">Player 7</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Player8</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">Player 8</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Player12</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">Player 12</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Force1</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">Force 1</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Force2</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">Force 2</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Force3</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">Force 3</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Force4</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">Force 4</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">AllPlayers</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">All Players</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">CurrentPlayer</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2">Current Player</span><span class="se">\&quot;</span><span class="s2">&quot;</span><span class="p">),</span>
+<span class="p">])</span>
+
+<span class="n">SCMDWriteModifier</span> <span class="o">=</span> <span class="n">makeSCMDConstWriter</span><span class="p">(</span><span class="n">EncodeModifier</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">SetTo</span><span class="p">,</span> <span class="s2">&quot;Set To&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Add</span><span class="p">,</span> <span class="s2">&quot;Add&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Subtract</span><span class="p">,</span> <span class="s2">&quot;Subtract&quot;</span><span class="p">)</span>
+<span class="p">])</span>
+
+<span class="n">SCMDWriteComparison</span> <span class="o">=</span> <span class="n">makeSCMDConstWriter</span><span class="p">(</span><span class="n">EncodeComparison</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">AtLeast</span><span class="p">,</span> <span class="s2">&quot;At least&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">AtMost</span><span class="p">,</span> <span class="s2">&quot;At most&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Exactly</span><span class="p">,</span> <span class="s2">&quot;Exactly&quot;</span><span class="p">),</span>
+<span class="p">])</span>
+
+<span class="n">SCMDWriteOrder</span> <span class="o">=</span> <span class="n">makeSCMDConstWriter</span><span class="p">(</span><span class="n">EncodeOrder</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">Move</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Patrol</span><span class="p">,</span> <span class="s2">&quot;patrol&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Attack</span><span class="p">,</span> <span class="s2">&quot;attack&quot;</span><span class="p">),</span>
+<span class="p">])</span>
+
+<span class="n">SCMDWriteScore</span> <span class="o">=</span> <span class="n">makeSCMDConstWriter</span><span class="p">(</span><span class="n">EncodeScore</span><span class="p">,</span> <span class="p">[</span>
+    <span class="p">(</span><span class="n">Total</span><span class="p">,</span> <span class="s2">&quot;Total&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Units</span><span class="p">,</span> <span class="s2">&quot;Units&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Buildings</span><span class="p">,</span> <span class="s2">&quot;Buildings&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">UnitsAndBuildings</span><span class="p">,</span> <span class="s2">&quot;Units and buildings&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Kills</span><span class="p">,</span> <span class="s2">&quot;Kills&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Razings</span><span class="p">,</span> <span class="s2">&quot;Razings&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">KillsAndRazings</span><span class="p">,</span> <span class="s2">&quot;Kills and razings&quot;</span><span class="p">),</span>
+    <span class="p">(</span><span class="n">Custom</span><span class="p">,</span> <span class="s2">&quot;Custom&quot;</span><span class="p">),</span>
+<span class="p">])</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright mighty1231
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

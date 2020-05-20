@@ -1,0 +1,950 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>repl.utils.condactpywriter &mdash; SC-REPL 1.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SC-REPL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SC-REPL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>repl.utils.condactpywriter</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for repl.utils.condactpywriter</h1><div class="highlight"><pre>
+<span></span><span class="n">condstr</span> <span class="o">=</span> \
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">def CountdownTimer(Comparison, Time):</span>
+<span class="sd">    Comparison = EncodeComparison(Comparison, issueError=True)</span>
+<span class="sd">    return Condition(0, 0, Time, 0, Comparison, 1, 0, 0)</span>
+
+<span class="sd">def Command(Player, Comparison, Number, Unit):</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    Comparison = EncodeComparison(Comparison, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    return Condition(0, Player, Number, Unit, Comparison, 2, 0, 0)</span>
+
+<span class="sd">def Bring(Player, Comparison, Number, Unit, Location):</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    Comparison = EncodeComparison(Comparison, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Location = EncodeLocation(Location, issueError=True)</span>
+<span class="sd">    return Condition(Location, Player, Number, Unit, Comparison, 3, 0, 0)</span>
+
+<span class="sd">def Accumulate(Player, Comparison, Number, ResourceType):</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    Comparison = EncodeComparison(Comparison, issueError=True)</span>
+<span class="sd">    ResourceType = EncodeResource(ResourceType, issueError=True)</span>
+<span class="sd">    return Condition(0, Player, Number, 0, Comparison, 4, ResourceType, 0)</span>
+
+<span class="sd">def Kills(Player, Comparison, Number, Unit):</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    Comparison = EncodeComparison(Comparison, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    return Condition(0, Player, Number, Unit, Comparison, 5, 0, 0)</span>
+
+<span class="sd">def CommandMost(Unit):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    return Condition(0, 0, 0, Unit, 0, 6, 0, 0)</span>
+
+<span class="sd">def CommandMostAt(Unit, Location):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Location = EncodeLocation(Location, issueError=True)</span>
+<span class="sd">    return Condition(Location, 0, 0, Unit, 0, 7, 0, 0)</span>
+
+<span class="sd">def MostKills(Unit):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    return Condition(0, 0, 0, Unit, 0, 8, 0, 0)</span>
+
+<span class="sd">def HighestScore(ScoreType):</span>
+<span class="sd">    ScoreType = EncodeScore(ScoreType, issueError=True)</span>
+<span class="sd">    return Condition(0, 0, 0, 0, 0, 9, ScoreType, 0)</span>
+
+<span class="sd">def MostResources(ResourceType):</span>
+<span class="sd">    ResourceType = EncodeResource(ResourceType, issueError=True)</span>
+<span class="sd">    return Condition(0, 0, 0, 0, 0, 10, ResourceType, 0)</span>
+
+<span class="sd">def Switch(Switch, State):</span>
+<span class="sd">    Switch = EncodeSwitch(Switch, issueError=True)</span>
+<span class="sd">    State = EncodeSwitchState(State, issueError=True)</span>
+<span class="sd">    return Condition(0, 0, 0, 0, State, 11, Switch, 0)</span>
+
+<span class="sd">def ElapsedTime(Comparison, Time):</span>
+<span class="sd">    Comparison = EncodeComparison(Comparison, issueError=True)</span>
+<span class="sd">    return Condition(0, 0, Time, 0, Comparison, 12, 0, 0)</span>
+
+<span class="sd">def Opponents(Player, Comparison, Number):</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    Comparison = EncodeComparison(Comparison, issueError=True)</span>
+<span class="sd">    return Condition(0, Player, Number, 0, Comparison, 14, 0, 0)</span>
+
+<span class="sd">def Deaths(Player, Comparison, Number, Unit):</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    Comparison = EncodeComparison(Comparison, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    return Condition(0, Player, Number, Unit, Comparison, 15, 0, 0)</span>
+
+<span class="sd">def CommandLeast(Unit):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    return Condition(0, 0, 0, Unit, 0, 16, 0, 0)</span>
+
+<span class="sd">def CommandLeastAt(Unit, Location):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Location = EncodeLocation(Location, issueError=True)</span>
+<span class="sd">    return Condition(Location, 0, 0, Unit, 0, 17, 0, 0)</span>
+
+<span class="sd">def LeastKills(Unit):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    return Condition(0, 0, 0, Unit, 0, 18, 0, 0)</span>
+
+<span class="sd">def LowestScore(ScoreType):</span>
+<span class="sd">    ScoreType = EncodeScore(ScoreType, issueError=True)</span>
+<span class="sd">    return Condition(0, 0, 0, 0, 0, 19, ScoreType, 0)</span>
+
+<span class="sd">def LeastResources(ResourceType):</span>
+<span class="sd">    ResourceType = EncodeResource(ResourceType, issueError=True)</span>
+<span class="sd">    return Condition(0, 0, 0, 0, 0, 20, ResourceType, 0)</span>
+
+<span class="sd">def Score(Player, ScoreType, Comparison, Number):</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    ScoreType = EncodeScore(ScoreType, issueError=True)</span>
+<span class="sd">    Comparison = EncodeComparison(Comparison, issueError=True)</span>
+<span class="sd">    return Condition(0, Player, Number, 0, Comparison, 21, ScoreType, 0)</span>
+
+<span class="sd">def Always():</span>
+<span class="sd">    return Condition(0, 0, 0, 0, 0, 22, 0, 0)</span>
+
+<span class="sd">def Never():</span>
+<span class="sd">    return Condition(0, 0, 0, 0, 0, 23, 0, 0)</span>
+
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="c1"># Something specials</span>
+<span class="n">condstr2</span> <span class="o">=</span> \
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">def DeathsX(Player, Comparison, Number, Unit, Mask):</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    Comparison = EncodeComparison(Comparison, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    return Condition(Mask, Player, Number, Unit, Comparison, 15, 0, 0, eudx=True)</span>
+
+<span class="sd">def Memory(dest, cmptype, value):</span>
+<span class="sd">    return Deaths(EPD(dest), cmptype, value, 0)</span>
+
+<span class="sd">def MemoryEPD(dest, cmptype, value):</span>
+<span class="sd">    return Deaths(dest, cmptype, value, 0)</span>
+
+<span class="sd">def MemoryX(dest, cmptype, value, mask):</span>
+<span class="sd">    return DeathsX(EPD(dest), cmptype, value, 0, mask)</span>
+
+<span class="sd">def MemoryXEPD(dest, cmptype, value, mask):</span>
+<span class="sd">    return DeathsX(dest, cmptype, value, 0, mask)</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="n">actstr</span> <span class="o">=</span> \
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="sd">def Victory():</span>
+<span class="sd">    return Action(0, 0, 0, 0, 0, 0, 0, 1, 0, 4)</span>
+
+
+<span class="sd">def Defeat():</span>
+<span class="sd">    return Action(0, 0, 0, 0, 0, 0, 0, 2, 0, 4)</span>
+
+
+<span class="sd">def PreserveTrigger():</span>
+<span class="sd">    return Action(0, 0, 0, 0, 0, 0, 0, 3, 0, 4)</span>
+
+
+<span class="sd">def Wait(Time):</span>
+<span class="sd">    return Action(0, 0, 0, Time, 0, 0, 0, 4, 0, 4)</span>
+
+
+<span class="sd">def PauseGame():</span>
+<span class="sd">    return Action(0, 0, 0, 0, 0, 0, 0, 5, 0, 4)</span>
+
+
+<span class="sd">def UnpauseGame():</span>
+<span class="sd">    return Action(0, 0, 0, 0, 0, 0, 0, 6, 0, 4)</span>
+
+
+<span class="sd">def Transmission(Unit, Where, WAVName, TimeModifier, Time, Text, AlwaysDisplay):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    WAVName = EncodeString(WAVName, issueError=True)</span>
+<span class="sd">    TimeModifier = EncodeModifier(TimeModifier, issueError=True)</span>
+<span class="sd">    Text = EncodeString(Text, issueError=True)</span>
+<span class="sd">    return Action(Where, Text, WAVName, Time, 0, 0, Unit, 7, TimeModifier, AlwaysDisplay)</span>
+
+
+<span class="sd">def PlayWAV(WAVName):</span>
+<span class="sd">    WAVName = EncodeString(WAVName, issueError=True)</span>
+<span class="sd">    return Action(0, 0, WAVName, 0, 0, 0, 0, 8, 0, 4)</span>
+
+
+<span class="sd">def DisplayText(Text, AlwaysDisplay):</span>
+<span class="sd">    Text = EncodeString(Text, issueError=True)</span>
+<span class="sd">    return Action(0, Text, 0, 0, 0, 0, 0, 9, 0, AlwaysDisplay)</span>
+
+
+<span class="sd">def CenterView(Where):</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    return Action(Where, 0, 0, 0, 0, 0, 0, 10, 0, 4)</span>
+
+
+<span class="sd">def CreateUnitWithProperties(Count, Unit, Where, Player, Properties):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    Properties = EncodeProperty(Properties, issueError=True)</span>
+<span class="sd">    return Action(Where, 0, 0, 0, Player, Properties, Unit, 11, Count, 28)</span>
+
+
+<span class="sd">def SetMissionObjectives(Text):</span>
+<span class="sd">    Text = EncodeString(Text, issueError=True)</span>
+<span class="sd">    return Action(0, Text, 0, 0, 0, 0, 0, 12, 0, 4)</span>
+
+
+<span class="sd">def SetSwitch(Switch, State):</span>
+<span class="sd">    Switch = EncodeSwitch(Switch, issueError=True)</span>
+<span class="sd">    State = EncodeSwitchAction(State, issueError=True)</span>
+<span class="sd">    return Action(0, 0, 0, 0, 0, Switch, 0, 13, State, 4)</span>
+
+
+<span class="sd">def SetCountdownTimer(TimeModifier, Time):</span>
+<span class="sd">    TimeModifier = EncodeModifier(TimeModifier, issueError=True)</span>
+<span class="sd">    return Action(0, 0, 0, Time, 0, 0, 0, 14, TimeModifier, 4)</span>
+
+
+<span class="sd">def RunAIScript(Script):</span>
+<span class="sd">    Script = EncodeAIScript(Script, issueError=True)</span>
+<span class="sd">    return Action(0, 0, 0, 0, 0, Script, 0, 15, 0, 4)</span>
+
+
+<span class="sd">def RunAIScriptAt(Script, Where):</span>
+<span class="sd">    Script = EncodeAIScript(Script, issueError=True)</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    return Action(Where, 0, 0, 0, 0, Script, 0, 16, 0, 4)</span>
+
+
+<span class="sd">def LeaderBoardControl(Unit, Label):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Label = EncodeString(Label, issueError=True)</span>
+<span class="sd">    return Action(0, Label, 0, 0, 0, 0, Unit, 17, 0, 20)</span>
+
+
+<span class="sd">def LeaderBoardControlAt(Unit, Location, Label):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Location = EncodeLocation(Location, issueError=True)</span>
+<span class="sd">    Label = EncodeString(Label, issueError=True)</span>
+<span class="sd">    return Action(Location, Label, 0, 0, 0, 0, Unit, 18, 0, 20)</span>
+
+
+<span class="sd">def LeaderBoardResources(ResourceType, Label):</span>
+<span class="sd">    ResourceType = EncodeResource(ResourceType, issueError=True)</span>
+<span class="sd">    Label = EncodeString(Label, issueError=True)</span>
+<span class="sd">    return Action(0, Label, 0, 0, 0, 0, ResourceType, 19, 0, 4)</span>
+
+
+<span class="sd">def LeaderBoardKills(Unit, Label):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Label = EncodeString(Label, issueError=True)</span>
+<span class="sd">    return Action(0, Label, 0, 0, 0, 0, Unit, 20, 0, 20)</span>
+
+
+<span class="sd">def LeaderBoardScore(ScoreType, Label):</span>
+<span class="sd">    ScoreType = EncodeScore(ScoreType, issueError=True)</span>
+<span class="sd">    Label = EncodeString(Label, issueError=True)</span>
+<span class="sd">    return Action(0, Label, 0, 0, 0, 0, ScoreType, 21, 0, 4)</span>
+
+
+<span class="sd">def KillUnit(Unit, Player):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    return Action(0, 0, 0, 0, Player, 0, Unit, 22, 0, 20)</span>
+
+
+<span class="sd">def KillUnitAt(Count, Unit, Where, ForPlayer):</span>
+<span class="sd">    Count = EncodeCount(Count, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    ForPlayer = EncodePlayer(ForPlayer, issueError=True)</span>
+<span class="sd">    return Action(Where, 0, 0, 0, ForPlayer, 0, Unit, 23, Count, 20)</span>
+
+
+<span class="sd">def RemoveUnit(Unit, Player):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    return Action(0, 0, 0, 0, Player, 0, Unit, 24, 0, 20)</span>
+
+
+<span class="sd">def RemoveUnitAt(Count, Unit, Where, ForPlayer):</span>
+<span class="sd">    Count = EncodeCount(Count, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    ForPlayer = EncodePlayer(ForPlayer, issueError=True)</span>
+<span class="sd">    return Action(Where, 0, 0, 0, ForPlayer, 0, Unit, 25, Count, 20)</span>
+
+
+<span class="sd">def SetResources(Player, Modifier, Amount, ResourceType):</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    Modifier = EncodeModifier(Modifier, issueError=True)</span>
+<span class="sd">    ResourceType = EncodeResource(ResourceType, issueError=True)</span>
+<span class="sd">    return Action(0, 0, 0, 0, Player, Amount, ResourceType, 26, Modifier, 4)</span>
+
+
+<span class="sd">def SetScore(Player, Modifier, Amount, ScoreType):</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    Modifier = EncodeModifier(Modifier, issueError=True)</span>
+<span class="sd">    ScoreType = EncodeScore(ScoreType, issueError=True)</span>
+<span class="sd">    return Action(0, 0, 0, 0, Player, Amount, ScoreType, 27, Modifier, 4)</span>
+
+
+<span class="sd">def MinimapPing(Where):</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    return Action(Where, 0, 0, 0, 0, 0, 0, 28, 0, 4)</span>
+
+
+<span class="sd">def TalkingPortrait(Unit, Time):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    return Action(0, 0, 0, Time, 0, 0, Unit, 29, 0, 20)</span>
+
+
+<span class="sd">def MuteUnitSpeech():</span>
+<span class="sd">    return Action(0, 0, 0, 0, 0, 0, 0, 30, 0, 4)</span>
+
+
+<span class="sd">def UnMuteUnitSpeech():</span>
+<span class="sd">    return Action(0, 0, 0, 0, 0, 0, 0, 31, 0, 4)</span>
+
+
+<span class="sd">def LeaderBoardComputerPlayers(State):</span>
+<span class="sd">    State = EncodePropState(State, issueError=True)</span>
+<span class="sd">    return Action(0, 0, 0, 0, 0, 0, 0, 32, State, 4)</span>
+
+
+<span class="sd">def LeaderBoardGoalControl(Goal, Unit, Label):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Label = EncodeString(Label, issueError=True)</span>
+<span class="sd">    return Action(0, Label, 0, 0, 0, Goal, Unit, 33, 0, 20)</span>
+
+
+<span class="sd">def LeaderBoardGoalControlAt(Goal, Unit, Location, Label):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Location = EncodeLocation(Location, issueError=True)</span>
+<span class="sd">    Label = EncodeString(Label, issueError=True)</span>
+<span class="sd">    return Action(Location, Label, 0, 0, 0, Goal, Unit, 34, 0, 20)</span>
+
+
+<span class="sd">def LeaderBoardGoalResources(Goal, ResourceType, Label):</span>
+<span class="sd">    ResourceType = EncodeResource(ResourceType, issueError=True)</span>
+<span class="sd">    Label = EncodeString(Label, issueError=True)</span>
+<span class="sd">    return Action(0, Label, 0, 0, 0, Goal, ResourceType, 35, 0, 4)</span>
+
+
+<span class="sd">def LeaderBoardGoalKills(Goal, Unit, Label):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Label = EncodeString(Label, issueError=True)</span>
+<span class="sd">    return Action(0, Label, 0, 0, 0, Goal, Unit, 36, 0, 20)</span>
+
+
+<span class="sd">def LeaderBoardGoalScore(Goal, ScoreType, Label):</span>
+<span class="sd">    ScoreType = EncodeScore(ScoreType, issueError=True)</span>
+<span class="sd">    Label = EncodeString(Label, issueError=True)</span>
+<span class="sd">    return Action(0, Label, 0, 0, 0, Goal, ScoreType, 37, 0, 4)</span>
+
+
+<span class="sd">def MoveLocation(Location, OnUnit, Owner, DestLocation):</span>
+<span class="sd">    Location = EncodeLocation(Location, issueError=True)</span>
+<span class="sd">    OnUnit = EncodeUnit(OnUnit, issueError=True)</span>
+<span class="sd">    Owner = EncodePlayer(Owner, issueError=True)</span>
+<span class="sd">    DestLocation = EncodeLocation(DestLocation, issueError=True)</span>
+<span class="sd">    return Action(DestLocation, 0, 0, 0, Owner, Location, OnUnit, 38, 0, 20)</span>
+
+
+<span class="sd">def MoveUnit(Count, UnitType, Owner, StartLocation, DestLocation):</span>
+<span class="sd">    Count = EncodeCount(Count, issueError=True)</span>
+<span class="sd">    UnitType = EncodeUnit(UnitType, issueError=True)</span>
+<span class="sd">    Owner = EncodePlayer(Owner, issueError=True)</span>
+<span class="sd">    StartLocation = EncodeLocation(StartLocation, issueError=True)</span>
+<span class="sd">    DestLocation = EncodeLocation(DestLocation, issueError=True)</span>
+<span class="sd">    return Action(StartLocation, 0, 0, 0, Owner, DestLocation, UnitType, 39, Count, 20)</span>
+
+
+<span class="sd">def LeaderBoardGreed(Goal):</span>
+<span class="sd">    return Action(0, 0, 0, 0, 0, Goal, 0, 40, 0, 4)</span>
+
+
+<span class="sd">def SetNextScenario(ScenarioName):</span>
+<span class="sd">    ScenarioName = EncodeString(ScenarioName, issueError=True)</span>
+<span class="sd">    return Action(0, ScenarioName, 0, 0, 0, 0, 0, 41, 0, 4)</span>
+
+
+<span class="sd">def SetDoodadState(State, Unit, Owner, Where):</span>
+<span class="sd">    State = EncodePropState(State, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Owner = EncodePlayer(Owner, issueError=True)</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    return Action(Where, 0, 0, 0, Owner, 0, Unit, 42, State, 20)</span>
+
+
+<span class="sd">def SetInvincibility(State, Unit, Owner, Where):</span>
+<span class="sd">    State = EncodePropState(State, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Owner = EncodePlayer(Owner, issueError=True)</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    return Action(Where, 0, 0, 0, Owner, 0, Unit, 43, State, 20)</span>
+
+
+<span class="sd">def CreateUnit(Number, Unit, Where, ForPlayer):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    ForPlayer = EncodePlayer(ForPlayer, issueError=True)</span>
+<span class="sd">    return Action(Where, 0, 0, 0, ForPlayer, 0, Unit, 44, Number, 20)</span>
+
+
+<span class="sd">def SetDeaths(Player, Modifier, Number, Unit):</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    Modifier = EncodeModifier(Modifier, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    return Action(0, 0, 0, 0, Player, Number, Unit, 45, Modifier, 20)</span>
+
+
+<span class="sd">def Order(Unit, Owner, StartLocation, OrderType, DestLocation):</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Owner = EncodePlayer(Owner, issueError=True)</span>
+<span class="sd">    StartLocation = EncodeLocation(StartLocation, issueError=True)</span>
+<span class="sd">    OrderType = EncodeOrder(OrderType, issueError=True)</span>
+<span class="sd">    DestLocation = EncodeLocation(DestLocation, issueError=True)</span>
+<span class="sd">    return Action(StartLocation, 0, 0, 0, Owner, DestLocation, Unit, 46, OrderType, 20)</span>
+
+
+<span class="sd">def Comment(Text):</span>
+<span class="sd">    Text = EncodeString(Text, issueError=True)</span>
+<span class="sd">    return Action(0, Text, 0, 0, 0, 0, 0, 47, 0, 4)</span>
+
+
+<span class="sd">def GiveUnits(Count, Unit, Owner, Where, NewOwner):</span>
+<span class="sd">    Count = EncodeCount(Count, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Owner = EncodePlayer(Owner, issueError=True)</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    NewOwner = EncodePlayer(NewOwner, issueError=True)</span>
+<span class="sd">    return Action(Where, 0, 0, 0, Owner, NewOwner, Unit, 48, Count, 20)</span>
+
+
+<span class="sd">def ModifyUnitHitPoints(Count, Unit, Owner, Where, Percent):</span>
+<span class="sd">    Count = EncodeCount(Count, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Owner = EncodePlayer(Owner, issueError=True)</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    return Action(Where, 0, 0, 0, Owner, Percent, Unit, 49, Count, 20)</span>
+
+
+<span class="sd">def ModifyUnitEnergy(Count, Unit, Owner, Where, Percent):</span>
+<span class="sd">    Count = EncodeCount(Count, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Owner = EncodePlayer(Owner, issueError=True)</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    return Action(Where, 0, 0, 0, Owner, Percent, Unit, 50, Count, 20)</span>
+
+
+<span class="sd">def ModifyUnitShields(Count, Unit, Owner, Where, Percent):</span>
+<span class="sd">    Count = EncodeCount(Count, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Owner = EncodePlayer(Owner, issueError=True)</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    return Action(Where, 0, 0, 0, Owner, Percent, Unit, 51, Count, 20)</span>
+
+
+<span class="sd">def ModifyUnitResourceAmount(Count, Owner, Where, NewValue):</span>
+<span class="sd">    Count = EncodeCount(Count, issueError=True)</span>
+<span class="sd">    Owner = EncodePlayer(Owner, issueError=True)</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    return Action(Where, 0, 0, 0, Owner, NewValue, 0, 52, Count, 4)</span>
+
+
+<span class="sd">def ModifyUnitHangarCount(Add, Count, Unit, Owner, Where):</span>
+<span class="sd">    Count = EncodeCount(Count, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    Owner = EncodePlayer(Owner, issueError=True)</span>
+<span class="sd">    Where = EncodeLocation(Where, issueError=True)</span>
+<span class="sd">    return Action(Where, 0, 0, 0, Owner, Add, Unit, 53, Count, 20)</span>
+
+
+<span class="sd">def PauseTimer():</span>
+<span class="sd">    return Action(0, 0, 0, 0, 0, 0, 0, 54, 0, 4)</span>
+
+
+<span class="sd">def UnpauseTimer():</span>
+<span class="sd">    return Action(0, 0, 0, 0, 0, 0, 0, 55, 0, 4)</span>
+
+
+<span class="sd">def Draw():</span>
+<span class="sd">    return Action(0, 0, 0, 0, 0, 0, 0, 56, 0, 4)</span>
+
+
+<span class="sd">def SetAllianceStatus(Player, Status):</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    Status = EncodeAllyStatus(Status, issueError=True)</span>
+<span class="sd">    return Action(0, 0, 0, 0, Player, 0, Status, 57, 0, 4)</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+<span class="n">actstr2</span> <span class="o">=</span> \
+<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">def SetMemory(dest, modtype, value):</span>
+<span class="sd">    modtype = EncodeModifier(modtype, issueError=True)</span>
+<span class="sd">    return Action(0, 0, 0, 0, EPD(dest), value, 0, 45, modtype, 20)</span>
+
+
+<span class="sd">def SetMemoryEPD(dest, modtype, value):</span>
+<span class="sd">    dest = EncodePlayer(dest, issueError=True)</span>
+<span class="sd">    modtype = EncodeModifier(modtype, issueError=True)</span>
+<span class="sd">    return Action(0, 0, 0, 0, dest, value, 0, 45, modtype, 20)</span>
+
+
+<span class="sd">def SetNextPtr(trg, dest):</span>
+<span class="sd">    return SetMemory(trg + 4, 7, dest)</span>
+
+
+<span class="sd">def SetDeathsX(Player, Modifier, Number, Unit, Mask):</span>
+<span class="sd">    Player = EncodePlayer(Player, issueError=True)</span>
+<span class="sd">    Modifier = EncodeModifier(Modifier, issueError=True)</span>
+<span class="sd">    Unit = EncodeUnit(Unit, issueError=True)</span>
+<span class="sd">    return Action(Mask, 0, 0, 0, Player, Number, Unit, 45, Modifier, 20, eudx=True)</span>
+
+
+<span class="sd">def SetMemoryX(dest, modtype, value, mask):</span>
+<span class="sd">    modtype = EncodeModifier(modtype, issueError=True)</span>
+<span class="sd">    return Action(mask, 0, 0, 0, EPD(dest), value, 0, 45, modtype, 20, eudx=True)</span>
+
+
+<span class="sd">def SetMemoryXEPD(dest, modtype, value, mask):</span>
+<span class="sd">    dest = EncodePlayer(dest, issueError=True)</span>
+<span class="sd">    modtype = EncodeModifier(modtype, issueError=True)</span>
+<span class="sd">    return Action(mask, 0, 0, 0, dest, value, 0, 45, modtype, 20, eudx=True)</span>
+<span class="sd">&#39;&#39;&#39;</span>
+
+
+<div class="viewcode-block" id="Cond"><a class="viewcode-back" href="../../../repl.utils.condactpywriter.html#repl.utils.condactpywriter.Cond">[docs]</a><span class="k">class</span> <span class="nc">Cond</span><span class="p">:</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">codedict</span><span class="p">,</span> <span class="n">condargs</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		name: name of condition</span>
+<span class="sd">		args: list of str, arg names on each stockcond</span>
+<span class="sd">		codedict: dict args-&gt;encoding/decoding name</span>
+<span class="sd">		condargs: list of str/int, args to Condition</span>
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">codedict</span> <span class="o">=</span> <span class="n">codedict</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">condargs</span> <span class="o">=</span> <span class="n">condargs</span>
+
+		<span class="k">assert</span> <span class="nb">all</span><span class="p">([</span><span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">codedict</span><span class="p">]),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">codedict</span><span class="p">)</span>
+		<span class="k">assert</span> <span class="nb">all</span><span class="p">([</span><span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">condargs</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">])</span>
+
+	<span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">(</span><span class="si">{}</span><span class="s1">) = Condition(</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+			<span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">codedict</span><span class="p">[</span><span class="n">a</span><span class="p">])</span> \
+				<span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">codedict</span> \
+				<span class="k">else</span> <span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">]),</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">condargs</span>
+		<span class="p">)</span>
+		<span class="k">return</span> <span class="n">s</span></div>
+
+<div class="viewcode-block" id="Act"><a class="viewcode-back" href="../../../repl.utils.condactpywriter.html#repl.utils.condactpywriter.Act">[docs]</a><span class="k">class</span> <span class="nc">Act</span><span class="p">:</span>
+	<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">codedict</span><span class="p">,</span> <span class="n">actargs</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		name: name of action</span>
+<span class="sd">		args: list of str, arg names on each stockcond</span>
+<span class="sd">		codedict: dict args-&gt;encoding/decoding name</span>
+<span class="sd">		actargs: list of str/int, args to Action</span>
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">codedict</span> <span class="o">=</span> <span class="n">codedict</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">actargs</span> <span class="o">=</span> <span class="n">actargs</span>
+
+		<span class="k">assert</span> <span class="nb">all</span><span class="p">([</span><span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">codedict</span><span class="p">]),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">codedict</span><span class="p">)</span>
+		<span class="k">assert</span> <span class="nb">all</span><span class="p">([</span><span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">actargs</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">str</span><span class="p">]),</span> <span class="n">actargs</span>
+
+	<span class="k">def</span> <span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{}</span><span class="s1">(</span><span class="si">{}</span><span class="s1">) = Action(</span><span class="si">{}</span><span class="s1">)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+			<span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s1">&#39;</span><span class="si">{}</span><span class="s1">:</span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">codedict</span><span class="p">[</span><span class="n">a</span><span class="p">])</span> \
+				<span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">codedict</span> \
+				<span class="k">else</span> <span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">]),</span>
+			<span class="bp">self</span><span class="o">.</span><span class="n">actargs</span>
+		<span class="p">)</span>
+		<span class="k">return</span> <span class="n">s</span></div>
+
+<span class="k">def</span> <span class="nf">_condparse</span><span class="p">():</span>
+	<span class="k">global</span> <span class="n">condstr</span>
+	<span class="n">conds</span> <span class="o">=</span> <span class="p">[]</span>
+	
+	<span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+	<span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">codedict</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">condstr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;def &#39;</span><span class="p">):</span>
+			<span class="c1"># Start of condition</span>
+			<span class="n">name</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)]</span>
+			<span class="n">_argpart</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span> <span class="p">:</span> <span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">)]</span>
+			<span class="n">_args</span> <span class="o">=</span> <span class="n">_argpart</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+			<span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span><span class="n">t</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">_args</span><span class="p">))</span>
+
+			<span class="k">if</span> <span class="n">args</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]:</span>
+				<span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;    return&#39;</span><span class="p">):</span>
+			<span class="c1"># wrap-up</span>
+			<span class="n">_argpart</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span> <span class="p">:</span> <span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">)]</span>
+			<span class="n">condargs</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">_argpart</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">):</span>
+				<span class="n">arg</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+				<span class="k">try</span><span class="p">:</span>
+					<span class="n">arg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+				<span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+					<span class="k">pass</span>
+				<span class="k">finally</span><span class="p">:</span>
+					<span class="n">condargs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+
+			<span class="n">conds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Cond</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">codedict</span><span class="p">,</span> <span class="n">condargs</span><span class="p">))</span>
+
+			<span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+			<span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="n">codedict</span> <span class="o">=</span> <span class="p">{}</span>
+
+		<span class="k">elif</span> <span class="n">line</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+			<span class="k">continue</span>
+
+		<span class="k">else</span><span class="p">:</span>
+			<span class="c1"># encoders</span>
+			<span class="n">argname</span> <span class="o">=</span> <span class="n">line</span><span class="p">[:</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+			<span class="n">codename</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+			<span class="k">assert</span> <span class="n">codename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;Encode&#39;</span><span class="p">),</span> <span class="n">codename</span>
+			<span class="n">codename</span> <span class="o">=</span> <span class="n">codename</span><span class="p">[</span><span class="mi">6</span><span class="p">:]</span>
+			<span class="n">codedict</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="n">codename</span>
+
+	<span class="k">return</span> <span class="n">conds</span>
+
+<span class="k">def</span> <span class="nf">_actparse</span><span class="p">():</span>
+	<span class="k">global</span> <span class="n">actstr</span>
+	<span class="n">acts</span> <span class="o">=</span> <span class="p">[]</span>
+	
+	<span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+	<span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+	<span class="n">codedict</span> <span class="o">=</span> <span class="p">{}</span>
+	<span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">actstr</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">):</span>
+		<span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;def &#39;</span><span class="p">):</span>
+			<span class="c1"># Start of condition</span>
+			<span class="n">name</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="mi">4</span><span class="p">:</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)]</span>
+			<span class="nb">print</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+			<span class="n">_argpart</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span> <span class="p">:</span> <span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">)]</span>
+			<span class="n">_args</span> <span class="o">=</span> <span class="n">_argpart</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+			<span class="n">args</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span><span class="n">t</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span> <span class="n">_args</span><span class="p">))</span>
+
+			<span class="k">if</span> <span class="n">args</span> <span class="o">==</span> <span class="p">[</span><span class="s1">&#39;&#39;</span><span class="p">]:</span>
+				<span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+
+		<span class="k">elif</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;    return&#39;</span><span class="p">):</span>
+			<span class="c1"># wrap-up</span>
+			<span class="n">_argpart</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span> <span class="p">:</span> <span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;)&#39;</span><span class="p">)]</span>
+			<span class="n">actargs</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="k">for</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">_argpart</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">):</span>
+				<span class="n">arg</span> <span class="o">=</span> <span class="n">arg</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+				<span class="k">try</span><span class="p">:</span>
+					<span class="n">arg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+				<span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+					<span class="k">pass</span>
+				<span class="k">finally</span><span class="p">:</span>
+					<span class="n">actargs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+
+			<span class="n">acts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Act</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">args</span><span class="p">,</span> <span class="n">codedict</span><span class="p">,</span> <span class="n">actargs</span><span class="p">))</span>
+
+			<span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+			<span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
+			<span class="n">codedict</span> <span class="o">=</span> <span class="p">{}</span>
+
+		<span class="k">elif</span> <span class="n">line</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">:</span>
+			<span class="k">continue</span>
+
+		<span class="k">else</span><span class="p">:</span>
+			<span class="c1"># encoders</span>
+			<span class="n">argname</span> <span class="o">=</span> <span class="n">line</span><span class="p">[:</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+			<span class="n">codename</span> <span class="o">=</span> <span class="n">line</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;=&#39;</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">:</span><span class="n">line</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;(&#39;</span><span class="p">)]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+			<span class="k">assert</span> <span class="n">codename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;Encode&#39;</span><span class="p">),</span> <span class="n">codename</span>
+			<span class="n">codename</span> <span class="o">=</span> <span class="n">codename</span><span class="p">[</span><span class="mi">6</span><span class="p">:]</span>
+			<span class="n">codedict</span><span class="p">[</span><span class="n">argname</span><span class="p">]</span> <span class="o">=</span> <span class="n">codename</span>
+
+	<span class="k">return</span> <span class="n">acts</span>
+
+<div class="viewcode-block" id="writecond"><a class="viewcode-back" href="../../../repl.utils.condactpywriter.html#repl.utils.condactpywriter.writecond">[docs]</a><span class="k">def</span> <span class="nf">writecond</span><span class="p">():</span>
+	<span class="n">conds</span> <span class="o">=</span> <span class="n">_condparse</span><span class="p">()</span>
+	<span class="n">condm</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;locid&quot;</span><span class="p">,</span> <span class="s2">&quot;player&quot;</span><span class="p">,</span> <span class="s2">&quot;amount&quot;</span><span class="p">,</span> <span class="s2">&quot;unitid&quot;</span><span class="p">,</span> <span class="s2">&quot;comparison&quot;</span><span class="p">,</span>
+		<span class="s2">&quot;condtype&quot;</span><span class="p">,</span> <span class="s2">&quot;restype&quot;</span><span class="p">,</span> <span class="s2">&quot;flags&quot;</span><span class="p">,</span><span class="s2">&quot;internal&quot;</span><span class="p">]</span>
+	<span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+	<span class="k">for</span> <span class="n">cond</span> <span class="ow">in</span> <span class="n">conds</span><span class="p">:</span>
+		<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;@EUDFunc</span><span class="se">\n</span><span class="s1">&#39;</span>
+		<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;def dec_</span><span class="si">{}</span><span class="s1">(epd):</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="c1"># no args like Always()</span>
+			<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">_output_writer.write_f(&quot;</span><span class="si">{}</span><span class="s1">()&quot;)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">m = _condmap(epd)</span><span class="se">\n</span><span class="s1">&#39;</span>
+			<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">_output_writer.write_f(&quot;</span><span class="si">{}</span><span class="s1">(&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+			<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">args</span><span class="p">):</span>
+				<span class="k">if</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">cond</span><span class="o">.</span><span class="n">codedict</span><span class="p">:</span>
+					<span class="c1"># encode</span>
+					<span class="n">coder</span> <span class="o">=</span> <span class="n">cond</span><span class="o">.</span><span class="n">codedict</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+					<span class="k">if</span> <span class="n">coder</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Unit&#39;</span><span class="p">,</span> <span class="s1">&#39;Location&#39;</span><span class="p">,</span> <span class="s1">&#39;AIScript&#39;</span><span class="p">,</span> <span class="s1">&#39;Switch&#39;</span><span class="p">,</span> <span class="s1">&#39;String&#39;</span><span class="p">]:</span>
+						<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">write</span><span class="si">{}</span><span class="s1">(m.</span><span class="si">{}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+							<span class="n">coder</span><span class="p">,</span> <span class="n">condm</span><span class="p">[</span><span class="n">cond</span><span class="o">.</span><span class="n">condargs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">arg</span><span class="p">)])</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">writeConstant(EPD(tb_</span><span class="si">{}</span><span class="s1">), m.</span><span class="si">{}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+							<span class="n">cond</span><span class="o">.</span><span class="n">codedict</span><span class="p">[</span><span class="n">arg</span><span class="p">],</span> <span class="n">condm</span><span class="p">[</span><span class="n">cond</span><span class="o">.</span><span class="n">condargs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">arg</span><span class="p">)])</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">_output_writer.write_decimal(m.</span><span class="si">{}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+						<span class="n">condm</span><span class="p">[</span><span class="n">cond</span><span class="o">.</span><span class="n">condargs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">arg</span><span class="p">)])</span>
+
+				<span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+					<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">_output_writer.write_f(&quot;, &quot;)</span><span class="se">\n</span><span class="s1">&#39;</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">_output_writer.write_f(&quot;)&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span>
+		<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+
+	<span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+	<span class="n">v</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">24</span><span class="p">)]</span>
+	<span class="k">for</span> <span class="n">cond</span> <span class="ow">in</span> <span class="n">conds</span><span class="p">:</span>
+		<span class="n">v</span><span class="p">[</span><span class="n">cond</span><span class="o">.</span><span class="n">condargs</span><span class="p">[</span><span class="mi">5</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;dec_&quot;</span> <span class="o">+</span> <span class="n">cond</span><span class="o">.</span><span class="n">name</span>
+	<span class="nb">print</span><span class="p">(</span><span class="n">v</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="writeact"><a class="viewcode-back" href="../../../repl.utils.condactpywriter.html#repl.utils.condactpywriter.writeact">[docs]</a><span class="k">def</span> <span class="nf">writeact</span><span class="p">():</span>
+	<span class="n">acts</span> <span class="o">=</span> <span class="n">_actparse</span><span class="p">()</span>
+	<span class="n">actm</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;locid1&quot;</span><span class="p">,</span> <span class="s2">&quot;strid&quot;</span><span class="p">,</span> <span class="s2">&quot;wavid&quot;</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span> <span class="s2">&quot;player1&quot;</span><span class="p">,</span> <span class="s2">&quot;player2&quot;</span><span class="p">,</span>
+		<span class="s2">&quot;unitid&quot;</span><span class="p">,</span> <span class="s2">&quot;acttype&quot;</span><span class="p">,</span> <span class="s2">&quot;amount&quot;</span><span class="p">,</span> <span class="s2">&quot;flags&quot;</span><span class="p">]</span>
+
+	<span class="n">s</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+	<span class="k">for</span> <span class="n">act</span> <span class="ow">in</span> <span class="n">acts</span><span class="p">:</span>
+		<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;@EUDFunc</span><span class="se">\n</span><span class="s1">&#39;</span>
+		<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;def dec_</span><span class="si">{}</span><span class="s1">(epd):</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+		<span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+			<span class="c1"># no args like Always()</span>
+			<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">_output_writer.write_f(&quot;</span><span class="si">{}</span><span class="s1">()&quot;)&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">m = _actmap(epd)</span><span class="se">\n</span><span class="s1">&#39;</span>
+			<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">_output_writer.write_f(&quot;</span><span class="si">{}</span><span class="s1">(&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+			<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">args</span><span class="p">):</span>
+				<span class="k">if</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">act</span><span class="o">.</span><span class="n">codedict</span><span class="p">:</span>
+					<span class="c1"># encode</span>
+					<span class="n">coder</span> <span class="o">=</span> <span class="n">act</span><span class="o">.</span><span class="n">codedict</span><span class="p">[</span><span class="n">arg</span><span class="p">]</span>
+					<span class="n">pr</span> <span class="o">=</span> <span class="n">actm</span><span class="p">[</span><span class="n">act</span><span class="o">.</span><span class="n">actargs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">arg</span><span class="p">)]</span>
+					<span class="k">if</span> <span class="n">coder</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;Unit&#39;</span><span class="p">,</span> <span class="s1">&#39;Location&#39;</span><span class="p">,</span> <span class="s1">&#39;AIScript&#39;</span><span class="p">,</span> <span class="s1">&#39;Switch&#39;</span><span class="p">,</span> <span class="s1">&#39;String&#39;</span><span class="p">]:</span>
+						<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">write</span><span class="si">{}</span><span class="s1">(m.</span><span class="si">{}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+							<span class="n">coder</span><span class="p">,</span> <span class="n">pr</span><span class="p">)</span>
+					<span class="k">elif</span> <span class="n">coder</span> <span class="o">==</span> <span class="s1">&#39;Count&#39;</span><span class="p">:</span>
+						<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">if EUDIf()(m.</span><span class="si">{}</span><span class="s1"> == 0):</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pr</span><span class="p">)</span>
+						<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">_output_writer.write_f(&quot;All&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span>
+						<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">if EUDElse()():</span><span class="se">\n</span><span class="s1">&#39;</span>
+						<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t\t</span><span class="s1">_output_writer.write_decimal(m.</span><span class="si">{}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pr</span><span class="p">)</span>
+						<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">EUDEndIf()</span><span class="se">\n</span><span class="s1">&#39;</span>
+					<span class="k">elif</span> <span class="n">coder</span> <span class="o">==</span> <span class="s1">&#39;Property&#39;</span><span class="p">:</span>
+						<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">_output_writer.write_decimal(m.</span><span class="si">{}</span><span class="s1">) # @TODO property</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pr</span><span class="p">)</span>
+					<span class="k">else</span><span class="p">:</span>
+						<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">writeConstant(EPD(tb_</span><span class="si">{}</span><span class="s1">), m.</span><span class="si">{}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+							<span class="n">act</span><span class="o">.</span><span class="n">codedict</span><span class="p">[</span><span class="n">arg</span><span class="p">],</span> <span class="n">pr</span><span class="p">)</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">_output_writer.write_decimal(m.</span><span class="si">{}</span><span class="s1">)</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+						<span class="n">actm</span><span class="p">[</span><span class="n">act</span><span class="o">.</span><span class="n">actargs</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">arg</span><span class="p">)])</span>
+
+				<span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+					<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">_output_writer.write_f(&quot;, &quot;)</span><span class="se">\n</span><span class="s1">&#39;</span>
+				<span class="k">else</span><span class="p">:</span>
+					<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\t</span><span class="s1">_output_writer.write_f(&quot;)&quot;)</span><span class="se">\n</span><span class="s1">&#39;</span>
+		<span class="n">s</span> <span class="o">+=</span> <span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span>
+
+	<span class="nb">print</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+
+	<span class="n">v</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">58</span><span class="p">)]</span>
+	<span class="k">for</span> <span class="n">act</span> <span class="ow">in</span> <span class="n">acts</span><span class="p">:</span>
+		<span class="n">v</span><span class="p">[</span><span class="n">act</span><span class="o">.</span><span class="n">actargs</span><span class="p">[</span><span class="mi">7</span><span class="p">]]</span> <span class="o">=</span> <span class="s2">&quot;dec_&quot;</span> <span class="o">+</span> <span class="n">act</span><span class="o">.</span><span class="n">name</span>
+	<span class="nb">print</span><span class="p">(</span><span class="n">v</span><span class="p">)</span></div>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+	<span class="n">writeact</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright mighty1231
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

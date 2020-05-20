@@ -1,0 +1,7 @@
+repl.base.pool module
+=====================
+
+.. automodule:: repl.base.pool
+   :members:
+   :undoc-members:
+   :show-inheritance:

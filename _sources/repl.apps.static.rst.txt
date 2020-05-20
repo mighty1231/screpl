@@ -1,0 +1,7 @@
+repl.apps.static module
+=======================
+
+.. automodule:: repl.apps.static
+   :members:
+   :undoc-members:
+   :show-inheritance:

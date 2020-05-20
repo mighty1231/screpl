@@ -1,0 +1,7 @@
+repl.monitor.func module
+========================
+
+.. automodule:: repl.monitor.func
+   :members:
+   :undoc-members:
+   :show-inheritance:

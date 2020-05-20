@@ -1,0 +1,319 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>repl.apps.logger &mdash; SC-REPL 1.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SC-REPL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SC-REPL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>repl.apps.logger</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for repl.apps.logger</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">from</span> <span class="nn">..base.eudbyterw</span> <span class="kn">import</span> <span class="n">EUDByteRW</span>
+<span class="kn">from</span> <span class="nn">..core.appmanager</span> <span class="kn">import</span> <span class="n">getAppManager</span>
+<span class="kn">from</span> <span class="nn">..core.appcommand</span> <span class="kn">import</span> <span class="n">AppCommand</span>
+<span class="kn">from</span> <span class="nn">.scroll</span> <span class="kn">import</span> <span class="n">ScrollApp</span><span class="p">,</span> <span class="n">LINES_PER_PAGE</span>
+
+<span class="n">LOGGER_LINE_SIZE</span> <span class="o">=</span> <span class="mi">216</span>
+<span class="n">LOGGER_LINE_COUNT</span> <span class="o">=</span> <span class="mi">500</span>
+
+<span class="c1"># Guarantee no more than 1 Logger instance</span>
+<span class="n">BUF_SIZE</span> <span class="o">=</span> <span class="n">LOGGER_LINE_SIZE</span> <span class="o">*</span> <span class="n">LOGGER_LINE_COUNT</span>
+<span class="n">buf</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="n">BUF_SIZE</span><span class="p">)</span>
+<span class="n">buf_start_epd</span> <span class="o">=</span> <span class="n">EPD</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+<span class="n">buf_end_epd</span> <span class="o">=</span> <span class="n">buf_start_epd</span> <span class="o">+</span> <span class="n">BUF_SIZE</span> <span class="o">//</span> <span class="mi">4</span>
+
+<span class="n">next_epd_to_write</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="n">buf_start_epd</span><span class="p">)</span>
+<span class="n">log_index</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+
+<span class="c1"># check whether it tracks recent logs or not</span>
+<span class="n">MODE_REALTIME</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">MODE_STOPPED</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">mode</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="n">MODE_REALTIME</span><span class="p">)</span>
+
+<span class="n">writer</span> <span class="o">=</span> <span class="n">EUDByteRW</span><span class="p">()</span>
+
+<span class="n">multiline_buffer</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">3000</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MultilineLogWriter"><a class="viewcode-back" href="../../../repl.apps.logger.html#repl.apps.logger.MultilineLogWriter">[docs]</a><span class="k">class</span> <span class="nc">MultilineLogWriter</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="n">EUDByteRW</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">multiline_buffer</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">writer</span>
+
+    <span class="k">def</span> <span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">EUDByteRW</span><span class="p">()</span>
+        <span class="n">reader</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">multiline_buffer</span><span class="p">))</span>
+        <span class="n">prev</span><span class="p">,</span> <span class="n">cur</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">prev</span> <span class="o">&lt;&lt;</span> <span class="n">reader</span><span class="o">.</span><span class="n">getoffset</span><span class="p">()</span>
+        <span class="n">cur</span> <span class="o">&lt;&lt;</span> <span class="n">prev</span>
+
+        <span class="n">Logger</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;Multiline [</span><span class="si">%s</span><span class="s2">]&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">b</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)):</span>
+                <span class="n">f_bwrite</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">Logger</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;%S&quot;</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">simple</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+                <span class="n">prev</span> <span class="o">&lt;&lt;</span> <span class="n">cur</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+            <span class="n">cur</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">EUDEndInfLoop</span><span class="p">()</span>
+        <span class="n">Logger</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">&quot;%S&quot;</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">simple</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Logger"><a class="viewcode-back" href="../../../repl.apps.logger.html#repl.apps.logger.Logger">[docs]</a><span class="k">class</span> <span class="nc">Logger</span><span class="p">(</span><span class="n">ScrollApp</span><span class="p">):</span>
+<div class="viewcode-block" id="Logger.format"><a class="viewcode-back" href="../../../repl.apps.logger.html#repl.apps.logger.Logger.format">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">format</span><span class="p">(</span><span class="n">fmtstring</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="n">simple</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">next_epd_to_write</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">simple</span><span class="p">:</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x16</span><span class="s2">%D: [frame %D] &quot;</span><span class="p">,</span>
+                <span class="n">log_index</span><span class="p">,</span>
+                <span class="n">getAppManager</span><span class="p">()</span><span class="o">.</span><span class="n">getCurrentFrameNumber</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x16</span><span class="s2">%D: &quot;</span><span class="p">,</span> <span class="n">log_index</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="n">fmtstring</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">DoActions</span><span class="p">([</span>
+            <span class="n">next_epd_to_write</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="n">LOGGER_LINE_SIZE</span> <span class="o">//</span> <span class="mi">4</span><span class="p">),</span>
+            <span class="n">log_index</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">])</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">next_epd_to_write</span> <span class="o">==</span> <span class="n">buf_end_epd</span><span class="p">):</span>
+            <span class="n">next_epd_to_write</span> <span class="o">&lt;&lt;</span> <span class="n">buf_start_epd</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Logger.multilineWriter"><a class="viewcode-back" href="../../../repl.apps.logger.html#repl.apps.logger.Logger.multilineWriter">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">multilineWriter</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">MultilineLogWriter</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">onInit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ScrollApp</span><span class="o">.</span><span class="n">onInit</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">mode</span> <span class="o">&lt;&lt;</span> <span class="n">MODE_REALTIME</span>
+
+    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">manager</span> <span class="o">=</span> <span class="n">getAppManager</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">mode</span> <span class="o">==</span> <span class="n">MODE_STOPPED</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">manager</span><span class="o">.</span><span class="n">keyPress</span><span class="p">(</span><span class="s2">&quot;ESC&quot;</span><span class="p">)):</span>
+                <span class="n">mode</span> <span class="o">&lt;&lt;</span> <span class="n">MODE_REALTIME</span>
+            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">manager</span><span class="o">.</span><span class="n">keyPress</span><span class="p">(</span><span class="s2">&quot;F7&quot;</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setOffset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">-</span> <span class="n">LINES_PER_PAGE</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">manager</span><span class="o">.</span><span class="n">keyPress</span><span class="p">(</span><span class="s2">&quot;F8&quot;</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">setOffset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+</span> <span class="n">LINES_PER_PAGE</span><span class="p">)</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">manager</span><span class="o">.</span><span class="n">keyPress</span><span class="p">(</span><span class="s2">&quot;ESC&quot;</span><span class="p">)):</span>
+                <span class="n">manager</span><span class="o">.</span><span class="n">requestDestruct</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">manager</span><span class="o">.</span><span class="n">keyPress</span><span class="p">(</span><span class="s2">&quot;S&quot;</span><span class="p">)):</span>
+                <span class="n">mode</span> <span class="o">&lt;&lt;</span> <span class="n">MODE_STOPPED</span>
+            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                <span class="c1"># set offset</span>
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">log_index</span> <span class="o">&gt;=</span> <span class="n">LINES_PER_PAGE</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">setOffset</span><span class="p">(</span><span class="n">log_index</span> <span class="o">-</span> <span class="n">LINES_PER_PAGE</span><span class="p">)</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="n">manager</span><span class="o">.</span><span class="n">requestUpdate</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">writeTitle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
+        <span class="n">manager</span> <span class="o">=</span> <span class="n">getAppManager</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">mode</span> <span class="o">==</span> <span class="n">MODE_REALTIME</span><span class="p">):</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x16</span><span class="s2">SC-REPL logs (frame=%D), Realtime View, &quot;</span> \
+                    <span class="s2">&quot;press &#39;S&#39; to stop view&quot;</span><span class="p">,</span>
+                <span class="n">manager</span><span class="o">.</span><span class="n">getCurrentFrameNumber</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x16</span><span class="s2">SC-REPL logs (frame=%D), Stopped View, &quot;</span> \
+                    <span class="s2">&quot;press &#39;ESC&#39;, &#39;F7&#39; or &#39;F8&#39;&quot;</span><span class="p">,</span>
+                <span class="n">manager</span><span class="o">.</span><span class="n">getCurrentFrameNumber</span><span class="p">()</span>
+            <span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">writeLine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
+        <span class="n">quot</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">LOGGER_LINE_COUNT</span><span class="p">)</span>
+        <span class="n">epd</span> <span class="o">=</span> <span class="n">buf_start_epd</span> <span class="o">+</span> <span class="n">rem</span> <span class="o">*</span> <span class="p">(</span><span class="n">LOGGER_LINE_SIZE</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">getLineCount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">log_index</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright mighty1231
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

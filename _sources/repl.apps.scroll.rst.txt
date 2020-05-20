@@ -1,0 +1,7 @@
+repl.apps.scroll module
+=======================
+
+.. automodule:: repl.apps.scroll
+   :members:
+   :undoc-members:
+   :show-inheritance:

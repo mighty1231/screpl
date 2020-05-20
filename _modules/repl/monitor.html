@@ -1,0 +1,241 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>repl.monitor &mdash; SC-REPL 1.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/underscore.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> SC-REPL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">SC-REPL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>repl.monitor</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for repl.monitor</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+
+<div class="viewcode-block" id="ProfileTable"><a class="viewcode-back" href="../../repl.monitor.html#repl.monitor.ProfileTable">[docs]</a><span class="k">class</span> <span class="nc">ProfileTable</span><span class="p">:</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Class required by communication between bridge client</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="ProfileTable.append"><a class="viewcode-back" href="../../repl.monitor.html#repl.monitor.ProfileTable.append">[docs]</a>    <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">counter</span><span class="p">,</span> <span class="n">totalMillis</span><span class="p">,</span> <span class="n">totalExpectedMillis</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        name        : variable name</span>
+<span class="sd">        counter     : monitored counter</span>
+<span class="sd">        totalMillis : total milliseconds</span>
+<span class="sd">        totalExpectedMillis : total expected milliseconds</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">counter</span><span class="p">,</span> <span class="n">totalMillis</span><span class="p">,</span> <span class="n">totalExpectedMillis</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ProfileTable.getSize"><a class="viewcode-back" href="../../repl.monitor.html#repl.monitor.ProfileTable.getSize">[docs]</a>    <span class="k">def</span> <span class="nf">getSize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">table</span><span class="p">)</span></div></div>
+
+<span class="n">profile_table</span> <span class="o">=</span> <span class="n">ProfileTable</span><span class="p">()</span>
+
+<span class="nd">@EUDFunc</span>
+<span class="k">def</span> <span class="nf">f_getInversedMillis</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    0x51CE8C: inversed tick count. 1 for 1 ms</span>
+<span class="sd">     * Since it is not updated during trigger execution,</span>
+<span class="sd">       EUDDoEvents should be called</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">countdownTimer</span> <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x57F0F0</span> <span class="o">+</span> <span class="mh">0xe604</span><span class="p">))</span>
+    <span class="n">elapsedTime</span>    <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x57F0F0</span> <span class="o">+</span> <span class="mh">0xe608</span><span class="p">))</span>
+    <span class="n">triggerTimer</span>   <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x6509A0</span><span class="p">))</span>
+    <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemory</span><span class="p">(</span><span class="mh">0x6509A0</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+    <span class="n">EUDDoEvents</span><span class="p">()</span>
+
+    <span class="c1"># restore timers</span>
+    <span class="n">SeqCompute</span><span class="p">([</span>
+        <span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x57F0F0</span> <span class="o">+</span> <span class="mh">0xe604</span><span class="p">),</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">countdownTimer</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x57F0F0</span> <span class="o">+</span> <span class="mh">0xe608</span><span class="p">),</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">elapsedTime</span><span class="p">),</span>
+        <span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x6509A0</span><span class="p">),</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">triggerTimer</span><span class="p">),</span>
+    <span class="p">])</span>
+    <span class="n">EUDReturn</span><span class="p">(</span><span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x51CE8C</span><span class="p">)))</span>
+
+<span class="nd">@EUDFunc</span>
+<span class="k">def</span> <span class="nf">f_getGameSpeed</span><span class="p">():</span>
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    0x5124F0 : GameSpeedModifier</span>
+<span class="sd">     - count of milliseconds per a single gametick</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">speed</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">Memory</span><span class="p">(</span><span class="mh">0x5124F0</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="n">speed</span><span class="p">)):</span>
+        <span class="n">speed</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x5124F0</span><span class="p">))</span>
+    <span class="n">EUDEndIf</span><span class="p">()</span>
+    <span class="n">EUDReturn</span><span class="p">(</span><span class="n">speed</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright mighty1231
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

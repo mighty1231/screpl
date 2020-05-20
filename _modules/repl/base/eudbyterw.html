@@ -1,0 +1,667 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>repl.base.eudbyterw &mdash; SC-REPL 1.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SC-REPL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SC-REPL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>repl.base.eudbyterw</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for repl.base.eudbyterw</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">EPDConstString</span>
+
+<div class="viewcode-block" id="EUDByteRW"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW">[docs]</a><span class="k">class</span> <span class="nc">EUDByteRW</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">off</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<div class="viewcode-block" id="EUDByteRW.getoffset"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.getoffset">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">getoffset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">EUDReturn</span><span class="p">(</span><span class="mh">0x58A364</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">epd</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">off</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.seekepd"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.seekepd">[docs]</a>    <span class="k">def</span> <span class="nf">seekepd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epd</span> <span class="o">&lt;&lt;</span> <span class="n">epd</span>
+        <span class="n">DoActions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epd</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0xC0000000</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">off</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.seekoffset"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.seekoffset">[docs]</a>    <span class="k">def</span> <span class="nf">seekoffset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">ptr</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;If you want to seek offset of EUDObject,&quot;</span> \
+                    <span class="s2">&quot;use seekepd(EPD(EUDObject))&quot;</span><span class="p">)</span>
+
+        <span class="n">epd</span><span class="p">,</span> <span class="n">off</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">epd</span> <span class="o">+=</span> <span class="o">-</span><span class="mh">0x58A364</span> <span class="o">//</span> <span class="mi">4</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">epd</span> <span class="o">&lt;&lt;</span> <span class="n">epd</span>
+        <span class="n">DoActions</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epd</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0xC0000000</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">off</span> <span class="o">&lt;&lt;</span> <span class="n">off</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.read"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.read">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+        <span class="n">ret</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+
+        <span class="n">EUDSwitch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">off</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDSwitchCase</span><span class="p">()(</span><span class="mi">0</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
+                <span class="n">Trigger</span><span class="p">(</span>
+                    <span class="n">conditions</span> <span class="o">=</span> <span class="n">MemoryXEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epd</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">i</span><span class="p">),</span>
+                    <span class="n">actions</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">i</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">off</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">EUDBreak</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDSwitchCase</span><span class="p">()(</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
+                <span class="n">Trigger</span><span class="p">(</span>
+                    <span class="n">conditions</span> <span class="o">=</span> <span class="n">MemoryXEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epd</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">8</span><span class="p">),</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">8</span><span class="p">)),</span>
+                    <span class="n">actions</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">i</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">off</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">EUDBreak</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDSwitchCase</span><span class="p">()(</span><span class="mi">2</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
+                <span class="n">Trigger</span><span class="p">(</span>
+                    <span class="n">conditions</span> <span class="o">=</span> <span class="n">MemoryXEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epd</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">16</span><span class="p">),</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">16</span><span class="p">)),</span>
+                    <span class="n">actions</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">i</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">off</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">EUDBreak</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDSwitchCase</span><span class="p">()(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
+                <span class="n">Trigger</span><span class="p">(</span>
+                    <span class="n">conditions</span> <span class="o">=</span> <span class="n">MemoryXEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epd</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">24</span><span class="p">),</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">24</span><span class="p">)),</span>
+                    <span class="n">actions</span> <span class="o">=</span> <span class="n">ret</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">i</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">DoActions</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">epd</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">off</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)])</span>
+            <span class="n">EUDBreak</span><span class="p">()</span>
+        <span class="n">EUDEndSwitch</span><span class="p">()</span>
+        <span class="n">EUDReturn</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+        <span class="n">_acts</span> <span class="o">=</span> <span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+        <span class="n">_offvals</span> <span class="o">=</span> <span class="p">[</span><span class="mh">0xFF</span><span class="p">,</span> <span class="mh">0xFF00</span><span class="p">,</span> <span class="mh">0xFF0000</span><span class="p">,</span> <span class="mh">0xFF000000</span><span class="p">]</span>
+        <span class="n">DoActions</span><span class="p">([</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">_act</span><span class="o">+</span><span class="mi">20</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">_act</span> <span class="ow">in</span> <span class="n">_acts</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
+            <span class="n">RawTrigger</span><span class="p">(</span>
+                <span class="n">conditions</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">MemoryX</span><span class="p">(</span><span class="n">val</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">(),</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">i</span><span class="p">)</span>
+                <span class="p">],</span>
+                <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">SetMemoryX</span><span class="p">(</span><span class="n">_acts</span><span class="p">[</span><span class="n">off</span><span class="p">]</span><span class="o">+</span><span class="mi">20</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="n">off</span><span class="o">*</span><span class="mi">8</span><span class="p">),</span> <span class="n">_offvals</span><span class="p">[</span><span class="n">off</span><span class="p">])</span>
+                    <span class="k">for</span> <span class="n">off</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+                <span class="p">]</span>
+            <span class="p">)</span>
+        <span class="n">EUDSwitch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">off</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDSwitchCase</span><span class="p">()(</span><span class="mi">0</span><span class="p">):</span>
+            <span class="n">DoActions</span><span class="p">([</span>
+                <span class="n">_acts</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">SetMemoryXEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epd</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0xFF</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">off</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">])</span>
+            <span class="n">EUDBreak</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDSwitchCase</span><span class="p">()(</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">DoActions</span><span class="p">([</span>
+                <span class="n">_acts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">SetMemoryXEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epd</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0xFF00</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">off</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">])</span>
+            <span class="n">EUDBreak</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDSwitchCase</span><span class="p">()(</span><span class="mi">2</span><span class="p">):</span>
+            <span class="n">DoActions</span><span class="p">([</span>
+                <span class="n">_acts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">SetMemoryXEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epd</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0xFF0000</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">off</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">])</span>
+            <span class="n">EUDBreak</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDSwitchCase</span><span class="p">()(</span><span class="mi">3</span><span class="p">):</span>
+            <span class="n">DoActions</span><span class="p">([</span>
+                <span class="n">_acts</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">SetMemoryXEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">epd</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0xFF000000</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">epd</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">off</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="p">])</span>
+            <span class="n">EUDBreak</span><span class="p">()</span>
+        <span class="n">EUDEndSwitch</span><span class="p">()</span></div>
+
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    write_* functions do not write null byte</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+<div class="viewcode-block" id="EUDByteRW.write_str"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_str">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_str</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">srcptr</span><span class="p">):</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">EUDByteRW</span><span class="p">()</span>
+        <span class="n">reader</span><span class="o">.</span><span class="n">seekoffset</span><span class="p">(</span><span class="n">srcptr</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+            <span class="c1"># read</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+            <span class="c1"># break</span>
+            <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># copy</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+        <span class="n">EUDEndInfLoop</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_strn"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_strn">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_strn</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">srcptr</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">EUDByteRW</span><span class="p">()</span>
+        <span class="n">reader</span><span class="o">.</span><span class="n">seekoffset</span><span class="p">(</span><span class="n">srcptr</span><span class="p">)</span>
+
+        <span class="n">written</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+        <span class="n">written</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">EUDWhile</span><span class="p">()(</span><span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="c1"># read</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+            <span class="c1"># break</span>
+            <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># copy</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+            <span class="n">DoActions</span><span class="p">([</span>
+                <span class="n">n</span><span class="o">.</span><span class="n">SubtractNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">written</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">])</span>
+        <span class="n">EUDEndWhile</span><span class="p">()</span>
+        <span class="n">EUDReturn</span><span class="p">(</span><span class="n">written</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_strepd"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_strepd">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_strepd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">srcepd</span><span class="p">):</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">EUDByteRW</span><span class="p">()</span>
+        <span class="n">reader</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">srcepd</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+            <span class="c1"># read</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+            <span class="c1"># break</span>
+            <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># copy</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+        <span class="n">EUDEndInfLoop</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_strnepd"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_strnepd">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_strnepd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">srcepd</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">EUDByteRW</span><span class="p">()</span>
+        <span class="n">reader</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">srcepd</span><span class="p">)</span>
+
+        <span class="n">written</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+        <span class="n">written</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">EUDWhile</span><span class="p">()(</span><span class="n">n</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="c1"># read</span>
+            <span class="n">b</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+            <span class="c1"># break</span>
+            <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="c1"># copy</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+            <span class="n">DoActions</span><span class="p">([</span>
+                <span class="n">n</span><span class="o">.</span><span class="n">SubtractNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">written</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="p">])</span>
+        <span class="n">EUDEndWhile</span><span class="p">()</span>
+        <span class="n">EUDReturn</span><span class="p">(</span><span class="n">written</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_decimal"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_decimal">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_decimal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="n">skipper</span> <span class="o">=</span> <span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
+        <span class="n">ch</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span>
+
+        <span class="c1"># Get digits</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+            <span class="n">number</span><span class="p">,</span> <span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">9</span><span class="p">:</span>
+                <span class="n">EUDJumpIf</span><span class="p">(</span><span class="n">number</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">skipper</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="c1"># print digits</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">9</span><span class="p">:</span>
+                <span class="n">skipper</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_hex"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_hex">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_hex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="n">ch</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">8</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">))</span>
+
+        <span class="c1"># Get digits</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
+            <span class="n">number</span><span class="p">,</span> <span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+
+        <span class="c1"># print digits</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">9</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">10</span><span class="p">))</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_binary"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_binary">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;b&#39;</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">31</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">23</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">7</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">MemoryX</span><span class="p">(</span><span class="n">number</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">(),</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">i</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="n">i</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;1&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_bytehex"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_bytehex">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_bytehex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="n">ch</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span>
+
+        <span class="c1"># Get digits</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+            <span class="n">number</span><span class="p">,</span> <span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
+
+        <span class="c1"># print digits</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">9</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span> <span class="o">-</span> <span class="mi">10</span><span class="p">))</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_memoryTable"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_memoryTable">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_memoryTable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="n">cnt</span><span class="p">):</span>
+        <span class="n">reader</span> <span class="o">=</span> <span class="n">EUDByteRW</span><span class="p">()</span>
+        <span class="n">reader</span><span class="o">.</span><span class="n">seekoffset</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+
+        <span class="n">written</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+        <span class="n">written</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+            <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cnt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">b</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_bytehex</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">))</span>
+
+            <span class="n">DoActions</span><span class="p">(</span><span class="n">cnt</span><span class="o">.</span><span class="n">SubtractNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="n">EUDEndInfLoop</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_bool"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_bool">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_bool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">&quot;True&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">&quot;False&quot;</span><span class="p">))</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_u8"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_u8">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_u8</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">DoActions</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0xFFFFFF00</span><span class="p">))</span>
+        <span class="n">skipper</span> <span class="o">=</span> <span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span>
+        <span class="n">digits</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">):</span>
+            <span class="n">value</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="n">digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+            <span class="n">EUDJumpIf</span><span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">skipper</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span>
+        <span class="n">skipper</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">digits</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span>
+        <span class="n">skipper</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">digits</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_u16"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_u16">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_u16</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">DoActions</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mh">0xFFFF0000</span><span class="p">))</span>
+        <span class="n">skipper</span> <span class="o">=</span> <span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+        <span class="n">digits</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+            <span class="n">value</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="n">digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+            <span class="n">EUDJumpIf</span><span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">skipper</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">skipper</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">digits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_u32"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_u32">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_u32</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">skipper</span> <span class="o">=</span> <span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
+        <span class="n">digits</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">):</span>
+            <span class="n">value</span><span class="p">,</span> <span class="n">r</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="n">digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+            <span class="n">EUDJumpIf</span><span class="p">(</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">skipper</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">value</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">skipper</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">digits</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;0&#39;</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_s8"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_s8">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_s8</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">value</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mh">0x80</span><span class="p">,</span> <span class="mh">0x80</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_u8</span><span class="p">(</span><span class="o">-</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_u8</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_s16"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_s16">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_s16</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">value</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mh">0x8000</span><span class="p">,</span> <span class="mh">0x8000</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_u16</span><span class="p">(</span><span class="o">-</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_u16</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_s32"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_s32">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_s32</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">value</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mh">0x80000000</span><span class="p">,</span> <span class="mh">0x80000000</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_u32</span><span class="p">(</span><span class="o">-</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_u32</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_STR_string"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_STR_string">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">write_STR_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">strId</span><span class="p">):</span>
+        <span class="n">strsect</span> <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x5993D4</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_str</span><span class="p">(</span><span class="n">strsect</span> <span class="o">+</span> <span class="n">f_dwread</span><span class="p">(</span><span class="n">strsect</span> <span class="o">+</span> <span class="n">strId</span><span class="o">*</span><span class="mi">4</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="EUDByteRW.write_f"><a class="viewcode-back" href="../../../repl.base.eudbyterw.html#repl.base.eudbyterw.EUDByteRW.write_f">[docs]</a>    <span class="k">def</span> <span class="nf">write_f</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Parse formatted string with python (not in-game)</span>
+<span class="sd">          and write it with EUDVariable or ConstExpr</span>
+
+<span class="sd">        CAUTION: This does NOT make null end</span>
+
+<span class="sd">        Available formats:</span>
+<span class="sd">         - %H: hexadecimal value starts with 0x</span>
+<span class="sd">         - %D: decimal value</span>
+<span class="sd">         - %I8d: write_s8</span>
+<span class="sd">         - %I16d: write_s16</span>
+<span class="sd">         - %I32d: write_s32</span>
+<span class="sd">         - %I8u: write_u8</span>
+<span class="sd">         - %I16u: write_u16</span>
+<span class="sd">         - %I32u: write_u32</span>
+<span class="sd">         - %S: string with ptr</span>
+<span class="sd">         - %E: string with epd</span>
+<span class="sd">         - %C: single character</span>
+
+<span class="sd">        Write %% to represent %</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="c1"># parse format and compare its argument count</span>
+        <span class="c1">#   with args</span>
+        <span class="c1"># ITEMS: list of tuples (format, arg)</span>
+        <span class="n">items</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">argidx</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">while</span> <span class="n">pos</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">fmt</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s1">&#39;%&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="p">:]:</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="p">:]))</span>
+                <span class="k">break</span>
+            <span class="n">fmpos</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="p">:]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;%&#39;</span><span class="p">)</span>
+
+            <span class="c1"># push conststr before %</span>
+            <span class="k">if</span> <span class="n">fmpos</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="p">:</span><span class="n">pos</span><span class="o">+</span><span class="n">fmpos</span><span class="p">]))</span>
+                <span class="n">pos</span> <span class="o">+=</span> <span class="n">fmpos</span>
+
+            <span class="c1"># get argument</span>
+            <span class="k">if</span> <span class="n">argidx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Mismatch on count between &quot;</span> \
+                    <span class="s2">&quot;format string and argument counton write_f&quot;</span><span class="p">)</span>
+            <span class="n">curarg</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="n">argidx</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;%&#39;</span><span class="p">:</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;const&#39;</span><span class="p">,</span> <span class="s1">&#39;%&#39;</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;H&#39;</span><span class="p">:</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;H&#39;</span><span class="p">,</span> <span class="n">curarg</span><span class="p">))</span>
+                <span class="n">argidx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;D&#39;</span><span class="p">:</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;D&#39;</span><span class="p">,</span> <span class="n">curarg</span><span class="p">))</span>
+                <span class="n">argidx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;I&#39;</span><span class="p">:</span>
+                <span class="n">check</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="k">for</span> <span class="n">fs</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;8d&#39;</span><span class="p">,</span> <span class="s1">&#39;16d&#39;</span><span class="p">,</span> <span class="s1">&#39;32d&#39;</span><span class="p">,</span> <span class="s1">&#39;8u&#39;</span><span class="p">,</span> <span class="s1">&#39;16u&#39;</span><span class="p">,</span> <span class="s1">&#39;32u&#39;</span><span class="p">]:</span>
+                    <span class="k">if</span> <span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="mi">2</span><span class="p">:]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">fs</span><span class="p">):</span>
+                        <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;I&#39;</span> <span class="o">+</span> <span class="n">fs</span><span class="p">,</span> <span class="n">curarg</span><span class="p">))</span>
+                        <span class="n">pos</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">fs</span><span class="p">)</span>
+                        <span class="n">argidx</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">check</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">check</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="p">:])</span>
+                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unable to parse </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fmt</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;S&#39;</span><span class="p">:</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;S&#39;</span><span class="p">,</span> <span class="n">curarg</span><span class="p">))</span>
+                <span class="n">argidx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;E&#39;</span><span class="p">:</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;E&#39;</span><span class="p">,</span> <span class="n">curarg</span><span class="p">))</span>
+                <span class="n">argidx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">&#39;C&#39;</span><span class="p">,</span> <span class="n">curarg</span><span class="p">))</span>
+                <span class="n">argidx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="p">:])</span>
+                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unable to parse </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fmt</span><span class="p">))</span>
+            <span class="n">pos</span> <span class="o">+=</span> <span class="mi">2</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">)</span> <span class="o">!=</span> <span class="n">argidx</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Mismatch on count between &quot;</span> \
+                <span class="s2">&quot;format string and argument count on write_f&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Due to %%, several const string could be</span>
+        <span class="c1">#   located consecutively, so merge it</span>
+        <span class="n">merged_items</span> <span class="o">=</span> <span class="p">[</span><span class="n">items</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">for</span> <span class="n">fm</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">items</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>
+            <span class="k">if</span> <span class="n">fm</span> <span class="o">==</span> <span class="s1">&#39;const&#39;</span> <span class="ow">and</span> <span class="n">merged_items</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;const&#39;</span><span class="p">:</span>
+                <span class="n">merged_items</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">merged_items</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="n">merged_items</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">arg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">merged_items</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fm</span><span class="p">,</span> <span class="n">arg</span><span class="p">))</span>
+
+        <span class="c1"># Short constants are written with bytes, otherwise use EPDConstString</span>
+        <span class="n">func_matches</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;I8d&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_s8</span><span class="p">,</span>
+            <span class="s1">&#39;I16d&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_s16</span><span class="p">,</span>
+            <span class="s1">&#39;I32d&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_s32</span><span class="p">,</span>
+            <span class="s1">&#39;I8u&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_u8</span><span class="p">,</span>
+            <span class="s1">&#39;I16u&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_u16</span><span class="p">,</span>
+            <span class="s1">&#39;I32u&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">write_u32</span>
+        <span class="p">}</span>
+        <span class="k">for</span> <span class="n">fm</span><span class="p">,</span> <span class="n">arg</span> <span class="ow">in</span> <span class="n">merged_items</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fm</span> <span class="o">==</span> <span class="s1">&#39;const&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+            <span class="k">elif</span> <span class="n">fm</span> <span class="o">==</span> <span class="s1">&#39;H&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_hex</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">fm</span> <span class="o">==</span> <span class="s1">&#39;D&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">fm</span> <span class="o">==</span> <span class="s1">&#39;S&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_str</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">fm</span> <span class="o">==</span> <span class="s1">&#39;E&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">fm</span> <span class="o">==</span> <span class="s1">&#39;C&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">func_matches</span><span class="p">[</span><span class="n">fm</span><span class="p">](</span><span class="n">arg</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright mighty1231
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

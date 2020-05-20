@@ -1,0 +1,7 @@
+repl.resources.encoder.action module
+====================================
+
+.. automodule:: repl.resources.encoder.action
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+repl.resources.scmdtrigwriter.unit module
+=========================================
+
+.. automodule:: repl.resources.scmdtrigwriter.unit
+   :members:
+   :undoc-members:
+   :show-inheritance:

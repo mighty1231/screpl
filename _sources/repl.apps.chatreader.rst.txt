@@ -1,0 +1,7 @@
+repl.apps.chatreader module
+===========================
+
+.. automodule:: repl.apps.chatreader
+   :members:
+   :undoc-members:
+   :show-inheritance:

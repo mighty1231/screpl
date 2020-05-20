@@ -1,0 +1,7 @@
+repl.bridge\_server.appoutput module
+====================================
+
+.. automodule:: repl.bridge_server.appoutput
+   :members:
+   :undoc-members:
+   :show-inheritance:

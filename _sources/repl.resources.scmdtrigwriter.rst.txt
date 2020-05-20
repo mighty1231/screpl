@@ -1,0 +1,20 @@
+repl.resources.scmdtrigwriter package
+=====================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   repl.resources.scmdtrigwriter.action
+   repl.resources.scmdtrigwriter.condition
+   repl.resources.scmdtrigwriter.unit
+
+Module contents
+---------------
+
+.. automodule:: repl.resources.scmdtrigwriter
+   :members:
+   :undoc-members:
+   :show-inheritance:

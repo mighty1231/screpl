@@ -1,0 +1,7 @@
+repl.bridge\_server.logger module
+=================================
+
+.. automodule:: repl.bridge_server.logger
+   :members:
+   :undoc-members:
+   :show-inheritance:

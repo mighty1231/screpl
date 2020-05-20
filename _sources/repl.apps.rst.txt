@@ -1,0 +1,23 @@
+repl.apps package
+=================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   repl.apps.chatreader
+   repl.apps.logger
+   repl.apps.repl
+   repl.apps.scroll
+   repl.apps.selector
+   repl.apps.static
+
+Module contents
+---------------
+
+.. automodule:: repl.apps
+   :members:
+   :undoc-members:
+   :show-inheritance:

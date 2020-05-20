@@ -1,0 +1,406 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>repl.core.appmanager module &mdash; SC-REPL 1.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SC-REPL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">repl.core.appmanager module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SC-REPL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>repl.core.appmanager module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/repl.core.appmanager.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-repl.core.appmanager">
+<span id="repl-core-appmanager-module"></span><h1>repl.core.appmanager module<a class="headerlink" href="#module-repl.core.appmanager" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt id="repl.core.appmanager.AppManager">
+<em class="property">class </em><code class="sig-prename descclassname">repl.core.appmanager.</code><code class="sig-name descname">AppManager</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">superuser</span></em>, <em class="sig-param"><span class="n">superuser_mode</span></em>, <em class="sig-param"><span class="n">bridge_mode</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.allocDb_epd">
+<code class="sig-name descname">allocDb_epd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">sizequarter</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.allocDb_epd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.allocDb_epd" title="Permalink to this definition">¶</a></dt>
+<dd><p>allocate SIZEQUARTER*4 bytes</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.allocVariable">
+<code class="sig-name descname">allocVariable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">count</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.allocVariable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.allocVariable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.cleanText">
+<code class="sig-name descname">cleanText</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.cleanText"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.cleanText" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.exportAppOutputToBridge">
+<code class="sig-name descname">exportAppOutputToBridge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">src_buffer</span></em>, <em class="sig-param"><span class="n">size</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.exportAppOutputToBridge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.exportAppOutputToBridge" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.freeDb_epd">
+<code class="sig-name descname">freeDb_epd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">epd</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.freeDb_epd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.freeDb_epd" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.freeVariable">
+<code class="sig-name descname">freeVariable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">ptr</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.freeVariable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.freeVariable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.getCurrentAppInstance">
+<code class="sig-name descname">getCurrentAppInstance</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.getCurrentAppInstance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.getCurrentAppInstance" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.getCurrentFrameNumber">
+<code class="sig-name descname">getCurrentFrameNumber</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.getCurrentFrameNumber"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.getCurrentFrameNumber" title="Permalink to this definition">¶</a></dt>
+<dd><p>Counter that measures how much loops are called</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.getMapHeight">
+<code class="sig-name descname">getMapHeight</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.getMapHeight"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.getMapHeight" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.getMapWidth">
+<code class="sig-name descname">getMapWidth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.getMapWidth"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.getMapWidth" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.getMousePositionXY">
+<code class="sig-name descname">getMousePositionXY</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.getMousePositionXY"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.getMousePositionXY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.getSTRSectionSize">
+<code class="sig-name descname">getSTRSectionSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.getSTRSectionSize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.getSTRSectionSize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.getWriter">
+<code class="sig-name descname">getWriter</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.getWriter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.getWriter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Internally printing function uses this method</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.initOrTerminateApplication">
+<code class="sig-name descname">initOrTerminateApplication</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.initOrTerminateApplication"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.initOrTerminateApplication" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.initialize">
+<em class="property">static </em><code class="sig-name descname">initialize</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">args</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.initialize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.initialize" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.isBridgeMode">
+<code class="sig-name descname">isBridgeMode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.isBridgeMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.isBridgeMode" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.keyDown">
+<code class="sig-name descname">keyDown</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.keyDown"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.keyDown" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.keyPress">
+<code class="sig-name descname">keyPress</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em>, <em class="sig-param"><span class="n">hold</span><span class="o">=</span><span class="default_value">[]</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.keyPress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.keyPress" title="Permalink to this definition">¶</a></dt>
+<dd><p>hold: list of keys, such as LCTRL, LSHIFT, LALT, etc…</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.keyUp">
+<code class="sig-name descname">keyUp</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">key</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.keyUp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.keyUp" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.loop">
+<code class="sig-name descname">loop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.loop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.loop" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.mouseLClick">
+<code class="sig-name descname">mouseLClick</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.mouseLClick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.mouseLClick" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.mouseLPress">
+<code class="sig-name descname">mouseLPress</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.mouseLPress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.mouseLPress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.mouseMClick">
+<code class="sig-name descname">mouseMClick</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.mouseMClick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.mouseMClick" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.mouseMPress">
+<code class="sig-name descname">mouseMPress</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.mouseMPress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.mouseMPress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.mouseRClick">
+<code class="sig-name descname">mouseRClick</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.mouseRClick"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.mouseRClick" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.mouseRPress">
+<code class="sig-name descname">mouseRPress</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.mouseRPress"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.mouseRPress" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.requestDestruct">
+<code class="sig-name descname">requestDestruct</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.requestDestruct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.requestDestruct" title="Permalink to this definition">¶</a></dt>
+<dd><p>Request self-destruct of application
+It should be called under AppMethod or AppCommand</p>
+<dl class="simple">
+<dt>When a single app requested startApplication,</dt><dd><p>destruction should not be requested at the same frame.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.requestUpdate">
+<code class="sig-name descname">requestUpdate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.requestUpdate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.requestUpdate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Request update of application
+Should be called under AppMethod or AppCommand</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.setTriggerDelay">
+<code class="sig-name descname">setTriggerDelay</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">delay</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.setTriggerDelay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.setTriggerDelay" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.startApplication">
+<code class="sig-name descname">startApplication</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">app</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.startApplication"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.startApplication" title="Permalink to this definition">¶</a></dt>
+<dd><p>It just reserve to start app.
+The app is initialized at the start of the next loop.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.unsetTriggerDelay">
+<code class="sig-name descname">unsetTriggerDelay</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.unsetTriggerDelay"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.unsetTriggerDelay" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.updateKeyState">
+<code class="sig-name descname">updateKeyState</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.updateKeyState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.updateKeyState" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.AppManager.updateMouseState">
+<code class="sig-name descname">updateMouseState</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#AppManager.updateMouseState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.AppManager.updateMouseState" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt id="repl.core.appmanager.PayloadSizeObj">
+<em class="property">class </em><code class="sig-prename descclassname">repl.core.appmanager.</code><code class="sig-name descname">PayloadSizeObj</code><a class="reference internal" href="_modules/repl/core/appmanager.html#PayloadSizeObj"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.PayloadSizeObj" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">eudplib.core.eudobj.eudobj.EUDObject</span></code></p>
+<dl class="py method">
+<dt id="repl.core.appmanager.PayloadSizeObj.CollectDependency">
+<code class="sig-name descname">CollectDependency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">emitbuffer</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#PayloadSizeObj.CollectDependency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.PayloadSizeObj.CollectDependency" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.PayloadSizeObj.GetDataSize">
+<code class="sig-name descname">GetDataSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#PayloadSizeObj.GetDataSize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.PayloadSizeObj.GetDataSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Memory size of object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="repl.core.appmanager.PayloadSizeObj.WritePayload">
+<code class="sig-name descname">WritePayload</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">emitbuffer</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#PayloadSizeObj.WritePayload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.PayloadSizeObj.WritePayload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Write object</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="repl.core.appmanager.getAppManager">
+<code class="sig-prename descclassname">repl.core.appmanager.</code><code class="sig-name descname">getAppManager</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/appmanager.html#getAppManager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.appmanager.getAppManager" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright mighty1231
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

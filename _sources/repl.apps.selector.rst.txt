@@ -1,0 +1,7 @@
+repl.apps.selector module
+=========================
+
+.. automodule:: repl.apps.selector
+   :members:
+   :undoc-members:
+   :show-inheritance:

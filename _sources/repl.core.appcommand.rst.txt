@@ -1,0 +1,7 @@
+repl.core.appcommand module
+===========================
+
+.. automodule:: repl.core.appcommand
+   :members:
+   :undoc-members:
+   :show-inheritance:

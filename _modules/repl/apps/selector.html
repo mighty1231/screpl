@@ -1,0 +1,334 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>repl.apps.selector &mdash; SC-REPL 1.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SC-REPL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SC-REPL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>repl.apps.selector</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for repl.apps.selector</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">repl</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Application</span><span class="p">,</span>
+    <span class="n">getAppManager</span><span class="p">,</span>
+    <span class="n">ReferenceTable</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># number of items to show in a page</span>
+<span class="n">NITEMS</span> <span class="o">=</span> <span class="mi">8</span>
+
+<span class="k">def</span> <span class="nf">_createapp</span><span class="p">(</span><span class="n">domainname</span><span class="p">,</span> <span class="n">reftable</span><span class="p">):</span>
+    <span class="n">reftable_sz</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">reftable</span><span class="o">.</span><span class="n">_dict</span><span class="p">)</span>
+    <span class="n">_value</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">_offset</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">_result_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+
+    <span class="nd">@EUDFunc</span>
+    <span class="k">def</span> <span class="nf">focusOffset</span><span class="p">(</span><span class="n">new_offset</span><span class="p">):</span>
+        <span class="n">Trigger</span><span class="p">(</span>
+            <span class="n">conditions</span> <span class="o">=</span> <span class="n">new_offset</span><span class="o">.</span><span class="n">AtLeast</span><span class="p">(</span><span class="mh">0x80000000</span><span class="p">),</span>
+            <span class="n">actions</span> <span class="o">=</span> <span class="n">new_offset</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">Trigger</span><span class="p">(</span>
+            <span class="n">conditions</span> <span class="o">=</span> <span class="n">new_offset</span><span class="o">.</span><span class="n">AtLeast</span><span class="p">(</span><span class="n">reftable_sz</span><span class="p">),</span>
+            <span class="n">actions</span> <span class="o">=</span> <span class="n">new_offset</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="n">reftable_sz</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">new_offset</span> <span class="o">==</span> <span class="n">_offset</span><span class="p">):</span>
+            <span class="n">_offset</span> <span class="o">&lt;&lt;</span> <span class="n">new_offset</span>
+            <span class="n">_value</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">((</span><span class="n">EPD</span><span class="p">(</span><span class="n">reftable</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">new_offset</span><span class="p">)</span>
+            <span class="n">getAppManager</span><span class="p">()</span><span class="o">.</span><span class="n">requestUpdate</span><span class="p">()</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+    <span class="k">class</span> <span class="nc">_SelectorApp</span><span class="p">(</span><span class="n">Application</span><span class="p">):</span>
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span> <span class="nf">setContent</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">result_epd</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+            <span class="n">_value</span> <span class="o">&lt;&lt;</span> <span class="n">default</span>
+            <span class="k">if</span> <span class="n">result_epd</span><span class="p">:</span>
+                <span class="n">_result_epd</span> <span class="o">&lt;&lt;</span> <span class="n">result_epd</span>
+
+        <span class="k">def</span> <span class="nf">onInit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">_offset</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+            <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">name_epd</span><span class="p">,</span> <span class="n">value_epd</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">MemoryEPD</span><span class="p">(</span><span class="n">value_epd</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="n">_value</span><span class="p">)):</span>
+                    <span class="n">_offset</span> <span class="o">&lt;&lt;</span> <span class="n">i</span>
+                    <span class="n">EUDReturn</span><span class="p">()</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
+
+            <span class="n">ReferenceTable</span><span class="o">.</span><span class="n">Iter</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">reftable</span><span class="p">),</span> <span class="n">func</span><span class="p">)</span>
+
+            <span class="c1"># failed on search</span>
+            <span class="n">_value</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+
+        <span class="k">def</span> <span class="nf">onDestruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">_result_epd</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">_result_epd</span><span class="p">,</span> <span class="n">_value</span><span class="p">)</span>
+                <span class="n">_result_epd</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">appManager</span> <span class="o">=</span> <span class="n">getAppManager</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">appManager</span><span class="o">.</span><span class="n">keyPress</span><span class="p">(</span><span class="s2">&quot;ESC&quot;</span><span class="p">)):</span>
+                <span class="n">appManager</span><span class="o">.</span><span class="n">requestDestruct</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">appManager</span><span class="o">.</span><span class="n">keyPress</span><span class="p">(</span><span class="s2">&quot;F7&quot;</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;LCTRL&quot;</span><span class="p">])):</span>
+                <span class="n">focusOffset</span><span class="p">(</span><span class="n">_offset</span> <span class="o">-</span> <span class="n">NITEMS</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">appManager</span><span class="o">.</span><span class="n">keyPress</span><span class="p">(</span><span class="s2">&quot;F7&quot;</span><span class="p">)):</span>
+                <span class="n">focusOffset</span><span class="p">(</span><span class="n">_offset</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">appManager</span><span class="o">.</span><span class="n">keyPress</span><span class="p">(</span><span class="s2">&quot;F8&quot;</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;LCTRL&quot;</span><span class="p">])):</span>
+                <span class="n">focusOffset</span><span class="p">(</span><span class="n">_offset</span> <span class="o">+</span> <span class="n">NITEMS</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">appManager</span><span class="o">.</span><span class="n">keyPress</span><span class="p">(</span><span class="s2">&quot;F8&quot;</span><span class="p">)):</span>
+                <span class="n">focusOffset</span><span class="p">(</span><span class="n">_offset</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+            <span class="n">appManager</span><span class="o">.</span><span class="n">requestUpdate</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\x16</span><span class="si">{}</span><span class="s2"> Selector, value=%D, ESC, F7, F8</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">domainname</span><span class="p">),</span>
+                <span class="n">_value</span><span class="p">)</span>
+
+            <span class="n">cur</span><span class="p">,</span> <span class="n">until</span><span class="p">,</span> <span class="n">pageend</span><span class="p">,</span> <span class="n">key_epd</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">_offset</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">reftable_sz</span> <span class="o">//</span> <span class="n">NITEMS</span> <span class="o">*</span> <span class="n">NITEMS</span><span class="p">)):</span>
+                <span class="n">DoActions</span><span class="p">([</span>
+                    <span class="n">cur</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="n">reftable_sz</span> <span class="o">//</span> <span class="n">NITEMS</span> <span class="o">*</span> <span class="n">NITEMS</span><span class="p">),</span>
+                    <span class="n">until</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="n">reftable_sz</span><span class="p">),</span>
+                    <span class="n">pageend</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">((</span><span class="n">reftable_sz</span> <span class="o">//</span> <span class="n">NITEMS</span> <span class="o">*</span> <span class="n">NITEMS</span><span class="p">)</span> <span class="o">+</span> <span class="n">NITEMS</span><span class="p">),</span>
+                    <span class="n">key_epd</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">reftable</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">reftable_sz</span> <span class="o">//</span> <span class="n">NITEMS</span> <span class="o">*</span> <span class="n">NITEMS</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="p">])</span>
+            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                <span class="n">quot</span><span class="p">,</span> <span class="n">mod</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">_offset</span><span class="p">,</span> <span class="n">NITEMS</span><span class="p">)</span>
+                <span class="n">cur</span> <span class="o">&lt;&lt;</span> <span class="n">quot</span> <span class="o">*</span> <span class="n">NITEMS</span>
+                <span class="n">until</span> <span class="o">&lt;&lt;</span> <span class="n">cur</span> <span class="o">+</span> <span class="n">NITEMS</span>
+                <span class="n">pageend</span> <span class="o">&lt;&lt;</span> <span class="n">until</span>
+                <span class="n">key_epd</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">reftable</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">cur</span> <span class="o">*</span> <span class="mi">2</span> 
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+
+            <span class="c1"># print contents</span>
+            <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+                <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cur</span> <span class="o">&gt;=</span> <span class="n">until</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur</span> <span class="o">==</span> <span class="n">_offset</span><span class="p">):</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x11</span><span class="p">)</span> <span class="c1"># orange</span>
+                <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x02</span><span class="p">)</span> <span class="c1"># pale blue</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
+
+                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">&quot; </span><span class="si">%E</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">key_epd</span><span class="p">))</span>
+
+                <span class="n">DoActions</span><span class="p">([</span>
+                    <span class="n">cur</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+                    <span class="n">key_epd</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                <span class="p">])</span>
+            <span class="n">EUDEndInfLoop</span><span class="p">()</span>
+
+            <span class="c1"># print spaces</span>
+            <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+                <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cur</span> <span class="o">&gt;=</span> <span class="n">pageend</span><span class="p">)</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">))</span>
+                <span class="n">cur</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">EUDEndInfLoop</span><span class="p">()</span>
+
+            <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_SelectorApp</span>
+
+<span class="kn">from</span> <span class="nn">..resources.table.tables</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">tb_AIScript</span><span class="p">,</span>
+    <span class="n">tb_Modifier</span><span class="p">,</span>
+    <span class="n">tb_AllyStatus</span><span class="p">,</span>
+    <span class="n">tb_Comparison</span><span class="p">,</span>
+    <span class="n">tb_Order</span><span class="p">,</span>
+    <span class="n">tb_Player</span><span class="p">,</span>
+    <span class="n">tb_PropState</span><span class="p">,</span>
+    <span class="n">tb_Resource</span><span class="p">,</span>
+    <span class="n">tb_Score</span><span class="p">,</span>
+    <span class="n">tb_SwitchAction</span><span class="p">,</span>
+    <span class="n">tb_SwitchState</span>
+<span class="p">)</span>
+
+<span class="n">AIScriptSelectorApp</span>     <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">&quot;AIScript&quot;</span><span class="p">,</span>     <span class="n">tb_AIScript</span><span class="p">)</span>
+<span class="n">ModifierSelectorApp</span>     <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">&quot;Modifier&quot;</span><span class="p">,</span>     <span class="n">tb_Modifier</span><span class="p">)</span>
+<span class="n">AllyStatusSelectorApp</span>   <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">&quot;AllyStatus&quot;</span><span class="p">,</span>   <span class="n">tb_AllyStatus</span><span class="p">)</span>
+<span class="n">ComparisonSelectorApp</span>   <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">&quot;Comparison&quot;</span><span class="p">,</span>   <span class="n">tb_Comparison</span><span class="p">)</span>
+<span class="n">OrderSelectorApp</span>        <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">&quot;Order&quot;</span><span class="p">,</span>        <span class="n">tb_Order</span><span class="p">)</span>
+<span class="n">PlayerSelectorApp</span>       <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">&quot;Player&quot;</span><span class="p">,</span>       <span class="n">tb_Player</span><span class="p">)</span>
+<span class="n">PropStateSelectorApp</span>    <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">&quot;PropState&quot;</span><span class="p">,</span>    <span class="n">tb_PropState</span><span class="p">)</span>
+<span class="n">ResourceSelectorApp</span>     <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">&quot;Resource&quot;</span><span class="p">,</span>     <span class="n">tb_Resource</span><span class="p">)</span>
+<span class="n">ScoreSelectorApp</span>        <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">&quot;Score&quot;</span><span class="p">,</span>        <span class="n">tb_Score</span><span class="p">)</span>
+<span class="n">SwitchActionSelectorApp</span> <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">&quot;SwitchAction&quot;</span><span class="p">,</span> <span class="n">tb_SwitchAction</span><span class="p">)</span>
+<span class="n">SwitchStateSelectorApp</span>  <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">&quot;SwitchState&quot;</span><span class="p">,</span>  <span class="n">tb_SwitchState</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright mighty1231
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

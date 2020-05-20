@@ -1,0 +1,7 @@
+repl.apps.repl module
+=====================
+
+.. automodule:: repl.apps.repl
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,19 @@
+repl.monitor package
+====================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   repl.monitor.func
+   repl.monitor.profile
+
+Module contents
+---------------
+
+.. automodule:: repl.monitor
+   :members:
+   :undoc-members:
+   :show-inheritance:

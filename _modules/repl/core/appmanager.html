@@ -1,0 +1,803 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>repl.core.appmanager &mdash; SC-REPL 1.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SC-REPL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SC-REPL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>repl.core.appmanager</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for repl.core.appmanager</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">from</span> <span class="nn">..base.eudbyterw</span> <span class="kn">import</span> <span class="n">EUDByteRW</span>
+<span class="kn">from</span> <span class="nn">..base.pool</span> <span class="kn">import</span> <span class="n">DbPool</span><span class="p">,</span> <span class="n">VarPool</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">f_raiseError</span><span class="p">,</span> <span class="n">f_raiseWarning</span><span class="p">,</span> <span class="n">getKeyCode</span><span class="p">,</span> <span class="n">f_strlen</span><span class="p">,</span> <span class="n">print_f</span>
+
+<span class="n">KEYPRESS_DELAY</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">_manager</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">BRIDGE_OFF</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">BRIDGE_ON</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">BRIDGE_BLIND</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="n">trigger_framedelay</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<div class="viewcode-block" id="getAppManager"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.getAppManager">[docs]</a><span class="k">def</span> <span class="nf">getAppManager</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">_manager</span>
+    <span class="k">assert</span> <span class="n">_manager</span>
+
+    <span class="k">return</span> <span class="n">_manager</span></div>
+
+<div class="viewcode-block" id="PayloadSizeObj"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.PayloadSizeObj">[docs]</a><span class="k">class</span> <span class="nc">PayloadSizeObj</span><span class="p">(</span><span class="n">EUDObject</span><span class="p">):</span>
+<div class="viewcode-block" id="PayloadSizeObj.GetDataSize"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.PayloadSizeObj.GetDataSize">[docs]</a>    <span class="k">def</span> <span class="nf">GetDataSize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="mi">4</span></div>
+
+<div class="viewcode-block" id="PayloadSizeObj.CollectDependency"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.PayloadSizeObj.CollectDependency">[docs]</a>    <span class="k">def</span> <span class="nf">CollectDependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">emitbuffer</span><span class="p">):</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="PayloadSizeObj.WritePayload"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.PayloadSizeObj.WritePayload">[docs]</a>    <span class="k">def</span> <span class="nf">WritePayload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">emitbuffer</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">eudplib.core.allocator.payload</span> <span class="kn">import</span> <span class="n">_payload_size</span>
+        <span class="n">emitbuffer</span><span class="o">.</span><span class="n">WriteDword</span><span class="p">(</span><span class="n">_payload_size</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="AppManager"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager">[docs]</a><span class="k">class</span> <span class="nc">AppManager</span><span class="p">:</span>
+    <span class="n">_APP_MAX_COUNT_</span> <span class="o">=</span> <span class="mi">30</span>
+
+<div class="viewcode-block" id="AppManager.initialize"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.initialize">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">global</span> <span class="n">_manager</span>
+        <span class="k">assert</span> <span class="n">_manager</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="n">_manager</span> <span class="o">=</span> <span class="n">AppManager</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">superuser</span><span class="p">,</span> <span class="n">superuser_mode</span><span class="p">,</span> <span class="n">bridge_mode</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">.application</span> <span class="kn">import</span> <span class="n">ApplicationInstance</span>
+
+        <span class="c1"># set superuser</span>
+        <span class="n">modes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;playerNumber&quot;</span><span class="p">,</span> <span class="s2">&quot;playerID&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">superuser_mode</span> <span class="o">==</span> <span class="n">modes</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+
+            <span class="c1"># evaluate chat prefix by player number</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span> <span class="o">=</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">playerMap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">superuser</span><span class="p">,</span> <span class="n">superuser</span><span class="p">))</span>
+            <span class="k">assert</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span> <span class="o">&lt;</span> <span class="mi">8</span><span class="p">,</span> <span class="s2">&quot;Superuser should be one of P1 ~ P8&quot;</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[SC-REPL] Given superuser playerNumber = </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">)</span>
+
+            <span class="c1"># copy superuser name</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">su_prefix</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">36</span><span class="p">)</span>
+            <span class="n">su_writer</span> <span class="o">=</span> <span class="n">EUDByteRW</span><span class="p">()</span>
+            <span class="n">su_writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">su_prefix</span><span class="p">))</span>
+            <span class="n">su_writer</span><span class="o">.</span><span class="n">write_str</span><span class="p">(</span><span class="mh">0x57EEEB</span> <span class="o">+</span> <span class="mi">36</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">)</span>
+            <span class="n">su_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">58</span><span class="p">)</span> <span class="c1"># colon</span>
+            <span class="n">su_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">7</span><span class="p">)</span>  <span class="c1"># color code</span>
+            <span class="n">su_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span> <span class="c1"># space</span>
+            <span class="n">su_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">su_prefixlen</span> <span class="o">=</span> <span class="n">f_strlen</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">su_prefix</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">superuser_mode</span> <span class="o">==</span> <span class="n">modes</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+
+            <span class="c1"># evaluate player number and chat prefix by player name</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;[SC-REPL] Given superuser playerID = &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">superuser</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">su_prefix</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="n">u2b</span><span class="p">(</span><span class="n">superuser</span><span class="p">)</span> <span class="o">+</span> <span class="nb">bytes</span><span class="p">([</span><span class="mi">58</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">0</span><span class="p">]))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">su_prefixlen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">superuser</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="n">name_ptr</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mh">0x57EEEB</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">EUDWhile</span><span class="p">()(</span><span class="n">name_ptr</span> <span class="o">&lt;=</span> <span class="mh">0x57EEEB</span> <span class="o">+</span> <span class="mi">36</span><span class="o">*</span><span class="mi">7</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">f_strcmp</span><span class="p">(</span><span class="n">name_ptr</span><span class="p">,</span> <span class="n">Db</span><span class="p">(</span><span class="n">u2b</span><span class="p">(</span><span class="n">superuser</span><span class="p">)</span> <span class="o">+</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\0</span><span class="s1">&#39;</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="n">EUDBreak</span><span class="p">()</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
+                <span class="n">DoActions</span><span class="p">([</span>
+                    <span class="n">name_ptr</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">36</span><span class="p">),</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+                <span class="p">])</span>
+            <span class="n">EUDEndWhile</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">superuser</span> <span class="o">==</span> <span class="mi">8</span><span class="p">):</span>
+                <span class="n">f_raiseError</span><span class="p">(</span><span class="s2">&quot;[SC-REPL] superuser &#39;</span><span class="si">%s</span><span class="s2">&#39; not found&quot;</span> <span class="o">%</span> <span class="n">superuser</span><span class="p">)</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown superuser mode, please set among </span><span class="si">{}</span><span class="s2">&quot;</span>
+                    <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">modes</span><span class="p">))</span>
+
+        <span class="c1"># pool supports for application instances</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dbpool</span> <span class="o">=</span> <span class="n">DbPool</span><span class="p">(</span><span class="mi">300000</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">varpool</span> <span class="o">=</span> <span class="n">VarPool</span><span class="p">(</span><span class="mi">800</span><span class="p">)</span>
+
+        <span class="c1"># variables that support several apps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_app_instance</span> <span class="o">=</span> <span class="n">ApplicationInstance</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app_method_stack</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="n">AppManager</span><span class="o">.</span><span class="n">_APP_MAX_COUNT_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app_cmdtab_stack</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="n">AppManager</span><span class="o">.</span><span class="n">_APP_MAX_COUNT_</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app_member_stack</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="n">AppManager</span><span class="o">.</span><span class="n">_APP_MAX_COUNT_</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDExecuteOnce</span><span class="p">()():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur_methods</span> <span class="o">=</span> <span class="n">EUDVArray</span><span class="p">(</span><span class="mi">12345</span><span class="p">)(</span><span class="n">_from</span><span class="o">=</span><span class="n">EUDVariable</span><span class="p">())</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur_members</span> <span class="o">=</span> <span class="n">EUDVArray</span><span class="p">(</span><span class="mi">12345</span><span class="p">)(</span><span class="n">_from</span><span class="o">=</span><span class="n">EUDVariable</span><span class="p">())</span>
+        <span class="n">EUDEndExecuteOnce</span><span class="p">()</span>
+
+        <span class="c1"># related to life cycle of app</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_starting_app</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_terminating_app</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># text ui</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">writer</span> <span class="o">=</span> <span class="n">EUDByteRW</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">displayBuffer</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">4000</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="n">initval</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur_cmdtable_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+
+        <span class="c1"># common useful value that app may use</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">=</span> <span class="n">EPD</span><span class="p">(</span><span class="n">Db</span><span class="p">(</span><span class="mh">0x100</span> <span class="o">*</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">keystates_sub</span> <span class="o">=</span> <span class="n">EPD</span><span class="p">(</span><span class="n">Db</span><span class="p">(</span><span class="mh">0x100</span> <span class="o">*</span> <span class="mi">4</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mouse_prev_state</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mouse_pos</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_frame_number</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># 64, 96, 128, 192, 256</span>
+        <span class="c1"># Multiply 32 to get pixel coordinate</span>
+        <span class="n">dim</span> <span class="o">=</span> <span class="n">GetChkTokenized</span><span class="p">()</span><span class="o">.</span><span class="n">getsection</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;DIM &#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapWidth</span> <span class="o">=</span> <span class="n">b2i2</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mapHeight</span> <span class="o">=</span> <span class="n">b2i2</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># bridge_mode</span>
+        <span class="n">bridge_mode</span> <span class="o">=</span> <span class="n">bridge_mode</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">bridge_mode</span> <span class="o">==</span> <span class="s1">&#39;on&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bridge_mode</span> <span class="o">=</span> <span class="n">BRIDGE_ON</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_blind_mode</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">bridge_mode</span> <span class="o">==</span> <span class="s1">&#39;blind&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bridge_mode</span> <span class="o">=</span> <span class="n">BRIDGE_BLIND</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_blind_mode</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">bridge_mode</span> <span class="o">==</span> <span class="s1">&#39;off&#39;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">bridge_mode</span> <span class="o">=</span> <span class="n">BRIDGE_OFF</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Unknown &#39;bridge_mode&#39; = &#39;</span><span class="si">%s</span><span class="s2">&#39;, &quot;</span>\
+                    <span class="s2">&quot;expected &#39;on&#39;, &#39;off&#39;, or &#39;blind&#39;&quot;</span> <span class="o">%</span> <span class="n">bridge_mode</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">payload_size</span> <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">PayloadSizeObj</span><span class="p">()))</span>
+
+<div class="viewcode-block" id="AppManager.allocVariable"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.allocVariable">[docs]</a>    <span class="k">def</span> <span class="nf">allocVariable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">varpool</span><span class="o">.</span><span class="n">alloc</span><span class="p">(</span><span class="n">count</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AppManager.freeVariable"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.freeVariable">[docs]</a>    <span class="k">def</span> <span class="nf">freeVariable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">varpool</span><span class="o">.</span><span class="n">free</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AppManager.allocDb_epd"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.allocDb_epd">[docs]</a>    <span class="k">def</span> <span class="nf">allocDb_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sizequarter</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39; allocate SIZEQUARTER*4 bytes &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbpool</span><span class="o">.</span><span class="n">alloc_epd</span><span class="p">(</span><span class="n">sizequarter</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AppManager.freeDb_epd"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.freeDb_epd">[docs]</a>    <span class="k">def</span> <span class="nf">freeDb_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dbpool</span><span class="o">.</span><span class="n">free_epd</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AppManager.getCurrentAppInstance"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.getCurrentAppInstance">[docs]</a>    <span class="k">def</span> <span class="nf">getCurrentAppInstance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_app_instance</span></div>
+
+<div class="viewcode-block" id="AppManager.startApplication"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.startApplication">[docs]</a>    <span class="k">def</span> <span class="nf">startApplication</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        It just reserve to start app.</span>
+<span class="sd">        The app is initialized at the start of the next loop.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="kn">from</span> <span class="nn">.application</span> <span class="kn">import</span> <span class="n">Application</span>
+        <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">Application</span><span class="p">)</span>
+
+        <span class="n">app</span><span class="o">.</span><span class="n">allocate</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_startApplication</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">_fields_</span><span class="p">),</span> <span class="n">app</span><span class="o">.</span><span class="n">_methodarray_</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">_cmdtable_</span><span class="p">))</span></div>
+
+    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">_startApplication</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fieldsize</span><span class="p">,</span> <span class="n">methods</span><span class="p">,</span> <span class="n">table_epd</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_terminating_app</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">f_raiseError</span><span class="p">(</span><span class="s2">&quot;FATAL ERROR: startApplication &lt;-&gt; requestDestruct&quot;</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span> <span class="o">&lt;</span> <span class="n">AppManager</span><span class="o">.</span><span class="n">_APP_MAX_COUNT_</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app_member_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">allocVariable</span><span class="p">(</span><span class="n">fieldsize</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app_method_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span><span class="p">]</span> <span class="o">=</span> <span class="n">methods</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app_cmdtab_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span><span class="p">]</span> <span class="o">=</span> <span class="n">table_epd</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_starting_app</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="n">f_raiseWarning</span><span class="p">(</span><span class="s2">&quot;APP COUNT reached MAX, No more spaces&quot;</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+<div class="viewcode-block" id="AppManager.initOrTerminateApplication"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.initOrTerminateApplication">[docs]</a>    <span class="k">def</span> <span class="nf">initOrTerminateApplication</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Terminate one</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_terminating_app</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">f_raiseError</span><span class="p">(</span><span class="s2">&quot;FATAL ERROR: Excessive TerminateApplication&quot;</span><span class="p">)</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_app_instance</span><span class="o">.</span><span class="n">onDestruct</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">freeVariable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_members</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="n">members</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_member_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span><span class="p">]</span>
+            <span class="n">methods</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_method_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span><span class="p">]</span>
+            <span class="n">table_epd</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_cmdtab_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span><span class="p">]</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur_members</span>      <span class="o">&lt;&lt;</span> <span class="n">members</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur_members</span><span class="o">.</span><span class="n">_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="n">members</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur_methods</span>      <span class="o">&lt;&lt;</span> <span class="n">methods</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur_methods</span><span class="o">.</span><span class="n">_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="n">methods</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cur_cmdtable_epd</span> <span class="o">&lt;&lt;</span> <span class="n">table_epd</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_app_instance</span><span class="o">.</span><span class="n">onResume</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_terminating_app</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="c1"># Initialize one or more</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_starting_app</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">members</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_member_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span><span class="p">]</span>
+                <span class="n">methods</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_method_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span><span class="p">]</span>
+                <span class="n">table_epd</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_cmdtab_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span><span class="p">]</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur_members</span>      <span class="o">&lt;&lt;</span> <span class="n">members</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur_members</span><span class="o">.</span><span class="n">_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="n">members</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur_methods</span>      <span class="o">&lt;&lt;</span> <span class="n">methods</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur_methods</span><span class="o">.</span><span class="n">_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="n">methods</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">cur_cmdtable_epd</span> <span class="o">&lt;&lt;</span> <span class="n">table_epd</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_app_instance</span><span class="o">.</span><span class="n">cmd_output_epd</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_app_instance</span><span class="o">.</span><span class="n">onInit</span><span class="p">()</span>
+
+                <span class="n">EUDBreakIf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">EUDEndInfLoop</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_starting_app</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cleanText</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">requestUpdate</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AppManager.updateKeyState"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.updateKeyState">[docs]</a>    <span class="k">def</span> <span class="nf">updateKeyState</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># keystate</span>
+        <span class="c1"># 0: not changed</span>
+        <span class="c1"># 1, 2, ..., n: key down with consecutive n frames</span>
+        <span class="c1"># -1: key up</span>
+        <span class="n">prev_states</span> <span class="o">=</span> <span class="n">EPD</span><span class="p">(</span><span class="n">Db</span><span class="p">(</span><span class="mh">0x100</span><span class="p">))</span>
+
+        <span class="n">prevs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="mi">4</span><span class="p">)]</span>
+        <span class="n">curs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="mi">4</span><span class="p">)]</span>
+        <span class="n">states_cond</span> <span class="o">=</span> <span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="o">*</span><span class="mi">4</span><span class="p">)]</span>
+        <span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="mi">4</span><span class="p">)]</span>
+        <span class="n">subs</span> <span class="o">=</span> <span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="mi">4</span><span class="p">)]</span>
+
+        <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">prev</span> <span class="o">+</span> <span class="mi">4</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">prev_states</span><span class="p">)</span> <span class="k">for</span> <span class="n">prev</span> <span class="ow">in</span> <span class="n">prevs</span><span class="p">]</span>
+        <span class="n">actions</span> <span class="o">+=</span> <span class="p">[</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">cur</span> <span class="o">+</span> <span class="mi">4</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="mh">0x596A18</span><span class="p">))</span> <span class="k">for</span> <span class="n">cur</span> <span class="ow">in</span> <span class="n">curs</span><span class="p">]</span>
+        <span class="n">actions</span> <span class="o">+=</span> <span class="p">[</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">state</span> <span class="o">+</span> <span class="mi">4</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">+</span> <span class="n">i</span><span class="o">//</span><span class="mi">2</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">states_cond</span><span class="p">)]</span>
+        <span class="n">actions</span> <span class="o">+=</span> <span class="p">[</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">state</span> <span class="o">+</span> <span class="mi">16</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">+</span> <span class="n">i</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">state</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">states</span><span class="p">)]</span>
+        <span class="n">actions</span> <span class="o">+=</span> <span class="p">[</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">sub</span> <span class="o">+</span> <span class="mi">16</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">keystates_sub</span> <span class="o">+</span> <span class="n">i</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">sub</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">subs</span><span class="p">)]</span>
+        <span class="n">DoActions</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">EUDLoopN</span><span class="p">()(</span><span class="mh">0x100</span> <span class="o">//</span> <span class="mi">4</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">pos</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mh">0x100</span><span class="p">,</span> <span class="mh">0x10000</span><span class="p">,</span> <span class="mh">0x1000000</span><span class="p">]):</span>
+                <span class="c1"># 0-&gt;0: set 0</span>
+                <span class="n">Trigger</span><span class="p">(</span>
+                    <span class="n">conditions</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">prevs</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">MemoryX</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0xFF</span> <span class="o">*</span> <span class="n">pos</span><span class="p">),</span>
+                        <span class="n">curs</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">MemoryX</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0xFF</span> <span class="o">*</span> <span class="n">pos</span><span class="p">)</span>
+                    <span class="p">],</span>
+                    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">states</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">SetMemory</span><span class="p">(</span><span class="mh">0x58A364</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="c1"># 0-&gt;1: set 1</span>
+                <span class="n">Trigger</span><span class="p">(</span>
+                    <span class="n">conditions</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">prevs</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">MemoryX</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0xFF</span> <span class="o">*</span> <span class="n">pos</span><span class="p">),</span>
+                        <span class="n">curs</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">MemoryX</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="mh">0xFF</span> <span class="o">*</span> <span class="n">pos</span><span class="p">)</span>
+                    <span class="p">],</span>
+                    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">states</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">SetMemory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                        <span class="n">subs</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">SetMemory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="c1"># 1-&gt;0: set -1</span>
+                <span class="n">Trigger</span><span class="p">(</span>
+                    <span class="n">conditions</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">prevs</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">MemoryX</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="mh">0xFF</span> <span class="o">*</span> <span class="n">pos</span><span class="p">),</span>
+                        <span class="n">curs</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">MemoryX</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0xFF</span> <span class="o">*</span> <span class="n">pos</span><span class="p">)</span>
+                    <span class="p">],</span>
+                    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">states</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">SetMemory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">32</span><span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+                        <span class="n">subs</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">SetMemory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="c1"># 1-&gt;1: +1</span>
+                <span class="n">Trigger</span><span class="p">(</span>
+                    <span class="n">conditions</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">prevs</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">MemoryX</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="mh">0xFF</span> <span class="o">*</span> <span class="n">pos</span><span class="p">),</span>
+                        <span class="n">curs</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">MemoryX</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="n">pos</span><span class="p">,</span> <span class="mh">0xFF</span> <span class="o">*</span> <span class="n">pos</span><span class="p">)</span>
+                    <span class="p">],</span>
+                    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">states</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">SetMemory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                        <span class="n">subs</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">SetMemory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+                <span class="c1"># subs (consecutive keydown)</span>
+                <span class="n">Trigger</span><span class="p">(</span>
+                    <span class="n">conditions</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">states_cond</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">Memory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="n">KEYPRESS_DELAY</span><span class="p">),</span>
+                        <span class="n">states_cond</span><span class="p">[</span><span class="mi">2</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">Memory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">AtMost</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">31</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                    <span class="p">],</span>
+                    <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="n">subs</span><span class="p">[</span><span class="mi">4</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">3</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">SetMemory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="p">]</span>
+                <span class="p">)</span>
+
+            <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">prev</span> <span class="o">+</span> <span class="mi">4</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">prev</span> <span class="ow">in</span> <span class="n">prevs</span><span class="p">]</span>
+            <span class="n">actions</span> <span class="o">+=</span> <span class="p">[</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">cur</span> <span class="o">+</span> <span class="mi">4</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">cur</span> <span class="ow">in</span> <span class="n">curs</span><span class="p">]</span>
+            <span class="n">actions</span> <span class="o">+=</span> <span class="p">[</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">state</span> <span class="o">+</span> <span class="mi">4</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">states_cond</span><span class="p">]</span>
+            <span class="n">actions</span> <span class="o">+=</span> <span class="p">[</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">state</span> <span class="o">+</span> <span class="mi">16</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">states</span><span class="p">]</span>
+            <span class="n">actions</span> <span class="o">+=</span> <span class="p">[</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">sub</span> <span class="o">+</span> <span class="mi">16</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="n">subs</span><span class="p">]</span>
+            <span class="n">DoActions</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
+        <span class="n">EUDEndLoopN</span><span class="p">()</span>
+        <span class="n">f_repmovsd_epd</span><span class="p">(</span><span class="n">prev_states</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="mh">0x596A18</span><span class="p">),</span> <span class="mh">0x100</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AppManager.keyDown"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.keyDown">[docs]</a>    <span class="k">def</span> <span class="nf">keyDown</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">getKeyCode</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Memory</span><span class="p">(</span><span class="mh">0x68C144</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>               <span class="c1"># chat status - not chatting</span>
+            <span class="n">MemoryEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="AppManager.keyUp"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.keyUp">[docs]</a>    <span class="k">def</span> <span class="nf">keyUp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">getKeyCode</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Memory</span><span class="p">(</span><span class="mh">0x68C144</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>               <span class="c1"># chat status - not chatting</span>
+            <span class="n">MemoryEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">32</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">return</span> <span class="n">ret</span></div>
+
+<div class="viewcode-block" id="AppManager.keyPress"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.keyPress">[docs]</a>    <span class="k">def</span> <span class="nf">keyPress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[]):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        hold: list of keys, such as LCTRL, LSHIFT, LALT, etc...</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">getKeyCode</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">Memory</span><span class="p">(</span><span class="mh">0x68C144</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>               <span class="c1"># chat status - not chatting</span>
+            <span class="n">MemoryEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">MemoryEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates_sub</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">holdkey</span> <span class="ow">in</span> <span class="n">hold</span><span class="p">:</span>
+            <span class="n">holdkey</span> <span class="o">=</span> <span class="n">getKeyCode</span><span class="p">(</span><span class="n">holdkey</span><span class="p">)</span>
+            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MemoryEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">+</span> <span class="n">holdkey</span><span class="p">,</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">actions</span></div>
+
+<div class="viewcode-block" id="AppManager.getCurrentFrameNumber"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.getCurrentFrameNumber">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">getCurrentFrameNumber</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Counter that measures how much loops are called</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_frame_number</span></div>
+
+<div class="viewcode-block" id="AppManager.updateMouseState"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.updateMouseState">[docs]</a>    <span class="k">def</span> <span class="nf">updateMouseState</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># up   -&gt; up   : 1</span>
+        <span class="c1"># up   -&gt; down : 2</span>
+        <span class="c1"># down -&gt; up   : 0</span>
+        <span class="c1"># down -&gt; down : 3</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">32</span><span class="p">]):</span> <span class="c1"># L, R, M</span>
+            <span class="k">for</span> <span class="n">_bef</span><span class="p">,</span> <span class="n">_cur</span><span class="p">,</span> <span class="n">_state</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]:</span>
+                <span class="n">Trigger</span><span class="p">(</span>
+                    <span class="n">conditions</span> <span class="o">=</span> <span class="p">[</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">mouse_prev_state</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="n">c</span> <span class="o">*</span> <span class="n">_bef</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span>
+                        <span class="n">MemoryX</span><span class="p">(</span><span class="mh">0x6CDDC0</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="n">c</span> <span class="o">*</span> <span class="n">_cur</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+                    <span class="p">],</span> <span class="n">actions</span> <span class="o">=</span> <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="p">)</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">_state</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="c1"># store previous value</span>
+            <span class="n">Trigger</span><span class="p">(</span>
+                <span class="n">conditions</span><span class="o">=</span><span class="n">MemoryX</span><span class="p">(</span><span class="mh">0x6CDDC0</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span>
+                <span class="n">actions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_prev_state</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">Trigger</span><span class="p">(</span>
+                <span class="n">conditions</span><span class="o">=</span><span class="n">MemoryX</span><span class="p">(</span><span class="mh">0x6CDDC0</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">),</span>
+                <span class="n">actions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_prev_state</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+            <span class="p">)</span>
+
+        <span class="c1"># mouse position</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mouse_pos</span>
+        <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x0062848C</span><span class="p">))</span> <span class="o">+</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x006CDDC4</span><span class="p">))</span>
+        <span class="n">y</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x006284A8</span><span class="p">))</span> <span class="o">+</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x006CDDC8</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="AppManager.mouseLClick"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.mouseLClick">[docs]</a>    <span class="k">def</span> <span class="nf">mouseLClick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">MemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="p">),</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AppManager.mouseLPress"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.mouseLPress">[docs]</a>    <span class="k">def</span> <span class="nf">mouseLPress</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">MemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="p">),</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AppManager.mouseRClick"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.mouseRClick">[docs]</a>    <span class="k">def</span> <span class="nf">mouseRClick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">MemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AppManager.mouseRPress"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.mouseRPress">[docs]</a>    <span class="k">def</span> <span class="nf">mouseRPress</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">MemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AppManager.mouseMClick"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.mouseMClick">[docs]</a>    <span class="k">def</span> <span class="nf">mouseMClick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">MemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="o">+</span><span class="mi">2</span><span class="p">),</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AppManager.mouseMPress"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.mouseMPress">[docs]</a>    <span class="k">def</span> <span class="nf">mouseMPress</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">MemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="o">+</span><span class="mi">2</span><span class="p">),</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AppManager.getMousePositionXY"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.getMousePositionXY">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">getMousePositionXY</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mouse_pos</span>
+        <span class="n">EUDReturn</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="AppManager.getMapWidth"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.getMapWidth">[docs]</a>    <span class="k">def</span> <span class="nf">getMapWidth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># 64, 96, 128, 192, 256</span>
+        <span class="c1"># Multiply 32 to get pixel coordinate</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapWidth</span></div>
+
+<div class="viewcode-block" id="AppManager.getMapHeight"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.getMapHeight">[docs]</a>    <span class="k">def</span> <span class="nf">getMapHeight</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># 64, 96, 128, 192, 256</span>
+        <span class="c1"># Multiply 32 to get pixel coordinate</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">mapHeight</span></div>
+
+<div class="viewcode-block" id="AppManager.requestUpdate"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.requestUpdate">[docs]</a>    <span class="k">def</span> <span class="nf">requestUpdate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Request update of application</span>
+<span class="sd">        Should be called under AppMethod or AppCommand</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="AppManager.requestDestruct"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.requestDestruct">[docs]</a>    <span class="k">def</span> <span class="nf">requestDestruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Request self-destruct of application</span>
+<span class="sd">        It should be called under AppMethod or AppCommand</span>
+
+<span class="sd">        When a single app requested startApplication,</span>
+<span class="sd">          destruction should not be requested at the same frame.</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_starting_app</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">f_raiseError</span><span class="p">(</span><span class="s2">&quot;FATAL ERROR: startApplication &lt;-&gt; requestDestruct&quot;</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_terminating_app</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="AppManager.setTriggerDelay"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.setTriggerDelay">[docs]</a>    <span class="k">def</span> <span class="nf">setTriggerDelay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delay</span><span class="p">):</span>
+        <span class="n">trigger_framedelay</span> <span class="o">&lt;&lt;</span> <span class="n">delay</span></div>
+
+<div class="viewcode-block" id="AppManager.unsetTriggerDelay"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.unsetTriggerDelay">[docs]</a>    <span class="k">def</span> <span class="nf">unsetTriggerDelay</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">trigger_framedelay</span> <span class="o">&lt;&lt;</span> <span class="o">-</span><span class="mi">1</span></div>
+
+<div class="viewcode-block" id="AppManager.isBridgeMode"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.isBridgeMode">[docs]</a>    <span class="k">def</span> <span class="nf">isBridgeMode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">bridge_mode</span> <span class="o">!=</span> <span class="n">BRIDGE_OFF</span></div>
+
+<div class="viewcode-block" id="AppManager.exportAppOutputToBridge"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.exportAppOutputToBridge">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">exportAppOutputToBridge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_buffer</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">..bridge_server.appoutput</span> <span class="kn">import</span> <span class="p">(</span>
+            <span class="n">APP_OUTPUT_MAXSIZE</span><span class="p">,</span>
+            <span class="n">appOutputSize</span><span class="p">,</span>
+            <span class="n">appOutputBuffer</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">isBridgeMode</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">appOutputSize</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">EUDReturn</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="n">written</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">size</span> <span class="o">&gt;=</span> <span class="n">APP_OUTPUT_MAXSIZE</span><span class="p">):</span>
+            <span class="n">written</span> <span class="o">&lt;&lt;</span> <span class="n">APP_OUTPUT_MAXSIZE</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="n">written</span> <span class="o">&lt;&lt;</span> <span class="n">size</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="n">f_memcpy</span><span class="p">(</span><span class="n">appOutputBuffer</span><span class="p">,</span> <span class="n">src_buffer</span><span class="p">,</span> <span class="n">written</span><span class="p">)</span>
+        <span class="n">appOutputSize</span> <span class="o">&lt;&lt;</span> <span class="n">written</span>
+
+        <span class="n">EUDReturn</span><span class="p">(</span><span class="n">written</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AppManager.cleanText"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.cleanText">[docs]</a>    <span class="k">def</span> <span class="nf">cleanText</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># clean text UI of previous app</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isBridgeMode</span><span class="p">():</span>
+            <span class="n">EUDIf</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_blind_mode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">print_f</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">*</span> <span class="mi">12</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isBridgeMode</span><span class="p">():</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="AppManager.getWriter"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.getWriter">[docs]</a>    <span class="k">def</span> <span class="nf">getWriter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Internally printing function uses this method</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">writer</span></div>
+
+<div class="viewcode-block" id="AppManager.getSTRSectionSize"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.getSTRSectionSize">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">getSTRSectionSize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">payload_size</span></div>
+
+<div class="viewcode-block" id="AppManager.loop"><a class="viewcode-back" href="../../../repl.core.appmanager.html#repl.core.appmanager.AppManager.loop">[docs]</a>    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">..apps.repl</span> <span class="kn">import</span> <span class="n">REPL</span>
+        <span class="kn">from</span> <span class="nn">.appcommand</span> <span class="kn">import</span> <span class="n">AppCommand</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isBridgeMode</span><span class="p">():</span>
+            <span class="kn">from</span> <span class="nn">..bridge_server</span> <span class="kn">import</span> <span class="n">bridge_init</span><span class="p">,</span> <span class="n">bridge_loop</span>
+
+        <span class="k">if</span> <span class="n">EUDExecuteOnce</span><span class="p">()():</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isBridgeMode</span><span class="p">():</span>
+                <span class="n">bridge_init</span><span class="p">()</span>
+
+                <span class="c1"># bridge command</span>
+                <span class="nd">@AppCommand</span><span class="p">([])</span>
+                <span class="k">def</span> <span class="nf">toggleBlind</span><span class="p">(</span><span class="n">repl</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">is_blind_mode</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_blind_mode</span>
+                <span class="n">REPL</span><span class="o">.</span><span class="n">addCommand</span><span class="p">(</span><span class="s2">&quot;blind&quot;</span><span class="p">,</span> <span class="n">toggleBlind</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">startApplication</span><span class="p">(</span><span class="n">REPL</span><span class="p">)</span>
+        <span class="n">EUDEndExecuteOnce</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">Memory</span><span class="p">(</span><span class="mh">0x512684</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateMouseState</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">updateKeyState</span><span class="p">()</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="c1"># turbo mode</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">trigger_framedelay</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)):</span>
+            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemory</span><span class="p">(</span><span class="mh">0x6509A0</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">trigger_framedelay</span><span class="p">))</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()([</span><span class="bp">self</span><span class="o">.</span><span class="n">is_terminating_app</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_starting_app</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">initOrTerminateApplication</span><span class="p">()</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="c1"># process all new chats</span>
+        <span class="n">prev_txtPtr</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="n">initval</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">after_chat</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">Memory</span><span class="p">(</span><span class="mh">0x640B58</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="n">prev_txtPtr</span><span class="p">)):</span>
+            <span class="n">EUDJump</span><span class="p">(</span><span class="n">after_chat</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="c1"># parse updated lines</span>
+        <span class="c1"># since onChat may change text, temporary buffer is required</span>
+        <span class="n">db_GameText</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">13</span><span class="o">*</span><span class="mi">218</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+        <span class="n">cur_txtPtr</span> <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x640B58</span><span class="p">))</span>
+        <span class="n">f_repmovsd_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">db_GameText</span><span class="p">),</span> <span class="n">EPD</span><span class="p">(</span><span class="mh">0x640B60</span><span class="p">),</span> <span class="p">(</span><span class="mi">13</span><span class="o">*</span><span class="mi">218</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span>
+
+        <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="n">prev_txtPtr</span>
+        <span class="n">chat_off</span> <span class="o">=</span> <span class="n">db_GameText</span> <span class="o">+</span> <span class="mi">218</span> <span class="o">*</span> <span class="n">i</span>
+        <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+            <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">cur_txtPtr</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">f_memcmp</span><span class="p">(</span><span class="n">chat_off</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">su_prefix</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">su_prefixlen</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">current_app_instance</span><span class="o">.</span><span class="n">onChat</span><span class="p">(</span><span class="n">chat_off</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">su_prefixlen</span><span class="p">)</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+
+            <span class="c1"># search next updated lines</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">10</span><span class="p">):</span>
+                <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+                <span class="n">chat_off</span> <span class="o">&lt;&lt;</span> <span class="n">db_GameText</span>
+            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">chat_off</span> <span class="o">+=</span> <span class="mi">218</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="n">EUDEndInfLoop</span><span class="p">()</span>
+        <span class="n">prev_txtPtr</span> <span class="o">&lt;&lt;</span> <span class="n">cur_txtPtr</span>
+        <span class="n">after_chat</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
+
+        <span class="c1"># loop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_app_instance</span><span class="o">.</span><span class="n">loop</span><span class="p">()</span>
+
+        <span class="c1"># evaluate display buffer</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">displayBuffer</span><span class="p">))</span>
+
+            <span class="c1"># print() uses self.writer internally</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_app_instance</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="n">f_setcurpl</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">superuser</span><span class="p">)</span>
+
+        <span class="c1"># print top of the screen, enables chat simultaneously</span>
+        <span class="n">txtPtr</span> <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x640B58</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">isBridgeMode</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_blind_mode</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">print_f</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%E</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">displayBuffer</span><span class="p">))</span>
+                <span class="n">SeqCompute</span><span class="p">([(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x640B58</span><span class="p">),</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">txtPtr</span><span class="p">)])</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+            <span class="n">bridge_loop</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">print_f</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%E</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">displayBuffer</span><span class="p">))</span>
+            <span class="n">SeqCompute</span><span class="p">([(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x640B58</span><span class="p">),</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">txtPtr</span><span class="p">)])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_frame_number</span> <span class="o">+=</span> <span class="mi">1</span></div></div>
+
+<span class="n">playerMap</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;P1&#39;</span><span class="p">:</span><span class="n">P1</span><span class="p">,</span>
+    <span class="s1">&#39;P2&#39;</span><span class="p">:</span><span class="n">P2</span><span class="p">,</span>
+    <span class="s1">&#39;P3&#39;</span><span class="p">:</span><span class="n">P3</span><span class="p">,</span>
+    <span class="s1">&#39;P4&#39;</span><span class="p">:</span><span class="n">P4</span><span class="p">,</span>
+    <span class="s1">&#39;P5&#39;</span><span class="p">:</span><span class="n">P5</span><span class="p">,</span>
+    <span class="s1">&#39;P6&#39;</span><span class="p">:</span><span class="n">P6</span><span class="p">,</span>
+    <span class="s1">&#39;P7&#39;</span><span class="p">:</span><span class="n">P7</span><span class="p">,</span>
+    <span class="s1">&#39;P8&#39;</span><span class="p">:</span><span class="n">P8</span><span class="p">,</span>
+    <span class="s1">&#39;Player1&#39;</span><span class="p">:</span><span class="n">Player1</span><span class="p">,</span>
+    <span class="s1">&#39;Player2&#39;</span><span class="p">:</span><span class="n">Player2</span><span class="p">,</span>
+    <span class="s1">&#39;Player3&#39;</span><span class="p">:</span><span class="n">Player3</span><span class="p">,</span>
+    <span class="s1">&#39;Player4&#39;</span><span class="p">:</span><span class="n">Player4</span><span class="p">,</span>
+    <span class="s1">&#39;Player5&#39;</span><span class="p">:</span><span class="n">Player5</span><span class="p">,</span>
+    <span class="s1">&#39;Player6&#39;</span><span class="p">:</span><span class="n">Player6</span><span class="p">,</span>
+    <span class="s1">&#39;Player7&#39;</span><span class="p">:</span><span class="n">Player7</span><span class="p">,</span>
+    <span class="s1">&#39;Player8&#39;</span><span class="p">:</span><span class="n">Player8</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright mighty1231
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

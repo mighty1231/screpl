@@ -1,0 +1,7 @@
+repl.resources.offset module
+============================
+
+.. automodule:: repl.resources.offset
+   :members:
+   :undoc-members:
+   :show-inheritance:

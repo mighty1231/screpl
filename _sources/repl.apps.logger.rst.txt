@@ -1,0 +1,7 @@
+repl.apps.logger module
+=======================
+
+.. automodule:: repl.apps.logger
+   :members:
+   :undoc-members:
+   :show-inheritance:

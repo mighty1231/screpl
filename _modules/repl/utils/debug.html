@@ -1,0 +1,237 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>repl.utils.debug &mdash; SC-REPL 1.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/underscore.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> SC-REPL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">SC-REPL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>repl.utils.debug</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for repl.utils.debug</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.conststring</span> <span class="kn">import</span> <span class="n">EPDConstString</span>
+
+<span class="n">_buf</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">2048</span><span class="p">)</span>
+<span class="n">_writer</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="getWriter"><a class="viewcode-back" href="../../../repl.utils.debug.html#repl.utils.debug.getWriter">[docs]</a><span class="k">def</span> <span class="nf">getWriter</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">_writer</span>
+    <span class="kn">from</span> <span class="nn">..base.eudbyterw</span> <span class="kn">import</span> <span class="n">EUDByteRW</span>
+
+    <span class="k">if</span> <span class="n">_writer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_writer</span> <span class="o">=</span> <span class="n">EUDByteRW</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">_writer</span></div>
+
+<span class="nd">@EUDFunc</span>
+<span class="k">def</span> <span class="nf">_print_buf</span><span class="p">():</span>
+    <span class="c1"># temporarily change string #1 and restore</span>
+    <span class="k">if</span> <span class="n">EUDExecuteOnce</span><span class="p">()():</span>
+        <span class="n">STRSection</span><span class="p">,</span> <span class="n">STRSection_epd</span> <span class="o">=</span> <span class="n">f_dwepdread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x5993D4</span><span class="p">))</span>
+        <span class="n">_offset_1</span> <span class="o">=</span> <span class="n">STRSection_epd</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">_buf_offset</span> <span class="o">=</span> <span class="n">_buf</span> <span class="o">-</span> <span class="n">STRSection</span>
+    <span class="n">EUDEndExecuteOnce</span><span class="p">()</span>
+
+    <span class="n">prev_offset</span> <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">_offset_1</span><span class="p">)</span>
+    <span class="n">orig_cp</span> <span class="o">=</span> <span class="n">f_getcurpl</span><span class="p">()</span>
+    <span class="n">f_setcurpl</span><span class="p">(</span><span class="n">f_getuserplayerid</span><span class="p">())</span>
+    <span class="n">DoActions</span><span class="p">([</span>
+        <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">_offset_1</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">_buf_offset</span><span class="p">),</span>
+        <span class="n">DisplayText</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+        <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">_offset_1</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">prev_offset</span><span class="p">)</span>
+    <span class="p">])</span>
+    <span class="n">f_setcurpl</span><span class="p">(</span><span class="n">orig_cp</span><span class="p">)</span>
+
+<div class="viewcode-block" id="f_raiseError"><a class="viewcode-back" href="../../../repl.utils.debug.html#repl.utils.debug.f_raiseError">[docs]</a><span class="k">def</span> <span class="nf">f_raiseError</span><span class="p">(</span><span class="n">txt</span><span class="p">):</span>
+    <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">_buf</span><span class="p">))</span>
+    <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">(</span><span class="n">txt</span><span class="p">))</span>
+    <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">_print_buf</span><span class="p">()</span>
+    <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemory</span><span class="p">(</span><span class="mh">0xDEADBEEF</span> <span class="o">^</span> <span class="mh">0xFFFFFFFF</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="f_raiseWarning"><a class="viewcode-back" href="../../../repl.utils.debug.html#repl.utils.debug.f_raiseWarning">[docs]</a><span class="k">def</span> <span class="nf">f_raiseWarning</span><span class="p">(</span><span class="n">txt</span><span class="p">):</span>
+    <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">_buf</span><span class="p">))</span>
+    <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">(</span><span class="n">txt</span><span class="p">))</span>
+    <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">_print_buf</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="print_f"><a class="viewcode-back" href="../../../repl.utils.debug.html#repl.utils.debug.print_f">[docs]</a><span class="k">def</span> <span class="nf">print_f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">_buf</span><span class="p">))</span>
+    <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">getWriter</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">_print_buf</span><span class="p">()</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright mighty1231
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
