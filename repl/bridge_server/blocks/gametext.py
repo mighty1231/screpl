@@ -14,7 +14,7 @@ from ..core import getAppManager
 appManager = getAppManager()
 
 class GameTextBlock(BridgeBlock):
-    _signature_ = b'TEXT'
+    signature = b'TEXT'
 
     def GetBufferSize(self):
         return 4 + (13*218) + 2

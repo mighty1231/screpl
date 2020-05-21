@@ -1,3 +1,5 @@
+"""Write trigger conditions to main writer
+"""
 from eudplib import *
 from ..table.tables import (
     tb_Comparison,

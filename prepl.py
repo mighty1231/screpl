@@ -1,10 +1,9 @@
-from repl.core.appmanager import AppManager, getAppManager
-
 import importlib, re
+import repl
 
 default_settings = {
     'superuser'     : 'P1',
-    'superuser_mode': 'playerNumber',
+    'superuser_mode': 'playerID',
     'plugins'       : '',
     'bridge_mode'   : 'off'
 }
@@ -21,12 +20,15 @@ def combine_settings():
 def onPluginStart():
     combine_settings()
 
-    # initialize appmanager
-    AppManager.initialize(
-        superuser = settings["superuser"],
-        superuser_mode = settings["superuser_mode"],
-        bridge_mode = settings["bridge_mode"]
-    )
+    if settings["superuser_mode"] == "playerID":
+        superuser = playerMap.get(settings["superuser"], settings["superuser"])
+        repl.initializeWithId(EncodePlayer(superuser))
+    elif settings["superuser_mode"] == "playerName":
+        repl.initializeWithName(superuser)
+    else:
+        raise RuntimeError(f"Unknown mode {settings["superuser_mode"]}")
+
+    repl.setBridgeMode(settings["bridge_mode"])
 
     # load plugins
     # split plugins with ',' or ' '
@@ -36,4 +38,23 @@ def onPluginStart():
             importlib.import_module(plugin)
 
 def afterTriggerExec():
-    getAppManager().loop()
+    repl.run()
+
+playerMap = {
+    'P1':P1,
+    'P2':P2,
+    'P3':P3,
+    'P4':P4,
+    'P5':P5,
+    'P6':P6,
+    'P7':P7,
+    'P8':P8,
+    'Player1':Player1,
+    'Player2':Player2,
+    'Player3':Player3,
+    'Player4':Player4,
+    'Player5':Player5,
+    'Player6':Player6,
+    'Player7':Player7,
+    'Player8':Player8,
+}

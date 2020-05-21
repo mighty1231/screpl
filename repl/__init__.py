@@ -1,8 +1,9 @@
+"""initialize repl"""
 from .utils import (
     EPDConstString,
     f_raiseError,
     f_raiseWarning,
-    print_f,
+    f_printf,
     f_strlen,
     StaticStruct,
     Array

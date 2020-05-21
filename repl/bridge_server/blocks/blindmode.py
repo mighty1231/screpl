@@ -9,7 +9,7 @@ appManager = getAppManager()
 buffer_size = appManager.displayBuffer.GetDataSize()
 
 class BlindModeDisplayBlock(BridgeBlock):
-    _signature_ = b'BLIN'
+    signature = b'BLIN'
 
     def GetBufferSize(self):
         return buffer_size

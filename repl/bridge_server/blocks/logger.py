@@ -19,7 +19,7 @@ from ..apps.logger import (
 appManager = getAppManager()
 
 class LoggerBlock(BridgeBlock):
-    _signature_ = b'LOGB'
+    signature = b'LOGB'
 
     def GetBufferSize(self):
         return 4 + LOGGER_LINE_COUNT * LOGGER_LINE_SIZE

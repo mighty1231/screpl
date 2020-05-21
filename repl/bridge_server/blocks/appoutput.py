@@ -17,7 +17,7 @@ appOutputSize = EUDVariable()
 appOutputBuffer = Db(APP_OUTPUT_MAXSIZE)
 
 class AppOutputBlock(BridgeBlock):
-    _signature_ = b'AOUT'
+    signature = b'AOUT'
 
     def GetBufferSize(self):
         return 4 + 2000

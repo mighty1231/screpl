@@ -2,22 +2,10 @@ from eudplib import *
 
 from ..base.eudbyterw import EUDByteRW
 from ..base.pool import DbPool, VarPool
-from ..utils import f_raiseError, f_raiseWarning, getKeyCode, f_strlen, print_f
+from ..utils import f_raiseError, f_raiseWarning, getKeyCode, f_strlen, f_printf
 
-KEYPRESS_DELAY = 8
-_manager = None
-
-BRIDGE_OFF = 0
-BRIDGE_ON = 1
-BRIDGE_BLIND = 2
-
-trigger_framedelay = EUDVariable(-1)
-
-def getAppManager():
-    global _manager
-    assert _manager
-
-    return _manager
+_KEYPRESS_DELAY = 8
+_APP_MAX_COUNT = 30
 
 class PayloadSizeObj(EUDObject):
     def GetDataSize(self):
@@ -31,62 +19,12 @@ class PayloadSizeObj(EUDObject):
         emitbuffer.WriteDword(_payload_size)
 
 class AppManager:
-    _APP_MAX_COUNT_ = 30
-
-    @staticmethod
-    def initialize(*args, **kwargs):
-        global _manager
-        assert _manager is None
-        _manager = AppManager(*args, **kwargs)
-
-    def __init__(self, superuser, superuser_mode, bridge_mode):
+    def __init__(self, su_id, su_prefix, su_prefixlen):
         from .application import ApplicationInstance
 
-        # set superuser
-        modes = ["playerNumber", "playerID"]
-        if superuser_mode == modes[0]:
-
-            # evaluate chat prefix by player number
-            self.superuser = EncodePlayer(playerMap.get(superuser, superuser))
-            assert 0 <= self.superuser < 8, "Superuser should be one of P1 ~ P8"
-            print("[SC-REPL] Given superuser playerNumber = %d" % self.superuser)
-
-            # copy superuser name
-            self.su_prefix = Db(36)
-            su_writer = EUDByteRW()
-            su_writer.seekepd(EPD(self.su_prefix))
-            su_writer.write_str(0x57EEEB + 36*self.superuser)
-            su_writer.write(58) # colon
-            su_writer.write(7)  # color code
-            su_writer.write(32) # space
-            su_writer.write(0)
-
-            self.su_prefixlen = f_strlen(self.su_prefix)
-        elif superuser_mode == modes[1]:
-
-            # evaluate player number and chat prefix by player name
-            print("[SC-REPL] Given superuser playerID = '%s'" % superuser)
-
-            self.su_prefix = Db(u2b(superuser) + bytes([58, 7, 32, 0]))
-            self.su_prefixlen = len(superuser)+3
-            self.superuser = EUDVariable(0)
-
-            name_ptr = EUDVariable(0x57EEEB)
-            if EUDWhile()(name_ptr <= 0x57EEEB + 36*7):
-                if EUDIf()(f_strcmp(name_ptr, Db(u2b(superuser) + b'\0')) == 0):
-                    EUDBreak()
-                EUDEndIf()
-                DoActions([
-                    name_ptr.AddNumber(36),
-                    self.superuser.AddNumber(1)
-                ])
-            EUDEndWhile()
-            if EUDIf()(self.superuser == 8):
-                f_raiseError("[SC-REPL] superuser '%s' not found" % superuser)
-            EUDEndIf()
-        else:
-            raise RuntimeError("Unknown superuser mode, please set among {}"
-                    .format(modes))
+        self.su_id = su_id
+        self.su_prefix = su_prefix
+        self.su_prefixlen = su_prefixlen
 
         # pool supports for application instances
         self.dbpool = DbPool(300000)
@@ -96,23 +34,22 @@ class AppManager:
         self.current_app_instance = ApplicationInstance()
         self.app_cnt = EUDVariable(0)
         self.cur_app_id = EUDVariable(-1)
-        self.app_method_stack = EUDArray(AppManager._APP_MAX_COUNT_)
-        self.app_cmdtab_stack = EUDArray(AppManager._APP_MAX_COUNT_)
-        self.app_member_stack = EUDArray(AppManager._APP_MAX_COUNT_)
+        self.app_method_stack = EUDArray(_APP_MAX_COUNT)
+        self.app_cmdtab_stack = EUDArray(_APP_MAX_COUNT)
+        self.app_member_stack = EUDArray(_APP_MAX_COUNT)
         if EUDExecuteOnce()():
             self.cur_methods = EUDVArray(12345)(_from=EUDVariable())
             self.cur_members = EUDVArray(12345)(_from=EUDVariable())
         EUDEndExecuteOnce()
+        self.cur_cmdtable_epd = EUDVariable()
 
         # related to life cycle of app
         self.is_starting_app = EUDVariable(0)
         self.is_terminating_app = EUDVariable(0)
 
         # text ui
-        self.writer = EUDByteRW()
-        self.displayBuffer = Db(4000)
+        self.display_buffer = Db(4000)
         self.update = EUDVariable(initval=0)
-        self.cur_cmdtable_epd = EUDVariable()
 
         # common useful value that app may use
         self.keystates = EPD(Db(0x100 * 4))
@@ -125,24 +62,12 @@ class AppManager:
         # 64, 96, 128, 192, 256
         # Multiply 32 to get pixel coordinate
         dim = GetChkTokenized().getsection(b'DIM ')
-        self.mapWidth = b2i2(dim, 0)
-        self.mapHeight = b2i2(dim, 2)
-
-        # bridge_mode
-        bridge_mode = bridge_mode.lower()
-        if bridge_mode == 'on':
-            self.bridge_mode = BRIDGE_ON
-            self.is_blind_mode = EUDVariable(0)
-        elif bridge_mode == 'blind':
-            self.bridge_mode = BRIDGE_BLIND
-            self.is_blind_mode = EUDVariable(1)
-        elif bridge_mode == 'off':
-            self.bridge_mode = BRIDGE_OFF
-        else:
-            raise RuntimeError("Unknown 'bridge_mode' = '%s', "\
-                    "expected 'on', 'off', or 'blind'" % bridge_mode)
-
+        self.map_width = b2i2(dim, 0)
+        self.map_height = b2i2(dim, 2)
         self.payload_size = f_dwread_epd(EPD(PayloadSizeObj()))
+
+        # REPL is the application on the base
+        self.startApplication(REPL)
 
     def allocVariable(self, count):
         return self.varpool.alloc(count)
@@ -177,7 +102,7 @@ class AppManager:
             f_raiseError("FATAL ERROR: startApplication <-> requestDestruct")
         EUDEndIf()
 
-        if EUDIf()(self.app_cnt < AppManager._APP_MAX_COUNT_):
+        if EUDIf()(self.app_cnt < _APP_MAX_COUNT):
             self.app_member_stack[self.app_cnt] = self.allocVariable(fieldsize)
             self.app_method_stack[self.app_cnt] = methods
             self.app_cmdtab_stack[self.app_cnt] = table_epd
@@ -238,7 +163,7 @@ class AppManager:
             self.is_starting_app << 0
         EUDEndIf()
 
-        self.cleanText()
+        clean_text()
         self.requestUpdate()
 
     def updateKeyState(self):
@@ -312,7 +237,7 @@ class AppManager:
                 # subs (consecutive keydown)
                 Trigger(
                     conditions = [
-                        states_cond[2*i] << Memory(0, AtLeast, KEYPRESS_DELAY),
+                        states_cond[2*i] << Memory(0, AtLeast, _KEYPRESS_DELAY),
                         states_cond[2*i+1] << Memory(0, AtMost, 2**31-1)
                     ],
                     actions = [
@@ -421,12 +346,12 @@ class AppManager:
     def getMapWidth(self):
         # 64, 96, 128, 192, 256
         # Multiply 32 to get pixel coordinate
-        return self.mapWidth
+        return self.map_width
 
     def getMapHeight(self):
         # 64, 96, 128, 192, 256
         # Multiply 32 to get pixel coordinate
-        return self.mapHeight
+        return self.map_height
 
     def requestUpdate(self):
         '''
@@ -447,15 +372,6 @@ class AppManager:
             f_raiseError("FATAL ERROR: startApplication <-> requestDestruct")
         EUDEndIf()
         self.is_terminating_app << 1
-
-    def setTriggerDelay(self, delay):
-        trigger_framedelay << delay
-
-    def unsetTriggerDelay(self):
-        trigger_framedelay << -1
-
-    def isBridgeMode(self):
-        return self.bridge_mode != BRIDGE_OFF
 
     @EUDMethod
     def exportAppOutputToBridge(self, src_buffer, size):
@@ -482,77 +398,50 @@ class AppManager:
 
         EUDReturn(written)
 
-    def cleanText(self):
-        # clean text UI of previous app
-        if self.isBridgeMode():
-            EUDIf()(self.is_blind_mode == 0)
-
-        print_f("\n" * 12)
-
-        if self.isBridgeMode():
-            EUDEndIf()
+    def get_superuser_id(self):
+        return self.su_id
 
     def getWriter(self):
         '''
         Internally printing function uses this method
         '''
-        return self.writer
+        return get_main_writer()
 
     @EUDMethod
     def getSTRSectionSize(self):
         return self.payload_size
 
-    def loop(self):
-        from ..apps.repl import REPL
-        from .appcommand import AppCommand
-
-        if self.isBridgeMode():
-            from ..bridge_server import bridge_init, bridge_loop
-
-        if EUDExecuteOnce()():
-            if self.isBridgeMode():
-                bridge_init()
-
-                # bridge command
-                @AppCommand([])
-                def toggleBlind(repl):
-                    self.is_blind_mode << 1 - self.is_blind_mode
-                REPL.addCommand("blind", toggleBlind)
-            self.startApplication(REPL)
-        EUDEndExecuteOnce()
-
-        if EUDIf()(Memory(0x512684, Exactly, self.superuser)):
+    def run(self):
+        # only super user may interact with apps
+        if EUDIf()(Memory(0x512684, Exactly, self.su_id)):
             self.updateMouseState()
             self.updateKeyState()
         EUDEndIf()
 
-        # turbo mode
-        if EUDIfNot()(trigger_framedelay.Exactly(-1)):
-            DoActions(SetMemory(0x6509A0, SetTo, trigger_framedelay))
-        EUDEndIf()
-
-        if EUDIfNot()([self.is_terminating_app == 0, self.is_starting_app == 0]):
+        # update current application
+        if EUDIfNot()([self.is_terminating_app == 0,
+                       self.is_starting_app == 0]):
             self.initOrTerminateApplication()
         EUDEndIf()
 
         # process all new chats
-        prev_txtPtr = EUDVariable(initval=10)
-        after_chat = Forward()
-        if EUDIf()(Memory(0x640B58, Exactly, prev_txtPtr)):
-            EUDJump(after_chat)
+        prev_text_idx = EUDVariable(initval=10)
+        lbl_after_chat = Forward()
+        if EUDIf()(Memory(0x640B58, Exactly, prev_text_idx)):
+            EUDJump(lbl_after_chat)
         EUDEndIf()
 
         # parse updated lines
         # since onChat may change text, temporary buffer is required
-        db_GameText = Db(13*218+2)
+        db_gametext = Db(13*218+2)
         i = EUDVariable()
-        cur_txtPtr = f_dwread_epd(EPD(0x640B58))
-        f_repmovsd_epd(EPD(db_GameText), EPD(0x640B60), (13*218+2)//4)
+        cur_text_idx = f_dwread_epd(EPD(0x640B58))
+        f_repmovsd_epd(EPD(db_gametext), EPD(0x640B60), (13*218+2)//4)
 
-        i << prev_txtPtr
-        chat_off = db_GameText + 218 * i
+        i << prev_text_idx
+        chat_off = db_gametext + 218 * i
         if EUDInfLoop()():
-            EUDBreakIf(i == cur_txtPtr)
+            EUDBreakIf(i == cur_text_idx)
             if EUDIf()(f_memcmp(chat_off, self.su_prefix, self.su_prefixlen) == 0):
                 self.current_app_instance.onChat(chat_off + self.su_prefixlen)
             EUDEndIf()
@@ -560,58 +449,25 @@ class AppManager:
             # search next updated lines
             if EUDIf()(i == 10):
                 i << 0
-                chat_off << db_GameText
+                chat_off << db_gametext
             if EUDElse()():
                 i += 1
                 chat_off += 218
             EUDEndIf()
         EUDEndInfLoop()
-        prev_txtPtr << cur_txtPtr
-        after_chat << NextTrigger()
+        prev_text_idx << cur_text_idx
+        lbl_after_chat << NextTrigger()
 
         # loop
         self.current_app_instance.loop()
 
         # evaluate display buffer
         if EUDIfNot()(self.update == 0):
-            self.writer.seekepd(EPD(self.displayBuffer))
+            get_main_writer().seekepd(EPD(self.display_buffer))
 
             # print() uses self.writer internally
             self.current_app_instance.print()
             self.update << 0
         EUDEndIf()
-        f_setcurpl(self.superuser)
-
-        # print top of the screen, enables chat simultaneously
-        txtPtr = f_dwread_epd(EPD(0x640B58))
-
-        if self.isBridgeMode():
-            if EUDIfNot()(self.is_blind_mode == 1):
-                print_f("%E", EPD(self.displayBuffer))
-                SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
-            EUDEndIf()
-            bridge_loop()
-        else:
-            print_f("%E", EPD(self.displayBuffer))
-            SeqCompute([(EPD(0x640B58), SetTo, txtPtr)])
 
         self.current_frame_number += 1
-
-playerMap = {
-    'P1':P1,
-    'P2':P2,
-    'P3':P3,
-    'P4':P4,
-    'P5':P5,
-    'P6':P6,
-    'P7':P7,
-    'P8':P8,
-    'Player1':Player1,
-    'Player2':Player2,
-    'Player3':Player3,
-    'Player4':Player4,
-    'Player5':Player5,
-    'Player6':Player6,
-    'Player7':Player7,
-    'Player8':Player8,
-}

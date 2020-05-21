@@ -44,7 +44,7 @@ def f_raiseWarning(txt):
     getWriter().write(0)
     _print_buf()
 
-def print_f(*args):
+def f_printf(*args):
     getWriter().seekepd(EPD(_buf))
     getWriter().write_f(*args)
     getWriter().write(0)
