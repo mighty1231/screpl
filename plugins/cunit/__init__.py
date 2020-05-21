@@ -1,10 +1,10 @@
 from eudplib import *
 
-from repl import REPL, getAppManager, AppCommand, Array
+from repl import REPL, get_app_manager, AppCommand, Array
 
 # initialize variables
-appManager = getAppManager()
-superuser = appManager.superuser
+app_manager = get_app_manager()
+superuser = app_manager.superuser
 
 # members
 from .cunitrw import cu_members
@@ -16,6 +16,6 @@ from .manager import CUnitManagerApp
 
 @AppCommand([])
 def startCommand(self):
-    appManager.startApplication(CUnitManagerApp)
+    app_manager.startApplication(CUnitManagerApp)
 
 REPL.addCommand('cunit', startCommand)

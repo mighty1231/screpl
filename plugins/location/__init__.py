@@ -1,6 +1,6 @@
 from eudplib import *
 
-from repl import REPL, getAppManager, AppCommand
+from repl import REPL, get_app_manager, AppCommand
 
 keymap = {
     "manager" : {
@@ -15,10 +15,10 @@ keymap = {
 FRAME_PERIOD = 24
 
 # initialize variables
-appManager = getAppManager()
+app_manager = get_app_manager()
 dim = GetChkTokenized().getsection(b'DIM ')
-mapw = appManager.getMapWidth()
-maph = appManager.getMapHeight()
+mapw = app_manager.getMapWidth()
+maph = app_manager.getMapHeight()
 
 DoActions([
     # make enable to create "Scanner Sweep"
@@ -34,6 +34,6 @@ from .manager import LocationManagerApp
 
 @AppCommand([])
 def startCommand(self):
-    appManager.startApplication(LocationManagerApp)
+    app_manager.startApplication(LocationManagerApp)
 
 REPL.addCommand('location', startCommand)

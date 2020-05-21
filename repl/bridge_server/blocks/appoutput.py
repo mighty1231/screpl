@@ -8,10 +8,10 @@ struct {
 '''
 from eudplib import *
 from .block import BridgeBlock
-from ..core import getAppManager
+from ..core import get_app_manager
 
 APP_OUTPUT_MAXSIZE = 2000
-appManager = getAppManager()
+app_manager = get_app_manager()
 
 appOutputSize = EUDVariable()
 appOutputBuffer = Db(APP_OUTPUT_MAXSIZE)

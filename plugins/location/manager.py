@@ -2,7 +2,7 @@ from eudplib import *
 
 from repl import Application, AppCommand, GetLocationNameEPDPointer
 
-from . import appManager, keymap, FRAME_PERIOD
+from . import app_manager, keymap, FRAME_PERIOD
 from .rect import drawRectangle
 from .editor import LocationEditorApp
 
@@ -58,11 +58,11 @@ class LocationManagerApp(Application):
 
             if EUDIfNot()(self.centerview == 0):
                 cp = f_getcurpl()
-                f_setcurpl(appManager.superuser)
+                f_setcurpl(app_manager.superuser)
                 DoActions([CenterView(new_location)])
                 f_setcurpl(cp)
             EUDEndIf()
-            appManager.requestUpdate()
+            app_manager.requestUpdate()
         EUDEndIf()
 
     def onDestruct(self):
@@ -74,23 +74,23 @@ class LocationManagerApp(Application):
     def loop(self):
         # F7 - previous location
         # F8 - next location
-        superuser = appManager.superuser
+        superuser = app_manager.superuser
 
         location = self.location
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.keyPress("ESC")):
+            app_manager.requestDestruct()
             EUDReturn()
-        if EUDElseIf()(appManager.keyPress("F7", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.keyPress("F7", hold=["LCTRL"])):
             self.setLocation(location - 8)
-        if EUDElseIf()(appManager.keyPress("F7")):
+        if EUDElseIf()(app_manager.keyPress("F7")):
             self.setLocation(location - 1)
-        if EUDElseIf()(appManager.keyPress("F8", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.keyPress("F8", hold=["LCTRL"])):
             self.setLocation(location + 8)
-        if EUDElseIf()(appManager.keyPress("F8")):
+        if EUDElseIf()(app_manager.keyPress("F8")):
             self.setLocation(location + 1)
-        if EUDElseIf()(appManager.keyPress(keymap["manager"]["open_editor"])):
+        if EUDElseIf()(app_manager.keyPress(keymap["manager"]["open_editor"])):
             LocationEditorApp.setTarget(location)
-            appManager.startApplication(LocationEditorApp)
+            app_manager.startApplication(LocationEditorApp)
             EUDReturn()
         EUDEndIf()
 
@@ -103,7 +103,7 @@ class LocationManagerApp(Application):
             actions = frame.SetNumber(0)
         )
         self.frame = frame
-        appManager.requestUpdate()
+        app_manager.requestUpdate()
 
     @AppCommand([])
     def cv(self):
@@ -115,7 +115,7 @@ class LocationManagerApp(Application):
         if EUDElse()():
             self.centerview = 1
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.requestUpdate()
 
     def print(self, writer):
         writer.write_f("\x16Location (sizeX, sizeY, flags) F7,F8 to navigate // press '{}' to edit " \

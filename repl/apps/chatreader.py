@@ -8,7 +8,7 @@ You input '{Content}'
 from eudplib import *
 from repl import (
     Application,
-    getAppManager,
+    get_app_manager,
     EUDByteRW
 )
 
@@ -23,7 +23,7 @@ class ChatReaderApp(Application):
         result_writer.seekoffset(result_offset)
 
     @staticmethod
-    def setResult_epd(result_epd):
+    def set_return_epd(result_epd):
         result_writer.seekepd(result_epd)
 
     def onInit(self):
@@ -39,18 +39,18 @@ class ChatReaderApp(Application):
         temp_writer.seekepd(EPD(temp_storage))
         temp_writer.write_str(offset)
         temp_writer.write(0)
-        getAppManager().requestUpdate()
+        get_app_manager().requestUpdate()
 
     def loop(self):
-        appManager = getAppManager()
-        if EUDIf()([appManager.keyPress('Y', hold=['LCTRL'])]):
+        app_manager = get_app_manager()
+        if EUDIf()([app_manager.keyPress('Y', hold=['LCTRL'])]):
             result_writer.write_strepd(EPD(temp_storage))
             result_writer.write(0)
-            appManager.requestDestruct()
-        if EUDElseIf()(appManager.keyPress('ESC')):
-            appManager.requestDestruct()
-        if EUDElseIf()([appManager.keyPress('N', hold=['LCTRL'])]):
-            appManager.requestDestruct()
+            app_manager.requestDestruct()
+        if EUDElseIf()(app_manager.keyPress('ESC')):
+            app_manager.requestDestruct()
+        if EUDElseIf()([app_manager.keyPress('N', hold=['LCTRL'])]):
+            app_manager.requestDestruct()
         EUDEndIf()
 
     def print(self, writer):

@@ -17,15 +17,15 @@ from .option import CUnitOptionApp
 
 class CUnitManagerApp(Application):
     def loop(self):
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.keyPress("ESC")):
+            app_manager.requestDestruct()
             EUDReturn()
-        if EUDElseIf()(appManager.keyPress("E", hold=["LCTRL"])):
-            appManager.startApplication(CUnitDetailApp)
-        if EUDElseIf()(appManager.keyPress("O", hold=["LCTRL"])):
-            appManager.startApplication(CUnitOptionApp)
+        if EUDElseIf()(app_manager.keyPress("E", hold=["LCTRL"])):
+            app_manager.startApplication(CUnitDetailApp)
+        if EUDElseIf()(app_manager.keyPress("O", hold=["LCTRL"])):
+            app_manager.startApplication(CUnitOptionApp)
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.requestUpdate()
 
     def print(self, writer):
         writer.write_f("\x04CUnit Manager\n")

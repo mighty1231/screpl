@@ -2,11 +2,11 @@ from eudplib import *
 from repl import (
     Application,
     AppCommand,
-    getAppManager,
+    get_app_manager,
     argEncNumber
 )
 
-manager = getAppManager()
+manager = get_app_manager()
 
 _ptr = EUDVariable(0)
 _epd = EUDVariable(0)

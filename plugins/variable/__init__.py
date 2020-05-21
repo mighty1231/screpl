@@ -1,9 +1,9 @@
 from eudplib import *
 
-from repl import REPL, getAppManager, AppCommand, EPDConstString, ReferenceTable
+from repl import REPL, get_app_manager, AppCommand, EPDConstString, ReferenceTable
 
 # initialize global variables
-manager = getAppManager()
+manager = get_app_manager()
 accessed_resources = set()
 death_units = []
 watched_eud_vars = ReferenceTable(key_f=EPDConstString)

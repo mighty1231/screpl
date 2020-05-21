@@ -1,11 +1,11 @@
 from eudplib import *
 
-from repl import REPL, getAppManager, AppCommand, argEncNumber
+from repl import REPL, get_app_manager, AppCommand, argEncNumber
 
 # initialize variables
-appManager = getAppManager()
+app_manager = get_app_manager()
 
-if not appManager.isBridgeMode():
+if not app_manager.isBridgeMode():
     raise RuntimeError("Turn on the bridge mode to use [dump] plugin")
 
 # make commands
@@ -17,6 +17,6 @@ def startCommand(self, ptr, size):
     Dump memory to bridge, given ptr and size
     '''
     DumpApp.setTarget(ptr, size)
-    appManager.startApplication(DumpApp)
+    app_manager.startApplication(DumpApp)
 
 REPL.addCommand('dump', startCommand)

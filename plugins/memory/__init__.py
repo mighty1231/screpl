@@ -1,7 +1,7 @@
-from repl import REPL, getAppManager, AppCommand, argEncNumber
+from repl import REPL, get_app_manager, AppCommand, argEncNumber
 from .memoryapp import MemoryApp
 
-manager = getAppManager()
+manager = get_app_manager()
 
 @AppCommand([argEncNumber, argEncNumber])
 def startWithPtr(self, ptr, size):

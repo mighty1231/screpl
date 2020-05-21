@@ -1,7 +1,7 @@
 from eudplib import *
 
 from ..base.eudbyterw import EUDByteRW
-from ..core.appmanager import getAppManager
+from ..core.appmanager import get_app_manager
 from ..core.appcommand import AppCommand
 from .scroll import ScrollApp, LINES_PER_PAGE
 
@@ -62,9 +62,8 @@ class Logger(ScrollApp):
         writer.seekepd(next_epd_to_write)
         if not simple:
             writer.write_f("\x16%D: [frame %D] ",
-                log_index,
-                getAppManager().getCurrentFrameNumber()
-            )
+                           log_index,
+                           get_app_manager().getCurrentFrameNumber())
         else:
             writer.write_f("\x16%D: ", log_index)
         writer.write_f(fmtstring, *args)
@@ -87,7 +86,7 @@ class Logger(ScrollApp):
         mode << MODE_REALTIME
 
     def loop(self):
-        manager = getAppManager()
+        manager = get_app_manager()
         if EUDIf()(mode == MODE_STOPPED):
             if EUDIf()(manager.keyPress("ESC")):
                 mode << MODE_REALTIME
@@ -111,17 +110,15 @@ class Logger(ScrollApp):
         manager.requestUpdate()
 
     def writeTitle(self, writer):
-        manager = getAppManager()
+        manager = get_app_manager()
         if EUDIf()(mode == MODE_REALTIME):
-            writer.write_f("\x16SC-REPL logs (frame=%D), Realtime View, " \
-                    "press 'S' to stop view",
-                manager.getCurrentFrameNumber()
-            )
+            writer.write_f("\x16SC-REPL logs (frame=%D), Realtime View, "
+                           "press 'S' to stop view",
+                           manager.getCurrentFrameNumber())
         if EUDElse()():
-            writer.write_f("\x16SC-REPL logs (frame=%D), Stopped View, " \
-                    "press 'ESC', 'F7' or 'F8'",
-                manager.getCurrentFrameNumber()
-            )
+            writer.write_f("\x16SC-REPL logs (frame=%D), Stopped View, "
+                           "press 'ESC', 'F7' or 'F8'",
+                           manager.getCurrentFrameNumber())
         EUDEndIf()
 
     def writeLine(self, writer, line):

@@ -11,8 +11,8 @@ Expected TUI
 '''
 from eudplib import *
 
-from repl import Application, writeAction_epd
-from . import appManager, focused_pattern_id, p_actionCount, p_actionArrayEPD
+from repl import Application, write_action_epd
+from . import app_manager, focused_pattern_id, p_actionCount, p_actionArrayEPD
 from ..location.rect import drawRectangle
 
 action_id = EUDVariable(0)
@@ -27,7 +27,7 @@ def focusActionID(new_actionid):
     if EUDIfNot()(new_actionid >= actionCount):
         if EUDIfNot()(new_actionid == action_id):
             action_id << new_actionid
-            appManager.requestUpdate()
+            app_manager.requestUpdate()
         EUDEndIf()
     EUDEndIf()
 
@@ -58,7 +58,7 @@ def deleteAction():
         if EUDIf()(action_id == actionCount):
             action_id -= 1
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.requestUpdate()
     EUDEndIf()
 
 
@@ -69,14 +69,14 @@ class DetailedActionApp(Application):
         actionArrayEPD << p_actionArrayEPD[focused_pattern_id]
 
     def loop(self):
-        if EUDIf()(appManager.keyPress('ESC')):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.keyPress('ESC')):
+            app_manager.requestDestruct()
             EUDReturn()
-        if EUDElseIf()(appManager.keyPress('f7')):
+        if EUDElseIf()(app_manager.keyPress('f7')):
             focusActionID(action_id-1)
-        if EUDElseIf()(appManager.keyPress('f8')):
+        if EUDElseIf()(app_manager.keyPress('f8')):
             focusActionID(action_id+1)
-        if EUDElseIf()(appManager.keyPress('delete')):
+        if EUDElseIf()(app_manager.keyPress('delete')):
             deleteAction()
         EUDEndIf()
 
@@ -126,7 +126,7 @@ class DetailedActionApp(Application):
             EUDEndIf()
 
             writer.write_f(" %D: ", cur)
-            writeAction_epd(action_epd)
+            write_action_epd(action_epd)
             writer.write(ord('\n'))
 
             DoActions([cur.AddNumber(1), action_epd.AddNumber(32//4)])

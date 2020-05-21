@@ -16,7 +16,7 @@ from eudplib import *
 
 from repl import Application, writeLocation
 from . import (
-    appManager,
+    app_manager,
     superuser,
     g_runner_unit,
     g_start_location,
@@ -46,16 +46,16 @@ class TestPatternApp(Application):
 
     def loop(self):
         global timer, pattern_id, next_timer, v_turbomode
-        if EUDIf()(appManager.keyPress('ESC')):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.keyPress('ESC')):
+            app_manager.requestDestruct()
             EUDReturn()
-        if EUDElseIf()(appManager.keyPress('R')):
+        if EUDElseIf()(app_manager.keyPress('R')):
             DoActions([
                 timer.SetNumber(0),
                 pattern_id.SetNumber(0),
                 next_timer.SetNumber(0),
             ])
-        if EUDElseIf()(appManager.keyPress('T')):
+        if EUDElseIf()(app_manager.keyPress('T')):
             v_turbomode += 1
             Trigger(
                 conditions = [v_turbomode.Exactly(TURBOMODE_END)],
@@ -98,7 +98,7 @@ class TestPatternApp(Application):
             DoActions([SetMemory(0x6509A0, SetTo, 1)])
         EUDEndIf()
 
-        appManager.requestUpdate()
+        app_manager.requestUpdate()
 
     def print(self, writer):
         writer.write_f("Bound Editor Test Mode\n")

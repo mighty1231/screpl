@@ -1,10 +1,10 @@
 from eudplib import *
 
-from repl import REPL, getAppManager, AppCommand, EUDByteRW, f_raiseWarning
+from repl import REPL, get_app_manager, AppCommand, EUDByteRW, f_raise_warning
 
 # initialize variables
-appManager = getAppManager()
-superuser = appManager.superuser
+app_manager = get_app_manager()
+superuser = app_manager.superuser
 STRSection, STRSection_epd = f_dwepdread_epd(EPD(0x5993D4))
 
 STRING_BUFFER_SZ = 200000
@@ -50,7 +50,7 @@ def allocateForBuffer(string_id):
         if EUDInfLoop()():
             # buffer check
             if EUDIf()(cur_epd >= EPD(string_buffer_end)):
-                f_raiseWarning("Warning: No more space for string buffer")
+                f_raise_warning("Warning: No more space for string buffer")
                 EUDReturn(0)
             EUDEndIf()
 
@@ -73,7 +73,7 @@ def allocateForBuffer(string_id):
         if EUDInfLoop()():
             # buffer check
             if EUDIf()(cur_epd >= EPD(string_buffer_end)):
-                f_raiseWarning("Warning: No more space for string buffer")
+                f_raise_warning("Warning: No more space for string buffer")
                 EUDReturn(0)
             EUDEndIf()
 
@@ -203,6 +203,6 @@ from .manager import StringManagerApp
 
 @AppCommand([])
 def startCommand(self):
-    appManager.startApplication(StringManagerApp)
+    app_manager.startApplication(StringManagerApp)
 
 REPL.addCommand('string', startCommand)

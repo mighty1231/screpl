@@ -1,13 +1,13 @@
 from eudplib import *
 from repl import Application, EUDByteRW
 
-from . import appManager
+from . import app_manager
 
 storage = Db(200000)
 remaining_bytes = EUDVariable(0)
 written = EUDVariable(0)
 
-writer = appManager.getWriter()
+writer = app_manager.getWriter()
 
 _ptr = EUDVariable()
 _size = EUDVariable()
@@ -44,19 +44,19 @@ class DumpApp(Application):
     def loop(self):
         global written, remaining_bytes
 
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.keyPress("ESC")):
+            app_manager.requestDestruct()
             EUDReturn()
         EUDEndIf()
 
-        new_written = appManager.exportAppOutputToBridge(storage + written, remaining_bytes)
+        new_written = app_manager.exportAppOutputToBridge(storage + written, remaining_bytes)
 
         remaining_bytes -= new_written
         written += new_written
         if EUDIf()(remaining_bytes == 0):
-            appManager.requestDestruct()
+            app_manager.requestDestruct()
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.requestUpdate()
 
     def print(self, writer):
         writer.write_f("\x13Memory Dumping...\n")

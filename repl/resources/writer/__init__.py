@@ -14,12 +14,12 @@ _writer = None
 def getWriter():
     global _writer
     if _writer is None:
-        from ...core import getAppManager
-        _writer = getAppManager().getWriter()
+        from ...core import get_app_manager
+        _writer = get_app_manager().getWriter()
     return _writer
 
 @EUDFunc
-def writeConstant(table_epd, val):
+def write_constant(table_epd, val):
     name_epd = EUDVariable()
     if EUDIf()(SearchTableInv(val, table_epd, EPD(name_epd.getValueAddr())) == 1):
         getWriter().write_strepd(name_epd)
@@ -28,7 +28,7 @@ def writeConstant(table_epd, val):
     EUDEndIf()
 
 @EUDFunc
-def writeUnit(val):
+def write_unit(val):
     if EUDIf()(val <= 227):
         stringid = off_unitsdat_UnitMapString.read(val)
         if EUDIfNot()(stringid == 0):

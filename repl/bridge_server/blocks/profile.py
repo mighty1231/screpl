@@ -16,10 +16,10 @@ struct {
 '''
 from eudplib import *
 from .block import BridgeBlock
-from ..core import getAppManager
+from ..core import get_app_manager
 from ..monitor import profile_table
 
-appManager = getAppManager()
+app_manager = get_app_manager()
 
 _buf = None
 

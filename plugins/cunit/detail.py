@@ -46,22 +46,22 @@ class CUnitDetailApp(Application):
 
     def loop(self):
         focused_memid = self.focused_memid
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.keyPress("ESC")):
+            app_manager.requestDestruct()
             EUDReturn()
-        if EUDElseIf()(appManager.keyPress("F7", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.keyPress("F7", hold=["LCTRL"])):
             self.focusMemID(focused_memid - 8)
-        if EUDElseIf()(appManager.keyPress("F7")):
+        if EUDElseIf()(app_manager.keyPress("F7")):
             self.focusMemID(focused_memid - 1)
-        if EUDElseIf()(appManager.keyPress("F8", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.keyPress("F8", hold=["LCTRL"])):
             self.focusMemID(focused_memid + 8)
-        if EUDElseIf()(appManager.keyPress("F8")):
+        if EUDElseIf()(app_manager.keyPress("F8")):
             self.focusMemID(focused_memid + 1)
-        if EUDElseIf()(appManager.keyPress("H", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.keyPress("H", hold=["LCTRL"])):
             dw, epd = f_cunitepdread_epd(EPD(0x6284B8))
             self.cunit_epd = epd
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.requestUpdate()
 
     def print(self, writer):
         cunit_epd = self.cunit_epd

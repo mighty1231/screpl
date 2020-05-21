@@ -1,6 +1,6 @@
-from repl import REPL, getAppManager, AppCommand
+from repl import REPL, get_app_manager, AppCommand
 
-appManager = getAppManager()
+app_manager = get_app_manager()
 
 from .array import ArrayTestApp
 from .monitor import MonitorTestApp
@@ -13,5 +13,5 @@ apps_to_test = [
 for name, app in apps_to_test:
     @AppCommand([])
     def cmd(self):
-        appManager.startApplication(app)
+        app_manager.startApplication(app)
     REPL.addCommand(name, cmd)

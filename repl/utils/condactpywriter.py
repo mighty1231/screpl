@@ -688,7 +688,7 @@ def writecond():
 						s += '\twrite{}(m.{})\n'.format(
 							coder, condm[cond.condargs.index(arg)])
 					else:
-						s += '\twriteConstant(EPD(tb_{}), m.{})\n'.format(
+						s += '\twrite_constant(EPD(tb_{}), m.{})\n'.format(
 							cond.codedict[arg], condm[cond.condargs.index(arg)])
 				else:
 					s += '\t_output_writer.write_decimal(m.{})\n'.format(
@@ -741,7 +741,7 @@ def writeact():
 					elif coder == 'Property':
 						s += '\t_output_writer.write_decimal(m.{}) # @TODO property\n'.format(pr)
 					else:
-						s += '\twriteConstant(EPD(tb_{}), m.{})\n'.format(
+						s += '\twrite_constant(EPD(tb_{}), m.{})\n'.format(
 							act.codedict[arg], pr)
 				else:
 					s += '\t_output_writer.write_decimal(m.{})\n'.format(

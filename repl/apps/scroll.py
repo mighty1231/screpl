@@ -1,7 +1,7 @@
 from eudplib import *
 
 from ..core.application import Application
-from ..core.appmanager import getAppManager
+from ..core.appmanager import get_app_manager
 from ..core.appmethod import AppTypedMethod
 from ..utils import EPDConstString
 
@@ -45,7 +45,7 @@ class ScrollApp(Application):
     def loop(self):
         # F7 - previous page
         # F8 - next page
-        manager = getAppManager()
+        manager = get_app_manager()
         if EUDIf()(manager.keyPress("ESC")):
             manager.requestDestruct()
         if EUDElseIf()(manager.keyPress("F7")):

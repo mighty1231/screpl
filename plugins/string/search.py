@@ -257,7 +257,7 @@ def focusResult(new_focus):
     if EUDIfNot()(new_focus >= v_search_cnt):
         if EUDIfNot()(new_focus == v_focused):
             v_focused << new_focus
-            appManager.requestUpdate()
+            app_manager.requestUpdate()
         EUDEndIf()
     EUDEndIf()
 
@@ -333,15 +333,15 @@ class StringSearchApp(Application):
         v_focused << 0
 
     def loop(self):
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.keyPress("ESC")):
+            app_manager.requestDestruct()
             EUDReturn()
-        if EUDElseIf()(appManager.keyPress('F7')):
+        if EUDElseIf()(app_manager.keyPress('F7')):
             focusResult(v_focused-1)
-        if EUDElseIf()(appManager.keyPress('F8')):
+        if EUDElseIf()(app_manager.keyPress('F8')):
             focusResult(v_focused+1)
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.requestUpdate()
 
     def print(self, writer):
         if EUDIf()(v_search_cnt == 0):

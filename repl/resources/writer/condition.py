@@ -80,7 +80,7 @@ def writeCondition_epd(epd):
 def _writeCountdownTimer(epd):
     m = _condmap(epd)
     getWriter().write_f("CountdownTimer(")
-    writeConstant(EPD(tb_Comparison), m.comparison)
+    write_constant(EPD(tb_Comparison), m.comparison)
     getWriter().write_f(", ")
     getWriter().write_decimal(m.amount)
     getWriter().write_f(")")
@@ -90,13 +90,13 @@ def _writeCountdownTimer(epd):
 def _writeCommand(epd):
     m = _condmap(epd)
     getWriter().write_f("Command(")
-    writeConstant(EPD(tb_Player), m.player)
+    write_constant(EPD(tb_Player), m.player)
     getWriter().write_f(", ")
-    writeConstant(EPD(tb_Comparison), m.comparison)
+    write_constant(EPD(tb_Comparison), m.comparison)
     getWriter().write_f(", ")
     getWriter().write_decimal(m.amount)
     getWriter().write_f(", ")
-    writeUnit(m.unitid)
+    write_unit(m.unitid)
     getWriter().write_f(")")
 
 
@@ -104,13 +104,13 @@ def _writeCommand(epd):
 def _writeBring(epd):
     m = _condmap(epd)
     getWriter().write_f("Bring(")
-    writeConstant(EPD(tb_Player), m.player)
+    write_constant(EPD(tb_Player), m.player)
     getWriter().write_f(", ")
-    writeConstant(EPD(tb_Comparison), m.comparison)
+    write_constant(EPD(tb_Comparison), m.comparison)
     getWriter().write_f(", ")
     getWriter().write_decimal(m.amount)
     getWriter().write_f(", ")
-    writeUnit(m.unitid)
+    write_unit(m.unitid)
     getWriter().write_f(", ")
     writeLocation(m.locid)
     getWriter().write_f(")")
@@ -120,13 +120,13 @@ def _writeBring(epd):
 def _writeAccumulate(epd):
     m = _condmap(epd)
     getWriter().write_f("Accumulate(")
-    writeConstant(EPD(tb_Player), m.player)
+    write_constant(EPD(tb_Player), m.player)
     getWriter().write_f(", ")
-    writeConstant(EPD(tb_Comparison), m.comparison)
+    write_constant(EPD(tb_Comparison), m.comparison)
     getWriter().write_f(", ")
     getWriter().write_decimal(m.amount)
     getWriter().write_f(", ")
-    writeConstant(EPD(tb_Resource), m.restype)
+    write_constant(EPD(tb_Resource), m.restype)
     getWriter().write_f(")")
 
 
@@ -134,13 +134,13 @@ def _writeAccumulate(epd):
 def _writeKills(epd):
     m = _condmap(epd)
     getWriter().write_f("Kills(")
-    writeConstant(EPD(tb_Player), m.player)
+    write_constant(EPD(tb_Player), m.player)
     getWriter().write_f(", ")
-    writeConstant(EPD(tb_Comparison), m.comparison)
+    write_constant(EPD(tb_Comparison), m.comparison)
     getWriter().write_f(", ")
     getWriter().write_decimal(m.amount)
     getWriter().write_f(", ")
-    writeUnit(m.unitid)
+    write_unit(m.unitid)
     getWriter().write_f(")")
 
 
@@ -148,7 +148,7 @@ def _writeKills(epd):
 def _writeCommandMost(epd):
     m = _condmap(epd)
     getWriter().write_f("CommandMost(")
-    writeUnit(m.unitid)
+    write_unit(m.unitid)
     getWriter().write_f(")")
 
 
@@ -156,7 +156,7 @@ def _writeCommandMost(epd):
 def _writeCommandMostAt(epd):
     m = _condmap(epd)
     getWriter().write_f("CommandMostAt(")
-    writeUnit(m.unitid)
+    write_unit(m.unitid)
     getWriter().write_f(", ")
     writeLocation(m.locid)
     getWriter().write_f(")")
@@ -166,7 +166,7 @@ def _writeCommandMostAt(epd):
 def _writeMostKills(epd):
     m = _condmap(epd)
     getWriter().write_f("MostKills(")
-    writeUnit(m.unitid)
+    write_unit(m.unitid)
     getWriter().write_f(")")
 
 
@@ -174,7 +174,7 @@ def _writeMostKills(epd):
 def _writeHighestScore(epd):
     m = _condmap(epd)
     getWriter().write_f("HighestScore(")
-    writeConstant(EPD(tb_Score), m.restype)
+    write_constant(EPD(tb_Score), m.restype)
     getWriter().write_f(")")
 
 
@@ -182,7 +182,7 @@ def _writeHighestScore(epd):
 def _writeMostResources(epd):
     m = _condmap(epd)
     getWriter().write_f("MostResources(")
-    writeConstant(EPD(tb_Resource), m.restype)
+    write_constant(EPD(tb_Resource), m.restype)
     getWriter().write_f(")")
 
 
@@ -192,7 +192,7 @@ def _writeSwitch(epd):
     getWriter().write_f("Switch(")
     writeSwitch(m.restype)
     getWriter().write_f(", ")
-    writeConstant(EPD(tb_SwitchState), m.comparison)
+    write_constant(EPD(tb_SwitchState), m.comparison)
     getWriter().write_f(")")
 
 
@@ -200,7 +200,7 @@ def _writeSwitch(epd):
 def _writeElapsedTime(epd):
     m = _condmap(epd)
     getWriter().write_f("ElapsedTime(")
-    writeConstant(EPD(tb_Comparison), m.comparison)
+    write_constant(EPD(tb_Comparison), m.comparison)
     getWriter().write_f(", ")
     getWriter().write_decimal(m.amount)
     getWriter().write_f(")")
@@ -210,9 +210,9 @@ def _writeElapsedTime(epd):
 def _writeOpponents(epd):
     m = _condmap(epd)
     getWriter().write_f("Opponents(")
-    writeConstant(EPD(tb_Player), m.player)
+    write_constant(EPD(tb_Player), m.player)
     getWriter().write_f(", ")
-    writeConstant(EPD(tb_Comparison), m.comparison)
+    write_constant(EPD(tb_Comparison), m.comparison)
     getWriter().write_f(", ")
     getWriter().write_decimal(m.amount)
     getWriter().write_f(")")
@@ -231,23 +231,23 @@ def _writeDeaths(epd):
         if EUDIf()(m.internal == 0x4353): # eudx
             getWriter().write_f("MemoryX(%H, ",
                 0x58A364 + 4*m.player + 48*m.unitid)
-            writeConstant(EPD(tb_Comparison), m.comparison)
+            write_constant(EPD(tb_Comparison), m.comparison)
             getWriter().write_f(", %H(=%D), %H)", m.amount, m.amount, m.locid)
         if EUDElse()():
             getWriter().write_f("Memory(%H, ",
                 0x58A364 + 4*m.player + 48*m.unitid)
-            writeConstant(EPD(tb_Comparison), m.comparison)
+            write_constant(EPD(tb_Comparison), m.comparison)
             getWriter().write_f(", %H(=%D))", m.amount, m.amount)
         EUDEndIf()
     if EUDElse()():
         getWriter().write_f("Deaths(")
-        writeConstant(EPD(tb_Player), m.player)
+        write_constant(EPD(tb_Player), m.player)
         getWriter().write_f(", ")
-        writeConstant(EPD(tb_Comparison), m.comparison)
+        write_constant(EPD(tb_Comparison), m.comparison)
         getWriter().write_f(", ")
         getWriter().write_decimal(m.amount)
         getWriter().write_f(", ")
-        writeUnit(m.unitid)
+        write_unit(m.unitid)
         getWriter().write_f(")")
     EUDEndIf()
 
@@ -256,7 +256,7 @@ def _writeDeaths(epd):
 def _writeCommandLeast(epd):
     m = _condmap(epd)
     getWriter().write_f("CommandLeast(")
-    writeUnit(m.unitid)
+    write_unit(m.unitid)
     getWriter().write_f(")")
 
 
@@ -264,7 +264,7 @@ def _writeCommandLeast(epd):
 def _writeCommandLeastAt(epd):
     m = _condmap(epd)
     getWriter().write_f("CommandLeastAt(")
-    writeUnit(m.unitid)
+    write_unit(m.unitid)
     getWriter().write_f(", ")
     writeLocation(m.locid)
     getWriter().write_f(")")
@@ -274,7 +274,7 @@ def _writeCommandLeastAt(epd):
 def _writeLeastKills(epd):
     m = _condmap(epd)
     getWriter().write_f("LeastKills(")
-    writeUnit(m.unitid)
+    write_unit(m.unitid)
     getWriter().write_f(")")
 
 
@@ -282,7 +282,7 @@ def _writeLeastKills(epd):
 def _writeLowestScore(epd):
     m = _condmap(epd)
     getWriter().write_f("LowestScore(")
-    writeConstant(EPD(tb_Score), m.restype)
+    write_constant(EPD(tb_Score), m.restype)
     getWriter().write_f(")")
 
 
@@ -290,7 +290,7 @@ def _writeLowestScore(epd):
 def _writeLeastResources(epd):
     m = _condmap(epd)
     getWriter().write_f("LeastResources(")
-    writeConstant(EPD(tb_Resource), m.restype)
+    write_constant(EPD(tb_Resource), m.restype)
     getWriter().write_f(")")
 
 
@@ -298,11 +298,11 @@ def _writeLeastResources(epd):
 def _writeScore(epd):
     m = _condmap(epd)
     getWriter().write_f("Score(")
-    writeConstant(EPD(tb_Player), m.player)
+    write_constant(EPD(tb_Player), m.player)
     getWriter().write_f(", ")
-    writeConstant(EPD(tb_Score), m.restype)
+    write_constant(EPD(tb_Score), m.restype)
     getWriter().write_f(", ")
-    writeConstant(EPD(tb_Comparison), m.comparison)
+    write_constant(EPD(tb_Comparison), m.comparison)
     getWriter().write_f(", ")
     getWriter().write_decimal(m.amount)
     getWriter().write_f(")")

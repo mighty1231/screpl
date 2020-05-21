@@ -1,7 +1,7 @@
 ''' plugin sample '''
 
 from eudplib import *
-from repl import REPL, getAppManager, AppCommand, EUDByteRW, argEncNumber
+from repl import REPL, get_app_manager, AppCommand, EUDByteRW, argEncNumber
 from .myapp import MyApp
 
 # MY_COMMAND decides how to invoke the command in-game
@@ -15,7 +15,7 @@ def command1(self):
     At here, 'self' will become REPL instance
     Note that codes after startApplication will not executed
     '''
-    getAppManager().startApplication(MyApp)
+    get_app_manager().startApplication(MyApp)
 
 @AppCommand([argEncNumber])
 def command2(self, n):

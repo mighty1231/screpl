@@ -17,12 +17,12 @@ TUI - Exporting
 from eudplib import *
 from repl import (
     Application,
-    writeUnit
+    write_unit
 )
 
 from ..unit import UnitManagerApp
 from . import (
-    appManager,
+    app_manager,
     g_effectplayer,
     p_count,
     p_actionCount,
@@ -49,7 +49,7 @@ storage = Db(200000)
 remaining_bytes = EUDVariable(0)
 written = EUDVariable(0)
 
-writer = appManager.getWriter()
+writer = app_manager.getWriter()
 
 def writeBoundTriggers():
     global writer
@@ -163,19 +163,19 @@ class ExporterApp(Application):
     def loop(self):
         global written, remaining_bytes, v_turbo_mode
 
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.keyPress("ESC")):
+            app_manager.requestDestruct()
             EUDReturn()
         EUDEndIf()
 
         if EUDIf()(mode == MODE_CONFIG):
-            if EUDIf()(appManager.keyPress("Y", hold = ["LCTRL"])):
+            if EUDIf()(app_manager.keyPress("Y", hold = ["LCTRL"])):
                 mode << MODE_EXPORTING
                 writeBoundTriggers()
-            if EUDElseIf()(appManager.keyPress("U")):
+            if EUDElseIf()(app_manager.keyPress("U")):
                 UnitManagerApp.setContent(v_death_unit, EPD(v_death_unit.getValueAddr()))
-                appManager.startApplication(UnitManagerApp)
-            if EUDElseIf()(appManager.keyPress("T")):
+                app_manager.startApplication(UnitManagerApp)
+            if EUDElseIf()(app_manager.keyPress("T")):
                 v_turbo_mode += 1
                 Trigger(
                     conditions = v_turbo_mode.Exactly(TURBO_END),
@@ -183,7 +183,7 @@ class ExporterApp(Application):
                 )
             EUDEndIf()
         if EUDElse()(): # MODE_EXPORTING
-            new_written = appManager.exportAppOutputToBridge(storage + written, remaining_bytes)
+            new_written = app_manager.exportAppOutputToBridge(storage + written, remaining_bytes)
 
             remaining_bytes -= new_written
             written += new_written
@@ -191,13 +191,13 @@ class ExporterApp(Application):
                 mode << MODE_CONFIG
             EUDEndIf()
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.requestUpdate()
 
     def print(self, writer):
         writer.write_f("Bound Editor - Exporter (Bridge Client required)\n")
         if EUDIf()(mode == MODE_CONFIG):
             writer.write_f("Death Unit used as timer (U): ")
-            writeUnit(v_death_unit)
+            write_unit(v_death_unit)
             writer.write_f("\nTurbo mode (T) - ")
 
             if EUDIf()(v_turbo_mode == TURBO_EUD):

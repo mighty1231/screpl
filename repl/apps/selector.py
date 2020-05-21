@@ -1,7 +1,7 @@
 from eudplib import *
 from repl import (
     Application,
-    getAppManager,
+    get_app_manager,
     ReferenceTable,
 )
 
@@ -28,7 +28,7 @@ def _createapp(domainname, reftable):
         if EUDIfNot()(new_offset == _offset):
             _offset << new_offset
             _value << f_dwread_epd((EPD(reftable)+2) + 2*new_offset)
-            getAppManager().requestUpdate()
+            get_app_manager().requestUpdate()
         EUDEndIf()
 
     class _SelectorApp(Application):
@@ -58,19 +58,19 @@ def _createapp(domainname, reftable):
             EUDEndIf()
 
         def loop(self):
-            appManager = getAppManager()
-            if EUDIf()(appManager.keyPress("ESC")):
-                appManager.requestDestruct()
-            if EUDElseIf()(appManager.keyPress("F7", hold=["LCTRL"])):
+            app_manager = get_app_manager()
+            if EUDIf()(app_manager.keyPress("ESC")):
+                app_manager.requestDestruct()
+            if EUDElseIf()(app_manager.keyPress("F7", hold=["LCTRL"])):
                 focusOffset(_offset - NITEMS)
-            if EUDElseIf()(appManager.keyPress("F7")):
+            if EUDElseIf()(app_manager.keyPress("F7")):
                 focusOffset(_offset - 1)
-            if EUDElseIf()(appManager.keyPress("F8", hold=["LCTRL"])):
+            if EUDElseIf()(app_manager.keyPress("F8", hold=["LCTRL"])):
                 focusOffset(_offset + NITEMS)
-            if EUDElseIf()(appManager.keyPress("F8")):
+            if EUDElseIf()(app_manager.keyPress("F8")):
                 focusOffset(_offset + 1)
             EUDEndIf()
-            appManager.requestUpdate()
+            app_manager.requestUpdate()
 
         def print(self, writer):
             writer.write_f("\x16{} Selector, value=%D, ESC, F7, F8\n".format(domainname),

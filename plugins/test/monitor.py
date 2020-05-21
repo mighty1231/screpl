@@ -9,7 +9,7 @@ from repl import (
     REPLMonitorF
 )
 
-from . import appManager
+from . import app_manager
 
 def buildfuncs(io, profile):
     @REPLMonitorF(io=io, profile=profile)
@@ -120,11 +120,11 @@ class MonitorTestApp(Application):
         EUDEndInfLoop()
 
     def loop(self):
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.keyPress("ESC")):
+            app_manager.requestDestruct()
             EUDReturn()
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.requestUpdate()
 
     def print(self, writer):
         writer.write_f("MonitorTestApp var %D\n", self.var)

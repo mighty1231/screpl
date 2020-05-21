@@ -2,9 +2,9 @@ from eudplib import *
 from ..writer import writeLocation
 from ..writer.action import _actmap
 from . import *
-from .unit import SCMDWriteUnit
+from .unit import write_scmdunit
 
-def SCMDWriteAction(act):
+def write_scmdaction(act):
     assert isinstance(act, Action)
     
     acttype = act.fields[7]
@@ -22,7 +22,7 @@ def SCMDWriteAction(act):
         raise RuntimeError("Unknown action type %d" % acttype)
 
 @EUDFunc
-def SCMDWriteAction_epd(epd):
+def SCMDwrite_action_epd(epd):
     act = _actmap(epd)
     acttype = act.acttype
     if EUDIf()(acttype == 44):
@@ -41,7 +41,7 @@ def _writeSetDeaths(act):
     getWriter().write_f("Set Deaths(")
     SCMDWritePlayer(act.fields[4])
     getWriter().write_f(", ")
-    SCMDWriteUnit(act.fields[6])
+    write_scmdunit(act.fields[6])
     getWriter().write_f(", ")
     SCMDWriteModifier(act.fields[8])
     getWriter().write_f(", ")
@@ -65,7 +65,7 @@ def _writeCreateUnit(act):
     getWriter().write_f("Create Unit(")
     SCMDWritePlayer(act.fields[4])
     getWriter().write_f(", ")
-    SCMDWriteUnit(act.fields[6])
+    write_scmdunit(act.fields[6])
     getWriter().write_f(", ")
     SCMDWriteNumber(act.fields[8])
     getWriter().write_f(", ")
@@ -79,7 +79,7 @@ def _writeCreateUnit_epd(epd):
     getWriter().write_f("Create Unit(")
     SCMDWritePlayer(m.player1)
     getWriter().write_f(", ")
-    SCMDWriteUnit(m.unitid)
+    write_scmdunit(m.unitid)
     getWriter().write_f(", ")
     SCMDWriteNumber(m.amount)
     getWriter().write_f(", ")
@@ -93,7 +93,7 @@ def _writeKillUnitAt_epd(epd):
     getWriter().write_f("Kill Unit At Location(")
     SCMDWritePlayer(m.player1)
     getWriter().write_f(", ")
-    SCMDWriteUnit(m.unitid)
+    write_scmdunit(m.unitid)
     getWriter().write_f(", ")
     SCMDWriteNumber(m.amount)
     getWriter().write_f(", ")
@@ -107,7 +107,7 @@ def _writeRemoveUnitAt_epd(epd):
     getWriter().write_f("Remove Unit At Location(")
     SCMDWritePlayer(m.player1)
     getWriter().write_f(", ")
-    SCMDWriteUnit(m.unitid)
+    write_scmdunit(m.unitid)
     getWriter().write_f(", ")
     SCMDWriteNumber(m.amount)
     getWriter().write_f(", ")

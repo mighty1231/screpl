@@ -26,7 +26,7 @@ def onPluginStart():
     elif settings["superuser_mode"] == "playerName":
         repl.initializeWithName(superuser)
     else:
-        raise RuntimeError(f"Unknown mode {settings["superuser_mode"]}")
+        raise RuntimeError("Unknown mode {}".format(settings["superuser_mode"]))
 
     repl.setBridgeMode(settings["bridge_mode"])
 

@@ -2,71 +2,76 @@ from eudplib import *
 
 from ..base.eudbyterw import EUDByteRW
 from ..core.application import Application
-from ..core.appmanager import getAppManager
+from ..core.appmanager import get_app_manager
 from ..core.appcommand import AppCommand
 
 from .static import StaticApp
+from .logger import Logger
 
 import inspect
 
-PAGE_NUMLINES = 8
-LINESIZE = 216
-REPLSIZE = 300
+_PAGE_NUMLINES = 8
+_LINE_SIZE = 216
+_REPL_SIZE = 300
 
 # Guarantee no more than 1 REPL instance
-repl_input = Db(LINESIZE*REPLSIZE)
-repl_output = Db(LINESIZE*REPLSIZE)
-repl_inputEPDPtr = EUDVariable(EPD(repl_input))
-repl_outputEPDPtr = EUDVariable(EPD(repl_output))
-repl_index = EUDVariable() # increases for every I/O from 0
+_repl_input = Db(_LINE_SIZE*_REPL_SIZE)
+_repl_output = Db(_LINE_SIZE*_REPL_SIZE)
+_repl_input_epd_ptr = EUDVariable(EPD(_repl_input))
+_repl_output_epd_ptr = EUDVariable(EPD(_repl_output))
+_repl_index = EUDVariable() # increases for every I/O from 0
 
 # Variables for current REPL page
-repl_top_index = EUDVariable() # index of topmost at a page
-repl_cur_page = EUDVariable()
+_repl_top_index = EUDVariable() # index of topmost at a page
+_repl_cur_page = EUDVariable()
 
-repl_outputcolor = 0x16
+_repl_outputcolor = 0x16
 
-writer = EUDByteRW()
+_repl_writer = EUDByteRW()
 
 class REPL(Application):
+    @staticmethod
+    def get_output_writer():
+        """returns writer object that supports to write output"""
+        _repl_writer.seekepd(_repl_output_epd_ptr)
+        return _repl_writer
+
     def onChat(self, offset):
-        writer.seekepd(repl_inputEPDPtr)
-        writer.write_str(offset)
-        writer.write(0)
-        self.cmd_output_epd = repl_outputEPDPtr
+        _repl_writer.seekepd(_repl_input_epd_ptr)
+        _repl_writer.write_str(offset)
+        _repl_writer.write(0)
+        self.cmd_output_epd = _repl_output_epd_ptr
 
         Application.onChat(self, offset)
 
-        quot, mod = f_div(repl_index, PAGE_NUMLINES // 2)
-        repl_top_index << repl_index - mod
-        repl_cur_page << quot
+        quot, mod = f_div(_repl_index, _PAGE_NUMLINES // 2)
+        _repl_top_index << _repl_index - mod
+        _repl_cur_page << quot
         DoActions([
-            repl_inputEPDPtr.AddNumber(LINESIZE // 4),
-            repl_outputEPDPtr.AddNumber(LINESIZE // 4),
-            repl_index.AddNumber(1)
+            _repl_input_epd_ptr.AddNumber(_LINE_SIZE // 4),
+            _repl_output_epd_ptr.AddNumber(_LINE_SIZE // 4),
+            _repl_index.AddNumber(1)
         ])
-        getAppManager().requestUpdate()
+        get_app_manager().requestUpdate()
 
     def loop(self):
         # F7 - previous page
         # F8 - next page
-        manager = getAppManager()
+        manager = get_app_manager()
         if EUDIf()(manager.keyPress("F7")):
-            if EUDIfNot()(repl_top_index == 0):
+            if EUDIfNot()(_repl_top_index == 0):
                 DoActions([
-                    repl_top_index.SubtractNumber( \
-                            PAGE_NUMLINES//2),
-                    repl_cur_page.SubtractNumber(1)
+                    _repl_top_index.SubtractNumber(_PAGE_NUMLINES//2),
+                    _repl_cur_page.SubtractNumber(1)
                 ])
                 manager.requestUpdate()
             EUDEndIf()
         if EUDElseIf()(manager.keyPress("F8")):
-            if EUDIf()((repl_top_index+(PAGE_NUMLINES//2+1)). \
-                        AtMost(repl_index)):
+            if EUDIf()((
+                _repl_top_index+(_PAGE_NUMLINES//2+1)).AtMost(_repl_index)):
                 DoActions([
-                    repl_top_index.AddNumber( \
-                            PAGE_NUMLINES//2),
-                    repl_cur_page.AddNumber(1)
+                    _repl_top_index.AddNumber(_PAGE_NUMLINES//2),
+                    _repl_cur_page.AddNumber(1),
                 ])
                 manager.requestUpdate()
             EUDEndIf()
@@ -74,41 +79,41 @@ class REPL(Application):
 
     def print(self, writer):
         # title
-        cur_pn = repl_cur_page + 1
-        if EUDIf()(repl_index == 0):
+        cur_pn = _repl_cur_page + 1
+        if EUDIf()(_repl_index == 0):
             cur_pn << 0
         EUDEndIf()
 
         writer.write_f("\x16SC-REPL, type help() ( %D / %D )\n",
             cur_pn,
-            f_div(repl_index + (PAGE_NUMLINES//2-1),
-                PAGE_NUMLINES//2)[0]
+            f_div(_repl_index + (_PAGE_NUMLINES//2-1),
+                  _PAGE_NUMLINES//2)[0],
         )
 
         # Write contents
         cur, inputepd, outputepd, until, pageend = EUDCreateVariables(5)
-        cur << repl_top_index
+        cur << _repl_top_index
 
-        pageend << repl_top_index + PAGE_NUMLINES//2
-        if EUDIf()(pageend >= repl_index):
-            until << repl_index
+        pageend << _repl_top_index + _PAGE_NUMLINES//2
+        if EUDIf()(pageend >= _repl_index):
+            until << _repl_index
         if EUDElse()():
             until << pageend
         EUDEndIf()
 
-        off = (LINESIZE // 4) * cur
-        inputepd << EPD(repl_input) + off
-        outputepd << EPD(repl_output) + off
+        off = (_LINE_SIZE // 4) * cur
+        inputepd << EPD(_repl_input) + off
+        outputepd << EPD(_repl_output) + off
         if EUDInfLoop()():
             EUDBreakIf(cur >= until)
 
-            writer.write_f('\x1C>>> \x1D%E\n', inputepd)
-            writer.write_f('%C%E\n', repl_outputcolor, outputepd)
+            writer.write_f("\x1C>>> \x1D%E\n", inputepd)
+            writer.write_f("%C%E\n", _repl_outputcolor, outputepd)
 
             DoActions([
                 cur.AddNumber(1),
-                inputepd.AddNumber(LINESIZE // 4),
-                outputepd.AddNumber(LINESIZE // 4),
+                inputepd.AddNumber(_LINE_SIZE // 4),
+                outputepd.AddNumber(_LINE_SIZE // 4),
             ])
         EUDEndInfLoop()
 
@@ -123,10 +128,26 @@ class REPL(Application):
         writer.write(0)
 
     @AppCommand([])
+    def help(self):
+        """Show manual of REPL"""
+        StaticApp.setContent(
+            "SC-REPL manual",
+            "\x13SC-REPL\n"
+            "\x13Made by sixthMeat (mighty1231@gmail.com)\n"
+            "\n"
+            "Key Inputs\n"
+            "- F7: Search previous page\n"
+            "- F8: Search next page\n"
+            "\n"
+            "builtin functions\n"
+            "help() - Opens a manual\n"
+            "cmds() - Shows registered commands\n"
+        )
+        get_app_manager().startApplication(StaticApp)
+
+    @AppCommand([])
     def cmds(self):
-        '''
-        print REPL commands
-        '''
+        """Show REPL commands"""
         content = ''
         cmd_id = 1
         for name, cmd in REPL._commands_.orderedItems():
@@ -139,18 +160,21 @@ class REPL(Application):
 
             arg_description = []
             for i in range(cmd.argn):
-                arg_description.append('{}'.format(
-                    argspec.args[i+1]
-                ))
+                arg_description.append('{}'.format(argspec.args[i+1]))
             content += '\x16{}. {}({}){}\n'.format(
                 cmd_id,
                 name,
                 ', '.join(arg_description),
-                docstring
+                docstring,
             )
             cmd_id += 1
         if content[-1] == '\n':
             content = content[:-1]
 
-        StaticApp.setContent('\x16SC-REPL commands', content)
-        getAppManager().startApplication(StaticApp)
+        StaticApp.setContent("\x16SC-REPL commands", content)
+        get_app_manager().startApplication(StaticApp)
+
+    @AppCommand([])
+    def log(self):
+        """Start Logger application"""
+        get_app_manager().startApplication(Logger)

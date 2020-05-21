@@ -3,7 +3,7 @@ from eudplib import *
 from ..base.referencetable import ReferenceTable
 from ..utils import EPDConstString
 from .appcommand import AppCommandN, runAppCommand
-from .appmanager import getAppManager
+from .appmanager import get_app_manager
 from .appmethod import AppMethodN, AppMethod, AppMethod_writerParam
 
 class _indexPair:
@@ -151,7 +151,7 @@ class ApplicationInstance:
         Traditional EUDVariable can be referenced as EPD(v.getValueAddr())
         '''
         attrid, attrtype = self._cls._fields_[member]
-        return getAppManager().cur_members._epd + (18 * attrid + 348 // 4)
+        return get_app_manager().cur_members._epd + (18 * attrid + 348 // 4)
 
     def __getattr__(self, name):
         if name in self._cls._commands_:
@@ -164,7 +164,7 @@ class ApplicationInstance:
                 return v.applyAbsolute()
         elif name in self._cls._fields_:
             attrid, attrtype = self._cls._fields_[name]
-            attr = getAppManager().cur_members.get(attrid)
+            attr = get_app_manager().cur_members.get(attrid)
             if attrtype:
                 return attrtype.cast(attr)
             else:
@@ -176,7 +176,7 @@ class ApplicationInstance:
             super().__setattr__(name, value)
         elif name in self._cls._fields_:
             attrid, attrtype = self._cls._fields_[name]
-            getAppManager().cur_members.set(attrid, value)
+            get_app_manager().cur_members.set(attrid, value)
         else:
             raise AttributeError("Application '%s' has no attribute '%s'" % (self._cls, name))
 

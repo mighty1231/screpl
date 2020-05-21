@@ -2,7 +2,7 @@ from eudplib import *
 from ..writer import writeLocation
 from ..writer.condition import _condmap
 from . import *
-from .unit import SCMDWriteUnit
+from .unit import write_scmdunit
 
 def SCMDWriteCondition(cond):
     assert isinstance(cond, Condition)
@@ -25,7 +25,7 @@ def _writeDeaths(cond):
     getWriter().write_f("Deaths(")
     SCMDWritePlayer(cond.fields[1])
     getWriter().write_f(", ")
-    SCMDWriteUnit(cond.fields[3])
+    write_scmdunit(cond.fields[3])
     getWriter().write_f(", ")
     SCMDWriteComparison(cond.fields[4])
     getWriter().write_f(", ")
@@ -36,7 +36,7 @@ def _writeCommand(cond):
     getWriter().write_f("Command(")
     SCMDWritePlayer(cond.fields[1])
     getWriter().write_f(", ")
-    SCMDWriteUnit(cond.fields[3])
+    write_scmdunit(cond.fields[3])
     getWriter().write_f(", ")
     SCMDWriteComparison(cond.fields[4])
     getWriter().write_f(", ")

@@ -2,7 +2,9 @@ from eudplib import *
 
 from ..base.eudbyterw import EUDByteRW
 from ..base.pool import DbPool, VarPool
-from ..utils import f_raiseError, f_raiseWarning, getKeyCode, f_strlen, f_printf
+from ..utils import f_raise_error, f_raise_warning, getKeyCode, f_strlen, f_printf
+
+import repl.main as main
 
 _KEYPRESS_DELAY = 8
 _APP_MAX_COUNT = 30
@@ -99,7 +101,7 @@ class AppManager:
     @EUDMethod
     def _startApplication(self, fieldsize, methods, table_epd):
         if EUDIfNot()(self.is_terminating_app == 0):
-            f_raiseError("FATAL ERROR: startApplication <-> requestDestruct")
+            f_raise_error("FATAL ERROR: startApplication <-> requestDestruct")
         EUDEndIf()
 
         if EUDIf()(self.app_cnt < _APP_MAX_COUNT):
@@ -110,14 +112,14 @@ class AppManager:
 
             self.is_starting_app << 1
         if EUDElse()():
-            f_raiseWarning("APP COUNT reached MAX, No more spaces")
+            f_raise_warning("APP COUNT reached MAX, No more spaces")
         EUDEndIf()
 
     def initOrTerminateApplication(self):
         # Terminate one
         if EUDIfNot()(self.is_terminating_app == 0):
             if EUDIf()(self.app_cnt == 1):
-                f_raiseError("FATAL ERROR: Excessive TerminateApplication")
+                f_raise_error("FATAL ERROR: Excessive TerminateApplication")
             EUDEndIf()
 
             self.current_app_instance.onDestruct()
@@ -163,7 +165,7 @@ class AppManager:
             self.is_starting_app << 0
         EUDEndIf()
 
-        clean_text()
+        self.clean_text()
         self.requestUpdate()
 
     def updateKeyState(self):
@@ -369,7 +371,7 @@ class AppManager:
           destruction should not be requested at the same frame.
         '''
         if EUDIfNot()(self.is_starting_app == 0):
-            f_raiseError("FATAL ERROR: startApplication <-> requestDestruct")
+            f_raise_error("FATAL ERROR: startApplication <-> requestDestruct")
         EUDEndIf()
         self.is_terminating_app << 1
 
@@ -405,7 +407,13 @@ class AppManager:
         '''
         Internally printing function uses this method
         '''
-        return get_main_writer()
+        return main.get_main_writer()
+
+    def clean_text():
+        """Cleans text UI of previous app."""
+        EUDIfNot()(main.is_blind_mode())
+        f_printf("\n" * 12)
+        EUDEndIf()
 
     @EUDMethod
     def getSTRSectionSize(self):
@@ -463,7 +471,7 @@ class AppManager:
 
         # evaluate display buffer
         if EUDIfNot()(self.update == 0):
-            get_main_writer().seekepd(EPD(self.display_buffer))
+            main.get_main_writer().seekepd(EPD(self.display_buffer))
 
             # print() uses self.writer internally
             self.current_app_instance.print()

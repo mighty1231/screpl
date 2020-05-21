@@ -4,7 +4,7 @@ from ...utils import EPDConstString
 from . import getWriter
 
 @EUDFunc
-def SCMDWriteUnit_var(unit):
+def write_scmdunit_var(unit):
     if EUDIf()(unit >= 233):
         getWriter().write_decimal(unit)
     if EUDElseIf()(unit == 228):
@@ -13,10 +13,10 @@ def SCMDWriteUnit_var(unit):
         getWriter().write_strepd(SCMDDefaultUnitArray[unit])
     EUDEndIf()
 
-def SCMDWriteUnit(unit):
-    from ...core.appmanager import getAppManager
+def write_scmdunit(unit):
+    from ...core.appmanager import get_app_manager
     if IsEUDVariable(unit):
-        SCMDWriteUnit_var(unit)
+        write_scmdunit_var(unit)
     else:
         getWriter().write_f(SCMDDefaultUnits[unit])
 

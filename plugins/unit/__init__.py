@@ -1,15 +1,15 @@
 from eudplib import *
 
-from repl import REPL, getAppManager, AppCommand
+from repl import REPL, get_app_manager, AppCommand
 
 # initialize variables
-appManager = getAppManager()
+app_manager = get_app_manager()
 
 # make commands
 from .manager import UnitManagerApp
 
 @AppCommand([])
 def startCommand(self):
-    appManager.startApplication(UnitManagerApp)
+    app_manager.startApplication(UnitManagerApp)
 
 REPL.addCommand('unit', startCommand)

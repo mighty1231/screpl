@@ -1,8 +1,8 @@
 """initialize repl"""
 from .utils import (
     EPDConstString,
-    f_raiseError,
-    f_raiseWarning,
+    f_raise_error,
+    f_raise_warning,
     f_printf,
     f_strlen,
     StaticStruct,
@@ -40,7 +40,7 @@ from .resources.encoder.condition import encodeCondition_epd
 from .resources.encoder.action import encodeAction_epd
 
 from .resources.writer import (
-    writeUnit,
+    write_unit,
     writeLocation,
     writeAIScript,
     writeSwitch,
@@ -48,7 +48,7 @@ from .resources.writer import (
 )
 
 from .resources.writer.condition import writeCondition_epd
-from .resources.writer.action import writeAction_epd
+from .resources.writer.action import write_action_epd
 
 from .resources.table.tables import (
     GetLocationNameEPDPointer,
@@ -58,7 +58,7 @@ from .resources.table.tables import (
 
 from .core import (
     Application,
-    getAppManager,
+    get_app_manager,
 
     AppCommand,
     runAppCommand,

@@ -6,18 +6,18 @@ from repl import (
     Array
 )
 
-from . import appManager
+from . import app_manager
 
 array = Array.construct(10, [1, 2, 3])
 ret = EUDVariable()
 
 class ArrayTestApp(Application):
     def loop(self):
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.keyPress("ESC")):
+            app_manager.requestDestruct()
             EUDReturn()
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.requestUpdate()
 
     @AppCommand([argEncNumber])
     def append(self, value):

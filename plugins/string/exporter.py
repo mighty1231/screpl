@@ -19,7 +19,7 @@ written = EUDVariable(0)
 
 def writeStrings():
     global string_buffer, new_alloc_epd, v_mode
-    writer = appManager.getWriter()
+    writer = app_manager.getWriter()
     writer.seekepd(EPD(storage))
 
     cur_epd = EUDVariable()
@@ -109,16 +109,16 @@ class StringExporterApp(Application):
     def loop(self):
         global written, remaining_bytes, v_mode
 
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.keyPress("ESC")):
+            app_manager.requestDestruct()
             EUDReturn()
         EUDEndIf()
 
         if EUDIf()(v_state == STATE_CONFIG):
-            if EUDIf()(appManager.keyPress("Y", hold = ["LCTRL"])):
+            if EUDIf()(app_manager.keyPress("Y", hold = ["LCTRL"])):
                 v_state << STATE_EXPORTING
                 writeStrings()
-            if EUDElseIf()(appManager.keyPress("O", hold = ["LCTRL"])):
+            if EUDElseIf()(app_manager.keyPress("O", hold = ["LCTRL"])):
                 v_mode += 1
                 Trigger(
                     conditions=v_mode.Exactly(MODE_END),
@@ -126,7 +126,7 @@ class StringExporterApp(Application):
                 )
             EUDEndIf()
         if EUDElse()():
-            new_written = appManager.exportAppOutputToBridge(storage + written, remaining_bytes)
+            new_written = app_manager.exportAppOutputToBridge(storage + written, remaining_bytes)
 
             remaining_bytes -= new_written
             written += new_written
@@ -134,7 +134,7 @@ class StringExporterApp(Application):
                 v_state << STATE_CONFIG
             EUDEndIf()
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.requestUpdate()
 
     def print(self, writer):
         writer.write_f("String Editor - Exporter (Bridge Client required)\n")

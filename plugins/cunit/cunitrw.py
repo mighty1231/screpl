@@ -1,6 +1,6 @@
 from eudplib import *
 from repl import EPDConstString, StaticStruct
-from . import appManager
+from . import app_manager
 
 """
 type
@@ -18,7 +18,7 @@ point: s32 x, y;
 rect: s16 l, t, r, b;
 points: s16 x, y;
 """
-writer = appManager.getWriter()
+writer = app_manager.getWriter()
 
 @EUDFunc
 def cw_bool(epd, off):

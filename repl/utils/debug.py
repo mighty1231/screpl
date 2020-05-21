@@ -31,14 +31,14 @@ def _print_buf():
     ])
     f_setcurpl(orig_cp)
 
-def f_raiseError(txt):
+def f_raise_error(txt):
     getWriter().seekepd(EPD(_buf))
     getWriter().write_strepd(EPDConstString(txt))
     getWriter().write(0)
     _print_buf()
     DoActions(SetMemory(0xDEADBEEF ^ 0xFFFFFFFF, SetTo, 0))
 
-def f_raiseWarning(txt):
+def f_raise_warning(txt):
     getWriter().seekepd(EPD(_buf))
     getWriter().write_strepd(EPDConstString(txt))
     getWriter().write(0)

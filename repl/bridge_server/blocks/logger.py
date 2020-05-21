@@ -8,7 +8,7 @@ struct {
 '''
 from eudplib import *
 from .block import BridgeBlock
-from ..core import getAppManager
+from ..core import get_app_manager
 from ..apps.logger import (
     buf_start_epd,
     log_index,
@@ -16,7 +16,7 @@ from ..apps.logger import (
     LOGGER_LINE_COUNT
 )
 
-appManager = getAppManager()
+app_manager = get_app_manager()
 
 class LoggerBlock(BridgeBlock):
     signature = b'LOGB'

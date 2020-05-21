@@ -1,7 +1,7 @@
 from eudplib import *
 from repl import (
     Application,
-    f_raiseWarning
+    f_raise_warning
 )
 
 from . import *
@@ -108,13 +108,13 @@ class StringEditorApp(Application):
                             if EUDElseIf()([hexb >= ord('A'), hexb <= ord('F')]):
                                 b1 += (hexb - ord('A') + 10)
                             if EUDElse()():
-                                f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
+                                f_raise_warning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                                 EUDJump(clear_overwrite)
                             EUDEndIf()
                             if nnn == 0:
                                 b1 *= 16
                     if EUDElse()():
-                        f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
+                        f_raise_warning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                         EUDJump(clear_overwrite)
                     EUDEndIf()
                 EUDEndIf()
@@ -162,13 +162,13 @@ class StringEditorApp(Application):
                             if EUDElseIf()([hexb >= ord('A'), hexb <= ord('F')]):
                                 b1 += (hexb - ord('A') + 10)
                             if EUDElse()():
-                                f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
+                                f_raise_warning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                                 EUDJump(clear_insert)
                             EUDEndIf()
                             if nnn == 0:
                                 b1 *= 16
                     if EUDElse()():
-                        f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
+                        f_raise_warning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                         EUDJump(clear_insert)
                     EUDEndIf()
                 EUDEndIf()
@@ -193,23 +193,23 @@ class StringEditorApp(Application):
     def loop(self):
         global v_cursor_epd, v_frame
 
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
-        if EUDElseIf()(appManager.keyPress("insert")):
+        if EUDIf()(app_manager.keyPress("ESC")):
+            app_manager.requestDestruct()
+        if EUDElseIf()(app_manager.keyPress("insert")):
             v_mode << 1 - v_mode
-        if EUDElseIf()(appManager.keyPress("delete")):
+        if EUDElseIf()(app_manager.keyPress("delete")):
             f_strcpy_epd(v_cursor_epd, v_cursor_epd + 1)
-        if EUDElseIf()(appManager.keyPress("F7")):
+        if EUDElseIf()(app_manager.keyPress("F7")):
             if EUDIfNot()(v_cursor_epd == v_string_epd):
                 v_cursor_epd -= 1
                 v_frame << BLINK_PERIOD * 2 - 1
             EUDEndIf()
-        if EUDElseIf()(appManager.keyPress("F8")):
+        if EUDElseIf()(app_manager.keyPress("F8")):
             if EUDIfNot()(MemoryEPD(v_cursor_epd, Exactly, 0)):
                 v_cursor_epd += 1
                 v_frame << BLINK_PERIOD * 2 - 1
             EUDEndIf()
-        if EUDElseIf()(appManager.keyPress("HOME")):
+        if EUDElseIf()(app_manager.keyPress("HOME")):
             if EUDInfLoop()():
                 EUDBreakIf(v_cursor_epd == v_string_epd)
                 v_cursor_epd -= 1
@@ -219,7 +219,7 @@ class StringEditorApp(Application):
                 EUDEndIf()
             EUDEndInfLoop()
             v_frame << BLINK_PERIOD * 2 - 1
-        if EUDElseIf()(appManager.keyPress("END")):
+        if EUDElseIf()(app_manager.keyPress("END")):
             if EUDInfLoop()():
                 EUDBreakIf(MemoryEPD(v_cursor_epd, Exactly, 0))
                 EUDBreakIf(MemoryEPD(v_cursor_epd, Exactly, 0x0D0D0D + ord('\n') * 0x01000000))
@@ -227,7 +227,7 @@ class StringEditorApp(Application):
             EUDEndInfLoop()
             v_frame << BLINK_PERIOD * 2 - 1
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.requestUpdate()
 
         v_frame += 1
         Trigger(

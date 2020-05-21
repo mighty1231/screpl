@@ -1,11 +1,11 @@
 from eudplib import *
 
-from . import appManager, mapw, maph
+from . import app_manager, mapw, maph
 from repl.resources.offset import off_unitsdat_ElevationLevel
 
 @EUDFunc
 def drawRectangle(location, frame, frame_period):
-    superuser = appManager.superuser
+    superuser = app_manager.superuser
 
     cur_epd = EPD(0x58DC60 - 0x14) + (0x14 // 4) * location
     le, te, re, de = cur_epd, cur_epd+1, cur_epd+2, cur_epd+3

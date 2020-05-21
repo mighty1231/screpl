@@ -4,8 +4,8 @@ _writer = None
 def getWriter():
     global _writer
     if _writer is None:
-        from ...core import getAppManager
-        _writer = getAppManager().getWriter()
+        from ...core import get_app_manager
+        _writer = get_app_manager().getWriter()
     return _writer
 
 def makeSCMDConstWriter(encoder, kvmap):
@@ -39,7 +39,7 @@ def SCMDWriteNumber(value):
 
 def writeTrigger(player, conditions, actions, preserved = True):
     from .condition import SCMDWriteCondition
-    from .action import SCMDWriteAction, SCMDWriteAction_epd
+    from .action import write_scmdaction, SCMDwrite_action_epd
     '''
     actions = [SetDeaths(~~), SetDeaths(~~), ...]
     or
@@ -69,7 +69,7 @@ def writeTrigger(player, conditions, actions, preserved = True):
             elif type(act) == tuple:
                 getWriter().write_f(*act)
             elif type(act) == Action:
-                SCMDWriteAction(act)
+                write_scmdaction(act)
             else:
                 raise RuntimeError("Unknown type action {}".format(act))
     else:
@@ -81,7 +81,7 @@ def writeTrigger(player, conditions, actions, preserved = True):
         if EUDInfLoop()():
             EUDBreakIf(cur_epd >= end_epd)
 
-            SCMDWriteAction_epd(cur_epd)
+            SCMDwrite_action_epd(cur_epd)
             cur_epd += (32//4)
         EUDEndInfLoop()
 

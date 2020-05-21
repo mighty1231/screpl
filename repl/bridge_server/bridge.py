@@ -44,7 +44,7 @@ from repl.bridge_server.blocks import (
     ProfileBlock,
 )
 from repl.bridge_server.signature import dead_signature, RestoreSignature
-from repl import getAppManager
+from repl import get_app_manager
 
 class BridgeRegion(EUDObject):
     def __init__(self):
@@ -125,7 +125,7 @@ class BridgeRegion(EUDObject):
             # frame Count
             SeqCompute([(EPD(region._frameCount),
                          SetTo,
-                         getAppManager().current_frame_number)])
+                         get_app_manager().current_frame_number)])
 
             # update blocks
             for b in self.blocks:
@@ -140,6 +140,6 @@ class BridgeRegion(EUDObject):
 
         # command from bridge client
         if EUDIfNot()(Memory(buf_command, Exactly, 0)):
-            getAppManager().getCurrentAppInstance().onChat(buf_command)
+            get_app_manager().getCurrentAppInstance().onChat(buf_command)
             DoActions(SetMemory(buf_command, SetTo, 0))
         EUDEndIf()

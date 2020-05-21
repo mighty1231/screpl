@@ -1,6 +1,6 @@
 from eudplib import *
 from .staticstruct import StaticStruct
-from .debug import f_raiseError
+from .debug import f_raise_error
 from ..base import DbPool
 
 pool = DbPool(100000)
@@ -90,7 +90,7 @@ class Array(StaticStruct):
     @EUDMethod
     def at(self, index):
         if EUDIf()(index >= self.size):
-            f_raiseError("IndexError: array index out of range")
+            f_raise_error("IndexError: array index out of range")
         EUDEndIf()
         return f_dwread_epd(self.contents + index)
 
@@ -99,7 +99,7 @@ class Array(StaticStruct):
         size = self.size
         end = self.end
         if EUDIf()(size == self.max_size):
-            f_raiseError("BufferOverflowError: array size exceeds max_size")
+            f_raise_error("BufferOverflowError: array size exceeds max_size")
         EUDEndIf()
 
         f_dwwrite_epd(end, value)
@@ -115,7 +115,7 @@ class Array(StaticStruct):
         end = self.end
         size = self.size
         if EUDIf()(size == 0):
-            f_raiseError("IndexError: pop from empty array")
+            f_raise_error("IndexError: pop from empty array")
         EUDEndIf()
 
         end -= 1
@@ -137,10 +137,10 @@ class Array(StaticStruct):
         end = self.end
 
         if EUDIf()(size == self.max_size):
-            f_raiseError("BufferOverflowError: array size exceeds max_size")
+            f_raise_error("BufferOverflowError: array size exceeds max_size")
         EUDEndIf()
         if EUDIfNot()(index <= size):
-            f_raiseError("IndexError: array index out of range")
+            f_raise_error("IndexError: array index out of range")
         EUDEndIf()
 
         cpmoda, loopc = Forward(), Forward()
@@ -184,7 +184,7 @@ class Array(StaticStruct):
         end = self.end
 
         if EUDIf()(index >= size):
-            f_raiseError("IndexError: array index out of range")
+            f_raise_error("IndexError: array index out of range")
         EUDEndIf()
 
         dst = contents + index

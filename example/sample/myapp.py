@@ -3,16 +3,16 @@ Application sample for REPL
 
 A series of methods is executed in each frame as follows.
 
-Case 1. app starts with getAppManager().startApplication(app)
+Case 1. app starts with get_app_manager().startApplication(app)
   - onInit, (onChat), loop, print
 
-Case 2. If 'onChat' or 'loop' invoked 'getAppManager().requestUpdate()',
+Case 2. If 'onChat' or 'loop' invoked 'get_app_manager().requestUpdate()',
   - (onChat), loop, print
 
-Case 3. If 'onChat' or 'loop' did not invoked 'getAppManager().requestUpdate()',
+Case 3. If 'onChat' or 'loop' did not invoked 'get_app_manager().requestUpdate()',
   - (onChat), loop
 
-Case 4. If 'onChat' or 'loop' invoked 'getAppManager().requestDestruct()'
+Case 4. If 'onChat' or 'loop' invoked 'get_app_manager().requestDestruct()'
   - (onChat), loop, onDestruct
 
 Case 5. Previously launched app is dead,
@@ -25,11 +25,11 @@ from repl import (
     Application,
     AppTypedMethod,
     AppCommand,
-    getAppManager,
+    get_app_manager,
     argEncNumber
 )
 
-manager = getAppManager()
+manager = get_app_manager()
 
 class MyApp(Application):
     fields = [

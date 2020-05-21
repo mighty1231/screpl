@@ -10,11 +10,11 @@ _main_writer = EUDByteRW()
 _manager = None
 _bridge_region = None
 _is_blind_mode = None
-_trigger_framedelay = EUDVariable(-1)
+_trigger_timer = EUDVariable(-1)
 
 def get_app_manager():
-    """Returns unique :class:`~repl.core.App_manager` instance"""
-    assert _manager, "App_manager should be initialized"
+    """Returns unique :class:`~repl.core.AppManager` instance"""
+    assert _manager, "AppManager should be initialized"
     return _manager
 
 def get_main_writer():
@@ -33,13 +33,13 @@ def get_main_writer():
 def is_bridge_mode():
     return _bridge_region is not None
 
-def set_trigger_framedelay(delay):
-    global _trigger_framedelay
-    _trigger_framedelay << delay
+def is_blind_mode():
+    if is_bridge_mode():
+        return _is_blind_mode == 1
+    return False
 
-def unset_trigger_framedelay(delay):
-    global _trigger_framedelay
-    _trigger_framedelay << -1
+def set_trigger_timer(timer):
+    _trigger_timer << timer
 
 def initialize_with_id(su_id):
     """Initialize REPL with configurations, with id-certification.
@@ -48,7 +48,7 @@ def initialize_with_id(su_id):
         su_id (int): id of super user, it must ranges from 0 to 7.
     """
     global _manager
-    assert not _manager, "App_manager initialized twice"
+    assert not _manager, "AppManager initialized twice"
 
     # assert the map is already loaded by :mod:`eudplib`
     assert IsMapdataInitalized()
@@ -72,7 +72,7 @@ def initialize_with_id(su_id):
     writer.write(0)
     su_prefixlen = f_strlen(su_prefix)
 
-    _manager = App_manager(su_id, su_prefix, su_prefixlen)
+    _manager = AppManager(su_id, su_prefix, su_prefixlen)
 
 def initialize_with_name(su_name):
     """Initialize REPL with configurations, with name-certification.
@@ -81,7 +81,7 @@ def initialize_with_name(su_name):
         su_name (str): name of super user.
     """
     global _manager
-    assert not _manager, "App_manager initialized twice"
+    assert not _manager, "AppManager initialized twice"
 
     # assert the map is already loaded by :mod:`eudplib`
     assert IsMapdataInitalized()
@@ -116,7 +116,7 @@ def initialize_with_name(su_name):
         f_raise_error("[SC-REPL] super user '%s' not found" % su_name)
     EUDEndIf()
 
-    _manager = App_manager(su_id, su_prefix, su_prefixlen)
+    _manager = AppManager(su_id, su_prefix, su_prefixlen)
 
 def set_bridge_mode(bridge_mode):
     """Initialize bridge with specificed mode
@@ -151,24 +151,56 @@ def set_bridge_mode(bridge_mode):
             _is_blind_mode << 1 - _is_blind_mode
         REPL.add_command("blind", toggle_blind)
 
-def clean_text():
-    """Cleans text UI of previous app."""
-    global _bridge_region, _is_blind_mode
-    if _bridge_region:
-        EUDIf()(_is_blind_mode == 0)
+@AppCommand([argEncNumber])
+def _cmd_trig_timer(self, timer):
+    """Set trigger timer (0x6509A0) as given argument"""
+    _trigger_timer << timer
+    writer = REPL.get_output_writer()
+    writer.write_f("Now trigger timer (0x6509A0) is %D "
+                   "(0:eudturbo, 1:turbo)", timer)
+    writer.write(0)
 
-    f_printf("\n" * 12)
+@AppCommand([])
+def _cmd_trig_timer_off(self):
+    """Unset trigger timer"""
+    _trigger_timer << -1
+    writer = REPL.get_output_writer()
+    writer.write_f("Trigger timer unset")
+    writer.write(0)
 
-    if _bridge_region:
-        EUDEndIf()  
+@AppCommand([])
+def _cmd_turbo(self):
+    """Toggle turbo"""
+    writer = REPL.get_output_writer()
+    if EUDIf(_trigger_timer.Exactly(-1)):
+        _trigger_timer << 1
+        writer.write_f("\x16turbo \x07ON")
+    if EUDElse()():
+        _trigger_timer << -1
+        writer.write_f("\x16turbo \x07OFF")
+    EUDEndIf()
+
+@AppCommand([])
+def _cmd_eudturbo(self):
+    """Toggle eudturbo"""
+    writer = REPL.get_output_writer()
+    if EUDIf(_trigger_timer.Exactly(-1)):
+        _trigger_timer << 0
+        writer.write_f("eudturbo \x07ON")
+    if EUDElse()():
+        _trigger_timer << -1
+        writer.write_f("eudturbo \x04OFF")
+    EUDEndIf()
 
 def run():
     """Run main loop of SC-REPL"""
-    global _manager, _bridge_region, _is_blind_mode, _main_writer
-
     # turbo mode
-    if EUDIfNot()(trigger_framedelay.Exactly(-1)):
-        DoActions(SetMemory(0x6509A0, SetTo, trigger_framedelay))
+    REPL.addCommand("timer", _cmd_trig_timer)
+    REPL.addCommand("timerOff", _cmd_trig_timer_off)
+    REPL.addCommand("turbo", _cmd_turbo)
+    REPL.addCommand("eudturbo", _cmd_eudturbo)
+    if EUDIfNot()(_trigger_timer.Exactly(-1)):
+        DoActions(SetMemory(0x6509A0, SetTo, _trigger_timer))
     EUDEndIf()
 
     # app-related things

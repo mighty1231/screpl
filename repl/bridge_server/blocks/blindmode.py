@@ -3,10 +3,10 @@ BlindModeDisplayBlock provides display for blindmode
 '''
 from eudplib import *
 from .block import BridgeBlock
-from ..core import getAppManager
+from ..core import get_app_manager
 
-appManager = getAppManager()
-buffer_size = appManager.displayBuffer.GetDataSize()
+app_manager = get_app_manager()
+buffer_size = app_manager.displayBuffer.GetDataSize()
 
 class BlindModeDisplayBlock(BridgeBlock):
     signature = b'BLIN'
@@ -15,10 +15,10 @@ class BlindModeDisplayBlock(BridgeBlock):
         return buffer_size
 
     def UpdateContent(self):
-        if EUDIf()(appManager.is_blind_mode == 1):
+        if EUDIf()(app_manager.is_blind_mode == 1):
             f_repmovsd_epd(
                 EPD(self),
-                EPD(appManager.displayBuffer),
+                EPD(app_manager.displayBuffer),
                 buffer_size // 4
             )
         EUDEndIf()
