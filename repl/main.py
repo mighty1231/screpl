@@ -2,11 +2,12 @@
 from eudplib import *
 from eudplib.core.mapdata import IsMapdataInitalized
 
-from repl.apps import REPL
+from repl.apps import repl
+from repl.bridge_server import bridge
 from repl.core import AppManager, AppCommand
+from repl.encoder.const import ArgEncNumber
 from repl.utils.eudbyterw import EUDByteRW
 from repl.utils.string import f_strlen
-from repl.encoder import ArgEncNumber
 
 _main_writer = EUDByteRW()
 _manager = None
@@ -76,6 +77,9 @@ def initialize_with_id(su_id):
 
     _manager = AppManager(su_id, su_prefix, su_prefixlen)
 
+    # REPL is the application on the base
+    _manager.startApplication(repl.REPL)
+
 def initialize_with_name(su_name):
     """Initialize REPL with configurations, with name-certification.
 
@@ -120,6 +124,9 @@ def initialize_with_name(su_name):
 
     _manager = AppManager(su_id, su_prefix, su_prefixlen)
 
+    # REPL is the application on the base
+    _manager.startApplication(repl.REPL)
+
 def set_bridge_mode(bridge_mode):
     """Initialize bridge with specificed mode
 
@@ -135,10 +142,10 @@ def set_bridge_mode(bridge_mode):
     global _bridge_region, _is_blind_mode
 
     if bridge_mode == "on":
-        _bridge_region = BridgeRegion()
+        _bridge_region = bridge.BridgeRegion()
         _is_blind_mode = EUDVariable(0)
     elif bridge_mode == "blind":
-        _bridge_region = BridgeRegion()
+        _bridge_region = bridge.BridgeRegion()
         _is_blind_mode = EUDVariable(1)
     else:
         if bridge_mode != "off":
@@ -151,13 +158,13 @@ def set_bridge_mode(bridge_mode):
         @AppCommand([])
         def toggle_blind(repl):
             _is_blind_mode << 1 - _is_blind_mode
-        REPL.add_command("blind", toggle_blind)
+        repl.REPL.add_command("blind", toggle_blind)
 
 @AppCommand([ArgEncNumber])
 def _cmd_trig_timer(self, timer):
     """Set trigger timer (0x6509A0) as given argument"""
     _trigger_timer << timer
-    writer = REPL.get_output_writer()
+    writer = repl.REPL.get_output_writer()
     writer.write_f("Now trigger timer (0x6509A0) is %D "
                    "(0:eudturbo, 1:turbo)", timer)
     writer.write(0)
@@ -166,14 +173,14 @@ def _cmd_trig_timer(self, timer):
 def _cmd_trig_timer_off(self):
     """Unset trigger timer"""
     _trigger_timer << -1
-    writer = REPL.get_output_writer()
+    writer = repl.REPL.get_output_writer()
     writer.write_f("Trigger timer unset")
     writer.write(0)
 
 @AppCommand([])
 def _cmd_turbo(self):
     """Toggle turbo"""
-    writer = REPL.get_output_writer()
+    writer = repl.REPL.get_output_writer()
     if EUDIf(_trigger_timer.Exactly(-1)):
         _trigger_timer << 1
         writer.write_f("\x16turbo \x07ON")
@@ -185,7 +192,7 @@ def _cmd_turbo(self):
 @AppCommand([])
 def _cmd_eudturbo(self):
     """Toggle eudturbo"""
-    writer = REPL.get_output_writer()
+    writer = repl.REPL.get_output_writer()
     if EUDIf(_trigger_timer.Exactly(-1)):
         _trigger_timer << 0
         writer.write_f("eudturbo \x07ON")
@@ -197,10 +204,10 @@ def _cmd_eudturbo(self):
 def run():
     """Run main loop of SC-REPL"""
     # turbo mode
-    REPL.addCommand("timer", _cmd_trig_timer)
-    REPL.addCommand("timerOff", _cmd_trig_timer_off)
-    REPL.addCommand("turbo", _cmd_turbo)
-    REPL.addCommand("eudturbo", _cmd_eudturbo)
+    repl.REPL.addCommand("timer", _cmd_trig_timer)
+    repl.REPL.addCommand("timerOff", _cmd_trig_timer_off)
+    repl.REPL.addCommand("turbo", _cmd_turbo)
+    repl.REPL.addCommand("eudturbo", _cmd_eudturbo)
     if EUDIfNot()(_trigger_timer.Exactly(-1)):
         DoActions(SetMemory(0x6509A0, SetTo, _trigger_timer))
     EUDEndIf()

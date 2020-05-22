@@ -1,6 +1,6 @@
 from eudplib import *
 import importlib, re
-import repl
+import repl.main as main
 
 default_settings = {
     'superuser'     : 'P1',
@@ -23,13 +23,13 @@ def onPluginStart():
 
     if settings["superuser_mode"] == "playerID":
         superuser = playerMap.get(settings["superuser"], settings["superuser"])
-        repl.initialize_with_id(EncodePlayer(superuser))
+        main.initialize_with_id(EncodePlayer(superuser))
     elif settings["superuser_mode"] == "playerName":
-        repl.initialize_with_name(superuser)
+        main.initialize_with_name(superuser)
     else:
         raise RuntimeError("Unknown mode {}".format(settings["superuser_mode"]))
 
-    repl.set_bridge_mode(settings["bridge_mode"])
+    main.set_bridge_mode(settings["bridge_mode"])
 
     # load plugins
     # split plugins with ',' or ' '
@@ -39,7 +39,7 @@ def onPluginStart():
             importlib.import_module(plugin)
 
 def afterTriggerExec():
-    repl.run()
+    main.run()
 
 playerMap = {
     'P1':P1,

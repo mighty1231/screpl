@@ -15,11 +15,8 @@ struct {
 }
 '''
 from eudplib import *
-from .block import BridgeBlock
-from ..core import get_app_manager
-from ..monitor import profile_table
-
-app_manager = get_app_manager()
+from repl.bridge_server import block
+from repl.monitor import profile_table
 
 _buf = None
 
@@ -53,15 +50,15 @@ def get_block():
     return _buf
 
 
-class ProfileBlock(BridgeBlock):
-    _signature_ = b'PROF'
+class ProfileBlock(block.BridgeBlock):
+    signature = b'PROF'
 
     def GetBufferSize(self):
         return len(get_block())
 
     def WritePayload(self, emitbuffer):
         buf_size = self.GetBufferSize()
-        emitbuffer.WriteDword(b2i4(type(self)._signature_))
+        emitbuffer.WriteDword(b2i4(type(self).signature))
         emitbuffer.WriteDword(buf_size)
         emitbuffer.WriteBytes(get_block())
 

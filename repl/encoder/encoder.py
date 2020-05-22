@@ -17,7 +17,7 @@ ArgEncoderPtr = EUDFuncPtr(4, 1)
 
 @EUDFunc
 def _trim():
-    ''' skips all space characters '''
+    """makes reader skip all spaces"""
     _b = _reader.read()
     if EUDInfLoop()():
         EUDBreakIfNot(_b == ord(' '))
@@ -27,10 +27,19 @@ def _trim():
 
 @EUDFunc
 def _read_until_delimiter(_b, delim):
-    '''
-    Read [ ]*delim
-    delim would be one of [ord(','), ord(')'), 0]
-    '''
+    """Moves reader just before specific character.
+
+    It reads zero or more spaces and check the following character.
+
+    Args:
+        _b (int): the last character read
+        delim (int): the character to be expected after spaces. It may have
+            value one of ord(','), ord(')') or 0.
+
+    Returns:
+        int: 1 if the last character after spaces is given delim,
+            otherwise 0.
+    """
     if EUDInfLoop()():
         if EUDIf()(_b == delim):
             EUDReturn(1)
@@ -42,10 +51,20 @@ def _read_until_delimiter(_b, delim):
 
 @EUDFunc
 def ReadNumber(offset, delim, ref_offset_epd, ref_retval_epd):
-    '''
-    [-]?[1-9][0-9]*
-    [-]?0x[0-9A-Fa-f]+
-    '''
+    """Reads string and extracts corresponding number.
+
+    It reads following regular expression
+
+        [-]?[1-9][0-9]*
+        [-]?0x[0-9A-Fa-f]+
+
+    Args:
+        offset (EUDVariable): pointer to string
+        delim (int): delimiter character. Reader reads until given character
+            is met.
+        ref_offset_epd (int): reference for offset. It is used to update offset.
+        ref_retval_epd (int): reference for place that returned value is stored.
+    """
     _reader.seekoffset(offset)
 
     # State-related variables
@@ -133,10 +152,11 @@ def ReadNumber(offset, delim, ref_offset_epd, ref_retval_epd):
 
 @EUDFunc
 def ReadName(offset, delim, ref_offset_epd, ref_retval_epd):
-    '''
+    """Reads string and extracts corresponding symbol
+
     [_a-zA-Z][_0-9a-zA-Z]*
     ref_retval_epd is pointer for Db
-    '''
+    """
     _reader.seekoffset(offset)
 
     # result is stored on Db

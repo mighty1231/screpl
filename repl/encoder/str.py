@@ -9,7 +9,7 @@ tmpbuf = Db(150) # Temporarily store string
 tmpstrbuf = DBString(150)
 
 @EUDFunc
-def _argEncAIScript(offset, delim, ref_offset_epd, retval_epd):
+def _ArgEncAIScript(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
@@ -21,7 +21,7 @@ def _argEncAIScript(offset, delim, ref_offset_epd, retval_epd):
     EUDReturn(0)
 
 @EUDFunc
-def _argEncSwitch(offset, delim, ref_offset_epd, retval_epd):
+def _ArgEncSwitch(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
@@ -34,5 +34,5 @@ def _argEncSwitch(offset, delim, ref_offset_epd, retval_epd):
     f_dwwrite_epd(ref_offset_epd, offset)
     EUDReturn(0)
 
-argEncAIScript = ArgEncoderPtr(_argEncAIScript)
-argEncSwitch = ArgEncoderPtr(_argEncSwitch)
+ArgEncAIScript = ArgEncoderPtr(_ArgEncAIScript)
+ArgEncSwitch = ArgEncoderPtr(_ArgEncSwitch)

@@ -1,7 +1,7 @@
 ''' plugin sample '''
 
 from eudplib import *
-from repl import REPL, get_app_manager, AppCommand, EUDByteRW, argEncNumber
+from repl import REPL, get_app_manager, AppCommand, EUDByteRW, ArgEncNumber
 from .myapp import MyApp
 
 # MY_COMMAND decides how to invoke the command in-game
@@ -17,7 +17,7 @@ def command1(self):
     '''
     get_app_manager().startApplication(MyApp)
 
-@AppCommand([argEncNumber])
+@AppCommand([ArgEncNumber])
 def command2(self, n):
     '''
     print("hello? " * n)
@@ -32,5 +32,5 @@ def command2(self, n):
     EUDEndWhile()
     rw.write(0)
 
-REPL.addCommand(MY_COMMAND1, command1)
-REPL.addCommand(MY_COMMAND2, command2)
+REPL.add_command(MY_COMMAND1, command1)
+REPL.add_command(MY_COMMAND2, command2)

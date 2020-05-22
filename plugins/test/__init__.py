@@ -14,4 +14,4 @@ for name, app in apps_to_test:
     @AppCommand([])
     def cmd(self):
         app_manager.startApplication(app)
-    REPL.addCommand(name, cmd)
+    REPL.add_command(name, cmd)

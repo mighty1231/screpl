@@ -244,7 +244,7 @@ class Application(metaclass=_Application_Metaclass):
             cls._allocated_ = True
 
     @classmethod
-    def addCommand(cls, name, cmd):
+    def add_command(cls, name, cmd):
         if not isinstance(cmd, appcmd.AppCommandN):
             raise ValueError("CMD (%s) must be callable or AppCommand" % cmd)
 

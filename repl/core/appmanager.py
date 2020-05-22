@@ -70,9 +70,6 @@ class AppManager:
         self.map_height = b2i2(dim, 2)
         self.payload_size = f_dwread_epd(EPD(PayloadSizeObj()))
 
-        # REPL is the application on the base
-        self.startApplication(REPL)
-
     def allocVariable(self, count):
         return self.varpool.alloc(count)
 

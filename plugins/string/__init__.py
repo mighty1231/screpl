@@ -205,4 +205,4 @@ from .manager import StringManagerApp
 def startCommand(self):
     app_manager.startApplication(StringManagerApp)
 
-REPL.addCommand('string', startCommand)
+REPL.add_command('string', startCommand)

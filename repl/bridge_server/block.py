@@ -40,7 +40,7 @@ class BridgeBlock(ConstExpr, metaclass=_BB_Metaclass):
             char contents[]; // its size is equals to 'block_size'
         } block;
     """
-    signature = None
+    signature = b'brbl'
 
     def __init__(self, region):
         super().__init__(self)

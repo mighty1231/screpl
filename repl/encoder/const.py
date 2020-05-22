@@ -1,7 +1,7 @@
 from eudplib import *
 
 from repl.encoder.encoder import ReadNumber, ReadName, ArgEncoderPtr
-from repl.table import tables as tb
+from repl.resources.table import tables as tb
 from repl.utils.conststring import EPDConstString
 from repl.utils.referencetable import SearchTable
 from repl.utils.string import f_strcmp_ptrepd

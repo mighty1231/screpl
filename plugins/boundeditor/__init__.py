@@ -95,4 +95,4 @@ from .manager import BoundManagerApp
 def startCommand(self):
     app_manager.startApplication(BoundManagerApp)
 
-REPL.addCommand('bound', startCommand)
+REPL.add_command('bound', startCommand)

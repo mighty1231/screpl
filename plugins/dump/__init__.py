@@ -19,4 +19,4 @@ def startCommand(self, ptr, size):
     DumpApp.setTarget(ptr, size)
     app_manager.startApplication(DumpApp)
 
-REPL.addCommand('dump', startCommand)
+REPL.add_command('dump', startCommand)

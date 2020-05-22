@@ -2,23 +2,22 @@
 BlindModeDisplayBlock provides display for blindmode
 '''
 from eudplib import *
-from .block import BridgeBlock
-from ..core import get_app_manager
+from repl.bridge_server import block
+import repl.main as main
 
-app_manager = get_app_manager()
-buffer_size = app_manager.displayBuffer.GetDataSize()
-
-class BlindModeDisplayBlock(BridgeBlock):
+class BlindModeDisplayBlock(block.BridgeBlock):
     signature = b'BLIN'
 
     def GetBufferSize(self):
+        buffer_size = main.get_app_manager().display_buffer.GetDataSize()
         return buffer_size
 
     def UpdateContent(self):
+        app_manager = main.get_app_manager()
         if EUDIf()(app_manager.is_blind_mode == 1):
             f_repmovsd_epd(
                 EPD(self),
-                EPD(app_manager.displayBuffer),
-                buffer_size // 4
+                EPD(app_manager.display_buffer),
+                self.GetBufferSize() // 4
             )
         EUDEndIf()

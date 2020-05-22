@@ -35,16 +35,14 @@ Shared memory region has following structures
 """
 from eudplib import *
 
-from repl.apps import Logger
-from repl.bridge_server.blocks import (
-    GameTextBlock,
-    BlindModeDisplayBlock,
-    LoggerBlock,
-    AppOutputBlock,
-    ProfileBlock,
-)
+from repl.apps.logger import Logger
+from repl.bridge_server.blocks import appoutput
+from repl.bridge_server.blocks import blindmode
+from repl.bridge_server.blocks import gametext
+from repl.bridge_server.blocks import logger
+from repl.bridge_server.blocks import profile
 from repl.bridge_server.signature import dead_signature, RestoreSignature
-from repl import get_app_manager
+import repl.main as main
 
 class BridgeRegion(EUDObject):
     def __init__(self):
@@ -57,11 +55,11 @@ class BridgeRegion(EUDObject):
         self._command        = self + 172
         self._frameCount     = self + 472
 
-        self.blocks.append(GameTextBlock(self))
-        self.blocks.append(LoggerBlock(self))
-        self.blocks.append(AppOutputBlock(self))
-        self.blocks.append(BlindModeDisplayBlock(self))
-        self.blocks.append(ProfileBlock(self))
+        self.blocks.append(appoutput.AppOutputBlock(self))
+        self.blocks.append(blindmode.BlindModeDisplayBlock(self))
+        self.blocks.append(gametext.GameTextBlock(self))
+        self.blocks.append(logger.LoggerBlock(self))
+        self.blocks.append(profile.ProfileBlock(self))
 
         # regionSize is on region+160+4+4
         Logger.format("Bridge region ptr = %H, size = %D",
@@ -125,7 +123,7 @@ class BridgeRegion(EUDObject):
             # frame Count
             SeqCompute([(EPD(region._frameCount),
                          SetTo,
-                         get_app_manager().current_frame_number)])
+                         main.get_app_manager().current_frame_number)])
 
             # update blocks
             for b in self.blocks:
@@ -140,6 +138,6 @@ class BridgeRegion(EUDObject):
 
         # command from bridge client
         if EUDIfNot()(Memory(buf_command, Exactly, 0)):
-            get_app_manager().getCurrentAppInstance().onChat(buf_command)
+            main.get_app_manager().getCurrentAppInstance().onChat(buf_command)
             DoActions(SetMemory(buf_command, SetTo, 0))
         EUDEndIf()

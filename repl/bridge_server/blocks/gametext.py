@@ -8,12 +8,9 @@ struct {
 }
 '''
 from eudplib import *
-from .block import BridgeBlock
-from ..core import get_app_manager
+from repl.bridge_server import block
 
-app_manager = get_app_manager()
-
-class GameTextBlock(BridgeBlock):
+class GameTextBlock(block.BridgeBlock):
     signature = b'TEXT'
 
     def GetBufferSize(self):

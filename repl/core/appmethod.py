@@ -4,6 +4,8 @@ from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN, applyTypes
 from eudplib.core.eudstruct.vararray import EUDVArrayData
 from eudplib.core.eudfunc.eudfptr import createIndirectCaller
 
+import repl.main as main
+
 import inspect
 
 class AppMethodN:
@@ -109,12 +111,10 @@ class AppMethodN:
             return
         assert self.status == 'initialized'
 
-        from .appmanager import get_app_manager
-
         if not self.getWriterAsParam:
             # Set first argument as AppInstance
             def call(*args):
-                instance = get_app_manager().getCurrentAppInstance()
+                instance = main.get_app_manager().getCurrentAppInstance()
                 prev_cls = instance._cls
                 instance._cls = self.cls
 
@@ -126,10 +126,10 @@ class AppMethodN:
         else:
             # Additionally set second argument as printer
             def call(*args):
-                instance = get_app_manager().getCurrentAppInstance()
+                instance = main.get_app_manager().getCurrentAppInstance()
                 prev_cls = instance._cls
                 instance._cls = self.cls
-                printer = get_app_manager().getWriter()
+                printer = main.get_app_manager().getWriter()
 
                 args = applyTypes(self.argtypes, args)
                 ret = self.method(instance, printer, *args)
@@ -155,8 +155,7 @@ class AppMethodN:
         self.status = 'allocated'
 
     def apply(self):
-        from .appmanager import get_app_manager
-        manager = get_app_manager()
+        manager = main.get_app_manager()
         assert self.status in ['initialized', 'allocated'], self
         return self.funcptr_cls.cast(manager.cur_methods[self.index])
 
@@ -167,8 +166,7 @@ class AppMethodN:
         '''
         Direct call - used for superclass method call
         '''
-        from .appmanager import get_app_manager
-        assert id(instance) == id(get_app_manager().getCurrentAppInstance())
+        assert id(instance) == id(main.get_app_manager().getCurrentAppInstance())
         return self.funcn(*args, **kwargs)
 
 ''' Decorator to make AppMethodN '''

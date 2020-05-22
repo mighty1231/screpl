@@ -12,4 +12,4 @@ from .manager import UnitManagerApp
 def startCommand(self):
     app_manager.startApplication(UnitManagerApp)
 
-REPL.addCommand('unit', startCommand)
+REPL.add_command('unit', startCommand)

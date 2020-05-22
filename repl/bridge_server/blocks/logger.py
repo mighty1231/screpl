@@ -7,18 +7,15 @@ struct {
 }
 '''
 from eudplib import *
-from .block import BridgeBlock
-from ..core import get_app_manager
-from ..apps.logger import (
+from repl.apps.logger import (
     buf_start_epd,
     log_index,
     LOGGER_LINE_SIZE,
     LOGGER_LINE_COUNT
 )
+from repl.bridge_server import block
 
-app_manager = get_app_manager()
-
-class LoggerBlock(BridgeBlock):
+class LoggerBlock(block.BridgeBlock):
     signature = b'LOGB'
 
     def GetBufferSize(self):

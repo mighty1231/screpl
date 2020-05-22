@@ -13,5 +13,5 @@ def startWithEpd(self, epd, size):
     MemoryApp.setContent_epd(epd, size)
     manager.startApplication(MemoryApp)
 
-REPL.addCommand('memptr', startWithPtr)
-REPL.addCommand('memepd', startWithEpd)
+REPL.add_command('memptr', startWithPtr)
+REPL.add_command('memepd', startWithEpd)

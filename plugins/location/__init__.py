@@ -36,4 +36,4 @@ from .manager import LocationManagerApp
 def startCommand(self):
     app_manager.startApplication(LocationManagerApp)
 
-REPL.addCommand('location', startCommand)
+REPL.add_command('location', startCommand)

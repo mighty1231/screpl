@@ -78,4 +78,4 @@ from .varapp import VariableApp
 def startCommand(self):
     manager.startApplication(VariableApp)
 
-REPL.addCommand('var', startCommand)
+REPL.add_command('var', startCommand)

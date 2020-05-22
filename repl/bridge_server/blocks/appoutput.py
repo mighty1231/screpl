@@ -7,16 +7,14 @@ struct {
 }
 '''
 from eudplib import *
-from .block import BridgeBlock
-from ..core import get_app_manager
+from repl.bridge_server import block
 
 APP_OUTPUT_MAXSIZE = 2000
-app_manager = get_app_manager()
 
 appOutputSize = EUDVariable()
 appOutputBuffer = Db(APP_OUTPUT_MAXSIZE)
 
-class AppOutputBlock(BridgeBlock):
+class AppOutputBlock(block.BridgeBlock):
     signature = b'AOUT'
 
     def GetBufferSize(self):
