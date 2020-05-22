@@ -19,19 +19,19 @@ _is_blind_mode = None
 _trigger_timer = EUDVariable(-1)
 
 def get_app_manager():
-    """Returns unique :class:`~repl.core.AppManager` instance"""
+    """Returns the unique :class:`~screpl.core.appmanager.AppManager` instance"""
     assert _manager, "AppManager should be initialized"
     return _manager
 
 def get_main_writer():
     """Returns main writer.
 
-    Main writer is :class:`~repl.utils.EUDByteRW` instance that is responsible
-    for text UI of :class:`~repl.core.Application` and writers in
-    :mod:`repl.writer`. One can use the returned object for memory usage but
-    the one should follow following restriction:
+    Main writer is :class:`~screpl.utils.eudbyterw.EUDByteRW` instance that is
+    responsible for text UI of :class:`~screpl.core.application.Application` and
+    writers in :mod:`screpl.writer`. One can use the returned object for memory
+    usage but the one should follow following restriction:
 
-      * It should not bother :meth:`~repl.core.application.Application.print`.
+      * It should not bother :meth:`~screpl.core.application.Application.print`.
         It may be used freely on the outside of the method.
     """
     return _main_writer
