@@ -1,0 +1,7 @@
+screpl.bridge\_server.blocks.logger module
+==========================================
+
+.. automodule:: screpl.bridge_server.blocks.logger
+   :members:
+   :undoc-members:
+   :show-inheritance:

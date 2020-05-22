@@ -1,0 +1,23 @@
+screpl.apps package
+===================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.apps.chatreader
+   screpl.apps.logger
+   screpl.apps.repl
+   screpl.apps.scroll
+   screpl.apps.selector
+   screpl.apps.static
+
+Module contents
+---------------
+
+.. automodule:: screpl.apps
+   :members:
+   :undoc-members:
+   :show-inheritance:

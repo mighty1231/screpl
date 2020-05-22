@@ -7,10 +7,7 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   repl.resources.encoder
-   repl.resources.scmdtrigwriter
    repl.resources.table
-   repl.resources.writer
 
 Submodules
 ----------

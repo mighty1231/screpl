@@ -1,0 +1,7 @@
+screpl.resources.table.tables module
+====================================
+
+.. automodule:: screpl.resources.table.tables
+   :members:
+   :undoc-members:
+   :show-inheritance:

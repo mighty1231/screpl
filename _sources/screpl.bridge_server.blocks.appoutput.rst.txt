@@ -1,0 +1,7 @@
+screpl.bridge\_server.blocks.appoutput module
+=============================================
+
+.. automodule:: screpl.bridge_server.blocks.appoutput
+   :members:
+   :undoc-members:
+   :show-inheritance:

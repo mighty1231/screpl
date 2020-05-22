@@ -1,0 +1,7 @@
+screpl.apps.static module
+=========================
+
+.. automodule:: screpl.apps.static
+   :members:
+   :undoc-members:
+   :show-inheritance:

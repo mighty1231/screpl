@@ -1,0 +1,7 @@
+screpl.bridge\_server.blocks.gametext module
+============================================
+
+.. automodule:: screpl.bridge_server.blocks.gametext
+   :members:
+   :undoc-members:
+   :show-inheritance:

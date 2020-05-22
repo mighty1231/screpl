@@ -1,0 +1,7 @@
+repl.utils.eudbyterw module
+===========================
+
+.. automodule:: repl.utils.eudbyterw
+   :members:
+   :undoc-members:
+   :show-inheritance:

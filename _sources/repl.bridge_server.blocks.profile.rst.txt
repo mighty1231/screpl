@@ -1,0 +1,7 @@
+repl.bridge\_server.blocks.profile module
+=========================================
+
+.. automodule:: repl.bridge_server.blocks.profile
+   :members:
+   :undoc-members:
+   :show-inheritance:

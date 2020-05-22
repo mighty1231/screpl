@@ -1,0 +1,7 @@
+screpl.bridge\_server.bridge module
+===================================
+
+.. automodule:: screpl.bridge_server.bridge
+   :members:
+   :undoc-members:
+   :show-inheritance:

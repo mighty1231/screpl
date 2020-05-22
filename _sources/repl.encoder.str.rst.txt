@@ -1,0 +1,7 @@
+repl.encoder.str module
+=======================
+
+.. automodule:: repl.encoder.str
+   :members:
+   :undoc-members:
+   :show-inheritance:

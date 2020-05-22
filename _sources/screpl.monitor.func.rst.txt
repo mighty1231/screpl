@@ -1,0 +1,7 @@
+screpl.monitor.func module
+==========================
+
+.. automodule:: screpl.monitor.func
+   :members:
+   :undoc-members:
+   :show-inheritance:

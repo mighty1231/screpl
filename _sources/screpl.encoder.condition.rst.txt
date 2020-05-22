@@ -1,0 +1,7 @@
+screpl.encoder.condition module
+===============================
+
+.. automodule:: screpl.encoder.condition
+   :members:
+   :undoc-members:
+   :show-inheritance:

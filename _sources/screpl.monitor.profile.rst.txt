@@ -1,0 +1,7 @@
+screpl.monitor.profile module
+=============================
+
+.. automodule:: screpl.monitor.profile
+   :members:
+   :undoc-members:
+   :show-inheritance:

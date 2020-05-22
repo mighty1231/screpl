@@ -1,0 +1,7 @@
+screpl.apps.logger module
+=========================
+
+.. automodule:: screpl.apps.logger
+   :members:
+   :undoc-members:
+   :show-inheritance:

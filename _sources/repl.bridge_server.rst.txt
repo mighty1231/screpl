@@ -1,19 +1,22 @@
 repl.bridge\_server package
 ===========================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   repl.bridge_server.blocks
+
 Submodules
 ----------
 
 .. toctree::
    :maxdepth: 4
 
-   repl.bridge_server.appoutput
-   repl.bridge_server.blindmode
    repl.bridge_server.block
    repl.bridge_server.bridge
-   repl.bridge_server.gametext
-   repl.bridge_server.logger
-   repl.bridge_server.profile
    repl.bridge_server.signature
 
 Module contents

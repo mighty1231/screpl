@@ -1,0 +1,18 @@
+screpl.resources.table package
+==============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.resources.table.tables
+
+Module contents
+---------------
+
+.. automodule:: screpl.resources.table
+   :members:
+   :undoc-members:
+   :show-inheritance:

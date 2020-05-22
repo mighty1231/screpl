@@ -1,0 +1,7 @@
+screpl.utils.eudbyterw module
+=============================
+
+.. automodule:: screpl.utils.eudbyterw
+   :members:
+   :undoc-members:
+   :show-inheritance:

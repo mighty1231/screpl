@@ -1,0 +1,22 @@
+screpl.bridge\_server.blocks package
+====================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.bridge_server.blocks.appoutput
+   screpl.bridge_server.blocks.blindmode
+   screpl.bridge_server.blocks.gametext
+   screpl.bridge_server.blocks.logger
+   screpl.bridge_server.blocks.profile
+
+Module contents
+---------------
+
+.. automodule:: screpl.bridge_server.blocks
+   :members:
+   :undoc-members:
+   :show-inheritance:

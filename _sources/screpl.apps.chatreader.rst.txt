@@ -1,0 +1,7 @@
+screpl.apps.chatreader module
+=============================
+
+.. automodule:: screpl.apps.chatreader
+   :members:
+   :undoc-members:
+   :show-inheritance:

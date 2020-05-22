@@ -1,154 +1,249 @@
 
-
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
-<head>
-  <meta charset="utf-8">
-  
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <title>repl.core.application &mdash; SC-REPL 1.1.0 documentation</title>
-  
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="lang:clipboard.copy" content="Copy to clipboard">
+  <meta name="lang:clipboard.copied" content="Copied to clipboard">
+  <meta name="lang:search.language" content="en">
+  <meta name="lang:search.pipeline.stopwords" content="True">
+  <meta name="lang:search.pipeline.trimmer" content="True">
+  <meta name="lang:search.result.none" content="No matching documents">
+  <meta name="lang:search.result.one" content="1 matching document">
+  <meta name="lang:search.result.other" content="# matching documents">
+  <meta name="lang:search.tokenizer" content="[\s\-]+">
 
   
-  
-  
+    <link href="https://fonts.gstatic.com/" rel="preconnect" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500,700|Roboto:300,400,400i,700&display=fallback" rel="stylesheet">
+
+    <style>
+      body,
+      input {
+        font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif
+      }
+
+      code,
+      kbd,
+      pre {
+        font-family: "Roboto Mono", "Courier New", Courier, monospace
+      }
+    </style>
   
 
+  <link rel="stylesheet" href="../../../_static/stylesheets/application.css"/>
+  <link rel="stylesheet" href="../../../_static/stylesheets/application-palette.css"/>
+  <link rel="stylesheet" href="../../../_static/stylesheets/application-fixes.css"/>
   
-  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  <link rel="stylesheet" href="../../../_static/fonts/material-icons.css"/>
   
-    
-      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-        <script src="../../../_static/jquery.js"></script>
-        <script src="../../../_static/underscore.js"></script>
-        <script src="../../../_static/doctools.js"></script>
-        <script src="../../../_static/language_data.js"></script>
-    
-    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
-
-    
-
+  <meta name="theme-color" content="#3f51b5">
+  <script src="../../../_static/javascripts/modernizr.js"></script>
   
-  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-  <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <script>
+      window.ga = window.ga || function () {
+          (ga.q = ga.q || []).push(arguments)
+      };
+      ga.l = +new Date;
+      ga('create', '167445948', 'auto');
+      ga('send', 'pageview');
+  </script>
+  <script async src='https://www.google-analytics.com/analytics.js'></script>
+  
+  
+    <title>repl.core.application &#8212; SC-REPL 1.1.0 documentation</title>
+    <link rel="stylesheet" href="../../../_static/material.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css" />
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
     <link rel="index" title="Index" href="../../../genindex.html" />
-    <link rel="search" title="Search" href="../../../search.html" /> 
-</head>
-
-<body class="wy-body-for-nav">
-
+    <link rel="search" title="Search" href="../../../search.html" />
+  
    
-  <div class="wy-grid-for-nav">
-    
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
-      <div class="wy-side-scroll">
-        <div class="wy-side-nav-search" >
-          
 
+  </head>
+  <body dir=ltr
+        data-md-color-primary=blue data-md-color-accent=light-blue>
+  
+  <svg class="md-svg">
+    <defs data-children-count="0">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+      
+    </defs>
+  </svg>
+  
+  <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer">
+  <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search">
+  <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+  <a href="#_modules/repl/core/application" tabindex="1" class="md-skip"> Skip to content </a>
+  <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex navheader">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="../../../index.html" title="SC-REPL 1.1.0 documentation"
+           class="md-header-nav__button md-logo">
           
-            <a href="../../../index.html" class="icon icon-home"> SC-REPL
+            &nbsp;
           
-
-          
-          </a>
-
-          
-            
-            
-          
-
-          
-<div role="search">
-  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
-    <input type="text" name="q" placeholder="Search docs" />
-    <input type="hidden" name="check_keywords" value="yes" />
-    <input type="hidden" name="area" value="default" />
-  </form>
-</div>
-
-          
-        </div>
-
-        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
-          
-            
-            
-              
-            
-            
-              <!-- Local TOC -->
-              <div class="local-toc"></div>
-            
-          
+        </a>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
+      </div>
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          <span class="md-header-nav__topic">SC-REPL</span>
+          <span class="md-header-nav__topic"> repl.core.application </span>
         </div>
       </div>
-    </nav>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
+        
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" action="../../../search.html" method="GET" name="search">
+      <input type="text" class="md-search__input" name="q" placeholder="Search"
+             autocapitalize="off" autocomplete="off" spellcheck="false"
+             data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-
+      </div>
       
-      <nav class="wy-nav-top" aria-label="top navigation">
-        
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../index.html">SC-REPL</a>
-        
-      </nav>
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            <a href="https://github.com/mighty1231/screpl/" title="Go to repository" class="md-source" data-md-source="github">
 
+    <div class="md-source__icon">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" width="28" height="28">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    SC-REPL
+  </div>
+</a>
+          </div>
+        </div>
+      
+      
+  
+  <script src="../../../_static/javascripts/version_dropdown.js"></script>
+  <script>
+    var json_loc = "../../../"versions.json"",
+        target_loc = "../../../../",
+        text = "Versions";
+    $( document ).ready( add_version_dropdown(json_loc, target_loc, text));
+  </script>
+  
 
-      <div class="wy-nav-content">
-        
-        <div class="rst-content">
-        
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<div role="navigation" aria-label="breadcrumbs navigation">
-
-  <ul class="wy-breadcrumbs">
-    
-      <li><a href="../../../index.html">Docs</a> &raquo;</li>
-        
-          <li><a href="../../index.html">Module code</a> &raquo;</li>
-        
-      <li>repl.core.application</li>
-    
-    
-      <li class="wy-breadcrumbs-aside">
-        
-      </li>
-    
-  </ul>
+    </div>
+  </nav>
+</header>
 
   
-  <hr/>
-</div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-           <div itemprop="articleBody">
+  <div class="md-container">
+    
+    
+    
+  <nav class="md-tabs" data-md-component="tabs">
+    <div class="md-tabs__inner md-grid">
+      <ul class="md-tabs__list">
+          <li class="md-tabs__item"><a href="../../../index.html" class="md-tabs__link">SC-REPL 1.1.0 documentation</a></li>
+          <li class="md-tabs__item"><a href="../../index.html" class="md-tabs__link">Module code</a></li>
+      </ul>
+    </div>
+  </nav>
+    <main class="md-main">
+      <div class="md-main__inner md-grid" data-md-component="container">
+        
+          <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+            <div class="md-sidebar__scrollwrap">
+              <div class="md-sidebar__inner">
+                <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="../../../index.html" title="SC-REPL 1.1.0 documentation" class="md-nav__button md-logo">
+      
+        <img src="../../../_static/" alt=" logo" width="48" height="48">
+      
+    </a>
+    <a href="../../../index.html"
+       title="SC-REPL 1.1.0 documentation">SC-REPL</a>
+  </label>
+    <div class="md-nav__source">
+      <a href="https://github.com/mighty1231/screpl/" title="Go to repository" class="md-source" data-md-source="github">
+
+    <div class="md-source__icon">
+      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" width="28" height="28">
+        <use xlink:href="#__github" width="24" height="24"></use>
+      </svg>
+    </div>
+  
+  <div class="md-source__repository">
+    SC-REPL
+  </div>
+</a>
+    </div>
+  
+  
+
+</nav>
+              </div>
+            </div>
+          </div>
+          <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+            <div class="md-sidebar__scrollwrap">
+              <div class="md-sidebar__inner">
+                
+<nav class="md-nav md-nav--secondary">
+  <ul class="md-nav__list" data-md-scrollfix="">
+    
+
+<li id="searchbox" class="md-nav__item"></li>
+
+  </ul>
+</nav>
+              </div>
+            </div>
+          </div>
+        
+        <div class="md-content">
+          <article class="md-content__inner md-typeset" role="main">
             
-  <h1>Source code for repl.core.application</h1><div class="highlight"><pre>
+  <h1 id="modules-repl-core-application--page-root">Source code for repl.core.application</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 
-<span class="kn">from</span> <span class="nn">..base.referencetable</span> <span class="kn">import</span> <span class="n">ReferenceTable</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">EPDConstString</span>
-<span class="kn">from</span> <span class="nn">.appcommand</span> <span class="kn">import</span> <span class="n">AppCommandN</span><span class="p">,</span> <span class="n">runAppCommand</span>
-<span class="kn">from</span> <span class="nn">.appmanager</span> <span class="kn">import</span> <span class="n">getAppManager</span>
-<span class="kn">from</span> <span class="nn">.appmethod</span> <span class="kn">import</span> <span class="n">AppMethodN</span><span class="p">,</span> <span class="n">AppMethod</span><span class="p">,</span> <span class="n">AppMethod_writerParam</span>
+<span class="kn">from</span> <span class="nn">repl.core</span> <span class="kn">import</span> <span class="n">appcommand</span> <span class="k">as</span> <span class="n">appcmd</span>
+<span class="kn">from</span> <span class="nn">repl.core</span> <span class="kn">import</span> <span class="n">appmethod</span> <span class="k">as</span> <span class="n">appmtd</span>
+<span class="kn">from</span> <span class="nn">repl.utils.conststring</span> <span class="kn">import</span> <span class="n">EPDConstString</span>
+<span class="kn">from</span> <span class="nn">repl.utils.referencetable</span> <span class="kn">import</span> <span class="n">ReferenceTable</span>
+
+<span class="kn">from</span> <span class="nn">repl</span> <span class="kn">import</span> <span class="n">main</span>
 
 <span class="k">class</span> <span class="nc">_indexPair</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -162,7 +257,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">idx</span><span class="p">,</span> <span class="n">new_value</span>
 
     <span class="k">def</span> <span class="nf">append</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">,</span> <span class="s2">&quot;Key duplicates: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">,</span> <span class="s2">"Key duplicates: </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -193,7 +288,7 @@
 <span class="k">class</span> <span class="nc">_Application_Metaclass</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
     <span class="n">apps</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">dct</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; Fill methods, commands, members &#39;&#39;&#39;</span>
+        <span class="sd">""" Fill methods, commands, members """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">dct</span><span class="p">)</span>
 
         <span class="c1"># build methods and members, basically from parent class</span>
@@ -211,22 +306,22 @@
 
         <span class="c1"># methods and commands</span>
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">dct</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">AppCommandN</span><span class="p">):</span>
-                <span class="k">assert</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">total_dict</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">total_dict</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">AppCommandN</span><span class="p">),</span> \
-                        <span class="s2">&quot;Conflict on attribute - </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">appcmd</span><span class="o">.</span><span class="n">AppCommandN</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">total_dict</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">total_dict</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">appcmd</span><span class="o">.</span><span class="n">AppCommandN</span><span class="p">),</span> \
+                        <span class="s2">"Conflict on attribute - </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">commands</span><span class="p">:</span>
                     <span class="n">commands</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">commands</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
                 <span class="n">v</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
                 <span class="n">total_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
-            <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">AppMethodN</span><span class="p">):</span>
-                <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">k</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">k</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span> <span class="o">==</span> <span class="s2">&quot;__&quot;</span><span class="p">),</span> \
-                        <span class="s2">&quot;Illegal method - </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-                <span class="k">assert</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">total_dict</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">total_dict</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">AppMethodN</span><span class="p">),</span> \
-                        <span class="s2">&quot;Conflict on attribute - </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">AppMethodN</span><span class="p">):</span>
-                    <span class="n">v</span> <span class="o">=</span> <span class="n">AppMethod</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">appmtd</span><span class="o">.</span><span class="n">AppMethodN</span><span class="p">):</span>
+                <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">k</span><span class="p">[:</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="n">k</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span> <span class="o">==</span> <span class="s2">"__"</span><span class="p">),</span> \
+                        <span class="s2">"Illegal method - </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+                <span class="k">assert</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">total_dict</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">total_dict</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">appmtd</span><span class="o">.</span><span class="n">AppMethodN</span><span class="p">),</span> \
+                        <span class="s2">"Conflict on attribute - </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">appmtd</span><span class="o">.</span><span class="n">AppMethodN</span><span class="p">):</span>
+                    <span class="n">v</span> <span class="o">=</span> <span class="n">appmtd</span><span class="o">.</span><span class="n">AppMethod</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
                 <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
                     <span class="c1"># Overriding AppMethod</span>
@@ -237,9 +332,9 @@
                     <span class="n">methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
                 <span class="n">total_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">assert</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">total_dict</span> <span class="ow">or</span> <span class="n">total_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;Other&#39;</span><span class="p">,</span> \
-                        <span class="s2">&quot;Conflict on attribute - </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
-                <span class="n">total_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;Other&#39;</span>
+                <span class="k">assert</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">total_dict</span> <span class="ow">or</span> <span class="n">total_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="s1">'Other'</span><span class="p">,</span> \
+                        <span class="s2">"Conflict on attribute - </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+                <span class="n">total_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Other'</span>
 
         <span class="c1"># fields for the cases that a child newly defined field</span>
         <span class="k">if</span> <span class="n">pcls</span> <span class="o">==</span> <span class="nb">object</span> <span class="ow">or</span> <span class="nb">id</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">fields</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">id</span><span class="p">(</span><span class="n">pcls</span><span class="o">.</span><span class="n">fields</span><span class="p">):</span>
@@ -249,9 +344,9 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">k</span><span class="p">,</span> <span class="n">typ</span> <span class="o">=</span> <span class="n">f</span>
                 <span class="k">assert</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">total_dict</span><span class="p">,</span> \
-                        <span class="s2">&quot;Conflict on attribute - </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+                        <span class="s2">"Conflict on attribute - </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
                 <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">typ</span><span class="p">)</span>
-                <span class="n">total_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;F&#39;</span>
+                <span class="n">total_dict</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'F'</span>
 
         <span class="bp">cls</span><span class="o">.</span><span class="n">_total_dict_</span> <span class="o">=</span> <span class="n">total_dict</span>
         <span class="bp">cls</span><span class="o">.</span><span class="n">_methods_</span> <span class="o">=</span> <span class="n">methods</span>
@@ -261,7 +356,7 @@
         <span class="n">_Application_Metaclass</span><span class="o">.</span><span class="n">apps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ApplicationInstance"><a class="viewcode-back" href="../../../repl.core.application.html#repl.core.application.ApplicationInstance">[docs]</a><span class="k">class</span> <span class="nc">ApplicationInstance</span><span class="p">:</span>
-    <span class="sd">&#39;&#39;&#39;</span>
+    <span class="sd">"""</span>
 <span class="sd">    Mimic object for application instance, used in AppMethod.</span>
 <span class="sd">    It supports field access and method invocation.</span>
 
@@ -269,10 +364,10 @@
 <span class="sd">    Leaf AppMethods are called, set by current instance.</span>
 <span class="sd">    Otherwise, their absolute address are used.</span>
 <span class="sd">    It would applied into calling methods from superclasses.</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    """</span>
 
     <span class="c1"># reserved keywords</span>
-    <span class="n">_attributes_</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;_cls&#39;</span><span class="p">,</span> <span class="s1">&#39;_absolute&#39;</span><span class="p">,</span> <span class="s1">&#39;getReference_epd&#39;</span><span class="p">]</span>
+    <span class="n">_attributes_</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'_cls'</span><span class="p">,</span> <span class="s1">'_absolute'</span><span class="p">,</span> <span class="s1">'getReference_epd'</span><span class="p">]</span>
 
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">cls</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -284,22 +379,22 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_absolute</span> <span class="o">=</span> <span class="kc">False</span>
 
 <div class="viewcode-block" id="ApplicationInstance.getReference_epd"><a class="viewcode-back" href="../../../repl.core.application.html#repl.core.application.ApplicationInstance.getReference_epd">[docs]</a>    <span class="k">def</span> <span class="nf">getReference_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">member</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
+        <span class="sd">"""</span>
 <span class="sd">        Get reference for instance member</span>
 
 <span class="sd">        self.var &lt;&lt; 1                     # self.var is 1</span>
-<span class="sd">        v = self.getReference_epd(&#39;var&#39;)  # get reference for self.var</span>
+<span class="sd">        v = self.getReference_epd('var')  # get reference for self.var</span>
 <span class="sd">        f_dwwrite_epd(v, 12)</span>
-<span class="sd">        Logger.format(&quot;%D&quot;, self.var)     # self.var becomes 12</span>
+<span class="sd">        Logger.format("%D", self.var)     # self.var becomes 12</span>
 
 <span class="sd">        Traditional EUDVariable can be referenced as EPD(v.getValueAddr())</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        """</span>
         <span class="n">attrid</span><span class="p">,</span> <span class="n">attrtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cls</span><span class="o">.</span><span class="n">_fields_</span><span class="p">[</span><span class="n">member</span><span class="p">]</span>
-        <span class="k">return</span> <span class="n">getAppManager</span><span class="p">()</span><span class="o">.</span><span class="n">cur_members</span><span class="o">.</span><span class="n">_epd</span> <span class="o">+</span> <span class="p">(</span><span class="mi">18</span> <span class="o">*</span> <span class="n">attrid</span> <span class="o">+</span> <span class="mi">348</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span><span class="o">.</span><span class="n">cur_members</span><span class="o">.</span><span class="n">_epd</span> <span class="o">+</span> <span class="p">(</span><span class="mi">18</span> <span class="o">*</span> <span class="n">attrid</span> <span class="o">+</span> <span class="mi">348</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cls</span><span class="o">.</span><span class="n">_commands_</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;You should not invoke AppCommand directly&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"You should not invoke AppCommand directly"</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cls</span><span class="o">.</span><span class="n">_methods_</span><span class="p">:</span>
             <span class="n">i</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cls</span><span class="o">.</span><span class="n">_methods_</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_absolute</span><span class="p">:</span>
@@ -308,28 +403,28 @@
                 <span class="k">return</span> <span class="n">v</span><span class="o">.</span><span class="n">applyAbsolute</span><span class="p">()</span>
         <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cls</span><span class="o">.</span><span class="n">_fields_</span><span class="p">:</span>
             <span class="n">attrid</span><span class="p">,</span> <span class="n">attrtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cls</span><span class="o">.</span><span class="n">_fields_</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-            <span class="n">attr</span> <span class="o">=</span> <span class="n">getAppManager</span><span class="p">()</span><span class="o">.</span><span class="n">cur_members</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attrid</span><span class="p">)</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span><span class="o">.</span><span class="n">cur_members</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">attrid</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">attrtype</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">attrtype</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">attr</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">attr</span>
-        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Application &#39;</span><span class="si">%s</span><span class="s2">&#39; has no attribute &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cls</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">"Application '</span><span class="si">%s</span><span class="s2">' has no attribute '</span><span class="si">%s</span><span class="s2">'"</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cls</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="fm">__setattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">ApplicationInstance</span><span class="o">.</span><span class="n">_attributes_</span><span class="p">:</span>
             <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__setattr__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cls</span><span class="o">.</span><span class="n">_fields_</span><span class="p">:</span>
             <span class="n">attrid</span><span class="p">,</span> <span class="n">attrtype</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cls</span><span class="o">.</span><span class="n">_fields_</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-            <span class="n">getAppManager</span><span class="p">()</span><span class="o">.</span><span class="n">cur_members</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">attrid</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+            <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span><span class="o">.</span><span class="n">cur_members</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">attrid</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Application &#39;</span><span class="si">%s</span><span class="s2">&#39; has no attribute &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cls</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span></div>
+            <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">"Application '</span><span class="si">%s</span><span class="s2">' has no attribute '</span><span class="si">%s</span><span class="s2">'"</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_cls</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span></div>
 
 <span class="c1"># default application</span>
 <div class="viewcode-block" id="Application"><a class="viewcode-back" href="../../../repl.core.application.html#repl.core.application.Application">[docs]</a><span class="k">class</span> <span class="nc">Application</span><span class="p">(</span><span class="n">metaclass</span><span class="o">=</span><span class="n">_Application_Metaclass</span><span class="p">):</span>
     <span class="c1"># deafult field - cmd_output_epd</span>
     <span class="c1"># if it is not 0, the reason of failure on</span>
     <span class="c1">#    runAppCommand() is written into cmd_output_epd.</span>
-    <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;cmd_output_epd&quot;</span><span class="p">]</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"cmd_output_epd"</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">onInit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cmd_output_epd</span> <span class="o">=</span> <span class="mi">0</span>
@@ -338,22 +433,22 @@
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">onChat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
-        <span class="n">runAppCommand</span><span class="p">(</span>
+        <span class="n">appcmd</span><span class="o">.</span><span class="n">runAppCommand</span><span class="p">(</span>
             <span class="n">offset</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cmd_output_epd</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">onResume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; onResume() called exactly once after forward application was closed &#39;&#39;&#39;</span>
+        <span class="sd">"""called exactly once after forward application was closed"""</span>
         <span class="k">pass</span>
 
     <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; loop() called exactly once in every frame &#39;&#39;&#39;</span>
+        <span class="sd">"""called exactly once in every frame"""</span>
         <span class="k">pass</span>
 
-    <span class="nd">@AppMethod_writerParam</span>
+    <span class="nd">@appmtd</span><span class="o">.</span><span class="n">AppMethod_writerParam</span>
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39; called once in a frame that invoked requestUpdate &#39;&#39;&#39;</span>
+        <span class="sd">"""called once in a frame that invoked requestUpdate"""</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Application.getSuper"><a class="viewcode-back" href="../../../repl.core.application.html#repl.core.application.Application.getSuper">[docs]</a>    <span class="nd">@classmethod</span>
@@ -386,17 +481,20 @@
             <span class="bp">cls</span><span class="o">.</span><span class="n">_cmdtable_</span> <span class="o">=</span> <span class="n">cmdtable</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_allocated_</span> <span class="o">=</span> <span class="kc">True</span></div>
 
-<div class="viewcode-block" id="Application.addCommand"><a class="viewcode-back" href="../../../repl.core.application.html#repl.core.application.Application.addCommand">[docs]</a>    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">addCommand</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">cmd</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">AppCommandN</span><span class="p">),</span> <span class="s2">&quot;CMD (</span><span class="si">%s</span><span class="s2">) must be callable or AppCommand&quot;</span> <span class="o">%</span> <span class="n">cmd</span>
+<div class="viewcode-block" id="Application.add_command"><a class="viewcode-back" href="../../../repl.core.application.html#repl.core.application.Application.add_command">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">add_command</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">cmd</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="n">appcmd</span><span class="o">.</span><span class="n">AppCommandN</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"CMD (</span><span class="si">%s</span><span class="s2">) must be callable or AppCommand"</span> <span class="o">%</span> <span class="n">cmd</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_allocated_</span><span class="p">:</span>
             <span class="c1"># case allocated</span>
             <span class="c1">#   - unable to replace, just append only</span>
             <span class="c1">#   - initialize and allocate</span>
-            <span class="k">assert</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_total_dict_</span><span class="p">,</span> \
-                    <span class="s2">&quot;Please avoid to use &#39;</span><span class="si">%s</span><span class="s2">&#39; as the command name on class </span><span class="si">%s</span><span class="s2">,&quot;</span> \
-                    <span class="s2">&quot;or add it before allocation of the class&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_total_dict_</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">"Please avoid to use '</span><span class="si">%s</span><span class="s2">' as the command name on class </span><span class="si">%s</span><span class="s2">,"</span>
+                    <span class="s2">"or add it before allocation of the class"</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_commands_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">cmd</span><span class="p">)</span>
             <span class="n">cmd</span><span class="o">.</span><span class="n">initialize</span><span class="p">(</span><span class="bp">cls</span><span class="p">)</span>
             <span class="bp">cls</span><span class="o">.</span><span class="n">_total_dict_</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmd</span>
@@ -407,8 +505,11 @@
             <span class="c1"># case not allocated</span>
             <span class="c1">#   - replace or add</span>
             <span class="c1">#   - just initialize</span>
-            <span class="k">assert</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_total_dict_</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_total_dict_</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="n">AppCommandN</span><span class="p">),</span> \
-                    <span class="s2">&quot;Conflict on attribute - </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_total_dict_</span>
+                    <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">_total_dict_</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+                                   <span class="n">appcmd</span><span class="o">.</span><span class="n">AppCommandN</span><span class="p">)):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Conflict on attribute - </span><span class="si">%s</span><span class="s2">.</span><span class="si">%s</span><span class="s2">"</span>
+                                 <span class="o">%</span> <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">name</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_commands_</span><span class="p">:</span>
                 <span class="bp">cls</span><span class="o">.</span><span class="n">_commands_</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">cmd</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
@@ -417,43 +518,37 @@
             <span class="bp">cls</span><span class="o">.</span><span class="n">_total_dict_</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">cmd</span></div></div>
 </pre></div>
 
-           </div>
-           
-          </div>
-          <footer>
-  
-
-  <hr/>
-
-  <div role="contentinfo">
-    <p>
-        &copy; Copyright mighty1231
-
-    </p>
-  </div>
-  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
-
-</footer>
-
+          </article>
         </div>
       </div>
-
-    </section>
-
+    </main>
   </div>
-  
-
-
-  <script type="text/javascript">
-      jQuery(function () {
-          SphinxRtdTheme.Navigation.enable(true);
-      });
-  </script>
-
-  
-  
-    
-   
-
-</body>
+  <footer class="md-footer">
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+          
+          
+        </a>
+        
+      </nav>
+    </div>
+    <div class="md-footer-meta md-typeset">
+      <div class="md-footer-meta__inner md-grid">
+        <div class="md-footer-copyright">
+          <div class="md-footer-copyright__highlight">
+              &#169; Copyright mighty1231.
+              
+          </div>
+            Created using
+            <a href="http://www.sphinx-doc.org/">Sphinx</a> 3.0.3.
+             and
+            <a href="https://github.com/bashtage/sphinx-material/">Material for
+              Sphinx</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script src="../../../_static/javascripts/application.js"></script>
+  <script>app.initialize({version: "1.0.4", url: {base: ".."}})</script>
+  </body>
 </html>

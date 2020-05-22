@@ -1,0 +1,7 @@
+screpl.bridge\_server.blocks.profile module
+===========================================
+
+.. automodule:: screpl.bridge_server.blocks.profile
+   :members:
+   :undoc-members:
+   :show-inheritance:

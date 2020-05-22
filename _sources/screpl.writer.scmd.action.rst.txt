@@ -1,0 +1,7 @@
+screpl.writer.scmd.action module
+================================
+
+.. automodule:: screpl.writer.scmd.action
+   :members:
+   :undoc-members:
+   :show-inheritance:

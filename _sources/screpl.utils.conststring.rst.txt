@@ -1,0 +1,7 @@
+screpl.utils.conststring module
+===============================
+
+.. automodule:: screpl.utils.conststring
+   :members:
+   :undoc-members:
+   :show-inheritance:

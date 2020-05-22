@@ -1,0 +1,20 @@
+repl.writer.scmd package
+========================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   repl.writer.scmd.action
+   repl.writer.scmd.condition
+   repl.writer.scmd.unit
+
+Module contents
+---------------
+
+.. automodule:: repl.writer.scmd
+   :members:
+   :undoc-members:
+   :show-inheritance:

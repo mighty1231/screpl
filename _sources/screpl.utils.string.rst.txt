@@ -1,0 +1,7 @@
+screpl.utils.string module
+==========================
+
+.. automodule:: screpl.utils.string
+   :members:
+   :undoc-members:
+   :show-inheritance:

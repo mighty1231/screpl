@@ -1,0 +1,27 @@
+screpl.writer package
+=====================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.writer.scmd
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.writer.action
+   screpl.writer.condition
+
+Module contents
+---------------
+
+.. automodule:: screpl.writer
+   :members:
+   :undoc-members:
+   :show-inheritance:

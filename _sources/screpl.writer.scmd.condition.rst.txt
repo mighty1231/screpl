@@ -1,0 +1,7 @@
+screpl.writer.scmd.condition module
+===================================
+
+.. automodule:: screpl.writer.scmd.condition
+   :members:
+   :undoc-members:
+   :show-inheritance:

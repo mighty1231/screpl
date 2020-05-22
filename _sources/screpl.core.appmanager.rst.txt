@@ -1,0 +1,7 @@
+screpl.core.appmanager module
+=============================
+
+.. automodule:: screpl.core.appmanager
+   :members:
+   :undoc-members:
+   :show-inheritance:

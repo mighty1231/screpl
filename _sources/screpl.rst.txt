@@ -1,0 +1,33 @@
+screpl package
+==============
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.apps
+   screpl.bridge_server
+   screpl.core
+   screpl.encoder
+   screpl.monitor
+   screpl.resources
+   screpl.utils
+   screpl.writer
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.main
+
+Module contents
+---------------
+
+.. automodule:: screpl
+   :members:
+   :undoc-members:
+   :show-inheritance:

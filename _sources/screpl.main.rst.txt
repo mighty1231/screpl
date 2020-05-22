@@ -1,0 +1,7 @@
+screpl.main module
+==================
+
+.. automodule:: screpl.main
+   :members:
+   :undoc-members:
+   :show-inheritance:

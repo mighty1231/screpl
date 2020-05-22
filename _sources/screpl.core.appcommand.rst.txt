@@ -1,0 +1,7 @@
+screpl.core.appcommand module
+=============================
+
+.. automodule:: screpl.core.appcommand
+   :members:
+   :undoc-members:
+   :show-inheritance:

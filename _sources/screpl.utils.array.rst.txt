@@ -1,0 +1,7 @@
+screpl.utils.array module
+=========================
+
+.. automodule:: screpl.utils.array
+   :members:
+   :undoc-members:
+   :show-inheritance:

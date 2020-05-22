@@ -1,0 +1,7 @@
+screpl.utils.keycode module
+===========================
+
+.. automodule:: screpl.utils.keycode
+   :members:
+   :undoc-members:
+   :show-inheritance:

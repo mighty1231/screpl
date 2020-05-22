@@ -148,40 +148,12 @@
             
   <div class="section" id="module-repl.bridge_server.bridge">
 <span id="repl-bridge-server-bridge-module"></span><h1>repl.bridge_server.bridge module<a class="headerlink" href="#module-repl.bridge_server.bridge" title="Permalink to this headline">¶</a></h1>
-<p>Manager for all BridgeBlocks</p>
-<dl class="simple">
-<dt>struct Block {</dt><dd><p>char signature[4];
-int size;
-char block[size]; // dynamic size</p>
-</dd>
-</dl>
-<p>}</p>
-<dl>
-<dt>struct BridgeRegion {</dt><dd><p>char signature[160];</p>
-<p>/* Too much milk solution #3, busy-waiting by A <a href="#id1"><span class="problematic" id="id2">*</span></a>/
-int noteToSC;
-int noteFromSC;
-int regionSize;</p>
-<p>/* To SC <a href="#id3"><span class="problematic" id="id4">*</span></a>/
-char command[300];</p>
-<p>/* From SC <a href="#id5"><span class="problematic" id="id6">*</span></a>/
-int frameCount;</p>
-<p>DisplayBlock displayBlock;
-LogBlock logBlock;
-AppOutBlock appOutBlock;</p>
-<p>…other blocks…</p>
-</dd>
-</dl>
-<p>}</p>
+<p>Manages shared memory region with bridge client</p>
+<p>Shared memory region has following structures</p>
 <dl class="py class">
 <dt id="repl.bridge_server.bridge.BridgeRegion">
 <em class="property">class </em><code class="sig-prename descclassname">repl.bridge_server.bridge.</code><code class="sig-name descname">BridgeRegion</code><a class="reference internal" href="_modules/repl/bridge_server/bridge.html#BridgeRegion"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.bridge_server.bridge.BridgeRegion" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">eudplib.core.eudobj.eudobj.EUDObject</span></code></p>
-<dl class="py method">
-<dt id="repl.bridge_server.bridge.BridgeRegion.AddBlock">
-<code class="sig-name descname">AddBlock</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">blockcls</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/bridge_server/bridge.html#BridgeRegion.AddBlock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.bridge_server.bridge.BridgeRegion.AddBlock" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt id="repl.bridge_server.bridge.BridgeRegion.CollectDependency">
 <code class="sig-name descname">CollectDependency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">emitbuffer</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/bridge_server/bridge.html#BridgeRegion.CollectDependency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.bridge_server.bridge.BridgeRegion.CollectDependency" title="Permalink to this definition">¶</a></dt>
@@ -215,27 +187,18 @@ AppOutBlock appOutBlock;</p>
 </dd></dl>
 
 <dl class="py method">
-<dt id="repl.bridge_server.bridge.BridgeRegion.UpdateContent">
-<code class="sig-name descname">UpdateContent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/bridge_server/bridge.html#BridgeRegion.UpdateContent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.bridge_server.bridge.BridgeRegion.UpdateContent" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
 <dt id="repl.bridge_server.bridge.BridgeRegion.WritePayload">
 <code class="sig-name descname">WritePayload</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">emitbuffer</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/bridge_server/bridge.html#BridgeRegion.WritePayload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.bridge_server.bridge.BridgeRegion.WritePayload" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write object</p>
 </dd></dl>
 
+<dl class="py method">
+<dt id="repl.bridge_server.bridge.BridgeRegion.run">
+<code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/bridge_server/bridge.html#BridgeRegion.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.bridge_server.bridge.BridgeRegion.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Maintains the instance</p>
 </dd></dl>
 
-<dl class="py function">
-<dt id="repl.bridge_server.bridge.bridge_init">
-<code class="sig-prename descclassname">repl.bridge_server.bridge.</code><code class="sig-name descname">bridge_init</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/bridge_server/bridge.html#bridge_init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.bridge_server.bridge.bridge_init" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="repl.bridge_server.bridge.bridge_loop">
-<code class="sig-prename descclassname">repl.bridge_server.bridge.</code><code class="sig-name descname">bridge_loop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/bridge_server/bridge.html#bridge_loop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.bridge_server.bridge.bridge_loop" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+</dd></dl>
 
 </div>
 

@@ -1,0 +1,21 @@
+screpl.core package
+===================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.core.appcommand
+   screpl.core.application
+   screpl.core.appmanager
+   screpl.core.appmethod
+
+Module contents
+---------------
+
+.. automodule:: screpl.core
+   :members:
+   :undoc-members:
+   :show-inheritance:

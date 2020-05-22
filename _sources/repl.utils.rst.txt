@@ -11,9 +11,12 @@ Submodules
    repl.utils.condactpywriter
    repl.utils.conststring
    repl.utils.debug
+   repl.utils.eudbyterw
    repl.utils.keycode
-   repl.utils.staticstruct
+   repl.utils.pool
+   repl.utils.referencetable
    repl.utils.string
+   repl.utils.struct
 
 Module contents
 ---------------

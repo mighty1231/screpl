@@ -146,87 +146,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-repl.core.application">
-<span id="repl-core-application-module"></span><h1>repl.core.application module<a class="headerlink" href="#module-repl.core.application" title="Permalink to this headline">¶</a></h1>
-<dl class="py class">
-<dt id="repl.core.application.Application">
-<em class="property">class </em><code class="sig-prename descclassname">repl.core.application.</code><code class="sig-name descname">Application</code><a class="reference internal" href="_modules/repl/core/application.html#Application"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.application.Application" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<dl class="py method">
-<dt id="repl.core.application.Application.addCommand">
-<em class="property">classmethod </em><code class="sig-name descname">addCommand</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">name</span></em>, <em class="sig-param"><span class="n">cmd</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/application.html#Application.addCommand"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.application.Application.addCommand" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="repl.core.application.Application.allocate">
-<em class="property">classmethod </em><code class="sig-name descname">allocate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/application.html#Application.allocate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.application.Application.allocate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="repl.core.application.Application.fields">
-<code class="sig-name descname">fields</code><em class="property"> = ['cmd_output_epd']</em><a class="headerlink" href="#repl.core.application.Application.fields" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="repl.core.application.Application.getSuper">
-<em class="property">classmethod </em><code class="sig-name descname">getSuper</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/application.html#Application.getSuper"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.application.Application.getSuper" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="repl.core.application.Application.loop">
-<code class="sig-name descname">loop</code><em class="property"> = &lt;AppMethod Application.loop, st=I, idx=4&gt;</em><a class="headerlink" href="#repl.core.application.Application.loop" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="repl.core.application.Application.onChat">
-<code class="sig-name descname">onChat</code><em class="property"> = &lt;AppMethod Application.onChat, st=I, idx=2&gt;</em><a class="headerlink" href="#repl.core.application.Application.onChat" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="repl.core.application.Application.onDestruct">
-<code class="sig-name descname">onDestruct</code><em class="property"> = &lt;AppMethod Application.onDestruct, st=I, idx=1&gt;</em><a class="headerlink" href="#repl.core.application.Application.onDestruct" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="repl.core.application.Application.onInit">
-<code class="sig-name descname">onInit</code><em class="property"> = &lt;AppMethod Application.onInit, st=I, idx=0&gt;</em><a class="headerlink" href="#repl.core.application.Application.onInit" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="repl.core.application.Application.onResume">
-<code class="sig-name descname">onResume</code><em class="property"> = &lt;AppMethod Application.onResume, st=I, idx=3&gt;</em><a class="headerlink" href="#repl.core.application.Application.onResume" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="repl.core.application.Application.print">
-<code class="sig-name descname">print</code><em class="property"> = &lt;AppMethod Application.print, st=I, idx=5&gt;</em><a class="headerlink" href="#repl.core.application.Application.print" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="repl.core.application.ApplicationInstance">
-<em class="property">class </em><code class="sig-prename descclassname">repl.core.application.</code><code class="sig-name descname">ApplicationInstance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cls</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/application.html#ApplicationInstance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.application.ApplicationInstance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.8)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Mimic object for application instance, used in AppMethod.
-It supports field access and method invocation.</p>
-<p>Typically _absolute is False.
-Leaf AppMethods are called, set by current instance.
-Otherwise, their absolute address are used.
-It would applied into calling methods from superclasses.</p>
-<dl class="py method">
-<dt id="repl.core.application.ApplicationInstance.getReference_epd">
-<code class="sig-name descname">getReference_epd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">member</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/core/application.html#ApplicationInstance.getReference_epd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.core.application.ApplicationInstance.getReference_epd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get reference for instance member</p>
-<p>self.var &lt;&lt; 1                     # self.var is 1
-v = self.getReference_epd(‘var’)  # get reference for self.var
-f_dwwrite_epd(v, 12)
-Logger.format(“%D”, self.var)     # self.var becomes 12</p>
-<p>Traditional EUDVariable can be referenced as EPD(v.getValueAddr())</p>
-</dd></dl>
-
-</dd></dl>
-
+  <div class="section" id="repl-core-application-module">
+<h1>repl.core.application module<a class="headerlink" href="#repl-core-application-module" title="Permalink to this headline">¶</a></h1>
 </div>
 
 

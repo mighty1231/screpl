@@ -1,0 +1,27 @@
+screpl.utils package
+====================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.utils.array
+   screpl.utils.condactpywriter
+   screpl.utils.conststring
+   screpl.utils.debug
+   screpl.utils.eudbyterw
+   screpl.utils.keycode
+   screpl.utils.pool
+   screpl.utils.referencetable
+   screpl.utils.string
+   screpl.utils.struct
+
+Module contents
+---------------
+
+.. automodule:: screpl.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,22 @@
+repl.bridge\_server.blocks package
+==================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   repl.bridge_server.blocks.appoutput
+   repl.bridge_server.blocks.blindmode
+   repl.bridge_server.blocks.gametext
+   repl.bridge_server.blocks.logger
+   repl.bridge_server.blocks.profile
+
+Module contents
+---------------
+
+.. automodule:: repl.bridge_server.blocks
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,26 @@
+screpl.resources package
+========================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.resources.table
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.resources.offset
+
+Module contents
+---------------
+
+.. automodule:: screpl.resources
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+screpl.utils.referencetable module
+==================================
+
+.. automodule:: screpl.utils.referencetable
+   :members:
+   :undoc-members:
+   :show-inheritance:

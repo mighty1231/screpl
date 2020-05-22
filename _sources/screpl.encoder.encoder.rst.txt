@@ -1,0 +1,7 @@
+screpl.encoder.encoder module
+=============================
+
+.. automodule:: screpl.encoder.encoder
+   :members:
+   :undoc-members:
+   :show-inheritance:

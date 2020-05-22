@@ -1,0 +1,19 @@
+screpl.monitor package
+======================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.monitor.func
+   screpl.monitor.profile
+
+Module contents
+---------------
+
+.. automodule:: screpl.monitor
+   :members:
+   :undoc-members:
+   :show-inheritance:

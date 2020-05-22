@@ -148,44 +148,59 @@
             
   <div class="section" id="module-repl.bridge_server.block">
 <span id="repl-bridge-server-block-module"></span><h1>repl.bridge_server.block module<a class="headerlink" href="#module-repl.bridge_server.block" title="Permalink to this headline">¶</a></h1>
+<p>BridgeBlock class and its metaclass</p>
 <dl class="py class">
 <dt id="repl.bridge_server.block.BridgeBlock">
 <em class="property">class </em><code class="sig-prename descclassname">repl.bridge_server.block.</code><code class="sig-name descname">BridgeBlock</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">region</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/bridge_server/block.html#BridgeBlock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.bridge_server.block.BridgeBlock" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">eudplib.core.allocator.constexpr.ConstExpr</span></code></p>
-<p>Shared memory management class</p>
-<dl class="simple">
-<dt>block structure</dt><dd><ul class="simple">
-<li><p>signature : 4 special bytes to identify block</p></li>
-<li><p>size      : size of contents</p></li>
-<li><p>contents  : user contents</p></li>
-</ul>
-</dd>
-</dl>
+<p>Basic buffer management class used for shared memory</p>
+<p>BridgeBlock is abstract class to manage memory block that is shared
+with bridge client. It has following c structure:</p>
+<div class="highlight-C notranslate"><div class="highlight"><pre><span></span><span class="k">typedef</span> <span class="k">struct</span> <span class="n">_block</span> <span class="p">{</span>
+    <span class="kt">int32_t</span> <span class="n">signature</span><span class="p">;</span>
+    <span class="kt">int32_t</span> <span class="n">block_size</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">contents</span><span class="p">[];</span> <span class="c1">// its size is equals to &#39;block_size&#39;</span>
+<span class="p">}</span> <span class="n">block</span><span class="p">;</span>
+</pre></div>
+</div>
 <dl class="py method">
 <dt id="repl.bridge_server.block.BridgeBlock.CollectDependency">
 <code class="sig-name descname">CollectDependency</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">emitbuffer</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/bridge_server/block.html#BridgeBlock.CollectDependency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.bridge_server.block.BridgeBlock.CollectDependency" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Override from <code class="xref py py-meth docutils literal notranslate"><span class="pre">CollectDependency()</span></code>.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="repl.bridge_server.block.BridgeBlock.Evaluate">
 <code class="sig-name descname">Evaluate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/bridge_server/block.html#BridgeBlock.Evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.bridge_server.block.BridgeBlock.Evaluate" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Magic method to address <cite>self</cite></p>
+<p>It makes the block as a pointer to its contents.
+Override from <code class="xref py py-meth docutils literal notranslate"><span class="pre">Evaluate()</span></code>.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="repl.bridge_server.block.BridgeBlock.GetBufferSize">
 <code class="sig-name descname">GetBufferSize</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/bridge_server/block.html#BridgeBlock.GetBufferSize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.bridge_server.block.BridgeBlock.GetBufferSize" title="Permalink to this definition">¶</a></dt>
-<dd><p>Override the method</p>
+<dd><p>Returns size of its contents.</p>
+<p>Required to be overrided.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="repl.bridge_server.block.BridgeBlock.UpdateContent">
 <code class="sig-name descname">UpdateContent</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/bridge_server/block.html#BridgeBlock.UpdateContent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.bridge_server.block.BridgeBlock.UpdateContent" title="Permalink to this definition">¶</a></dt>
-<dd><p>Override the method</p>
+<dd><p>Updates contents of the block.</p>
+<p>Use <cite>self</cite> as a pointer to contents of the block.
+Required to be overrided.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="repl.bridge_server.block.BridgeBlock.WritePayload">
 <code class="sig-name descname">WritePayload</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">emitbuffer</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/bridge_server/block.html#BridgeBlock.WritePayload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.bridge_server.block.BridgeBlock.WritePayload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Override from <code class="xref py py-meth docutils literal notranslate"><span class="pre">WritePayload()</span></code>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt id="repl.bridge_server.block.BridgeBlock.signature">
+<code class="sig-name descname">signature</code><em class="property"> = b'brbl'</em><a class="headerlink" href="#repl.bridge_server.block.BridgeBlock.signature" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>

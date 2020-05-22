@@ -1,0 +1,28 @@
+screpl.bridge\_server package
+=============================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.bridge_server.blocks
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.bridge_server.block
+   screpl.bridge_server.bridge
+   screpl.bridge_server.signature
+
+Module contents
+---------------
+
+.. automodule:: screpl.bridge_server
+   :members:
+   :undoc-members:
+   :show-inheritance:

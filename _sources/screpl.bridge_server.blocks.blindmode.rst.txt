@@ -1,0 +1,7 @@
+screpl.bridge\_server.blocks.blindmode module
+=============================================
+
+.. automodule:: screpl.bridge_server.blocks.blindmode
+   :members:
+   :undoc-members:
+   :show-inheritance:

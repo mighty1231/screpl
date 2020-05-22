@@ -1,0 +1,7 @@
+screpl.apps.repl module
+=======================
+
+.. automodule:: screpl.apps.repl
+   :members:
+   :undoc-members:
+   :show-inheritance:

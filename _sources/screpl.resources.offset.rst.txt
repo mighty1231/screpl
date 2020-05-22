@@ -1,0 +1,7 @@
+screpl.resources.offset module
+==============================
+
+.. automodule:: screpl.resources.offset
+   :members:
+   :undoc-members:
+   :show-inheritance:

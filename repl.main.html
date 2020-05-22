@@ -1,0 +1,277 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>repl.main module &mdash; SC-REPL 1.1.0 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+  <link rel="stylesheet" href="_static/graphviz.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> SC-REPL
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <!-- Local TOC -->
+              <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">repl.main module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">SC-REPL</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>repl.main module</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/repl.main.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-repl.main">
+<span id="repl-main-module"></span><h1>repl.main module<a class="headerlink" href="#module-repl.main" title="Permalink to this headline">¶</a></h1>
+<p>Initialize module and run apps</p>
+<dl class="py function">
+<dt id="repl.main.get_app_manager">
+<code class="sig-prename descclassname">repl.main.</code><code class="sig-name descname">get_app_manager</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/main.html#get_app_manager"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.main.get_app_manager" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns unique <code class="xref py py-class docutils literal notranslate"><span class="pre">AppManager</span></code> instance</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="repl.main.get_main_writer">
+<code class="sig-prename descclassname">repl.main.</code><code class="sig-name descname">get_main_writer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/main.html#get_main_writer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.main.get_main_writer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns main writer.</p>
+<p>Main writer is <code class="xref py py-class docutils literal notranslate"><span class="pre">EUDByteRW</span></code> instance that is responsible
+for text UI of <code class="xref py py-class docutils literal notranslate"><span class="pre">Application</span></code> and writers in
+<a class="reference internal" href="repl.writer.html#module-repl.writer" title="repl.writer"><code class="xref py py-mod docutils literal notranslate"><span class="pre">repl.writer</span></code></a>. One can use the returned object for memory usage but
+the one should follow following restriction:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>It should not bother <code class="xref py py-meth docutils literal notranslate"><span class="pre">print()</span></code>.
+It may be used freely on the outside of the method.</p></li>
+</ul>
+</div></blockquote>
+</dd></dl>
+
+<dl class="py function">
+<dt id="repl.main.initialize_with_id">
+<code class="sig-prename descclassname">repl.main.</code><code class="sig-name descname">initialize_with_id</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">su_id</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/main.html#initialize_with_id"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.main.initialize_with_id" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize REPL with configurations, with id-certification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>su_id</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.8)"><em>int</em></a>) – id of super user, it must ranges from 0 to 7.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="repl.main.initialize_with_name">
+<code class="sig-prename descclassname">repl.main.</code><code class="sig-name descname">initialize_with_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">su_name</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/main.html#initialize_with_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.main.initialize_with_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize REPL with configurations, with name-certification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>su_name</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – name of super user.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt id="repl.main.is_blind_mode">
+<code class="sig-prename descclassname">repl.main.</code><code class="sig-name descname">is_blind_mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/main.html#is_blind_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.main.is_blind_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns bool that indicates blind mode is active</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="repl.main.is_bridge_mode">
+<code class="sig-prename descclassname">repl.main.</code><code class="sig-name descname">is_bridge_mode</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/main.html#is_bridge_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.main.is_bridge_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns bool that indicates bridge is active</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="repl.main.run">
+<code class="sig-prename descclassname">repl.main.</code><code class="sig-name descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/main.html#run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.main.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run main loop of SC-REPL</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="repl.main.set_bridge_mode">
+<code class="sig-prename descclassname">repl.main.</code><code class="sig-name descname">set_bridge_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bridge_mode</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/main.html#set_bridge_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.main.set_bridge_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize bridge with specificed mode</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>bridge_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.8)"><em>str</em></a>) – string that configures bridge mode.
+It must be one of “off”, “on”, or “blind”.
+* If bridge_mode is “off”, do not construct BridgeRegion.
+* For case “on”, construct BridgeRegion.
+* For case “blind”, construct BridgeRegion, and enable blind mode</p>
+</dd>
+</dl>
+<p>Blind mode supports to send all text UI from REPL apps to bridge client.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="repl.main.set_trigger_timer">
+<code class="sig-prename descclassname">repl.main.</code><code class="sig-name descname">set_trigger_timer</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">timer</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/repl/main.html#set_trigger_timer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#repl.main.set_trigger_timer" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright mighty1231
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

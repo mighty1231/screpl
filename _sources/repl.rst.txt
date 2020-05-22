@@ -8,12 +8,21 @@ Subpackages
    :maxdepth: 4
 
    repl.apps
-   repl.base
    repl.bridge_server
    repl.core
+   repl.encoder
    repl.monitor
    repl.resources
    repl.utils
+   repl.writer
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   repl.main
 
 Module contents
 ---------------

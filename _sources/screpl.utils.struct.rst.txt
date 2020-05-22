@@ -1,0 +1,7 @@
+screpl.utils.struct module
+==========================
+
+.. automodule:: screpl.utils.struct
+   :members:
+   :undoc-members:
+   :show-inheritance:

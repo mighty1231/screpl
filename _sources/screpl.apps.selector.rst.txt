@@ -1,0 +1,7 @@
+screpl.apps.selector module
+===========================
+
+.. automodule:: screpl.apps.selector
+   :members:
+   :undoc-members:
+   :show-inheritance:
