@@ -1,7 +1,0 @@
-repl.bridge\_server.gametext module
-===================================
-
-.. automodule:: repl.bridge_server.gametext
-   :members:
-   :undoc-members:
-   :show-inheritance:

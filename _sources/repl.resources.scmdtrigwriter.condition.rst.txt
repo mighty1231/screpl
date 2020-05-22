@@ -1,7 +1,0 @@
-repl.resources.scmdtrigwriter.condition module
-==============================================
-
-.. automodule:: repl.resources.scmdtrigwriter.condition
-   :members:
-   :undoc-members:
-   :show-inheritance:

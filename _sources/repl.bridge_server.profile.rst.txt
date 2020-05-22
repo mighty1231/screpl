@@ -1,7 +1,0 @@
-repl.bridge\_server.profile module
-==================================
-
-.. automodule:: repl.bridge_server.profile
-   :members:
-   :undoc-members:
-   :show-inheritance:

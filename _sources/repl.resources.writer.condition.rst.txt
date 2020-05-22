@@ -1,7 +1,0 @@
-repl.resources.writer.condition module
-======================================
-
-.. automodule:: repl.resources.writer.condition
-   :members:
-   :undoc-members:
-   :show-inheritance:

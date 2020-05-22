@@ -1,7 +1,0 @@
-repl.resources.encoder.condition module
-=======================================
-
-.. automodule:: repl.resources.encoder.condition
-   :members:
-   :undoc-members:
-   :show-inheritance:

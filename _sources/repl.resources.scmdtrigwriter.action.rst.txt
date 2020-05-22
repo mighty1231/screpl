@@ -1,7 +1,0 @@
-repl.resources.scmdtrigwriter.action module
-===========================================
-
-.. automodule:: repl.resources.scmdtrigwriter.action
-   :members:
-   :undoc-members:
-   :show-inheritance:

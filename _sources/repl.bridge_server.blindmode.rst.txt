@@ -1,7 +1,0 @@
-repl.bridge\_server.blindmode module
-====================================
-
-.. automodule:: repl.bridge_server.blindmode
-   :members:
-   :undoc-members:
-   :show-inheritance:

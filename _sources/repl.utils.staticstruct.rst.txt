@@ -1,7 +1,0 @@
-repl.utils.staticstruct module
-==============================
-
-.. automodule:: repl.utils.staticstruct
-   :members:
-   :undoc-members:
-   :show-inheritance:

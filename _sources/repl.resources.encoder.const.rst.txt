@@ -1,7 +1,0 @@
-repl.resources.encoder.const module
-===================================
-
-.. automodule:: repl.resources.encoder.const
-   :members:
-   :undoc-members:
-   :show-inheritance:
