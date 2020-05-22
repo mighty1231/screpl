@@ -2,11 +2,11 @@ from repl import REPL, get_app_manager, AppCommand
 
 app_manager = get_app_manager()
 
-from .array import ArrayTestApp
+from .array import REPLArrayTestApp
 from .monitor import MonitorTestApp
 
 apps_to_test = [
-    ("testarray", ArrayTestApp),
+    ("testarray", REPLArrayTestApp),
     ("testmonitor", MonitorTestApp),
 ]
 

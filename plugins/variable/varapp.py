@@ -1,7 +1,6 @@
 from eudplib import *
 from repl import ScrollApp, ReferenceTable, AppTypedMethod, write_unit
 
-from repl.resources.offset import off_unitsdat_UnitMapString
 from . import death_units, watched_eud_vars, accessed_resources
 
 watched_eud_vars_size = EUDVariable()

@@ -28,5 +28,5 @@ class Offset:
         r = off % 4
         return f_bwrite_epd(EPD(off), r, value)
 
-off_unitsdat_UnitMapString = Offset(0x660260, 2)
-off_unitsdat_ElevationLevel = Offset(0x663150, 1)
+unitsdat_UnitMapString = Offset(0x660260, 2)
+unitsdat_ElevationLevel = Offset(0x663150, 1)

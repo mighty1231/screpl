@@ -1,7 +1,7 @@
 from eudplib import *
 
 from . import app_manager, mapw, maph
-from repl.resources.offset import off_unitsdat_ElevationLevel
+from repl.resources import offset
 
 @EUDFunc
 def drawRectangle(location, frame, frame_period):
@@ -24,7 +24,7 @@ def drawRectangle(location, frame, frame_period):
         SetMemory(0x66EC48 + 4*232, SetTo, 250)
     ])
 
-    elevation = off_unitsdat_ElevationLevel.read(EncodeUnit("Scanner Sweep"))
+    elevation = offset.unitsdat_ElevationLevel.read(EncodeUnit("Scanner Sweep"))
     DoActions([
         SetMemoryEPD(te, Add, elevation),
         SetMemoryEPD(de, Add, elevation),

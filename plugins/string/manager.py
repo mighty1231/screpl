@@ -2,7 +2,7 @@ from eudplib import *
 from repl import (
     Application,
     AppCommand,
-    argEncNumber,
+    ArgEncNumber,
     EUDByteRW
 )
 
@@ -75,6 +75,6 @@ class StringManagerApp(Application):
         writer.write_f("  - Use a command \"id(##)\"\n")
         writer.write(0)
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def id(self, new_string_id):
         setStringID(new_string_id)

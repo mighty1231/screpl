@@ -1,5 +1,5 @@
 from eudplib import *
-from ..utils import EPDConstString
+from repl.utils import conststring
 
 class EUDByteRW:
     def __init__(self):
@@ -276,9 +276,9 @@ class EUDByteRW:
     @EUDMethod
     def write_bool(self, value):
         if EUDIfNot()(value == 0):
-            self.write_strepd(EPDConstString("True"))
+            self.write_strepd(conststring.EPDConstString("True"))
         if EUDElse()():
-            self.write_strepd(EPDConstString("False"))
+            self.write_strepd(conststring.EPDConstString("False"))
         EUDEndIf()
 
     @EUDMethod
@@ -466,7 +466,7 @@ class EUDByteRW:
                 if len(arg) == 1:
                     self.write(ord(arg))
                 else:
-                    self.write_strepd(EPDConstString(arg))
+                    self.write_strepd(conststring.EPDConstString(arg))
             elif fm == 'H':
                 self.write_hex(arg)
             elif fm == 'D':

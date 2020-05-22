@@ -1,8 +1,10 @@
 from eudplib import *
 
-from ..base.eudbyterw import EUDByteRW
-from ..base.pool import DbPool, VarPool
-from ..utils import f_raise_error, f_raise_warning, getKeyCode, f_strlen, f_printf
+from repl.utils.eudbyterw import EUDByteRW
+from repl.utils.pool import DbPool, VarPool
+from repl.utils.debug import f_raise_error, f_raise_warning, f_printf
+from repl.utils.keycode import getKeyCode
+from repl.utils.string import f_strlen
 
 import repl.main as main
 

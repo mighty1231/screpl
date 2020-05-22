@@ -1,8 +1,8 @@
 '''
-StaticStruct
+REPLStruct
 similar to EUDStruct, but specialized to REPL
 
-class MyStruct(StaticStruct):
+class MyStruct(REPLStruct):
     fields = ['a']
 
 s1 = MyStruct(a=4)
@@ -16,7 +16,7 @@ print(s.a) # 5
 '''
 from eudplib import *
 
-class _StaticStruct_Metaclass(type):
+class _REPLStruct_Metaclass(type):
     fieldmap = {}
     def __new__(mcl, name, bases, dct):
         cls = super().__new__(mcl, name, bases, dct)
@@ -31,7 +31,7 @@ class _StaticStruct_Metaclass(type):
             assert name not in ['_epd', '_from', '_value'], \
                     "attribute '%s' is reserved" % name
             fields[name] = (index, ty)
-        _StaticStruct_Metaclass.fieldmap[cls] = fields
+        _REPLStruct_Metaclass.fieldmap[cls] = fields
         return cls
 
     def __call__(cls, _from):
@@ -47,14 +47,14 @@ class _StaticStruct_Metaclass(type):
 
     def initializeWith(cls, *args):
         from eudplib.core.eudstruct.vararray import EUDVArrayData
-        fields = _StaticStruct_Metaclass.fieldmap[cls]
+        fields = _REPLStruct_Metaclass.fieldmap[cls]
         assert len(args) == len(fields)
 
         baseobj = EUDVArrayData(len(args))(args)
         return cls(baseobj)
 
     def getfield(cls, instance, name):
-        attrid, attrtype = _StaticStruct_Metaclass.fieldmap[cls][name]
+        attrid, attrtype = _REPLStruct_Metaclass.fieldmap[cls][name]
 
         # same as EUDVArray.get(attrid)
         value = EUDVariable()
@@ -82,7 +82,7 @@ class _StaticStruct_Metaclass(type):
         return value
 
     def setfield(cls, instance, name, value):
-        attrid, attrtype = _StaticStruct_Metaclass.fieldmap[cls][name]
+        attrid, attrtype = _REPLStruct_Metaclass.fieldmap[cls][name]
 
         # same as EUDVArray.set(attrid, value)
         a0, t = Forward(), Forward()
@@ -96,7 +96,7 @@ class _StaticStruct_Metaclass(type):
             ]
         )
 
-class StaticStruct(ExprProxy, metaclass=_StaticStruct_Metaclass):
+class REPLStruct(ExprProxy, metaclass=_REPLStruct_Metaclass):
     fields = []
 
     @classmethod

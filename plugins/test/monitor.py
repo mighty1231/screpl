@@ -3,7 +3,7 @@ from repl import (
     Application,
     AppCommand,
     AppTypedMethod,
-    argEncNumber,
+    ArgEncNumber,
     REPLMonitorPush,
     REPLMonitorPop,
     REPLMonitorF
@@ -72,7 +72,7 @@ class MonitorTestApp(Application):
         t21(4, 5)
 
     @REPLMonitorF(io=True, profile=False)
-    @AppCommand([argEncNumber, argEncNumber])
+    @AppCommand([ArgEncNumber, ArgEncNumber])
     def multi(self, v1, v2):
         self.var = self._multi(v1, v2)
 
@@ -82,7 +82,7 @@ class MonitorTestApp(Application):
         EUDReturn(a+b)
 
     @REPLMonitorF(io=True, profile=False)
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def c_i(self, a):
         self.var = a
 

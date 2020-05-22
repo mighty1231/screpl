@@ -1,9 +1,10 @@
 from eudplib import *
 
-from ..base.eudbyterw import EUDByteRW
-from ..core.appmanager import get_app_manager
+from ..utils.eudbyterw import EUDByteRW
 from ..core.appcommand import AppCommand
 from .scroll import ScrollApp, LINES_PER_PAGE
+
+from repl import main
 
 LOGGER_LINE_SIZE = 216
 LOGGER_LINE_COUNT = 500
@@ -63,7 +64,7 @@ class Logger(ScrollApp):
         if not simple:
             writer.write_f("\x16%D: [frame %D] ",
                            log_index,
-                           get_app_manager().getCurrentFrameNumber())
+                           main.get_app_manager().getCurrentFrameNumber())
         else:
             writer.write_f("\x16%D: ", log_index)
         writer.write_f(fmtstring, *args)
@@ -86,7 +87,7 @@ class Logger(ScrollApp):
         mode << MODE_REALTIME
 
     def loop(self):
-        manager = get_app_manager()
+        manager = main.get_app_manager()
         if EUDIf()(mode == MODE_STOPPED):
             if EUDIf()(manager.keyPress("ESC")):
                 mode << MODE_REALTIME
@@ -110,7 +111,7 @@ class Logger(ScrollApp):
         manager.requestUpdate()
 
     def writeTitle(self, writer):
-        manager = get_app_manager()
+        manager = main.get_app_manager()
         if EUDIf()(mode == MODE_REALTIME):
             writer.write_f("\x16SC-REPL logs (frame=%D), Realtime View, "
                            "press 'S' to stop view",

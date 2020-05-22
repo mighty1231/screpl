@@ -1,19 +1,10 @@
 from eudplib import *
-from ...base.encoder import ReadNumber, ReadName, ArgEncoderPtr
-from ...base.referencetable import SearchTable
-from ...utils import EPDConstString, f_strcmp_ptrepd
-from ..table.tables import (
-    tb_Modifier,
-    tb_AllyStatus,
-    tb_Comparison,
-    tb_Order,
-    tb_Player,
-    tb_PropState,
-    tb_Resource,
-    tb_Score,
-    tb_SwitchAction,
-    tb_SwitchState
-)
+
+from repl.encoder.encoder import ReadNumber, ReadName, ArgEncoderPtr
+from repl.table import tables as tb
+from repl.utils.conststring import EPDConstString
+from repl.utils.referencetable import SearchTable
+from repl.utils.string import f_strcmp_ptrepd
 
 tmpbuf = Db(100) # Temporarily store string
 
@@ -44,15 +35,15 @@ def _EncodeCount(offset, delim, ref_offset_epd, retval_epd):
     EUDEndIf()
     EUDReturn(ReadNumber(offset, delim, ref_offset_epd, retval_epd))
 
-argEncNumber = ArgEncoderPtr(ReadNumber)
-argEncCount = ArgEncoderPtr(_EncodeCount)
-argEncModifier = ArgEncoderPtr(_makeConstEncoder(tb_Modifier))
-argEncAllyStatus = ArgEncoderPtr(_makeConstEncoder(tb_AllyStatus))
-argEncComparison = ArgEncoderPtr(_makeConstEncoder(tb_Comparison))
-argEncOrder = ArgEncoderPtr(_makeConstEncoder(tb_Order))
-argEncPlayer = ArgEncoderPtr(_makeConstEncoder(tb_Player))
-argEncPropState = ArgEncoderPtr(_makeConstEncoder(tb_PropState))
-argEncResource = ArgEncoderPtr(_makeConstEncoder(tb_Resource))
-argEncScore = ArgEncoderPtr(_makeConstEncoder(tb_Score))
-argEncSwitchAction = ArgEncoderPtr(_makeConstEncoder(tb_SwitchAction))
-argEncSwitchState = ArgEncoderPtr(_makeConstEncoder(tb_SwitchState))
+ArgEncNumber = ArgEncoderPtr(ReadNumber)
+ArgEncCount = ArgEncoderPtr(_EncodeCount)
+ArgEncModifier = ArgEncoderPtr(_makeConstEncoder(tb.Modifier))
+ArgEncAllyStatus = ArgEncoderPtr(_makeConstEncoder(tb.AllyStatus))
+ArgEncComparison = ArgEncoderPtr(_makeConstEncoder(tb.Comparison))
+ArgEncOrder = ArgEncoderPtr(_makeConstEncoder(tb.Order))
+ArgEncPlayer = ArgEncoderPtr(_makeConstEncoder(tb.Player))
+ArgEncPropState = ArgEncoderPtr(_makeConstEncoder(tb.PropState))
+ArgEncResource = ArgEncoderPtr(_makeConstEncoder(tb.Resource))
+ArgEncScore = ArgEncoderPtr(_makeConstEncoder(tb.Score))
+ArgEncSwitchAction = ArgEncoderPtr(_makeConstEncoder(tb.SwitchAction))
+ArgEncSwitchState = ArgEncoderPtr(_makeConstEncoder(tb.SwitchState))

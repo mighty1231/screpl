@@ -3,7 +3,7 @@ from repl import (
     Application,
     AppTypedMethod,
     AppCommand,
-    argEncNumber,
+    ArgEncNumber,
     ChatReaderApp,
     GetLocationNameEPDPointer
 )
@@ -388,19 +388,19 @@ class LocationEditorApp(Application):
 
         writer.write(0)
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def setSizeX(self, value):
         lv, rv = f_dwread_epd(le), f_dwread_epd(re)
         sz = rv - lv
         f_dwadd_epd(re, value-sz)
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def setSizeY(self, value):
         tv, bv = f_dwread_epd(te), f_dwread_epd(be)
         sz = bv - tv
         f_dwadd_epd(be, value-sz)
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def setFlag(self, flag):
         f_wwrite_epd(cur_epd+4, 2, flag)
 

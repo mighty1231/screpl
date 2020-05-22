@@ -1,12 +1,13 @@
 from eudplib import *
-from .staticstruct import StaticStruct
-from .debug import f_raise_error
-from ..base import DbPool
 
-pool = DbPool(100000)
+from repl.utils import debug
+from repl.utils import pool
+from repl.utils import struct
+
+_pool = pool.DbPool(100000)
 
 @EUDFunc
-def default_compare(a, b):
+def _default_compare(a, b):
     # return 1 if a < b
     if EUDIfNot()(a >= b):
         EUDReturn(1)
@@ -14,11 +15,11 @@ def default_compare(a, b):
     EUDReturn(0)
 
 @EUDFunc
-def swap(array, i, j):
+def _swap(array, i, j):
     '''
-    Used on Array.sort (quicksort algorithm)
+    Used on REPLArray.sort (quicksort algorithm)
     '''
-    array = Array.cast(array)
+    array = REPLArray.cast(array)
     contents = array.contents
     i_epd = contents + i
     j_epd = contents + j
@@ -27,11 +28,11 @@ def swap(array, i, j):
     f_dwwrite_epd(i_epd, tmp)
 
 @EUDFunc
-def partition(array, left, right, comp):
+def _partition(array, left, right, comp):
     '''
-    Used on Array.sort (quicksort algorithm)
+    Used on REPLArray.sort (quicksort algorithm)
     '''
-    array = Array.cast(array)
+    array = REPLArray.cast(array)
     comp = EUDFuncPtr(2, 1).cast(comp)
     i, j = EUDCreateVariables(2)
     breakc = Forward()
@@ -44,14 +45,14 @@ def partition(array, left, right, comp):
         EUDBreakIf(breakc << j.AtLeast(0))
         if EUDIfNot()(comp(array.at(j), pivot) == 0):
             i += 1
-            swap(array, i, j)
+            _swap(array, i, j)
         EUDEndIf()
         j += 1
     EUDEndInfLoop()
-    swap(array, i + 1, right)
+    _swap(array, i + 1, right)
     EUDReturn(i + 1)
 
-class Array(StaticStruct):
+class REPLArray(struct.REPLStruct):
     fields = [
         'max_size',
         'size',
@@ -69,12 +70,12 @@ class Array(StaticStruct):
             size = 0
             contents = EPD(EUDArray(max_size))
 
-        return Array.initializeWith(max_size, size, contents, contents+size)
+        return REPLArray.initializeWith(max_size, size, contents, contents+size)
 
     @staticmethod
     def allocate(max_size):
-        contents = pool.alloc_epd(max_size)
-        instance = Array.initializeWith(0, 0, 0, 0)
+        contents = _pool.alloc_epd(max_size)
+        instance = REPLArray.initializeWith(0, 0, 0, 0)
         instance.max_size = max_size
         instance.contents = contents
         instance.end = contents
@@ -85,12 +86,12 @@ class Array(StaticStruct):
         '''
         Can be freed if the instance is initialized with allocate()
         '''
-        pool.free_epd(self.contents)
+        _pool.free_epd(self.contents)
 
     @EUDMethod
     def at(self, index):
         if EUDIf()(index >= self.size):
-            f_raise_error("IndexError: array index out of range")
+            debug.f_raise_error("IndexError: array index out of range")
         EUDEndIf()
         return f_dwread_epd(self.contents + index)
 
@@ -99,7 +100,7 @@ class Array(StaticStruct):
         size = self.size
         end = self.end
         if EUDIf()(size == self.max_size):
-            f_raise_error("BufferOverflowError: array size exceeds max_size")
+            debug.f_raise_error("BufferOverflowError: array size exceeds max_size")
         EUDEndIf()
 
         f_dwwrite_epd(end, value)
@@ -115,7 +116,7 @@ class Array(StaticStruct):
         end = self.end
         size = self.size
         if EUDIf()(size == 0):
-            f_raise_error("IndexError: pop from empty array")
+            debug.f_raise_error("IndexError: pop from empty array")
         EUDEndIf()
 
         end -= 1
@@ -137,10 +138,10 @@ class Array(StaticStruct):
         end = self.end
 
         if EUDIf()(size == self.max_size):
-            f_raise_error("BufferOverflowError: array size exceeds max_size")
+            debug.f_raise_error("BufferOverflowError: array size exceeds max_size")
         EUDEndIf()
         if EUDIfNot()(index <= size):
-            f_raise_error("IndexError: array index out of range")
+            debug.f_raise_error("IndexError: array index out of range")
         EUDEndIf()
 
         cpmoda, loopc = Forward(), Forward()
@@ -184,7 +185,7 @@ class Array(StaticStruct):
         end = self.end
 
         if EUDIf()(index >= size):
-            f_raise_error("IndexError: array index out of range")
+            debug.f_raise_error("IndexError: array index out of range")
         EUDEndIf()
 
         dst = contents + index
@@ -248,7 +249,7 @@ class Array(StaticStruct):
 
     def sort(self, comp=None):
         if comp is None:
-            comp = default_compare
+            comp = _default_compare
         self._sort(comp)
 
     @EUDTypedMethod([EUDFuncPtr(2, 1)], [])
@@ -265,7 +266,7 @@ class Array(StaticStruct):
         size = self.size
 
         # non-recursive quicksort
-        stack = Array.allocate(size * 2)
+        stack = REPLArray.allocate(size * 2)
         stack.append(0)
         stack.append(size-1)
         if EUDWhileNot()(stack.size == 0):
@@ -275,7 +276,7 @@ class Array(StaticStruct):
             # unsigned comparison
             EUDContinueIf(left >= right)
 
-            index = partition(self, left, right, comp)
+            index = _partition(self, left, right, comp)
 
             # left part
             # prevent index be -1, due to unsigned comparison

@@ -1,10 +1,11 @@
 from eudplib import *
 
-from ..base.referencetable import ReferenceTable
-from ..utils import EPDConstString
-from .appcommand import AppCommandN, runAppCommand
-from .appmanager import get_app_manager
-from .appmethod import AppMethodN, AppMethod, AppMethod_writerParam
+from repl.core import appcommand as appcmd
+from repl.core import appmethod as appmtd
+from repl.utils.conststring import EPDConstString
+from repl.utils.referencetable import ReferenceTable
+
+from repl import main
 
 class _indexPair:
     def __init__(self, items = None):
@@ -49,7 +50,7 @@ class _indexPair:
 class _Application_Metaclass(type):
     apps = []
     def __init__(cls, name, bases, dct):
-        ''' Fill methods, commands, members '''
+        """ Fill methods, commands, members """
         super().__init__(name, bases, dct)
 
         # build methods and members, basically from parent class
@@ -67,8 +68,8 @@ class _Application_Metaclass(type):
 
         # methods and commands
         for k, v in dct.items():
-            if isinstance(v, AppCommandN):
-                assert k not in total_dict or isinstance(total_dict[k], AppCommandN), \
+            if isinstance(v, appcmd.AppCommandN):
+                assert k not in total_dict or isinstance(total_dict[k], appcmd.AppCommandN), \
                         "Conflict on attribute - %s.%s" % (name, k)
                 if k in commands:
                     commands.replace(k, v)
@@ -76,13 +77,13 @@ class _Application_Metaclass(type):
                     commands.append(k, v)
                 v.initialize(cls)
                 total_dict[k] = v
-            elif callable(v) or isinstance(v, AppMethodN):
+            elif callable(v) or isinstance(v, appmtd.AppMethodN):
                 assert not (k[:2] == k[-2:] == "__"), \
                         "Illegal method - %s.%s" % (name, k)
-                assert k not in total_dict or isinstance(total_dict[k], AppMethodN), \
+                assert k not in total_dict or isinstance(total_dict[k], appmtd.AppMethodN), \
                         "Conflict on attribute - %s.%s" % (name, k)
-                if not isinstance(v, AppMethodN):
-                    v = AppMethod(v)
+                if not isinstance(v, appmtd.AppMethodN):
+                    v = appmtd.AppMethod(v)
                 setattr(cls, k, v)
                 if k in methods:
                     # Overriding AppMethod
@@ -117,7 +118,7 @@ class _Application_Metaclass(type):
         _Application_Metaclass.apps.append(cls)
 
 class ApplicationInstance:
-    '''
+    """
     Mimic object for application instance, used in AppMethod.
     It supports field access and method invocation.
 
@@ -125,7 +126,7 @@ class ApplicationInstance:
     Leaf AppMethods are called, set by current instance.
     Otherwise, their absolute address are used.
     It would applied into calling methods from superclasses.
-    '''
+    """
 
     # reserved keywords
     _attributes_ = ['_cls', '_absolute', 'getReference_epd']
@@ -140,7 +141,7 @@ class ApplicationInstance:
             self._absolute = False
 
     def getReference_epd(self, member):
-        '''
+        """
         Get reference for instance member
 
         self.var << 1                     # self.var is 1
@@ -149,9 +150,9 @@ class ApplicationInstance:
         Logger.format("%D", self.var)     # self.var becomes 12
 
         Traditional EUDVariable can be referenced as EPD(v.getValueAddr())
-        '''
+        """
         attrid, attrtype = self._cls._fields_[member]
-        return get_app_manager().cur_members._epd + (18 * attrid + 348 // 4)
+        return main.get_app_manager().cur_members._epd + (18 * attrid + 348 // 4)
 
     def __getattr__(self, name):
         if name in self._cls._commands_:
@@ -164,7 +165,7 @@ class ApplicationInstance:
                 return v.applyAbsolute()
         elif name in self._cls._fields_:
             attrid, attrtype = self._cls._fields_[name]
-            attr = get_app_manager().cur_members.get(attrid)
+            attr = main.get_app_manager().cur_members.get(attrid)
             if attrtype:
                 return attrtype.cast(attr)
             else:
@@ -176,7 +177,7 @@ class ApplicationInstance:
             super().__setattr__(name, value)
         elif name in self._cls._fields_:
             attrid, attrtype = self._cls._fields_[name]
-            get_app_manager().cur_members.set(attrid, value)
+            main.get_app_manager().cur_members.set(attrid, value)
         else:
             raise AttributeError("Application '%s' has no attribute '%s'" % (self._cls, name))
 
@@ -194,22 +195,22 @@ class Application(metaclass=_Application_Metaclass):
         pass
 
     def onChat(self, offset):
-        runAppCommand(
+        appcmd.runAppCommand(
             offset,
             self.cmd_output_epd
         )
 
     def onResume(self):
-        ''' onResume() called exactly once after forward application was closed '''
+        """called exactly once after forward application was closed"""
         pass
 
     def loop(self):
-        ''' loop() called exactly once in every frame '''
+        """called exactly once in every frame"""
         pass
 
-    @AppMethod_writerParam
+    @appmtd.AppMethod_writerParam
     def print(self, writer):
-        ''' called once in a frame that invoked requestUpdate '''
+        """called once in a frame that invoked requestUpdate"""
         writer.write(0)
 
     @classmethod
@@ -244,15 +245,18 @@ class Application(metaclass=_Application_Metaclass):
 
     @classmethod
     def addCommand(cls, name, cmd):
-        assert isinstance(cmd, AppCommandN), "CMD (%s) must be callable or AppCommand" % cmd
+        if not isinstance(cmd, appcmd.AppCommandN):
+            raise ValueError("CMD (%s) must be callable or AppCommand" % cmd)
 
         if cls._allocated_:
             # case allocated
             #   - unable to replace, just append only
             #   - initialize and allocate
-            assert name not in cls._total_dict_, \
-                    "Please avoid to use '%s' as the command name on class %s," \
-                    "or add it before allocation of the class" % (name, cls.__name__)
+            if name in cls._total_dict_:
+                raise ValueError(
+                    "Please avoid to use '%s' as the command name on class %s,"
+                    "or add it before allocation of the class"
+                    % (name, cls.__name__))
             cls._commands_.append(name, cmd)
             cmd.initialize(cls)
             cls._total_dict_[name] = cmd
@@ -263,8 +267,11 @@ class Application(metaclass=_Application_Metaclass):
             # case not allocated
             #   - replace or add
             #   - just initialize
-            assert name not in cls._total_dict_ or isinstance(cls._total_dict_[name], AppCommandN), \
-                    "Conflict on attribute - %s.%s" % (cls.__name__, name)
+            if (name in cls._total_dict_
+                    and isinstance(cls._total_dict_[name],
+                                   appcmd.AppCommandN)):
+                raise ValueError("Conflict on attribute - %s.%s"
+                                 % (cls.__name__, name))
             if name in cls._commands_:
                 cls._commands_.replace(name, cmd)
             else:

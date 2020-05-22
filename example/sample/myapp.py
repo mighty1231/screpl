@@ -26,7 +26,7 @@ from repl import (
     AppTypedMethod,
     AppCommand,
     get_app_manager,
-    argEncNumber
+    ArgEncNumber
 )
 
 manager = get_app_manager()
@@ -112,7 +112,7 @@ class MyApp(Application):
         ])
         EUDReturn(plus, multiply)
 
-    @AppCommand([argEncNumber, argEncNumber])
+    @AppCommand([ArgEncNumber, ArgEncNumber])
     def plus(self, x, y):
         '''
         In-game chat like "plus(3, 4)" executes this part

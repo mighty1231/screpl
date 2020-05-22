@@ -2,16 +2,16 @@ from eudplib import *
 from repl import (
     Application,
     AppCommand,
-    argEncNumber,
-    Array
+    ArgEncNumber,
+    REPLArray
 )
 
 from . import app_manager
 
-array = Array.construct(10, [1, 2, 3])
+array = REPLArray.construct(10, [1, 2, 3])
 ret = EUDVariable()
 
-class ArrayTestApp(Application):
+class REPLArrayTestApp(Application):
     def loop(self):
         if EUDIf()(app_manager.keyPress("ESC")):
             app_manager.requestDestruct()
@@ -19,23 +19,23 @@ class ArrayTestApp(Application):
         EUDEndIf()
         app_manager.requestUpdate()
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def append(self, value):
         array.append(value)
 
-    @AppCommand([argEncNumber, argEncNumber])
+    @AppCommand([ArgEncNumber, ArgEncNumber])
     def insert(self, i, value):
         array.insert(i, value)
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def delete(self, i):
         array.delete(i)
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def at(self, i):
         ret << array.at(i)
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def contains(self, i):
         ret << array.contains(i)
 
@@ -68,7 +68,7 @@ class ArrayTestApp(Application):
         arr2 = EUDVariable()
         arr2 << array
 
-        arr3 = Array(arr2)
+        arr3 = REPLArray(arr2)
         for value in arr3.values():
             writer.write_f("%D ", value)
         writer.write_f("\n")

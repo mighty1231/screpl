@@ -4,9 +4,9 @@ from .conststring import EPDConstString
 _buf = Db(2048)
 _writer = None
 
-def getWriter():
+def _get_writer():
     global _writer
-    from ..base.eudbyterw import EUDByteRW
+    from repl.utils.eudbyterw import EUDByteRW
 
     if _writer is None:
         _writer = EUDByteRW()
@@ -32,20 +32,20 @@ def _print_buf():
     f_setcurpl(orig_cp)
 
 def f_raise_error(txt):
-    getWriter().seekepd(EPD(_buf))
-    getWriter().write_strepd(EPDConstString(txt))
-    getWriter().write(0)
+    _get_writer().seekepd(EPD(_buf))
+    _get_writer().write_strepd(EPDConstString(txt))
+    _get_writer().write(0)
     _print_buf()
     DoActions(SetMemory(0xDEADBEEF ^ 0xFFFFFFFF, SetTo, 0))
 
 def f_raise_warning(txt):
-    getWriter().seekepd(EPD(_buf))
-    getWriter().write_strepd(EPDConstString(txt))
-    getWriter().write(0)
+    _get_writer().seekepd(EPD(_buf))
+    _get_writer().write_strepd(EPDConstString(txt))
+    _get_writer().write(0)
     _print_buf()
 
 def f_printf(*args):
-    getWriter().seekepd(EPD(_buf))
-    getWriter().write_f(*args)
-    getWriter().write(0)
+    _get_writer().seekepd(EPD(_buf))
+    _get_writer().write_f(*args)
+    _get_writer().write(0)
     _print_buf()

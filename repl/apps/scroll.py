@@ -1,9 +1,10 @@
 from eudplib import *
 
-from ..core.application import Application
-from ..core.appmanager import get_app_manager
-from ..core.appmethod import AppTypedMethod
-from ..utils import EPDConstString
+from repl.core.application import Application
+from repl.core.appmethod import AppTypedMethod
+from repl.utils.conststring import EPDConstString
+
+from repl import main
 
 LINES_PER_PAGE = 8
 
@@ -45,7 +46,7 @@ class ScrollApp(Application):
     def loop(self):
         # F7 - previous page
         # F8 - next page
-        manager = get_app_manager()
+        manager = main.get_app_manager()
         if EUDIf()(manager.keyPress("ESC")):
             manager.requestDestruct()
         if EUDElseIf()(manager.keyPress("F7")):

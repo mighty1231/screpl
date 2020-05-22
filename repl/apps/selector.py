@@ -1,9 +1,9 @@
 from eudplib import *
-from repl import (
-    Application,
-    get_app_manager,
-    ReferenceTable,
-)
+
+from repl.core import Application
+from repl.utils.referencetable import ReferenceTable
+from repl.resources.table import tables as tb
+from repl import main
 
 # number of items to show in a page
 NITEMS = 8
@@ -28,7 +28,7 @@ def _createapp(domainname, reftable):
         if EUDIfNot()(new_offset == _offset):
             _offset << new_offset
             _value << f_dwread_epd((EPD(reftable)+2) + 2*new_offset)
-            get_app_manager().requestUpdate()
+            main.get_app_manager().requestUpdate()
         EUDEndIf()
 
     class _SelectorApp(Application):
@@ -58,7 +58,7 @@ def _createapp(domainname, reftable):
             EUDEndIf()
 
         def loop(self):
-            app_manager = get_app_manager()
+            app_manager = main.get_app_manager()
             if EUDIf()(app_manager.keyPress("ESC")):
                 app_manager.requestDestruct()
             if EUDElseIf()(app_manager.keyPress("F7", hold=["LCTRL"])):
@@ -121,28 +121,15 @@ def _createapp(domainname, reftable):
 
     return _SelectorApp
 
-from ..resources.table.tables import (
-    tb_AIScript,
-    tb_Modifier,
-    tb_AllyStatus,
-    tb_Comparison,
-    tb_Order,
-    tb_Player,
-    tb_PropState,
-    tb_Resource,
-    tb_Score,
-    tb_SwitchAction,
-    tb_SwitchState
-)
 
-AIScriptSelectorApp     = _createapp("AIScript",     tb_AIScript)
-ModifierSelectorApp     = _createapp("Modifier",     tb_Modifier)
-AllyStatusSelectorApp   = _createapp("AllyStatus",   tb_AllyStatus)
-ComparisonSelectorApp   = _createapp("Comparison",   tb_Comparison)
-OrderSelectorApp        = _createapp("Order",        tb_Order)
-PlayerSelectorApp       = _createapp("Player",       tb_Player)
-PropStateSelectorApp    = _createapp("PropState",    tb_PropState)
-ResourceSelectorApp     = _createapp("Resource",     tb_Resource)
-ScoreSelectorApp        = _createapp("Score",        tb_Score)
-SwitchActionSelectorApp = _createapp("SwitchAction", tb_SwitchAction)
-SwitchStateSelectorApp  = _createapp("SwitchState",  tb_SwitchState)
+AIScriptSelectorApp     = _createapp("AIScript",     tb.AIScript)
+ModifierSelectorApp     = _createapp("Modifier",     tb.Modifier)
+AllyStatusSelectorApp   = _createapp("AllyStatus",   tb.AllyStatus)
+ComparisonSelectorApp   = _createapp("Comparison",   tb.Comparison)
+OrderSelectorApp        = _createapp("Order",        tb.Order)
+PlayerSelectorApp       = _createapp("Player",       tb.Player)
+PropStateSelectorApp    = _createapp("PropState",    tb.PropState)
+ResourceSelectorApp     = _createapp("Resource",     tb.Resource)
+ScoreSelectorApp        = _createapp("Score",        tb.Score)
+SwitchActionSelectorApp = _createapp("SwitchAction", tb.SwitchAction)
+SwitchStateSelectorApp  = _createapp("SwitchState",  tb.SwitchState)

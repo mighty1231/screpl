@@ -1,12 +1,9 @@
 from eudplib import *
-from ...base.encoder import ReadNumber, ReadString, ArgEncoderPtr
-from ...base.referencetable import SearchTable
-from ..table.tables import (
-    tb_AIScript,
-    tb_swSub,
-    tb_swMap
-)
-from ...utils import f_strcmp_ptrepd
+
+from repl.encoder.encoder import ReadNumber, ReadString, ArgEncoderPtr
+from repl.table import tables as tb
+from repl.utils.referencetable import SearchTable
+from repl.utils.string import f_strcmp_ptrepd
 
 tmpbuf = Db(150) # Temporarily store string
 tmpstrbuf = DBString(150)
@@ -16,7 +13,7 @@ def _argEncAIScript(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
-        if EUDIf()(SearchTable(tmpbuf, EPD(tb_AIScript), f_strcmp_ptrepd, retval_epd)  == 1):
+        if EUDIf()(SearchTable(tmpbuf, EPD(tb.AIScript), f_strcmp_ptrepd, retval_epd)  == 1):
             EUDReturn(1)
         EUDEndIf()
     EUDEndIf()
@@ -28,9 +25,9 @@ def _argEncSwitch(offset, delim, ref_offset_epd, retval_epd):
     if EUDIf()(ReadNumber(offset, delim, ref_offset_epd, retval_epd) == 1):
         EUDReturn(1)
     if EUDElseIf()(ReadString(offset, delim, ref_offset_epd, EPD(tmpbuf)) == 1):
-        if EUDIf()(SearchTable(tmpbuf, EPD(tb_swMap), f_strcmp_ptrepd, retval_epd)  == 1):
+        if EUDIf()(SearchTable(tmpbuf, EPD(tb.swMap), f_strcmp_ptrepd, retval_epd)  == 1):
             EUDReturn(1)
-        if EUDElseIf()(SearchTable(tmpbuf, EPD(tb_swSub), f_strcmp_ptrepd, retval_epd)  == 1):
+        if EUDElseIf()(SearchTable(tmpbuf, EPD(tb.swSub), f_strcmp_ptrepd, retval_epd)  == 1):
             EUDReturn(1)
         EUDEndIf()
     EUDEndIf()

@@ -6,11 +6,11 @@ You input '{Content}'
 '''
 
 from eudplib import *
-from repl import (
-    Application,
-    get_app_manager,
-    EUDByteRW
-)
+
+from repl.core import Application
+from repl.utils.eudbyterw import EUDByteRW
+
+import repl.main as main
 
 temp_storage = Db(220)
 temp_writer = EUDByteRW()
@@ -39,10 +39,10 @@ class ChatReaderApp(Application):
         temp_writer.seekepd(EPD(temp_storage))
         temp_writer.write_str(offset)
         temp_writer.write(0)
-        get_app_manager().requestUpdate()
+        main.get_app_manager().requestUpdate()
 
     def loop(self):
-        app_manager = get_app_manager()
+        app_manager = main.get_app_manager()
         if EUDIf()([app_manager.keyPress('Y', hold=['LCTRL'])]):
             result_writer.write_strepd(EPD(temp_storage))
             result_writer.write(0)

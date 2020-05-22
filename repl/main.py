@@ -4,7 +4,9 @@ from eudplib.core.mapdata import IsMapdataInitalized
 
 from repl.apps import REPL
 from repl.core import AppManager, AppCommand
-from repl.utils import EUDByteRW, f_strlen
+from repl.utils.eudbyterw import EUDByteRW
+from repl.utils.string import f_strlen
+from repl.encoder import ArgEncNumber
 
 _main_writer = EUDByteRW()
 _manager = None
@@ -151,7 +153,7 @@ def set_bridge_mode(bridge_mode):
             _is_blind_mode << 1 - _is_blind_mode
         REPL.add_command("blind", toggle_blind)
 
-@AppCommand([argEncNumber])
+@AppCommand([ArgEncNumber])
 def _cmd_trig_timer(self, timer):
     """Set trigger timer (0x6509A0) as given argument"""
     _trigger_timer << timer

@@ -3,7 +3,7 @@ from repl import (
     Application,
     AppCommand,
     get_app_manager,
-    argEncNumber
+    ArgEncNumber
 )
 
 manager = get_app_manager()
@@ -73,13 +73,13 @@ class MemoryApp(Application):
         EUDEndWhile()
         writer.write(0)
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def setptr(self, ptr):
         self.ptr = ptr
         self.epd = EPD(ptr)
         manager.requestUpdate()
 
-    @AppCommand([argEncNumber, argEncNumber])
+    @AppCommand([ArgEncNumber, ArgEncNumber])
     def setptrsz(self, ptr, size):
         self.ptr = ptr
         self.epd = EPD(ptr)

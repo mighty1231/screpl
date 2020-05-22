@@ -3,7 +3,7 @@ from repl import (
     Application,
     AppTypedMethod,
     AppCommand,
-    argEncNumber
+    ArgEncNumber
 )
 
 from . import *

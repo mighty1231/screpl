@@ -1,8 +1,8 @@
 from eudplib import *
-from .eudbyterw import EUDByteRW
+from repl.utils import eudbyterw as rw
 
-_reader = EUDByteRW()
-_writer = EUDByteRW()
+_reader = rw.EUDByteRW()
+_writer = rw.EUDByteRW()
 
 ArgEncoderPtr = EUDFuncPtr(4, 1)
 

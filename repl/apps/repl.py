@@ -1,12 +1,12 @@
 from eudplib import *
 
-from ..base.eudbyterw import EUDByteRW
+from ..utils.eudbyterw import EUDByteRW
 from ..core.application import Application
-from ..core.appmanager import get_app_manager
 from ..core.appcommand import AppCommand
 
 from .static import StaticApp
 from .logger import Logger
+from repl import main
 
 import inspect
 
@@ -52,12 +52,12 @@ class REPL(Application):
             _repl_output_epd_ptr.AddNumber(_LINE_SIZE // 4),
             _repl_index.AddNumber(1)
         ])
-        get_app_manager().requestUpdate()
+        main.get_app_manager().requestUpdate()
 
     def loop(self):
         # F7 - previous page
         # F8 - next page
-        manager = get_app_manager()
+        manager = main.get_app_manager()
         if EUDIf()(manager.keyPress("F7")):
             if EUDIfNot()(_repl_top_index == 0):
                 DoActions([
@@ -143,7 +143,7 @@ class REPL(Application):
             "help() - Opens a manual\n"
             "cmds() - Shows registered commands\n"
         )
-        get_app_manager().startApplication(StaticApp)
+        main.get_app_manager().startApplication(StaticApp)
 
     @AppCommand([])
     def cmds(self):
@@ -172,9 +172,9 @@ class REPL(Application):
             content = content[:-1]
 
         StaticApp.setContent("\x16SC-REPL commands", content)
-        get_app_manager().startApplication(StaticApp)
+        main.get_app_manager().startApplication(StaticApp)
 
     @AppCommand([])
     def log(self):
         """Start Logger application"""
-        get_app_manager().startApplication(Logger)
+        main.get_app_manager().startApplication(Logger)

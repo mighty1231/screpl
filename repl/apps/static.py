@@ -1,8 +1,8 @@
 from eudplib import *
 
-from ..core.application import Application
-from ..core.appmanager import get_app_manager
-from ..utils import EPDConstString, EPDConstStringArray
+from repl.core import Application
+from repl.utils.conststring import EPDConstString, EPDConstStringArray
+from repl import main
 
 _title_epd = EUDVariable(EPDConstString("Title"))
 _epdarray = EUDVariable(EPDConstString("Hello World!"))
@@ -46,13 +46,13 @@ class StaticApp(Application):
         EUDEndIf()
 
         if EUDIfNot()(prev_offset == self.offset):
-            get_app_manager().requestUpdate()
+            main.get_app_manager().requestUpdate()
         EUDEndIf()
 
     def loop(self):
         # F7 - previous page
         # F8 - next page
-        manager = get_app_manager()
+        manager = main.get_app_manager()
         if EUDIf()(manager.keyPress("ESC")):
             manager.requestDestruct()
         if EUDElseIf()(manager.keyPress("F7")):

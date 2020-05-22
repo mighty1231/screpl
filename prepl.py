@@ -1,3 +1,4 @@
+from eudplib import *
 import importlib, re
 import repl
 
@@ -22,13 +23,13 @@ def onPluginStart():
 
     if settings["superuser_mode"] == "playerID":
         superuser = playerMap.get(settings["superuser"], settings["superuser"])
-        repl.initializeWithId(EncodePlayer(superuser))
+        repl.initialize_with_id(EncodePlayer(superuser))
     elif settings["superuser_mode"] == "playerName":
-        repl.initializeWithName(superuser)
+        repl.initialize_with_name(superuser)
     else:
         raise RuntimeError("Unknown mode {}".format(settings["superuser_mode"]))
 
-    repl.setBridgeMode(settings["bridge_mode"])
+    repl.set_bridge_mode(settings["bridge_mode"])
 
     # load plugins
     # split plugins with ',' or ' '

@@ -1,14 +1,5 @@
 from eudplib import *
-from ..table.tables import (
-    tb_Modifier,
-    tb_AllyStatus,
-    tb_Order,
-    tb_Player,
-    tb_PropState,
-    tb_Resource,
-    tb_Score,
-    tb_SwitchAction,
-)
+from repl.resources.table import tables as tb
 from . import *
 
 _actmap = EPDOffsetMap((
@@ -153,7 +144,7 @@ def _writeTransmission(epd):
     getWriter().write_f(", ")
     writeString(m.wavid)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Modifier), m.amount)
+    write_constant(EPD(tb.Modifier), m.amount)
     getWriter().write_f(", ")
     getWriter().write_decimal(m.time)
     getWriter().write_f(", ")
@@ -195,7 +186,7 @@ def _writeCreateUnitWithProperties(epd):
     getWriter().write_f(", ")
     writeLocation(m.locid1)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(", ")
     getWriter().write_decimal(m.player2) # @TODO property
     getWriter().write_f(")")
@@ -215,7 +206,7 @@ def _writeSetSwitch(epd):
     getWriter().write_f("SetSwitch(")
     writeSwitch(m.player2)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_SwitchAction), m.amount)
+    write_constant(EPD(tb.SwitchAction), m.amount)
     getWriter().write_f(")")
 
 
@@ -223,7 +214,7 @@ def _writeSetSwitch(epd):
 def _writeSetCountdownTimer(epd):
     m = _actmap(epd)
     getWriter().write_f("SetCountdownTimer(")
-    write_constant(EPD(tb_Modifier), m.amount)
+    write_constant(EPD(tb.Modifier), m.amount)
     getWriter().write_f(", ")
     getWriter().write_decimal(m.time)
     getWriter().write_f(")")
@@ -273,7 +264,7 @@ def _writeLeaderBoardControlAt(epd):
 def _writeLeaderBoardResources(epd):
     m = _actmap(epd)
     getWriter().write_f("LeaderBoardResources(")
-    write_constant(EPD(tb_Resource), m.unitid)
+    write_constant(EPD(tb.Resource), m.unitid)
     getWriter().write_f(", ")
     writeString(m.strid)
     getWriter().write_f(")")
@@ -293,7 +284,7 @@ def _writeLeaderBoardKills(epd):
 def _writeLeaderBoardScore(epd):
     m = _actmap(epd)
     getWriter().write_f("LeaderBoardScore(")
-    write_constant(EPD(tb_Score), m.unitid)
+    write_constant(EPD(tb.Score), m.unitid)
     getWriter().write_f(", ")
     writeString(m.strid)
     getWriter().write_f(")")
@@ -305,7 +296,7 @@ def _writeKillUnit(epd):
     getWriter().write_f("KillUnit(")
     write_unit(m.unitid)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(")")
 
 
@@ -323,7 +314,7 @@ def _writeKillUnitAt(epd):
     getWriter().write_f(", ")
     writeLocation(m.locid1)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(")")
 
 
@@ -333,7 +324,7 @@ def _writeRemoveUnit(epd):
     getWriter().write_f("RemoveUnit(")
     write_unit(m.unitid)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(")")
 
 
@@ -351,7 +342,7 @@ def _writeRemoveUnitAt(epd):
     getWriter().write_f(", ")
     writeLocation(m.locid1)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(")")
 
 
@@ -359,13 +350,13 @@ def _writeRemoveUnitAt(epd):
 def _writeSetResources(epd):
     m = _actmap(epd)
     getWriter().write_f("SetResources(")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Modifier), m.amount)
+    write_constant(EPD(tb.Modifier), m.amount)
     getWriter().write_f(", ")
     getWriter().write_decimal(m.player2)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Resource), m.unitid)
+    write_constant(EPD(tb.Resource), m.unitid)
     getWriter().write_f(")")
 
 
@@ -373,13 +364,13 @@ def _writeSetResources(epd):
 def _writeSetScore(epd):
     m = _actmap(epd)
     getWriter().write_f("SetScore(")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Modifier), m.amount)
+    write_constant(EPD(tb.Modifier), m.amount)
     getWriter().write_f(", ")
     getWriter().write_decimal(m.player2)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Score), m.unitid)
+    write_constant(EPD(tb.Score), m.unitid)
     getWriter().write_f(")")
 
 
@@ -413,7 +404,7 @@ def _writeUnMuteUnitSpeech(epd):
 def _writeLeaderBoardComputerPlayers(epd):
     m = _actmap(epd)
     getWriter().write_f("LeaderBoardComputerPlayers(")
-    write_constant(EPD(tb_PropState), m.amount)
+    write_constant(EPD(tb.PropState), m.amount)
     getWriter().write_f(")")
 
 
@@ -449,7 +440,7 @@ def _writeLeaderBoardGoalResources(epd):
     getWriter().write_f("LeaderBoardGoalResources(")
     getWriter().write_decimal(m.player2)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Resource), m.unitid)
+    write_constant(EPD(tb.Resource), m.unitid)
     getWriter().write_f(", ")
     writeString(m.strid)
     getWriter().write_f(")")
@@ -473,7 +464,7 @@ def _writeLeaderBoardGoalScore(epd):
     getWriter().write_f("LeaderBoardGoalScore(")
     getWriter().write_decimal(m.player2)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Score), m.unitid)
+    write_constant(EPD(tb.Score), m.unitid)
     getWriter().write_f(", ")
     writeString(m.strid)
     getWriter().write_f(")")
@@ -487,7 +478,7 @@ def _writeMoveLocation(epd):
     getWriter().write_f(", ")
     write_unit(m.unitid)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(", ")
     writeLocation(m.locid1)
     getWriter().write_f(")")
@@ -505,7 +496,7 @@ def _writeMoveUnit(epd):
     getWriter().write_f(", ")
     write_unit(m.unitid)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(", ")
     writeLocation(m.locid1)
     getWriter().write_f(", ")
@@ -533,11 +524,11 @@ def _writeSetNextScenario(epd):
 def _writeSetDoodadState(epd):
     m = _actmap(epd)
     getWriter().write_f("SetDoodadState(")
-    write_constant(EPD(tb_PropState), m.amount)
+    write_constant(EPD(tb.PropState), m.amount)
     getWriter().write_f(", ")
     write_unit(m.unitid)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(", ")
     writeLocation(m.locid1)
     getWriter().write_f(")")
@@ -547,11 +538,11 @@ def _writeSetDoodadState(epd):
 def _writeSetInvincibility(epd):
     m = _actmap(epd)
     getWriter().write_f("SetInvincibility(")
-    write_constant(EPD(tb_PropState), m.amount)
+    write_constant(EPD(tb.PropState), m.amount)
     getWriter().write_f(", ")
     write_unit(m.unitid)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(", ")
     writeLocation(m.locid1)
     getWriter().write_f(")")
@@ -567,7 +558,7 @@ def _writeCreateUnit(epd):
     getWriter().write_f(", ")
     writeLocation(m.locid1)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(")")
 
 
@@ -584,19 +575,19 @@ def _writeSetDeaths(epd):
         if EUDIf()(m.internal == 0x4353): # eudx
             getWriter().write_f("SetMemoryX(%H, ",
                 0x58A364 + 4*m.player1 + 48*m.unitid)
-            write_constant(EPD(tb_Modifier), m.amount)
+            write_constant(EPD(tb.Modifier), m.amount)
             getWriter().write_f(", %H(=%D), %H)", m.player2, m.player2, m.locid1)
         if EUDElse()():
             getWriter().write_f("SetMemory(%H, ",
                 0x58A364 + 4*m.player1 + 48*m.unitid)
-            write_constant(EPD(tb_Modifier), m.amount)
+            write_constant(EPD(tb.Modifier), m.amount)
             getWriter().write_f(", %H(=%D))", m.player2, m.player2)
         EUDEndIf()
     if EUDElse()():
         getWriter().write_f("SetDeaths(")
-        write_constant(EPD(tb_Player), m.player1)
+        write_constant(EPD(tb.Player), m.player1)
         getWriter().write_f(", ")
-        write_constant(EPD(tb_Modifier), m.amount)
+        write_constant(EPD(tb.Modifier), m.amount)
         getWriter().write_f(", ")
         getWriter().write_decimal(m.player2)
         getWriter().write_f(", ")
@@ -610,11 +601,11 @@ def _writeOrder(epd):
     getWriter().write_f("Order(")
     write_unit(m.unitid)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(", ")
     writeLocation(m.locid1)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Order), m.amount)
+    write_constant(EPD(tb.Order), m.amount)
     getWriter().write_f(", ")
     writeLocation(m.player2)
     getWriter().write_f(")")
@@ -640,11 +631,11 @@ def _writeGiveUnits(epd):
     getWriter().write_f(", ")
     write_unit(m.unitid)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(", ")
     writeLocation(m.locid1)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player2)
+    write_constant(EPD(tb.Player), m.player2)
     getWriter().write_f(")")
 
 
@@ -660,7 +651,7 @@ def _writeModifyUnitHitPoints(epd):
     getWriter().write_f(", ")
     write_unit(m.unitid)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(", ")
     writeLocation(m.locid1)
     getWriter().write_f(", ")
@@ -680,7 +671,7 @@ def _writeModifyUnitEnergy(epd):
     getWriter().write_f(", ")
     write_unit(m.unitid)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(", ")
     writeLocation(m.locid1)
     getWriter().write_f(", ")
@@ -700,7 +691,7 @@ def _writeModifyUnitShields(epd):
     getWriter().write_f(", ")
     write_unit(m.unitid)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(", ")
     writeLocation(m.locid1)
     getWriter().write_f(", ")
@@ -718,7 +709,7 @@ def _writeModifyUnitResourceAmount(epd):
         getWriter().write_decimal(m.amount)
     EUDEndIf()
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(", ")
     writeLocation(m.locid1)
     getWriter().write_f(", ")
@@ -740,7 +731,7 @@ def _writeModifyUnitHangarCount(epd):
     getWriter().write_f(", ")
     write_unit(m.unitid)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(", ")
     writeLocation(m.locid1)
     getWriter().write_f(")")
@@ -762,8 +753,8 @@ def _writeDraw(epd):
 def _writeSetAllianceStatus(epd):
     m = _actmap(epd)
     getWriter().write_f("SetAllianceStatus(")
-    write_constant(EPD(tb_Player), m.player1)
+    write_constant(EPD(tb.Player), m.player1)
     getWriter().write_f(", ")
-    write_constant(EPD(tb_AllyStatus), m.unitid)
+    write_constant(EPD(tb.AllyStatus), m.unitid)
     getWriter().write_f(")")
 

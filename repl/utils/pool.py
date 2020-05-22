@@ -1,5 +1,5 @@
 from eudplib import *
-from ..utils import f_raise_error
+from repl.utils import debug
 
 '''
 DbPool and VarPool allocates buffer as Db and EUDVarible respectively.
@@ -24,7 +24,7 @@ class DbPool:
         self.alloc_cnt += 1
         self.cur_epd += sz
         if EUDIf()(self.cur_epd >= (EPD(self.data) + self.size)):
-            f_raise_error("SC_REPL ERROR - DbPool.Alloc()")
+            debug.f_raise_error("SC_REPL ERROR - DbPool.Alloc()")
         EUDEndIf()
         EUDReturn(ret)
 
@@ -34,7 +34,7 @@ class DbPool:
         self.alloc_cnt -= 1
         last_epd = self.alloc_history[self.alloc_cnt]
         if EUDIfNot()(epd == last_epd):
-            f_raise_error("SC_REPL ERROR - DbPool.Free()")
+            debug.f_raise_error("SC_REPL ERROR - DbPool.Free()")
         EUDEndIf()
         self.cur_epd << last_epd
 
@@ -57,7 +57,7 @@ class VarPool:
         self.alloc_cnt += 1
         self.cur_ptr += sz * 72
         if EUDIf()(self.cur_ptr >= (self.data._value + 72*self.size)):
-            f_raise_error("SC_REPL ERROR - VarPool.Alloc()")
+            debug.f_raise_error("SC_REPL ERROR - VarPool.Alloc()")
         EUDEndIf()
         EUDReturn(ret)
 
@@ -67,6 +67,6 @@ class VarPool:
         self.alloc_cnt -= 1
         last_ptr = self.alloc_history[self.alloc_cnt]
         if EUDIfNot()(ptr == last_ptr):
-            f_raise_error("SC_REPL ERROR - VarPool.Free()")
+            debug.f_raise_error("SC_REPL ERROR - VarPool.Free()")
         EUDEndIf()
         self.cur_ptr << last_ptr

@@ -1,42 +1,44 @@
 from eudplib import *
+
 from eudplib.core.rawtrigger.strdict import (
     DefAIScriptDict,
     DefSwitchDict,
 )
 from eudplib.core.mapdata.stringmap import swmap, locmap
-from ...base import ReferenceTable, EUDByteRW
-from ...utils import EPDConstString
+from repl.utils.conststring import EPDConstString
+from repl.utils.eudbyterw import EUDByteRW
+from repl.utils.referencetable import ReferenceTable
 
-tb_swSub = ReferenceTable(
+swSub = ReferenceTable(
     DefSwitchDict.items(),
     key_f=EPDConstString, sortkey_f=lambda k,v:k)
-tb_swMap = ReferenceTable(
+swMap = ReferenceTable(
     swmap._s2id.items(),
     key_f=EPDConstString, sortkey_f=lambda k,v:k)
-tb_AIScript = ReferenceTable(
+AIScript = ReferenceTable(
     list(map(lambda a:(a[0], b2i4(a[1])), DefAIScriptDict.items())),
     key_f=EPDConstString, sortkey_f=lambda k,v:k)
-tb_Modifier = ReferenceTable([
+Modifier = ReferenceTable([
     ("SetTo", EncodeModifier(SetTo)),
     ("Add", EncodeModifier(Add)),
     ("Subtract", EncodeModifier(Subtract)),
 ], key_f=EPDConstString)
-tb_AllyStatus = ReferenceTable([
+AllyStatus = ReferenceTable([
     ("Enemy", EncodeAllyStatus(Enemy)),
     ("Ally", EncodeAllyStatus(Ally)),
     ("AlliedVictory", EncodeAllyStatus(AlliedVictory)),
 ], key_f=EPDConstString)
-tb_Comparison = ReferenceTable([
+Comparison = ReferenceTable([
     ("AtLeast", EncodeComparison(AtLeast)),
     ("AtMost", EncodeComparison(AtMost)),
     ("Exactly", EncodeComparison(Exactly)),
 ], key_f=EPDConstString)
-tb_Order = ReferenceTable([
+Order = ReferenceTable([
     ("Move", EncodeOrder(Move)),
     ("Patrol", EncodeOrder(Patrol)),
     ("Attack", EncodeOrder(Attack)),
 ], key_f=EPDConstString)
-tb_Player = ReferenceTable([
+Player = ReferenceTable([
     ("Player1", EncodePlayer(Player1)),
     ("Player2", EncodePlayer(Player2)),
     ("Player3", EncodePlayer(Player3)),
@@ -60,17 +62,17 @@ tb_Player = ReferenceTable([
     ("Force4", EncodePlayer(Force4)),
     ("NonAlliedVictoryPlayers", EncodePlayer(NonAlliedVictoryPlayers)),
 ], key_f=EPDConstString)
-tb_PropState = ReferenceTable([
+PropState = ReferenceTable([
     ("Enable", EncodePropState(Enable)),
     ("Disable", EncodePropState(Disable)),
     ("Toggle", EncodePropState(Toggle)),
 ], key_f=EPDConstString)
-tb_Resource = ReferenceTable([
+Resource = ReferenceTable([
     ("Ore", EncodeResource(Ore)),
     ("Gas", EncodeResource(Gas)),
     ("OreAndGas", EncodeResource(OreAndGas)),
 ], key_f=EPDConstString)
-tb_Score = ReferenceTable([
+Score = ReferenceTable([
     ("Total", EncodeScore(Total)),
     ("Units", EncodeScore(Units)),
     ("Buildings", EncodeScore(Buildings)),
@@ -80,13 +82,13 @@ tb_Score = ReferenceTable([
     ("KillsAndRazings", EncodeScore(KillsAndRazings)),
     ("Custom", EncodeScore(Custom)),
 ], key_f=EPDConstString)
-tb_SwitchAction = ReferenceTable([
+SwitchAction = ReferenceTable([
     ("Set", EncodeSwitchAction(Set)),
     ("Clear", EncodeSwitchAction(Clear)),
     ("Toggle", EncodeSwitchAction(Toggle)),
     ("Random", EncodeSwitchAction(Random)),
 ], key_f=EPDConstString)
-tb_SwitchState = ReferenceTable([
+SwitchState = ReferenceTable([
     ("Set", EncodeSwitchState(Set)),
     ("Cleared", EncodeSwitchState(Cleared)),
 ], key_f=EPDConstString)
@@ -94,11 +96,11 @@ tb_SwitchState = ReferenceTable([
 _locstrings = [bytes(100) for _ in range(255)]
 for k, v in locmap._s2id.items():
     _locstrings[v] = k + bytes(100-len(k))
-tb_Location = ReferenceTable(
+Location = ReferenceTable(
     list(map(lambda i:(EPD(Db(_locstrings[i])), i+1), range(255))))
 
 def GetLocationNameEPDPointer(location_idx):
-    return f_dwread_epd((EPD(tb_Location) - 1) + location_idx * 2)
+    return f_dwread_epd((EPD(Location) - 1) + location_idx * 2)
 
 @EUDFunc
 def SetLocationName(location_idx, new_string_offset):

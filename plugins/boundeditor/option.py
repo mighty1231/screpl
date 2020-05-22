@@ -17,7 +17,7 @@ from repl import (
     Application,
     AppTypedMethod,
     AppCommand,
-    argEncNumber,
+    ArgEncNumber,
     write_unit,
     writeLocation,
     PlayerSelectorApp

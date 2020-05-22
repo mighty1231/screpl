@@ -3,7 +3,7 @@ from repl import (
     Application,
     AppTypedMethod,
     AppCommand,
-    argEncNumber,
+    ArgEncNumber,
     print_f
 )
 
@@ -112,7 +112,7 @@ class CUnitDetailApp(Application):
 
         writer.write(0)
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def p(self, ptr):
         '''
         Set current cunit pointer as ptr

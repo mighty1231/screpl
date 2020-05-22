@@ -1,5 +1,5 @@
 from eudplib import *
-from repl import EPDConstString, StaticStruct
+from repl import EPDConstString, REPLStruct
 from . import app_manager
 
 """
@@ -83,7 +83,7 @@ def cw_rect(epd, off):
     writer.write_f("rect(l=%I16d, t=%I16d, r=%I16d, b=%I16d)",
         l, t, r, b)
 
-class CUnitMemberEntry(StaticStruct):
+class CUnitMemberEntry(REPLStruct):
     fields = [
         'off_epd',
         'off',

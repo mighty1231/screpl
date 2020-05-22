@@ -1,14 +1,8 @@
 from eudplib import *
 
 from ...base import SearchTableInv
-from ..table.tables import (
-    GetDefaultUnitNameEPDPointer,
-    GetLocationNameEPDPointer,
-    tb_swMap,
-    tb_swSub,
-    tb_AIScript
-)
-from ..offset import off_unitsdat_UnitMapString
+from repl.resources.table import tables as tb
+from repl.resources import offset
 
 _writer = None
 def getWriter():
@@ -30,7 +24,7 @@ def write_constant(table_epd, val):
 @EUDFunc
 def write_unit(val):
     if EUDIf()(val <= 227):
-        stringid = off_unitsdat_UnitMapString.read(val)
+        stringid = offset.unitsdat_UnitMapString.read(val)
         if EUDIfNot()(stringid == 0):
             getWriter().write(ord('"'))
             getWriter().write_STR_string(stringid)
@@ -38,16 +32,16 @@ def write_unit(val):
             EUDReturn()
         EUDEndIf()
     EUDEndIf()
-    getWriter().write_f("\"%E\"", GetDefaultUnitNameEPDPointer(val))
+    getWriter().write_f("\"%E\"", tb.GetDefaultUnitNameEPDPointer(val))
 
 @EUDFunc
 def writeLocation(val):
-    getWriter().write_f("\"%E\"", GetLocationNameEPDPointer(val))
+    getWriter().write_f("\"%E\"", tb.GetLocationNameEPDPointer(val))
 
 @EUDFunc
 def writeAIScript(val):
     name_epd = EUDVariable()
-    if EUDIf()(SearchTableInv(val, EPD(tb_AIScript), EPD(name_epd.getValueAddr())) == 1):
+    if EUDIf()(SearchTableInv(val, EPD(tb.AIScript), EPD(name_epd.getValueAddr())) == 1):
         getWriter().write_f('"%E"', name_epd)
     if EUDElse()():
         getWriter().write_decimal(val)
@@ -56,9 +50,9 @@ def writeAIScript(val):
 @EUDFunc
 def writeSwitch(val):
     name_epd = EUDVariable()
-    if EUDIf()(SearchTableInv(val, EPD(tb_swMap), EPD(name_epd.getValueAddr())) == 1):
+    if EUDIf()(SearchTableInv(val, EPD(tb.swMap), EPD(name_epd.getValueAddr())) == 1):
         getWriter().write_f('"%E"', name_epd)
-    if EUDElseIf()(SearchTableInv(val, EPD(tb_swSub), EPD(name_epd.getValueAddr())) == 1):
+    if EUDElseIf()(SearchTableInv(val, EPD(tb.swSub), EPD(name_epd.getValueAddr())) == 1):
         getWriter().write_f('"%E"', name_epd)
     if EUDElse()():
         getWriter().write_decimal(val)

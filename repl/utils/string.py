@@ -6,7 +6,7 @@ def f_strcmp_ptrepd(s1, s2):
 
 @EUDFunc
 def f_strlen(s):
-    from ..base.eudbyterw import EUDByteRW
+    from ..utils.eudbyterw import EUDByteRW
     reader = EUDByteRW()
     cnt = EUDVariable()
 

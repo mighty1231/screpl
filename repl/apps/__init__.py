@@ -1,5 +1,3 @@
-from ..core import AppCommand, get_app_manager
-from ..resources.encoder.const import argEncNumber
 from .static import StaticApp
 from .scroll import ScrollApp
 from .logger import Logger
