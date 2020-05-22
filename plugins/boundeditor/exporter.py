@@ -15,8 +15,8 @@ TUI - Exporting
 
 from eudplib import *
 
-from repl.core.application import Application
-from repl.writer import write_unit
+from screpl.core.application import Application
+from screpl.writer import write_unit
 
 from ..unit import UnitManagerApp
 from . import (
@@ -30,7 +30,7 @@ from . import (
     g_runner_unit,
     g_start_location
 )
-from repl.writer.scmd import writeTrigger
+from screpl.writer.scmd import writeTrigger
 
 MODE_CONFIG    = 0
 MODE_EXPORTING = 1

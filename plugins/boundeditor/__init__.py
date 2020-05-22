@@ -1,8 +1,8 @@
 from eudplib import *
 
-from repl.apps.repl import REPL
-from repl.main import get_app_manager
-from repl.core.appcommand import AppCommand
+from screpl.apps.repl import REPL
+from screpl.main import get_app_manager
+from screpl.core.appcommand import AppCommand
 
 # plugin dependencies
 from .. import location, unit
@@ -60,8 +60,8 @@ p_actionArrayEPD = EUDArray([
 ])
 
 def writePlayer(value):
-    from repl.writer import write_constant
-    from repl.resources.table.tables import Player
+    from screpl.writer import write_constant
+    from screpl.resources.table.tables import Player
     write_constant(EPD(Player), value)
 
 # pattern, detail

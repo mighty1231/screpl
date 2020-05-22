@@ -1,7 +1,7 @@
 from eudplib import *
 
-from repl.core.application import Application
-from repl.utils.debug import f_raise_warning
+from screpl.core.application import Application
+from screpl.utils.debug import f_raise_warning
 
 from . import *
 

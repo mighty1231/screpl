@@ -1,12 +1,12 @@
 from eudplib import *
 
-from repl.core.appcommand import AppCommand
-from repl.core.application import Application
-from repl.core.appmethod import AppTypedMethod
-from repl.encoder.const import ArgEncNumber
-from repl.monitor.func import REPLMonitorF
-from repl.monitor.profile import REPLMonitorPush
-from repl.monitor.profile import REPLMonitorPop
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+from screpl.core.appmethod import AppTypedMethod
+from screpl.encoder.const import ArgEncNumber
+from screpl.monitor.func import REPLMonitorF
+from screpl.monitor.profile import REPLMonitorPush
+from screpl.monitor.profile import REPLMonitorPop
 
 from . import app_manager
 

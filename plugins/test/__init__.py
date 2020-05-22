@@ -1,6 +1,6 @@
-from repl.apps.repl import REPL
-from repl.core.appcommand import AppCommand
-from repl.main import get_app_manager
+from screpl.apps.repl import REPL
+from screpl.core.appcommand import AppCommand
+from screpl.main import get_app_manager
 
 app_manager = get_app_manager()
 

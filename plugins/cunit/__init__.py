@@ -1,9 +1,9 @@
 from eudplib import *
 
-from repl.apps.repl import REPL
-from repl.core.appcommand import AppCommand
-from repl.main import get_app_manager
-from repl.utils.array import REPLArray
+from screpl.apps.repl import REPL
+from screpl.core.appcommand import AppCommand
+from screpl.main import get_app_manager
+from screpl.utils.array import REPLArray
 
 # initialize variables
 app_manager = get_app_manager()

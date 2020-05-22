@@ -13,10 +13,10 @@ Expected TUI
 
 from eudplib import *
 
-from repl.core.application import Application
-from repl.encoder.action import encodeAction_epd
-from repl.writer import writeLocation
-from repl.utils.debug import f_raise_warning
+from screpl.core.application import Application
+from screpl.encoder.action import encodeAction_epd
+from screpl.writer import writeLocation
+from screpl.utils.debug import f_raise_warning
 
 from ..location.rect import drawRectangle
 from .detail import DetailedActionApp

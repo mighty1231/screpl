@@ -1,7 +1,7 @@
 from eudplib import *
 
 from . import app_manager, mapw, maph
-from repl.resources import offset
+from screpl.resources import offset
 
 @EUDFunc
 def drawRectangle(location, frame, frame_period):

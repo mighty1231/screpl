@@ -1,6 +1,6 @@
 from eudplib import *
 import importlib, re
-import repl.main as main
+import screpl.main as main
 
 default_settings = {
     'superuser'     : 'P1',

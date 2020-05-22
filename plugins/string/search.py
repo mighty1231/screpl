@@ -40,9 +40,9 @@ code
 '''
 from eudplib import *
 
-from repl.core.application import Application
-from repl.utils.eudbyterw import EUDByteRW
-from repl.utils.string import f_strlen
+from screpl.core.application import Application
+from screpl.utils.eudbyterw import EUDByteRW
+from screpl.utils.string import f_strlen
 
 from . import *
 

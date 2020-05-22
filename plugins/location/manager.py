@@ -1,8 +1,8 @@
 from eudplib import *
 
-from repl.core.appcommand import AppCommand
-from repl.core.application import Application
-from repl.resources.table.tables import GetLocationNameEPDPointer
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+from screpl.resources.table.tables import GetLocationNameEPDPointer
 
 from . import app_manager, keymap, FRAME_PERIOD
 from .rect import drawRectangle

@@ -1,9 +1,9 @@
 from eudplib import *
-from repl.apps.scroll import ScrollApp
-from repl.utils.referencetable import ReferenceTable
-from repl.core.appcommand import AppCommand
-from repl.core.appmethod import AppTypedMethod
-from repl.writer import write_unit
+from screpl.apps.scroll import ScrollApp
+from screpl.utils.referencetable import ReferenceTable
+from screpl.core.appcommand import AppCommand
+from screpl.core.appmethod import AppTypedMethod
+from screpl.writer import write_unit
 
 from . import death_units, watched_eud_vars, accessed_resources
 

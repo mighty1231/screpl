@@ -1,7 +1,7 @@
 from eudplib import *
 
-from repl.core.application import Application
-from repl.utils.eudbyterw import EUDByteRW
+from screpl.core.application import Application
+from screpl.utils.eudbyterw import EUDByteRW
 
 from . import app_manager
 

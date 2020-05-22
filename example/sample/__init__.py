@@ -1,7 +1,7 @@
 ''' plugin sample '''
 
 from eudplib import *
-from repl import REPL, get_app_manager, AppCommand, EUDByteRW, ArgEncNumber
+from screpl import REPL, get_app_manager, AppCommand, EUDByteRW, ArgEncNumber
 from .myapp import MyApp
 
 # MY_COMMAND decides how to invoke the command in-game

@@ -11,8 +11,8 @@ Expected TUI
 '''
 from eudplib import *
 
-from repl.core.application import Application
-from repl.writer.action import write_action_epd
+from screpl.core.application import Application
+from screpl.writer.action import write_action_epd
 
 from . import app_manager, focused_pattern_id, p_actionCount, p_actionArrayEPD
 from ..location.rect import drawRectangle

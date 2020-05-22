@@ -5,9 +5,9 @@ option - what to view
 '''
 from eudplib import *
 
-from repl.core.appcommand import AppCommand
-from repl.core.application import Application
-from repl.encoder.const import ArgEncNumber
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+from screpl.encoder.const import ArgEncNumber
 
 from . import *
 from .detail import CUnitDetailApp

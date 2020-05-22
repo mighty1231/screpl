@@ -1,11 +1,11 @@
 from eudplib import *
 
 
-from repl.apps.repl import REPL
-from repl.core.appcommand import AppCommand
-from repl.main import get_app_manager
-from repl.utils.conststring import EPDConstString
-from repl.utils.referencetable import ReferenceTable
+from screpl.apps.repl import REPL
+from screpl.core.appcommand import AppCommand
+from screpl.main import get_app_manager
+from screpl.utils.conststring import EPDConstString
+from screpl.utils.referencetable import ReferenceTable
 
 # initialize global variables
 manager = get_app_manager()

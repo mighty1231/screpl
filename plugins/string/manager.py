@@ -1,10 +1,10 @@
 from eudplib import *
 
-from repl.core.appcommand import AppCommand
-from repl.core.application import Application
-from repl.encoder.const import ArgEncNumber
-from repl.utils.eudbyterw import EUDByteRW
-from repl.main import is_bridge_mode
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+from screpl.encoder.const import ArgEncNumber
+from screpl.utils.eudbyterw import EUDByteRW
+from screpl.main import is_bridge_mode
 
 from . import *
 

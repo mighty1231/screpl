@@ -14,12 +14,12 @@
 
 from eudplib import *
 
-from repl.apps.selector import PlayerSelectorApp
-from repl.core.appcommand import AppCommand
-from repl.core.application import Application
-from repl.encoder.const import ArgEncNumber
-from repl.writer import write_unit
-from repl.writer import writeLocation
+from screpl.apps.selector import PlayerSelectorApp
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+from screpl.encoder.const import ArgEncNumber
+from screpl.writer import write_unit
+from screpl.writer import writeLocation
 
 from ..location import LocationManagerApp
 from ..unit import UnitManagerApp

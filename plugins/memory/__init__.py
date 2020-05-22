@@ -1,7 +1,7 @@
-from repl.apps.repl import REPL
-from repl.core.appcommand import AppCommand
-from repl.encoder.const import ArgEncNumber
-from repl.main import get_app_manager
+from screpl.apps.repl import REPL
+from screpl.core.appcommand import AppCommand
+from screpl.encoder.const import ArgEncNumber
+from screpl.main import get_app_manager
 
 from .memoryapp import MemoryApp
 

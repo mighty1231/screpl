@@ -1,10 +1,10 @@
 from eudplib import *
 
-from repl.apps.repl import REPL
-from repl.core.appcommand import AppCommand
-from repl.encoder.const import ArgEncNumber
-from repl.main import get_app_manager
-from repl.main import is_bridge_mode
+from screpl.apps.repl import REPL
+from screpl.core.appcommand import AppCommand
+from screpl.encoder.const import ArgEncNumber
+from screpl.main import get_app_manager
+from screpl.main import is_bridge_mode
 
 # initialize variables
 app_manager = get_app_manager()

@@ -21,7 +21,7 @@ Case 5. Previously launched app is dead,
 '''
 
 from eudplib import *
-from repl import (
+from screpl import (
     Application,
     AppTypedMethod,
     AppCommand,

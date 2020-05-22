@@ -1,7 +1,7 @@
 from eudplib import *
 
-from repl.core.application import Application
-from repl.writer import write_unit
+from screpl.core.application import Application
+from screpl.writer import write_unit
 
 from . import app_manager
 

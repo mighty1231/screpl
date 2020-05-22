@@ -1,6 +1,6 @@
 from eudplib import *
 
-from repl.core.application import Application
+from screpl.core.application import Application
 
 from . import *
 

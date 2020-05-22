@@ -14,8 +14,8 @@ Expected TUI
 '''
 from eudplib import *
 
-from repl.core.application import Application
-from repl.writer import writeLocation
+from screpl.core.application import Application
+from screpl.writer import writeLocation
 
 from . import (
     app_manager,

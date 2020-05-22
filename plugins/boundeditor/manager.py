@@ -1,9 +1,9 @@
 from eudplib import *
 
-from repl.core.appcommand import AppCommand
-from repl.core.application import Application
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
 
-from repl.main import is_bridge_mode
+from screpl.main import is_bridge_mode
 
 from . import app_manager, su_id
 from .option import OptionApp

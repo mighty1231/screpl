@@ -1,9 +1,9 @@
 from eudplib import *
 
-from repl.core.application import Application
-from repl.core.appcommand import AppCommand
-from repl.encoder.const import ArgEncNumber
-from repl.utils.array import REPLArray
+from screpl.core.application import Application
+from screpl.core.appcommand import AppCommand
+from screpl.encoder.const import ArgEncNumber
+from screpl.utils.array import REPLArray
 
 from . import app_manager
 

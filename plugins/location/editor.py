@@ -1,11 +1,11 @@
 from eudplib import *
 
-from repl.apps.chatreader import ChatReaderApp
-from repl.apps.repl import REPL
-from repl.core.appcommand import AppCommand
-from repl.core.application import Application
-from repl.encoder.const import ArgEncNumber
-from repl.resources.table.tables import GetLocationNameEPDPointer
+from screpl.apps.chatreader import ChatReaderApp
+from screpl.apps.repl import REPL
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+from screpl.encoder.const import ArgEncNumber
+from screpl.resources.table.tables import GetLocationNameEPDPointer
 
 from . import app_manager, keymap, FRAME_PERIOD
 from .rect import drawRectangle

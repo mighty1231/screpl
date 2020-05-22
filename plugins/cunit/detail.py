@@ -1,9 +1,9 @@
 from eudplib import *
 
-from repl.core.appcommand import AppCommand
-from repl.core.application import Application
-from repl.encoder.const import ArgEncNumber
-from repl.utils.debug import f_raise_warning
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+from screpl.encoder.const import ArgEncNumber
+from screpl.utils.debug import f_raise_warning
 
 from . import *
 from .cunitrw import cu_members, CUnitMemberEntry
