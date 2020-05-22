@@ -1,24 +1,23 @@
 from eudplib import *
 
-from ...utils import EPDConstString
-from . import getWriter
+from repl.utils.conststring import EPDConstString
+from repl.main import get_main_writer
 
 @EUDFunc
 def write_scmdunit_var(unit):
     if EUDIf()(unit >= 233):
-        getWriter().write_decimal(unit)
+        get_main_writer().write_decimal(unit)
     if EUDElseIf()(unit == 228):
-        getWriter().write_decimal(unit)
+        get_main_writer().write_decimal(unit)
     if EUDElse()():
-        getWriter().write_strepd(SCMDDefaultUnitArray[unit])
+        get_main_writer().write_strepd(SCMDDefaultUnitArray[unit])
     EUDEndIf()
 
 def write_scmdunit(unit):
-    from ...core.appmanager import get_app_manager
     if IsEUDVariable(unit):
         write_scmdunit_var(unit)
     else:
-        getWriter().write_f(SCMDDefaultUnits[unit])
+        get_main_writer().write_f(SCMDDefaultUnits[unit])
 
 SCMDDefaultUnits = [
     "\"Terran Marine\"",

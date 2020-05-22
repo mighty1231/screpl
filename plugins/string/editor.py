@@ -1,8 +1,7 @@
 from eudplib import *
-from repl import (
-    Application,
-    f_raise_warning
-)
+
+from repl.core.application import Application
+from repl.utils.debug import f_raise_warning
 
 from . import *
 

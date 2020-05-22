@@ -1,10 +1,13 @@
 from eudplib import *
 
-from repl import REPL, get_app_manager, AppCommand, EUDByteRW, f_raise_warning
+from repl.apps.repl import REPL
+from repl.core.appcommand import AppCommand
+from repl.utils.debug import f_raise_warning
+from repl.utils.eudbyterw import EUDByteRW
+from repl.main import get_app_manager
 
 # initialize variables
 app_manager = get_app_manager()
-superuser = app_manager.superuser
 STRSection, STRSection_epd = f_dwepdread_epd(EPD(0x5993D4))
 
 STRING_BUFFER_SZ = 200000

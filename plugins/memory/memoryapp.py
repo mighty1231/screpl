@@ -1,10 +1,8 @@
 from eudplib import *
-from repl import (
-    Application,
-    AppCommand,
-    get_app_manager,
-    ArgEncNumber
-)
+from repl.core.appcommand import AppCommand
+from repl.core.application import Application
+from repl.encoder.const import ArgEncNumber
+from repl.main import get_app_manager
 
 manager = get_app_manager()
 

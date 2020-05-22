@@ -14,10 +14,12 @@ Expected TUI
 '''
 from eudplib import *
 
-from repl import Application, writeLocation
+from repl.core.application import Application
+from repl.writer import writeLocation
+
 from . import (
     app_manager,
-    superuser,
+    su_id,
     g_runner_unit,
     g_start_location,
     executePattern,
@@ -65,8 +67,8 @@ class TestPatternApp(Application):
 
         # Create Tester Unit for every death
         Trigger(
-            conditions = [Bring(superuser, Exactly, 0, g_runner_unit, g_start_location)],
-            actions = [CreateUnit(1, g_runner_unit, g_start_location, superuser)]
+            conditions = [Bring(su_id, Exactly, 0, g_runner_unit, g_start_location)],
+            actions = [CreateUnit(1, g_runner_unit, g_start_location, su_id)]
         )
 
         # Timer

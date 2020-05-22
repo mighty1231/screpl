@@ -1,5 +1,5 @@
 """BridgeBlock class and its metaclass"""
-from eudplib import ConstExpr
+from eudplib import ConstExpr, b2i4
 
 class _BB_Metaclass(type):
     """Supporting class for BridgeBlock

@@ -1,11 +1,9 @@
 from eudplib import *
-from repl import (
-    Application,
-    AppTypedMethod,
-    AppCommand,
-    ArgEncNumber,
-    print_f
-)
+
+from repl.core.appcommand import AppCommand
+from repl.core.application import Application
+from repl.encoder.const import ArgEncNumber
+from repl.utils.debug import f_raise_warning
 
 from . import *
 from .cunitrw import cu_members, CUnitMemberEntry
@@ -132,4 +130,4 @@ class CUnitDetailApp(Application):
         EUDReturn()
 
         label_error << NextTrigger()
-        print_f("Warning: ptr %D is not valid CUnit pointer", ptr)
+        f_raise_warning("Warning: ptr %D is not valid CUnit pointer", ptr)

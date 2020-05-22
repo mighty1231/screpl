@@ -1,6 +1,8 @@
 from eudplib import *
 
-from repl import Application, write_unit
+from repl.core.application import Application
+from repl.writer import write_unit
+
 from . import app_manager
 
 # app-specific initializing arguments

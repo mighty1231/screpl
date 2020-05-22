@@ -1,5 +1,6 @@
 from eudplib import *
-from repl import Application
+
+from repl.core.application import Application
 
 from . import *
 

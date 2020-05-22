@@ -112,16 +112,16 @@ class BridgeRegion(EUDObject):
 
             ############# from bridge ###############
             # read command
-            if EUDIfNot()(Memory(region._command, Exactly, 0)):
-                f_repmovsd_epd(EPD(buf_command), EPD(region._command), 300//4)
+            if EUDIfNot()(Memory(self._command, Exactly, 0)):
+                f_repmovsd_epd(EPD(buf_command), EPD(self._command), 300//4)
 
                 # notify command is read
-                DoActions(SetMemory(region._command, SetTo, 0))
+                DoActions(SetMemory(self._command, SetTo, 0))
             EUDEndIf()
 
             ############## to bridge ################
             # frame Count
-            SeqCompute([(EPD(region._frameCount),
+            SeqCompute([(EPD(self._frameCount),
                          SetTo,
                          main.get_app_manager().current_frame_number)])
 

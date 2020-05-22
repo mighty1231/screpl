@@ -6,6 +6,8 @@ from repl.apps import repl
 from repl.bridge_server import bridge
 from repl.core import AppManager, AppCommand
 from repl.encoder.const import ArgEncNumber
+from repl.utils.debug import f_printf
+from repl.utils.debug import f_raise_error
 from repl.utils.eudbyterw import EUDByteRW
 from repl.utils.string import f_strlen
 
@@ -181,7 +183,7 @@ def _cmd_trig_timer_off(self):
 def _cmd_turbo(self):
     """Toggle turbo"""
     writer = repl.REPL.get_output_writer()
-    if EUDIf(_trigger_timer.Exactly(-1)):
+    if EUDIf()(_trigger_timer.Exactly(-1)):
         _trigger_timer << 1
         writer.write_f("\x16turbo \x07ON")
     if EUDElse()():
@@ -193,7 +195,7 @@ def _cmd_turbo(self):
 def _cmd_eudturbo(self):
     """Toggle eudturbo"""
     writer = repl.REPL.get_output_writer()
-    if EUDIf(_trigger_timer.Exactly(-1)):
+    if EUDIf()(_trigger_timer.Exactly(-1)):
         _trigger_timer << 0
         writer.write_f("eudturbo \x07ON")
     if EUDElse()():
@@ -204,10 +206,10 @@ def _cmd_eudturbo(self):
 def run():
     """Run main loop of SC-REPL"""
     # turbo mode
-    repl.REPL.addCommand("timer", _cmd_trig_timer)
-    repl.REPL.addCommand("timerOff", _cmd_trig_timer_off)
-    repl.REPL.addCommand("turbo", _cmd_turbo)
-    repl.REPL.addCommand("eudturbo", _cmd_eudturbo)
+    repl.REPL.add_command("timer", _cmd_trig_timer)
+    repl.REPL.add_command("timerOff", _cmd_trig_timer_off)
+    repl.REPL.add_command("turbo", _cmd_turbo)
+    repl.REPL.add_command("eudturbo", _cmd_eudturbo)
     if EUDIfNot()(_trigger_timer.Exactly(-1)):
         DoActions(SetMemory(0x6509A0, SetTo, _trigger_timer))
     EUDEndIf()

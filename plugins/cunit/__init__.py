@@ -1,10 +1,12 @@
 from eudplib import *
 
-from repl import REPL, get_app_manager, AppCommand, REPLArray
+from repl.apps.repl import REPL
+from repl.core.appcommand import AppCommand
+from repl.main import get_app_manager
+from repl.utils.array import REPLArray
 
 # initialize variables
 app_manager = get_app_manager()
-superuser = app_manager.superuser
 
 # members
 from .cunitrw import cu_members

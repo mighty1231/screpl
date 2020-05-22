@@ -1,13 +1,15 @@
 from eudplib import *
 
-from repl import REPL, get_app_manager, AppCommand
+from repl.apps.repl import REPL
+from repl.main import get_app_manager
+from repl.core.appcommand import AppCommand
 
 # plugin dependencies
 from .. import location, unit
 
 # initialize variables
 app_manager = get_app_manager()
-superuser = app_manager.superuser
+su_id = app_manager.get_superuser_id()
 
 computer_player_initvar = -1
 for i in range(7, -1, -1):
@@ -58,9 +60,9 @@ p_actionArrayEPD = EUDArray([
 ])
 
 def writePlayer(value):
-    from repl.resources.writer import write_constant
-    from repl.resources.table.tables import tb_Player
-    write_constant(EPD(tb_Player), value)
+    from repl.writer import write_constant
+    from repl.resources.table.tables import Player
+    write_constant(EPD(Player), value)
 
 # pattern, detail
 focused_pattern_id = EUDVariable(0)

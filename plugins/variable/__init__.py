@@ -1,6 +1,11 @@
 from eudplib import *
 
-from repl import REPL, get_app_manager, AppCommand, EPDConstString, ReferenceTable
+
+from repl.apps.repl import REPL
+from repl.core.appcommand import AppCommand
+from repl.main import get_app_manager
+from repl.utils.conststring import EPDConstString
+from repl.utils.referencetable import ReferenceTable
 
 # initialize global variables
 manager = get_app_manager()

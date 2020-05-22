@@ -376,12 +376,15 @@ class AppManager:
 
     @EUDMethod
     def exportAppOutputToBridge(self, src_buffer, size):
-        from ..bridge_server.appoutput import (
+        from repl.bridge_server.blocks.appoutput import (
             APP_OUTPUT_MAXSIZE,
             appOutputSize,
-            appOutputBuffer
+            appOutputBuffer,
         )
-        assert self.isBridgeMode()
+        from repl.main import is_bridge_mode
+
+        if not is_bridge_mode():
+            raise RuntimeError("Currently bridge is not inactivated")
 
         if EUDIfNot()(appOutputSize == 0):
             EUDReturn(0)
@@ -408,7 +411,7 @@ class AppManager:
         '''
         return main.get_main_writer()
 
-    def clean_text():
+    def clean_text(self):
         """Cleans text UI of previous app."""
         EUDIfNot()(main.is_blind_mode())
         f_printf("\n" * 12)

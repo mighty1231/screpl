@@ -13,12 +13,10 @@ TUI - Exporting
  3.
 '''
 
-
 from eudplib import *
-from repl import (
-    Application,
-    write_unit
-)
+
+from repl.core.application import Application
+from repl.writer import write_unit
 
 from ..unit import UnitManagerApp
 from . import (
@@ -32,7 +30,7 @@ from . import (
     g_runner_unit,
     g_start_location
 )
-from repl.resources.scmdtrigwriter import writeTrigger
+from repl.writer.scmd import writeTrigger
 
 MODE_CONFIG    = 0
 MODE_EXPORTING = 1

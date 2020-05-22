@@ -1,4 +1,8 @@
-from repl import REPL, get_app_manager, AppCommand, ArgEncNumber
+from repl.apps.repl import REPL
+from repl.core.appcommand import AppCommand
+from repl.encoder.const import ArgEncNumber
+from repl.main import get_app_manager
+
 from .memoryapp import MemoryApp
 
 manager = get_app_manager()

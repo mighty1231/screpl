@@ -1,5 +1,9 @@
 from eudplib import *
-from repl import ScrollApp, ReferenceTable, AppTypedMethod, write_unit
+from repl.apps.scroll import ScrollApp
+from repl.utils.referencetable import ReferenceTable
+from repl.core.appcommand import AppCommand
+from repl.core.appmethod import AppTypedMethod
+from repl.writer import write_unit
 
 from . import death_units, watched_eud_vars, accessed_resources
 

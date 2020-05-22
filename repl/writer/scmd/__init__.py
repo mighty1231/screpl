@@ -1,12 +1,5 @@
 from eudplib import *
-
-_writer = None
-def getWriter():
-    global _writer
-    if _writer is None:
-        from ...core import get_app_manager
-        _writer = get_app_manager().getWriter()
-    return _writer
+from repl.main import get_main_writer
 
 def makeSCMDConstWriter(encoder, kvmap):
     @EUDFunc
@@ -14,9 +7,9 @@ def makeSCMDConstWriter(encoder, kvmap):
         for i, (k, v) in enumerate(kvmap):
             _br = EUDIf if i == 0 else EUDElseIf
             _br()(var.Exactly(encoder(k)))
-            getWriter().write_f(v)
+            get_main_writer().write_f(v)
         EUDElse()()
-        getWriter().write_decimal(var)
+        get_main_writer().write_decimal(var)
         EUDEndIf()
 
     def write(value):
@@ -25,17 +18,17 @@ def makeSCMDConstWriter(encoder, kvmap):
         else:
             for k, v in kvmap:
                 if encoder(k) == encoder(value):
-                    getWriter().write_f(v)
+                    get_main_writer().write_f(v)
                     return
-            getWriter().write_decimal(encoder(value))
+            get_main_writer().write_decimal(encoder(value))
 
     return write
 
 def SCMDWriteNumber(value):
     if IsEUDVariable(value):
-        getWriter().write_decimal(value)
+        get_main_writer().write_decimal(value)
     else:
-        getWriter().write_f(str(value))
+        get_main_writer().write_f(str(value))
 
 def writeTrigger(player, conditions, actions, preserved = True):
     from .condition import SCMDWriteCondition
@@ -46,28 +39,28 @@ def writeTrigger(player, conditions, actions, preserved = True):
     actions = (EUDVariable(2), action_array_epd)
     '''
 
-    getWriter().write_f("Trigger(")
+    get_main_writer().write_f("Trigger(")
     SCMDWritePlayer(player)
 
-    getWriter().write_f("){\nConditions:\n")
+    get_main_writer().write_f("){\nConditions:\n")
     for cond in conditions:
         if type(cond) == str:
-            getWriter().write_f(cond)
+            get_main_writer().write_f(cond)
         elif type(cond) == tuple:
-            getWriter().write_f(*cond)
+            get_main_writer().write_f(*cond)
         elif type(cond) == Condition:
             SCMDWriteCondition(cond)
         else:
             raise RuntimeError("Unknown type condition {}".format(cond))
 
-    getWriter().write_f("\nActions:\n")
+    get_main_writer().write_f("\nActions:\n")
 
     if isinstance(actions, list):
         for act in actions:
             if type(act) == str:
-                getWriter().write_f(act)
+                get_main_writer().write_f(act)
             elif type(act) == tuple:
-                getWriter().write_f(*act)
+                get_main_writer().write_f(*act)
             elif type(act) == Action:
                 write_scmdaction(act)
             else:
@@ -86,8 +79,8 @@ def writeTrigger(player, conditions, actions, preserved = True):
         EUDEndInfLoop()
 
     if preserved:
-        getWriter().write_f("Preserve Trigger();\n")
-    getWriter().write_f("}\n\n")
+        get_main_writer().write_f("Preserve Trigger();\n")
+    get_main_writer().write_f("}\n\n")
 
 
 SCMDWritePlayer = makeSCMDConstWriter(EncodePlayer, [

@@ -40,8 +40,11 @@ code
 '''
 from eudplib import *
 
+from repl.core.application import Application
+from repl.utils.eudbyterw import EUDByteRW
+from repl.utils.string import f_strlen
+
 from . import *
-from repl import Application, f_strlen, EUDByteRW
 
 MAX_SEARCH_CNT = 4096
 LINE_BUF_SZ = 300

@@ -1,13 +1,12 @@
 from eudplib import *
-from repl import (
-    Application,
-    AppCommand,
-    AppTypedMethod,
-    ArgEncNumber,
-    REPLMonitorPush,
-    REPLMonitorPop,
-    REPLMonitorF
-)
+
+from repl.core.appcommand import AppCommand
+from repl.core.application import Application
+from repl.core.appmethod import AppTypedMethod
+from repl.encoder.const import ArgEncNumber
+from repl.monitor.func import REPLMonitorF
+from repl.monitor.profile import REPLMonitorPush
+from repl.monitor.profile import REPLMonitorPop
 
 from . import app_manager
 

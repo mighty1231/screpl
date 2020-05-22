@@ -14,7 +14,7 @@ class BlindModeDisplayBlock(block.BridgeBlock):
 
     def UpdateContent(self):
         app_manager = main.get_app_manager()
-        if EUDIf()(app_manager.is_blind_mode == 1):
+        if EUDIf()(main.is_blind_mode()):
             f_repmovsd_epd(
                 EPD(self),
                 EPD(app_manager.display_buffer),

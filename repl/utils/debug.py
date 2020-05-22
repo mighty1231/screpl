@@ -38,9 +38,9 @@ def f_raise_error(txt):
     _print_buf()
     DoActions(SetMemory(0xDEADBEEF ^ 0xFFFFFFFF, SetTo, 0))
 
-def f_raise_warning(txt):
+def f_raise_warning(*args):
     _get_writer().seekepd(EPD(_buf))
-    _get_writer().write_strepd(EPDConstString(txt))
+    _get_writer().write_f(*args)
     _get_writer().write(0)
     _print_buf()
 

@@ -1,11 +1,15 @@
 from eudplib import *
 
-from repl import REPL, get_app_manager, AppCommand, ArgEncNumber
+from repl.apps.repl import REPL
+from repl.core.appcommand import AppCommand
+from repl.encoder.const import ArgEncNumber
+from repl.main import get_app_manager
+from repl.main import is_bridge_mode
 
 # initialize variables
 app_manager = get_app_manager()
 
-if not app_manager.isBridgeMode():
+if not is_bridge_mode():
     raise RuntimeError("Turn on the bridge mode to use [dump] plugin")
 
 # make commands

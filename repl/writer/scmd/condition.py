@@ -1,6 +1,7 @@
 from eudplib import *
-from ..writer import writeLocation
-from ..writer.condition import _condmap
+from repl.main import get_main_writer
+from repl.writer import writeLocation
+from repl.writer.condition import _condmap
 from . import *
 from .unit import write_scmdunit
 
@@ -15,30 +16,30 @@ def SCMDWriteCondition(cond):
     elif condtype == 15:
         _writeDeaths(cond)
     elif condtype == 22:
-        getWriter().write_f("Always();\n")
+        get_main_writer().write_f("Always();\n")
     else:
         raise RuntimeError("Unknown condition type %d" % condtype)
 
 def _writeDeaths(cond):
     assert cond.fields[8] == 0, "eudx is currently not supported"
 
-    getWriter().write_f("Deaths(")
+    get_main_writer().write_f("Deaths(")
     SCMDWritePlayer(cond.fields[1])
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_scmdunit(cond.fields[3])
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     SCMDWriteComparison(cond.fields[4])
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     SCMDWriteNumber(cond.fields[2])
-    getWriter().write_f(");\n")
+    get_main_writer().write_f(");\n")
 
 def _writeCommand(cond):
-    getWriter().write_f("Command(")
+    get_main_writer().write_f("Command(")
     SCMDWritePlayer(cond.fields[1])
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_scmdunit(cond.fields[3])
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     SCMDWriteComparison(cond.fields[4])
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     SCMDWriteNumber(cond.fields[2])
-    getWriter().write_f(");\n")
+    get_main_writer().write_f(");\n")

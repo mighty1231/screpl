@@ -13,12 +13,16 @@ Expected TUI
 
 from eudplib import *
 
-from repl import Application, writeLocation, encodeAction_epd, f_raise_warning
+from repl.core.application import Application
+from repl.encoder.action import encodeAction_epd
+from repl.writer import writeLocation
+from repl.utils.debug import f_raise_warning
+
 from ..location.rect import drawRectangle
 from .detail import DetailedActionApp
 from . import (
     app_manager,
-    superuser,
+    su_id,
     MAX_ACTION_COUNT,
     focused_pattern_id,
     g_effectplayer,
@@ -265,7 +269,7 @@ class PatternApp(Application):
             # confirm
             if EUDIfNot()(chosen_location.Exactly(0)):
                 cp = f_getcurpl()
-                f_setcurpl(superuser)
+                f_setcurpl(su_id)
                 DoActions(PlayWAV("sound\\Misc\\Button.wav"))
                 f_setcurpl(cp)
                 if EUDIf()(macro_mode.Exactly(MACRO_BOMB)):

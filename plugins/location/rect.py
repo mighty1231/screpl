@@ -5,7 +5,7 @@ from repl.resources import offset
 
 @EUDFunc
 def drawRectangle(location, frame, frame_period):
-    superuser = app_manager.superuser
+    su_id = app_manager.get_superuser_id()
 
     cur_epd = EPD(0x58DC60 - 0x14) + (0x14 // 4) * location
     le, te, re, de = cur_epd, cur_epd+1, cur_epd+2, cur_epd+3
@@ -40,7 +40,7 @@ def drawRectangle(location, frame, frame_period):
     #    length >  32 -> draw 5 points with interval 8 pixels
     #                    , moves length / 24 for every single frame
     #                    ((frame * length / 24) + offset) % length
-    mark = lambda: DoActions(CreateUnit(1, "Scanner Sweep", location, superuser))
+    mark = lambda: DoActions(CreateUnit(1, "Scanner Sweep", location, su_id))
     end_point = Forward()
 
     # not a location
@@ -90,7 +90,7 @@ def drawRectangle(location, frame, frame_period):
         if EUDLoopN()(5):
             f_dwwrite_epd(epd1, i)
             f_dwwrite_epd(epd2, i)
-            DoActions(CreateUnit(1, "Scanner Sweep", location, superuser))
+            DoActions(CreateUnit(1, "Scanner Sweep", location, su_id))
 
             i += 8
             if EUDIf()(i > _to):
@@ -104,7 +104,7 @@ def drawRectangle(location, frame, frame_period):
         if EUDLoopN()(5):
             f_dwwrite_epd(epd1, i)
             f_dwwrite_epd(epd2, i)
-            DoActions(CreateUnit(1, "Scanner Sweep", location, superuser))
+            DoActions(CreateUnit(1, "Scanner Sweep", location, su_id))
 
             i -= 8
             if EUDIf()(i < _to):
@@ -223,7 +223,7 @@ def drawRectangle(location, frame, frame_period):
 
     # restore "Scanner Sweep"
     DoActions([
-        RemoveUnit("Scanner Sweep", superuser),
+        RemoveUnit("Scanner Sweep", su_id),
         SetMemoryX(0x666160 + 2*380, SetTo, prev_im, 0xFFFF),
         SetMemory(0x66EC48 + 4*232, SetTo, prev_is)
     ])

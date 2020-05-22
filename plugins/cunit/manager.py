@@ -4,12 +4,10 @@ cunit viewer
 option - what to view
 '''
 from eudplib import *
-from repl import (
-    Application,
-    AppTypedMethod,
-    AppCommand,
-    ArgEncNumber
-)
+
+from repl.core.appcommand import AppCommand
+from repl.core.application import Application
+from repl.encoder.const import ArgEncNumber
 
 from . import *
 from .detail import CUnitDetailApp

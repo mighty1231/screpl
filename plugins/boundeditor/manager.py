@@ -1,7 +1,11 @@
 from eudplib import *
 
-from repl import Application, AppCommand
-from . import app_manager, superuser
+from repl.core.appcommand import AppCommand
+from repl.core.application import Application
+
+from repl.main import is_bridge_mode
+
+from . import app_manager, su_id
 from .option import OptionApp
 from .pattern import PatternApp
 from .testmode import TestPatternApp
@@ -59,7 +63,7 @@ class BoundManagerApp(Application):
             app_manager.startApplication(PatternApp)
         if EUDElseIf()(app_manager.keyPress("T", hold=["LCTRL"])):
             app_manager.startApplication(TestPatternApp)
-        if app_manager.isBridgeMode():
+        if is_bridge_mode():
             if EUDElseIf()(app_manager.keyPress("E", hold=["LCTRL"])):
                 app_manager.startApplication(ExporterApp)
         if EUDElseIf()(app_manager.keyPress("delete")):
@@ -71,7 +75,7 @@ class BoundManagerApp(Application):
         writer.write_f("LCTRL + O: Option\n")
         writer.write_f("LCTRL + P: Pattern\n")
         writer.write_f("LCTRL + T: Test\n")
-        if app_manager.isBridgeMode():
+        if is_bridge_mode():
             writer.write_f("LCTRL + E: Exporter\n")
         writer.write_f("Chat maphack() to turn on maphack\n")
         writer.write_f("Press DELETE key to remove selected units\n")
@@ -97,7 +101,7 @@ class BoundManagerApp(Application):
             for x in range(256, mapw * 32, 512):
                 actions.append(SetMemoryEPD(le, SetTo, x))
                 actions.append(SetMemoryEPD(re, SetTo, x))
-                actions.append(CreateUnit(1, "Map Revealer", 1, superuser))
+                actions.append(CreateUnit(1, "Map Revealer", 1, su_id))
         DoActions(actions)
 
         for ee, vv in zip([le, te, re, be], [lv, tv, rv, bv]):

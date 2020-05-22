@@ -1,10 +1,10 @@
 from eudplib import *
-from repl import (
-    Application,
-    AppCommand,
-    ArgEncNumber,
-    EUDByteRW
-)
+
+from repl.core.appcommand import AppCommand
+from repl.core.application import Application
+from repl.encoder.const import ArgEncNumber
+from repl.utils.eudbyterw import EUDByteRW
+from repl.main import is_bridge_mode
 
 from . import *
 
@@ -52,7 +52,7 @@ class StringManagerApp(Application):
         if EUDElseIf()(app_manager.keyPress("E", hold=["LCTRL"])):
             from .editor import StringEditorApp
             app_manager.startApplication(StringEditorApp)
-        if app_manager.isBridgeMode():
+        if is_bridge_mode():
             if EUDElseIf()(app_manager.keyPress("B", hold=["LCTRL"])):
                 from .exporter import StringExporterApp
                 app_manager.startApplication(StringExporterApp)
@@ -68,7 +68,7 @@ class StringManagerApp(Application):
         writeFirstLine(STRSection + f_dwread_epd(STRSection_epd + cur_string_id))
         writer.write_f("\n\n\x04LCTRL+E Edit string...\n")
         writer.write_f("LCTRL+F Search strings...\n")
-        if app_manager.isBridgeMode():
+        if is_bridge_mode():
             writer.write_f("LCTRL+B Export to Bridge...\n")
         writer.write_f("To navigate strings, ...\n")
         writer.write_f("  - Press F7 or F8\n")

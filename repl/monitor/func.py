@@ -1,10 +1,11 @@
 from eudplib import *
 
-from ..apps import Logger
-from ..core.application import ApplicationInstance
-from ..core.appmethod import AppMethodN
-from ..core.appcommand import AppCommandN
-from .profile import REPLMonitorPush, REPLMonitorPop
+from repl.apps.logger import Logger
+from repl.core.application import ApplicationInstance
+from repl.core.appmethod import AppMethodN
+from repl.core.appcommand import AppCommandN
+from repl.monitor.profile import REPLMonitorPush
+from repl.monitor.profile import REPLMonitorPop
 
 import inspect
 import functools

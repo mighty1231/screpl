@@ -25,7 +25,7 @@ def onPluginStart():
         superuser = playerMap.get(settings["superuser"], settings["superuser"])
         main.initialize_with_id(EncodePlayer(superuser))
     elif settings["superuser_mode"] == "playerName":
-        main.initialize_with_name(superuser)
+        main.initialize_with_name(settings["superuser"])
     else:
         raise RuntimeError("Unknown mode {}".format(settings["superuser_mode"]))
 

@@ -1,6 +1,8 @@
 from eudplib import *
 
-from repl import Application, AppCommand, GetLocationNameEPDPointer
+from repl.core.appcommand import AppCommand
+from repl.core.application import Application
+from repl.resources.table.tables import GetLocationNameEPDPointer
 
 from . import app_manager, keymap, FRAME_PERIOD
 from .rect import drawRectangle
@@ -58,7 +60,7 @@ class LocationManagerApp(Application):
 
             if EUDIfNot()(self.centerview == 0):
                 cp = f_getcurpl()
-                f_setcurpl(app_manager.superuser)
+                f_setcurpl(app_manager.get_superuser_id())
                 DoActions([CenterView(new_location)])
                 f_setcurpl(cp)
             EUDEndIf()
@@ -74,8 +76,6 @@ class LocationManagerApp(Application):
     def loop(self):
         # F7 - previous location
         # F8 - next location
-        superuser = app_manager.superuser
-
         location = self.location
         if EUDIf()(app_manager.keyPress("ESC")):
             app_manager.requestDestruct()

@@ -13,15 +13,13 @@
 '''
 
 from eudplib import *
-from repl import (
-    Application,
-    AppTypedMethod,
-    AppCommand,
-    ArgEncNumber,
-    write_unit,
-    writeLocation,
-    PlayerSelectorApp
-)
+
+from repl.apps.selector import PlayerSelectorApp
+from repl.core.appcommand import AppCommand
+from repl.core.application import Application
+from repl.encoder.const import ArgEncNumber
+from repl.writer import write_unit
+from repl.writer import writeLocation
 
 from ..location import LocationManagerApp
 from ..unit import UnitManagerApp

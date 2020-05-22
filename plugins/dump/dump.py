@@ -1,5 +1,7 @@
 from eudplib import *
-from repl import Application, EUDByteRW
+
+from repl.core.application import Application
+from repl.utils.eudbyterw import EUDByteRW
 
 from . import app_manager
 

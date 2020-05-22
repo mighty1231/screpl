@@ -1,5 +1,6 @@
 from eudplib import *
-from repl import EPDConstString, REPLStruct
+from repl.utils.conststring import EPDConstString
+from repl.utils.struct import REPLStruct
 from . import app_manager
 
 """

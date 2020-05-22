@@ -1,12 +1,11 @@
 from eudplib import *
-from repl import (
-    Application,
-    AppTypedMethod,
-    AppCommand,
-    ArgEncNumber,
-    ChatReaderApp,
-    GetLocationNameEPDPointer
-)
+
+from repl.apps.chatreader import ChatReaderApp
+from repl.apps.repl import REPL
+from repl.core.appcommand import AppCommand
+from repl.core.application import Application
+from repl.encoder.const import ArgEncNumber
+from repl.resources.table.tables import GetLocationNameEPDPointer
 
 from . import app_manager, keymap, FRAME_PERIOD
 from .rect import drawRectangle

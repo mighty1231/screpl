@@ -1,15 +1,16 @@
 from eudplib import *
 
-from ...base import SearchTableInv
+from repl.utils.referencetable import SearchTableInv
 from repl.resources.table import tables as tb
 from repl.resources import offset
+
+import repl.main as main
 
 _writer = None
 def getWriter():
     global _writer
     if _writer is None:
-        from ...core import get_app_manager
-        _writer = get_app_manager().getWriter()
+        _writer = main.get_main_writer()
     return _writer
 
 @EUDFunc

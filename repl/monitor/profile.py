@@ -1,5 +1,6 @@
 from eudplib import *
-from ..apps.logger import Logger
+
+from repl.apps.logger import Logger
 from . import profile_table, f_getInversedMillis, f_getGameSpeed
 
 def REPLMonitorPush(name, profile=True, log=True):
