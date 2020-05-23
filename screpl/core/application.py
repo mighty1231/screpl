@@ -1,11 +1,12 @@
 from eudplib import *
 
-import screpl.core.appcommand as appcommand
-import screpl.core.appmethod as appmethod
 from screpl.utils.conststring import EPDConstString
 from screpl.utils.referencetable import ReferenceTable
 
 import screpl.main as main
+
+from . import appcommand
+from . import appmethod
 
 class _indexPair:
     def __init__(self, items = None):

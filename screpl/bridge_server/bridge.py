@@ -36,12 +36,14 @@ Shared memory region has following structures
 from eudplib import *
 
 from screpl.apps.logger import Logger
-from screpl.bridge_server.blocks import appoutput
-from screpl.bridge_server.blocks import blindmode
-from screpl.bridge_server.blocks import gametext
-from screpl.bridge_server.blocks import logger
-from screpl.bridge_server.blocks import profile
-from screpl.bridge_server.signature import dead_signature, RestoreSignature
+from .blocks import (
+    appoutput,
+    blindmode,
+    gametext,
+    logger,
+    profile,
+)
+from screpl.bridge_server.signature import dead_signature, restore_signature
 import screpl.main as main
 
 class BridgeRegion(EUDObject):
@@ -134,7 +136,7 @@ class BridgeRegion(EUDObject):
         DoActions(SetMemory(self._noteToBridge, SetTo, 0))
 
         # keep signature (make bridge to know REPL is alive)
-        RestoreSignature(self)
+        restore_signature(self)
 
         # command from bridge client
         if EUDIfNot()(Memory(buf_command, Exactly, 0)):

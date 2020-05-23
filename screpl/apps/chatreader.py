@@ -8,14 +8,13 @@ You input '{Content}'
 from eudplib import *
 
 import screpl.core.application as application
-from screpl.utils.eudbyterw import EUDByteRW
-
 import screpl.main as main
+import screpl.utils.eudbyterw as rw
 
 temp_storage = Db(220)
-temp_writer = EUDByteRW()
+temp_writer = rw.EUDByteRW()
 
-result_writer = EUDByteRW()
+result_writer = rw.EUDByteRW()
 
 class ChatReaderApp(application.Application):
     @staticmethod

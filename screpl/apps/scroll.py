@@ -1,10 +1,9 @@
 from eudplib import *
 
-from screpl.core import application
-from screpl.core.appmethod import AppTypedMethod
-from screpl.utils.conststring import EPDConstString
-
-from screpl import main
+import screpl.core.application as application
+import screpl.core.appmethod as appmethod
+import screpl.main as main
+import screpl.utils.conststring as conststring
 
 LINES_PER_PAGE = 8
 
@@ -16,17 +15,17 @@ class ScrollApp(application.Application):
     def onInit(self):
         self.offset = 0
 
-    @AppTypedMethod([], [], getWriterAsParam=True)
+    @appmethod.AppTypedMethod([], [], getWriterAsParam=True)
     def writeTitle(self, writer):
         ''' OVERRIDE THIS METHOD '''
-        writer.write_strepd(EPDConstString("Default Scroll App"))
+        writer.write_strepd(conststring.EPDConstString("Default Scroll App"))
 
-    @AppTypedMethod([None], [], getWriterAsParam=True)
+    @appmethod.AppTypedMethod([None], [], getWriterAsParam=True)
     def writeLine(self, writer, line):
         ''' OVERRIDE THIS METHOD '''
         pass
 
-    @AppTypedMethod([], [None])
+    @appmethod.AppTypedMethod([], [None])
     def getLineCount(self):
         ''' OVERRIDE THIS METHOD '''
         return 0

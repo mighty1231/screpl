@@ -5,6 +5,7 @@ from eudplib.core.rawtrigger.strdict import (
     DefSwitchDict,
 )
 from eudplib.core.mapdata.stringmap import swmap, locmap
+
 from screpl.utils.conststring import EPDConstString
 from screpl.utils.eudbyterw import EUDByteRW
 from screpl.utils.referencetable import ReferenceTable

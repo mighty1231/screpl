@@ -1,14 +1,14 @@
+import inspect
+
 from eudplib import *
 
-from screpl.core import application
-from screpl.core import appcommand
-from screpl.utils.eudbyterw import EUDByteRW
+import screpl.core.application as application
+import screpl.core.appcommand as appcommand
+import screpl.main as main
+import screpl.utils.eudbyterw as rw
 
-import screpl.apps.static as static
-from .logger import Logger
-from screpl import main
-
-import inspect
+from . import static
+from . import logger
 
 _PAGE_NUMLINES = 8
 _LINE_SIZE = 216
@@ -27,19 +27,19 @@ _repl_cur_page = EUDVariable()
 
 _repl_outputcolor = 0x16
 
-_repl_writer = EUDByteRW()
-
 class REPL(application.Application):
+    _output_writer = rw.EUDByteRW()
+
     @staticmethod
     def get_output_writer():
         """returns writer object that supports to write output"""
-        _repl_writer.seekepd(_repl_output_epd_ptr)
-        return _repl_writer
+        REPL._output_writer.seekepd(_repl_output_epd_ptr)
+        return REPL._output_writer
 
     def onChat(self, offset):
-        _repl_writer.seekepd(_repl_input_epd_ptr)
-        _repl_writer.write_str(offset)
-        _repl_writer.write(0)
+        REPL._output_writer.seekepd(_repl_input_epd_ptr)
+        REPL._output_writer.write_str(offset)
+        REPL._output_writer.write(0)
         self.cmd_output_epd = _repl_output_epd_ptr
 
         application.Application.onChat(self, offset)
@@ -177,4 +177,4 @@ class REPL(application.Application):
     @appcommand.AppCommand([])
     def log(self):
         """Start Logger application"""
-        main.get_app_manager().startApplication(Logger)
+        main.get_app_manager().startApplication(logger.Logger)

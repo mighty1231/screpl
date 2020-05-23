@@ -1,11 +1,11 @@
 from eudplib import *
 
-from screpl.core import application
-from screpl.utils.conststring import EPDConstString, EPDConstStringArray
+import screpl.core.application as application
+import screpl.utils.conststring as cs
 import screpl.main as main
 
-_title_epd = EUDVariable(EPDConstString("Title"))
-_epdarray = EUDVariable(EPDConstString("Hello World!"))
+_title_epd = EUDVariable(cs.EPDConstString("Title"))
+_epdarray = EUDVariable(cs.EPDConstString("Hello World!"))
 _linecount = EUDVariable(1)
 
 class StaticApp(application.Application):
@@ -21,8 +21,8 @@ class StaticApp(application.Application):
 
     @staticmethod
     def setContent(title, content):
-        _title_epd << EPDConstString(title)
-        epdarray, linecount = EPDConstStringArray(content)
+        _title_epd << cs.EPDConstString(title)
+        epdarray, linecount = cs.EPDConstStringArray(content)
         _epdarray << EPD(epdarray)
         _linecount << linecount
 

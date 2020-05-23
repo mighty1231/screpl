@@ -1,10 +1,9 @@
 from eudplib import *
 
-from ..utils.eudbyterw import EUDByteRW
-from ..core.appcommand import AppCommand
-from .scroll import ScrollApp, LINES_PER_PAGE
+import screpl.utils.eudbyterw as rw
+import screpl.main as main
 
-from screpl import main
+from . import scroll
 
 LOGGER_LINE_SIZE = 216
 LOGGER_LINE_COUNT = 500
@@ -23,21 +22,21 @@ MODE_REALTIME = 0
 MODE_STOPPED = 1
 mode = EUDVariable(MODE_REALTIME)
 
-writer = EUDByteRW()
+writer = rw.EUDByteRW()
 
 multiline_buffer = Db(3000)
 
 class MultilineLogWriter:
     def __init__(self, name):
         self.name = name
-        self.writer = EUDByteRW()
+        self.writer = rw.EUDByteRW()
         self.writer.seekepd(EPD(multiline_buffer))
 
     def __enter__(self):
         return self.writer
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        reader = EUDByteRW()
+        reader = rw.EUDByteRW()
         reader.seekepd(EPD(multiline_buffer))
         prev, cur = EUDCreateVariables(2)
         prev << reader.getoffset()
@@ -57,7 +56,7 @@ class MultilineLogWriter:
         EUDEndInfLoop()
         Logger.format("%S", prev, simple=True)
 
-class Logger(ScrollApp):
+class Logger(scroll.ScrollApp):
     @staticmethod
     def format(fmtstring, *args, simple=False):
         writer.seekepd(next_epd_to_write)
@@ -83,7 +82,7 @@ class Logger(ScrollApp):
         return MultilineLogWriter(name)
 
     def onInit(self):
-        ScrollApp.onInit(self)
+        scroll.ScrollApp.onInit(self)
         mode << MODE_REALTIME
 
     def loop(self):
@@ -92,9 +91,9 @@ class Logger(ScrollApp):
             if EUDIf()(manager.keyPress("ESC")):
                 mode << MODE_REALTIME
             if EUDElseIf()(manager.keyPress("F7")):
-                self.setOffset(self.offset - LINES_PER_PAGE)
+                self.setOffset(self.offset - scroll.LINES_PER_PAGE)
             if EUDElseIf()(manager.keyPress("F8")):
-                self.setOffset(self.offset + LINES_PER_PAGE)
+                self.setOffset(self.offset + scroll.LINES_PER_PAGE)
             EUDEndIf()
         if EUDElse()():
             if EUDIf()(manager.keyPress("ESC")):
@@ -103,8 +102,8 @@ class Logger(ScrollApp):
                 mode << MODE_STOPPED
             if EUDElse()():
                 # set offset
-                if EUDIf()(log_index >= LINES_PER_PAGE):
-                    self.setOffset(log_index - LINES_PER_PAGE)
+                if EUDIf()(log_index >= scroll.LINES_PER_PAGE):
+                    self.setOffset(log_index - scroll.LINES_PER_PAGE)
                 EUDEndIf()
             EUDEndIf()
         EUDEndIf()

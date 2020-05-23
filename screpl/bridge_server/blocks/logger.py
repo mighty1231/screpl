@@ -11,7 +11,7 @@ from screpl.apps.logger import (
     buf_start_epd,
     log_index,
     LOGGER_LINE_SIZE,
-    LOGGER_LINE_COUNT
+    LOGGER_LINE_COUNT,
 )
 from screpl.bridge_server import block
 

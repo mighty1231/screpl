@@ -1,4 +1,5 @@
 from eudplib import *
+
 from screpl.utils import eudbyterw as rw
 
 _reader = rw.EUDByteRW()

@@ -1,14 +1,15 @@
+import inspect
+import functools
+
 from eudplib import *
 
 from screpl.apps.logger import Logger
 from screpl.core.application import ApplicationInstance
 from screpl.core.appmethod import AppMethodN
 from screpl.core.appcommand import AppCommandN
-from screpl.monitor.profile import REPLMonitorPush
-from screpl.monitor.profile import REPLMonitorPop
+from .profile import REPLMonitorPush
+from .profile import REPLMonitorPop
 
-import inspect
-import functools
 
 def REPLMonitorF(io=True, profile=True):
     '''

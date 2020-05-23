@@ -1,5 +1,6 @@
 from eudplib import *
-from screpl.utils import conststring
+
+from . import conststring as cs
 
 class EUDByteRW:
     def __init__(self):
@@ -276,9 +277,9 @@ class EUDByteRW:
     @EUDMethod
     def write_bool(self, value):
         if EUDIfNot()(value == 0):
-            self.write_strepd(conststring.EPDConstString("True"))
+            self.write_strepd(cs.EPDConstString("True"))
         if EUDElse()():
-            self.write_strepd(conststring.EPDConstString("False"))
+            self.write_strepd(cs.EPDConstString("False"))
         EUDEndIf()
 
     @EUDMethod
@@ -466,7 +467,7 @@ class EUDByteRW:
                 if len(arg) == 1:
                     self.write(ord(arg))
                 else:
-                    self.write_strepd(conststring.EPDConstString(arg))
+                    self.write_strepd(cs.EPDConstString(arg))
             elif fm == 'H':
                 self.write_hex(arg)
             elif fm == 'D':

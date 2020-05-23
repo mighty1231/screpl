@@ -1,5 +1,6 @@
-from eudplib import *
+import inspect
 
+from eudplib import *
 from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN
 from eudplib.core.eudstruct.vararray import EUDVArrayData
 from eudplib.core.eudfunc.eudfptr import createIndirectCaller
@@ -12,7 +13,6 @@ from screpl.utils.string import f_strcmp_ptrepd
 
 import screpl.main as main
 
-import inspect
 
 _MAXARGCNT = 8
 

@@ -1,10 +1,11 @@
 from eudplib import *
 
-from screpl.encoder.encoder import ReadNumber, ReadName, ArgEncoderPtr
-from screpl.resources.table import tables as tb
+import screpl.resources.table.tables as tb
 from screpl.utils.conststring import EPDConstString
 from screpl.utils.referencetable import SearchTable
 from screpl.utils.string import f_strcmp_ptrepd
+
+from .encoder import ReadNumber, ReadName, ArgEncoderPtr
 
 tmpbuf = Db(100) # Temporarily store string
 

@@ -1,3 +1,5 @@
+import inspect
+
 from eudplib import *
 
 from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN, applyTypes
@@ -6,7 +8,6 @@ from eudplib.core.eudfunc.eudfptr import createIndirectCaller
 
 import screpl.main as main
 
-import inspect
 
 class AppMethodN:
     def __init__(self, argtypes, rettypes, method, *, getWriterAsParam, traced):

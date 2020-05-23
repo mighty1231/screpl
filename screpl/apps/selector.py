@@ -1,9 +1,9 @@
 from eudplib import *
 
-from screpl.core import application
-from screpl.utils.referencetable import ReferenceTable
-from screpl.resources.table import tables as tb
-from screpl import main
+import screpl.core.application as application
+import screpl.resources.table.tables as tb
+import screpl.main as main
+import screpl.utils.referencetable as referencetable
 
 # number of items to show in a page
 NITEMS = 8
@@ -46,7 +46,7 @@ def _createapp(domainname, reftable):
                     EUDReturn()
                 EUDEndIf()
 
-            ReferenceTable.Iter(EPD(reftable), func)
+            referencetable.ReferenceTable.Iter(EPD(reftable), func)
 
             # failed on search
             _value << 0

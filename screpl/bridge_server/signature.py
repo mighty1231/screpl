@@ -21,5 +21,5 @@ _signature = bytes([
 
 dead_signature = b'\x00\x00\x00\x00' + _signature[4:]
 
-def RestoreSignature(sign):
+def restore_signature(sign):
 	DoActions(SetMemory(sign, SetTo, b2i4(_signature, 0)))

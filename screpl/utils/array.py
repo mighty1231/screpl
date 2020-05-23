@@ -1,8 +1,8 @@
 from eudplib import *
 
-from screpl.utils import debug
-from screpl.utils import pool
-from screpl.utils import struct
+from . import debug
+from . import pool
+from . import struct
 
 _pool = pool.DbPool(100000)
 

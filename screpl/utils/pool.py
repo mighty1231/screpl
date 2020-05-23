@@ -1,5 +1,6 @@
 from eudplib import *
-from screpl.utils import debug
+
+from . import debug
 
 '''
 DbPool and VarPool allocates buffer as Db and EUDVarible respectively.
