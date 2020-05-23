@@ -7,6 +7,7 @@ from eudplib.core.rawtrigger.strdict import (
 from eudplib.core.mapdata.stringmap import swmap, locmap
 
 from screpl.utils.conststring import EPDConstString
+from screpl.utils.debug import f_raise_error
 from screpl.utils.eudbyterw import EUDByteRW
 from screpl.utils.referencetable import ReferenceTable
 

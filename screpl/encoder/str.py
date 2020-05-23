@@ -1,6 +1,6 @@
 from eudplib import *
 
-import screpl.resoucres.table.tables as tb
+import screpl.resources.table.tables as tb
 from screpl.utils.referencetable import SearchTable
 from screpl.utils.string import f_strcmp_ptrepd
 

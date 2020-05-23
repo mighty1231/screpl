@@ -52,14 +52,14 @@ class BridgeBlock(ConstExpr, metaclass=_BB_Metaclass):
         Use `self` as a pointer to contents of the block.
         Required to be overrided.
         """
-        raise NotImplemented
+        raise NotImplementedError("Override UpdateContent")
 
     def GetBufferSize(self):
         """Returns size of its contents.
 
         Required to be overrided.
         """
-        raise NotImplemented
+        raise NotImplementedError("Override GetBufferSize")
 
     def Evaluate(self):
         """Magic method to address `self`

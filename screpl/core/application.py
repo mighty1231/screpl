@@ -224,8 +224,10 @@ class Application(metaclass=_Application_Metaclass):
     @classmethod
     def allocate(cls):
         if not cls._allocated_:
-            if cls.__mro__[1] != object:
-                cls.__mro__[1].allocate()
+            if cls != Application:
+                parent_cls = cls.__mro__[1]
+                assert issubclass(parent_cls, Application)
+                parent_cls.allocate()
 
             # allocate methods
             methodarray = []

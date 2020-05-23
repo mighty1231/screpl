@@ -18,23 +18,23 @@ def encodeCondition_epd(condition_epd, cond):
     '''
     assert isinstance(cond, Condition)
 
-    f_dwwrite_epd(action_epd + 4, 0)
+    f_dwwrite_epd(condition_epd + 4, 0)
 
-    if type(act.fields[0]) != int or act.fields[0] != 0:
-        f_dwwrite_epd(action_epd, act.fields[0])
-    if type(act.fields[1]) != int or act.fields[1] != 0:
-        f_dwwrite_epd(action_epd + 1, act.fields[1])
-    if type(act.fields[2]) != int or act.fields[2] != 0:
-        f_dwwrite_epd(action_epd + 2, act.fields[2])
-    if type(act.fields[3]) != int or act.fields[3] != 0:
-        f_wwrite_epd(action_epd + 3, 0, act.fields[3])
-    if type(act.fields[4]) != int or act.fields[4] != 0:
-        f_bwrite_epd(action_epd + 3, 2, act.fields[4])
-    if type(act.fields[5]) != int or act.fields[5] != 0:
-        f_bwrite_epd(action_epd + 3, 3, act.fields[5])
-    if type(act.fields[6]) != int or act.fields[6] != 0:
-        f_bwrite_epd(action_epd + 4, 0, act.fields[6])
-    if type(act.fields[7]) != int or act.fields[7] != 0:
-        f_bwrite_epd(action_epd + 4, 1, act.fields[7])
-    if type(act.fields[8]) != int or act.fields[8] != 0:
-        f_wwrite_epd(action_epd + 4, 2, act.fields[8])
+    if type(cond.fields[0]) != int or cond.fields[0] != 0:
+        f_dwwrite_epd(condition_epd, cond.fields[0])
+    if type(cond.fields[1]) != int or cond.fields[1] != 0:
+        f_dwwrite_epd(condition_epd + 1, cond.fields[1])
+    if type(cond.fields[2]) != int or cond.fields[2] != 0:
+        f_dwwrite_epd(condition_epd + 2, cond.fields[2])
+    if type(cond.fields[3]) != int or cond.fields[3] != 0:
+        f_wwrite_epd(condition_epd + 3, 0, cond.fields[3])
+    if type(cond.fields[4]) != int or cond.fields[4] != 0:
+        f_bwrite_epd(condition_epd + 3, 2, cond.fields[4])
+    if type(cond.fields[5]) != int or cond.fields[5] != 0:
+        f_bwrite_epd(condition_epd + 3, 3, cond.fields[5])
+    if type(cond.fields[6]) != int or cond.fields[6] != 0:
+        f_bwrite_epd(condition_epd + 4, 0, cond.fields[6])
+    if type(cond.fields[7]) != int or cond.fields[7] != 0:
+        f_bwrite_epd(condition_epd + 4, 1, cond.fields[7])
+    if type(cond.fields[8]) != int or cond.fields[8] != 0:
+        f_wwrite_epd(condition_epd + 4, 2, cond.fields[8])

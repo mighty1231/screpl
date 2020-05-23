@@ -47,6 +47,7 @@ def is_blind_mode():
     return False
 
 def set_trigger_timer(timer):
+    """Sets trigger timer as given timer"""
     _trigger_timer << timer
 
 def initialize_with_id(su_id):

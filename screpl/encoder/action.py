@@ -43,4 +43,4 @@ def encodeAction_epd(action_epd, act):
     if type(act.fields[9]) != int or act.fields[9] != 0:
         f_bwrite_epd(action_epd + 7, 0, act.fields[9])
     if type(act.fields[11]) != int or act.fields[11] != 0:
-        f_write_epd(action_epd + 7, 2, act.fields[11])
+        f_wwrite_epd(action_epd + 7, 2, act.fields[11])
