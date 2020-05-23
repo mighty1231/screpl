@@ -238,11 +238,10 @@
   <h1 id="modules-screpl-apps-scroll--page-root">Source code for screpl.apps.scroll</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 
-<span class="kn">from</span> <span class="nn">screpl.core</span> <span class="kn">import</span> <span class="n">application</span>
-<span class="kn">from</span> <span class="nn">screpl.core.appmethod</span> <span class="kn">import</span> <span class="n">AppTypedMethod</span>
-<span class="kn">from</span> <span class="nn">screpl.utils.conststring</span> <span class="kn">import</span> <span class="n">EPDConstString</span>
-
-<span class="kn">from</span> <span class="nn">screpl</span> <span class="kn">import</span> <span class="n">main</span>
+<span class="kn">import</span> <span class="nn">screpl.core.application</span> <span class="k">as</span> <span class="nn">application</span>
+<span class="kn">import</span> <span class="nn">screpl.core.appmethod</span> <span class="k">as</span> <span class="nn">appmethod</span>
+<span class="kn">import</span> <span class="nn">screpl.main</span> <span class="k">as</span> <span class="nn">main</span>
+<span class="kn">import</span> <span class="nn">screpl.utils.conststring</span> <span class="k">as</span> <span class="nn">conststring</span>
 
 <span class="n">LINES_PER_PAGE</span> <span class="o">=</span> <span class="mi">8</span>
 
@@ -251,25 +250,25 @@
         <span class="s2">"offset"</span><span class="p">,</span> <span class="c1"># top line number</span>
     <span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">onInit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+<div class="viewcode-block" id="ScrollApp.onInit"><a class="viewcode-back" href="../../../screpl.apps.scroll.html#screpl.apps.scroll.ScrollApp.onInit">[docs]</a>    <span class="k">def</span> <span class="nf">onInit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span></div>
 
-    <span class="nd">@AppTypedMethod</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">getWriterAsParam</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="ScrollApp.writeTitle"><a class="viewcode-back" href="../../../screpl.apps.scroll.html#screpl.apps.scroll.ScrollApp.writeTitle">[docs]</a>    <span class="nd">@appmethod</span><span class="o">.</span><span class="n">AppTypedMethod</span><span class="p">([],</span> <span class="p">[],</span> <span class="n">getWriterAsParam</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">writeTitle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
         <span class="sd">''' OVERRIDE THIS METHOD '''</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"Default Scroll App"</span><span class="p">))</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">conststring</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"Default Scroll App"</span><span class="p">))</span></div>
 
-    <span class="nd">@AppTypedMethod</span><span class="p">([</span><span class="kc">None</span><span class="p">],</span> <span class="p">[],</span> <span class="n">getWriterAsParam</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="viewcode-block" id="ScrollApp.writeLine"><a class="viewcode-back" href="../../../screpl.apps.scroll.html#screpl.apps.scroll.ScrollApp.writeLine">[docs]</a>    <span class="nd">@appmethod</span><span class="o">.</span><span class="n">AppTypedMethod</span><span class="p">([</span><span class="kc">None</span><span class="p">],</span> <span class="p">[],</span> <span class="n">getWriterAsParam</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">writeLine</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
         <span class="sd">''' OVERRIDE THIS METHOD '''</span>
-        <span class="k">pass</span>
+        <span class="k">pass</span></div>
 
-    <span class="nd">@AppTypedMethod</span><span class="p">([],</span> <span class="p">[</span><span class="kc">None</span><span class="p">])</span>
+<div class="viewcode-block" id="ScrollApp.getLineCount"><a class="viewcode-back" href="../../../screpl.apps.scroll.html#screpl.apps.scroll.ScrollApp.getLineCount">[docs]</a>    <span class="nd">@appmethod</span><span class="o">.</span><span class="n">AppTypedMethod</span><span class="p">([],</span> <span class="p">[</span><span class="kc">None</span><span class="p">])</span>
     <span class="k">def</span> <span class="nf">getLineCount</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">''' OVERRIDE THIS METHOD '''</span>
-        <span class="k">return</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="mi">0</span></div>
 
-    <span class="k">def</span> <span class="nf">setOffset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_offset</span><span class="p">):</span>
+<div class="viewcode-block" id="ScrollApp.setOffset"><a class="viewcode-back" href="../../../screpl.apps.scroll.html#screpl.apps.scroll.ScrollApp.setOffset">[docs]</a>    <span class="k">def</span> <span class="nf">setOffset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_offset</span><span class="p">):</span>
         <span class="n">offset</span><span class="p">,</span> <span class="n">linecount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">getLineCount</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">new_offset</span> <span class="o">&lt;=</span> <span class="mh">0x80000000</span><span class="p">,</span> <span class="n">linecount</span> <span class="o">&gt;=</span> <span class="n">LINES_PER_PAGE</span><span class="o">+</span><span class="mi">1</span><span class="p">]):</span>
             <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">new_offset</span> <span class="o">&gt;=</span> <span class="n">linecount</span> <span class="o">-</span> <span class="n">LINES_PER_PAGE</span><span class="p">):</span>
@@ -279,9 +278,9 @@
             <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ScrollApp.loop"><a class="viewcode-back" href="../../../screpl.apps.scroll.html#screpl.apps.scroll.ScrollApp.loop">[docs]</a>    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># F7 - previous page</span>
         <span class="c1"># F8 - next page</span>
         <span class="n">manager</span> <span class="o">=</span> <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span>
@@ -294,9 +293,9 @@
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
         <span class="c1"># always update</span>
-        <span class="n">manager</span><span class="o">.</span><span class="n">requestUpdate</span><span class="p">()</span>
+        <span class="n">manager</span><span class="o">.</span><span class="n">requestUpdate</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
+<div class="viewcode-block" id="ScrollApp.print"><a class="viewcode-back" href="../../../screpl.apps.scroll.html#screpl.apps.scroll.ScrollApp.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
         <span class="c1"># title</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">writeTitle</span><span class="p">()</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">))</span>
@@ -328,7 +327,7 @@
             <span class="n">DoActions</span><span class="p">(</span><span class="n">cur</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
         <span class="n">EUDEndInfLoop</span><span class="p">()</span>
 
-        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div></div>
 </pre></div>
 
           </article>

@@ -1,7 +1,0 @@
-repl.encoder.encoder module
-===========================
-
-.. automodule:: repl.encoder.encoder
-   :members:
-   :undoc-members:
-   :show-inheritance:

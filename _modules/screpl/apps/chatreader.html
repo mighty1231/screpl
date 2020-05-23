@@ -236,67 +236,103 @@
           <article class="md-content__inner md-typeset" role="main">
             
   <h1 id="modules-screpl-apps-chatreader--page-root">Source code for screpl.apps.chatreader</h1><div class="highlight"><pre>
-<span></span><span class="sd">'''</span>
-<span class="sd">ChatReader</span>
-<span class="sd">You input '{Content}'</span>
-
-<span class="sd">[ OK (CTRL+Y) ]    [ CANCEL (CTRL+N) ]</span>
-<span class="sd">'''</span>
-
+<span></span><span class="sd">"""defines ChatReaderApp"""</span>
 <span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="kn">import</span> <span class="nn">screpl.core.application</span> <span class="k">as</span> <span class="nn">application</span>
-<span class="kn">from</span> <span class="nn">screpl.utils.eudbyterw</span> <span class="kn">import</span> <span class="n">EUDByteRW</span>
-
 <span class="kn">import</span> <span class="nn">screpl.main</span> <span class="k">as</span> <span class="nn">main</span>
+<span class="kn">import</span> <span class="nn">screpl.utils.eudbyterw</span> <span class="k">as</span> <span class="nn">rw</span>
 
-<span class="n">temp_storage</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">220</span><span class="p">)</span>
-<span class="n">temp_writer</span> <span class="o">=</span> <span class="n">EUDByteRW</span><span class="p">()</span>
-
-<span class="n">result_writer</span> <span class="o">=</span> <span class="n">EUDByteRW</span><span class="p">()</span>
+<span class="n">_temp_storage</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">220</span><span class="p">)</span>
+<span class="n">_temp_writer</span> <span class="o">=</span> <span class="n">rw</span><span class="o">.</span><span class="n">EUDByteRW</span><span class="p">()</span>
+<span class="n">_result_writer</span> <span class="o">=</span> <span class="n">rw</span><span class="o">.</span><span class="n">EUDByteRW</span><span class="p">()</span>
 
 <div class="viewcode-block" id="ChatReaderApp"><a class="viewcode-back" href="../../../screpl.apps.chatreader.html#screpl.apps.chatreader.ChatReaderApp">[docs]</a><span class="k">class</span> <span class="nc">ChatReaderApp</span><span class="p">(</span><span class="n">application</span><span class="o">.</span><span class="n">Application</span><span class="p">):</span>
-<div class="viewcode-block" id="ChatReaderApp.setResult_offset"><a class="viewcode-back" href="../../../screpl.apps.chatreader.html#screpl.apps.chatreader.ChatReaderApp.setResult_offset">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">setResult_offset</span><span class="p">(</span><span class="n">result_offset</span><span class="p">):</span>
-        <span class="n">result_writer</span><span class="o">.</span><span class="n">seekoffset</span><span class="p">(</span><span class="n">result_offset</span><span class="p">)</span></div>
+    <span class="sd">"""Receives user's chat and write to specific offset</span>
+
+<span class="sd">    Text UI:</span>
+
+<span class="sd">    .. code-block:: text</span>
+
+<span class="sd">        ChatReader</span>
+<span class="sd">        Your input: '{Content}'</span>
+
+<span class="sd">        [ OK (CTRL+Y) ]    [ CANCEL (CTRL+N) ]</span>
+
+<span class="sd">    Application usage to store text from user</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        my_database = Db(220)</span>
+<span class="sd">        ChatReaderApp.set_return_epd(EPD(my_database))</span>
+<span class="sd">        app_manager.startApplication(ChatReaderApp)</span>
+
+<span class="sd">        # Then, ChatReaderApp runs, and it stores text to my_database</span>
+
+<span class="sd">    Methods:</span>
+<span class="sd">        onInit: abc</span>
+<span class="sd">    """</span>
+
+<div class="viewcode-block" id="ChatReaderApp.set_return_address"><a class="viewcode-back" href="../../../screpl.apps.chatreader.html#screpl.apps.chatreader.ChatReaderApp.set_return_address">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">set_return_address</span><span class="p">(</span><span class="n">addr</span><span class="p">):</span>
+        <span class="sd">"""Set target address to store text from chat</span>
+
+<span class="sd">        Call this before </span>
+<span class="sd">        :meth:`~screpl.core.appmanager.AppManager.startApplication`</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            addr(int, :class:`ConstExpr`, or :class:`EUDVariable`):</span>
+<span class="sd">                target address</span>
+<span class="sd">        """</span>
+        <span class="n">_result_writer</span><span class="o">.</span><span class="n">seekoffset</span><span class="p">(</span><span class="n">address</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="ChatReaderApp.set_return_epd"><a class="viewcode-back" href="../../../screpl.apps.chatreader.html#screpl.apps.chatreader.ChatReaderApp.set_return_epd">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">set_return_epd</span><span class="p">(</span><span class="n">result_epd</span><span class="p">):</span>
-        <span class="n">result_writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">result_epd</span><span class="p">)</span></div>
+    <span class="k">def</span> <span class="nf">set_return_epd</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
+        <span class="sd">"""Set epd value of target address to store text from chat</span>
 
-    <span class="k">def</span> <span class="nf">onInit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryX</span><span class="p">(</span><span class="n">temp_storage</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0xFF</span><span class="p">))</span>
-        <span class="n">temp_writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">temp_storage</span><span class="p">))</span>
-        <span class="n">temp_writer</span><span class="o">.</span><span class="n">write_str</span><span class="p">(</span><span class="n">result_writer</span><span class="o">.</span><span class="n">getoffset</span><span class="p">())</span>
-        <span class="n">temp_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="sd">        Call this before</span>
+<span class="sd">        :meth:`~screpl.core.appmanager.AppManager.startApplication`</span>
 
-    <span class="k">def</span> <span class="nf">onDestruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">result_writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="sd">        Args:</span>
+<span class="sd">            epd(int, :class:`ConstExpr`, or :class:`EUDVariable`):</span>
+<span class="sd">                EPD value of target address</span>
+<span class="sd">        """</span>
+        <span class="n">_result_writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">onChat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
-        <span class="n">temp_writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">temp_storage</span><span class="p">))</span>
-        <span class="n">temp_writer</span><span class="o">.</span><span class="n">write_str</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
-        <span class="n">temp_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span><span class="o">.</span><span class="n">requestUpdate</span><span class="p">()</span>
+<div class="viewcode-block" id="ChatReaderApp.onInit"><a class="viewcode-back" href="../../../screpl.apps.chatreader.html#screpl.apps.chatreader.ChatReaderApp.onInit">[docs]</a>    <span class="k">def</span> <span class="nf">onInit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""initialize application"""</span>
+        <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryX</span><span class="p">(</span><span class="n">_temp_storage</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0xFF</span><span class="p">))</span>
+        <span class="n">_temp_writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">_temp_storage</span><span class="p">))</span>
+        <span class="n">_temp_writer</span><span class="o">.</span><span class="n">write_str</span><span class="p">(</span><span class="n">_result_writer</span><span class="o">.</span><span class="n">getoffset</span><span class="p">())</span>
+        <span class="n">_temp_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ChatReaderApp.onDestruct"><a class="viewcode-back" href="../../../screpl.apps.chatreader.html#screpl.apps.chatreader.ChatReaderApp.onDestruct">[docs]</a>    <span class="k">def</span> <span class="nf">onDestruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">_result_writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="ChatReaderApp.onChat"><a class="viewcode-back" href="../../../screpl.apps.chatreader.html#screpl.apps.chatreader.ChatReaderApp.onChat">[docs]</a>    <span class="k">def</span> <span class="nf">onChat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+        <span class="n">_temp_writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">_temp_storage</span><span class="p">))</span>
+        <span class="n">_temp_writer</span><span class="o">.</span><span class="n">write_str</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+        <span class="n">_temp_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span><span class="o">.</span><span class="n">requestUpdate</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="ChatReaderApp.loop"><a class="viewcode-back" href="../../../screpl.apps.chatreader.html#screpl.apps.chatreader.ChatReaderApp.loop">[docs]</a>    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">app_manager</span> <span class="o">=</span> <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">app_manager</span><span class="o">.</span><span class="n">keyPress</span><span class="p">(</span><span class="s1">'Y'</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s1">'LCTRL'</span><span class="p">])]):</span>
-            <span class="n">result_writer</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">temp_storage</span><span class="p">))</span>
-            <span class="n">result_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">_result_writer</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">_temp_storage</span><span class="p">))</span>
+            <span class="n">_result_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="n">app_manager</span><span class="o">.</span><span class="n">requestDestruct</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">keyPress</span><span class="p">(</span><span class="s1">'ESC'</span><span class="p">)):</span>
             <span class="n">app_manager</span><span class="o">.</span><span class="n">requestDestruct</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()([</span><span class="n">app_manager</span><span class="o">.</span><span class="n">keyPress</span><span class="p">(</span><span class="s1">'N'</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s1">'LCTRL'</span><span class="p">])]):</span>
             <span class="n">app_manager</span><span class="o">.</span><span class="n">requestDestruct</span><span class="p">()</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
+<div class="viewcode-block" id="ChatReaderApp.print"><a class="viewcode-back" href="../../../screpl.apps.chatreader.html#screpl.apps.chatreader.ChatReaderApp.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x13</span><span class="s2">ChatReader</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x13</span><span class="s2">Your input: '</span><span class="si">%E</span><span class="s2">'</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">temp_storage</span><span class="p">))</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x13</span><span class="s2">Your input: '</span><span class="si">%E</span><span class="s2">'</span><span class="se">\n\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">_temp_storage</span><span class="p">))</span>
 
         <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x13</span><span class="s2">[ OK (CTRL+Y) ]    [ CANCEL (CTRL+N) ]</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div></div>
 </pre></div>
 
           </article>

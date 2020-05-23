@@ -237,17 +237,18 @@
           <article class="md-content__inner md-typeset" role="main">
             
   <h1 id="modules-screpl-monitor-func--page-root">Source code for screpl.monitor.func</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+<span></span><span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">import</span> <span class="nn">functools</span>
+
+<span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="kn">from</span> <span class="nn">screpl.apps.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
 <span class="kn">from</span> <span class="nn">screpl.core.application</span> <span class="kn">import</span> <span class="n">ApplicationInstance</span>
 <span class="kn">from</span> <span class="nn">screpl.core.appmethod</span> <span class="kn">import</span> <span class="n">AppMethodN</span>
 <span class="kn">from</span> <span class="nn">screpl.core.appcommand</span> <span class="kn">import</span> <span class="n">AppCommandN</span>
-<span class="kn">from</span> <span class="nn">screpl.monitor.profile</span> <span class="kn">import</span> <span class="n">REPLMonitorPush</span>
-<span class="kn">from</span> <span class="nn">screpl.monitor.profile</span> <span class="kn">import</span> <span class="n">REPLMonitorPop</span>
+<span class="kn">from</span> <span class="nn">.profile</span> <span class="kn">import</span> <span class="n">REPLMonitorPush</span>
+<span class="kn">from</span> <span class="nn">.profile</span> <span class="kn">import</span> <span class="n">REPLMonitorPop</span>
 
-<span class="kn">import</span> <span class="nn">inspect</span>
-<span class="kn">import</span> <span class="nn">functools</span>
 
 <div class="viewcode-block" id="REPLMonitorF"><a class="viewcode-back" href="../../../screpl.monitor.func.html#screpl.monitor.func.REPLMonitorF">[docs]</a><span class="k">def</span> <span class="nf">REPLMonitorF</span><span class="p">(</span><span class="n">io</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">profile</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">'''</span>

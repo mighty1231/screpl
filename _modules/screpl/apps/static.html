@@ -238,12 +238,12 @@
   <h1 id="modules-screpl-apps-static--page-root">Source code for screpl.apps.static</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 
-<span class="kn">from</span> <span class="nn">screpl.core</span> <span class="kn">import</span> <span class="n">application</span>
-<span class="kn">from</span> <span class="nn">screpl.utils.conststring</span> <span class="kn">import</span> <span class="n">EPDConstString</span><span class="p">,</span> <span class="n">EPDConstStringArray</span>
+<span class="kn">import</span> <span class="nn">screpl.core.application</span> <span class="k">as</span> <span class="nn">application</span>
+<span class="kn">import</span> <span class="nn">screpl.utils.conststring</span> <span class="k">as</span> <span class="nn">cs</span>
 <span class="kn">import</span> <span class="nn">screpl.main</span> <span class="k">as</span> <span class="nn">main</span>
 
-<span class="n">_title_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"Title"</span><span class="p">))</span>
-<span class="n">_epdarray</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"Hello World!"</span><span class="p">))</span>
+<span class="n">_title_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"Title"</span><span class="p">))</span>
+<span class="n">_epdarray</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"Hello World!"</span><span class="p">))</span>
 <span class="n">_linecount</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
 <div class="viewcode-block" id="StaticApp"><a class="viewcode-back" href="../../../screpl.apps.static.html#screpl.apps.static.StaticApp">[docs]</a><span class="k">class</span> <span class="nc">StaticApp</span><span class="p">(</span><span class="n">application</span><span class="o">.</span><span class="n">Application</span><span class="p">):</span>
@@ -259,19 +259,19 @@
 
 <div class="viewcode-block" id="StaticApp.setContent"><a class="viewcode-back" href="../../../screpl.apps.static.html#screpl.apps.static.StaticApp.setContent">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">setContent</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
-        <span class="n">_title_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPDConstString</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
-        <span class="n">epdarray</span><span class="p">,</span> <span class="n">linecount</span> <span class="o">=</span> <span class="n">EPDConstStringArray</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="n">_title_epd</span> <span class="o">&lt;&lt;</span> <span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+        <span class="n">epdarray</span><span class="p">,</span> <span class="n">linecount</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">EPDConstStringArray</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
         <span class="n">_epdarray</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="n">epdarray</span><span class="p">)</span>
         <span class="n">_linecount</span> <span class="o">&lt;&lt;</span> <span class="n">linecount</span></div>
 
-    <span class="k">def</span> <span class="nf">onInit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StaticApp.onInit"><a class="viewcode-back" href="../../../screpl.apps.static.html#screpl.apps.static.StaticApp.onInit">[docs]</a>    <span class="k">def</span> <span class="nf">onInit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">title_epd</span> <span class="o">=</span> <span class="n">_title_epd</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">linecount</span> <span class="o">=</span> <span class="n">_linecount</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">content_epd</span> <span class="o">=</span> <span class="n">_epdarray</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lines_per_page</span> <span class="o">=</span> <span class="mi">8</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">=</span> <span class="mi">0</span></div>
 
-    <span class="k">def</span> <span class="nf">setOffset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_offset</span><span class="p">):</span>
+<div class="viewcode-block" id="StaticApp.setOffset"><a class="viewcode-back" href="../../../screpl.apps.static.html#screpl.apps.static.StaticApp.setOffset">[docs]</a>    <span class="k">def</span> <span class="nf">setOffset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_offset</span><span class="p">):</span>
         <span class="n">prev_offset</span><span class="p">,</span> <span class="n">linecount</span><span class="p">,</span> <span class="n">lpp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">linecount</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines_per_page</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">new_offset</span> <span class="o">&lt;=</span> <span class="mh">0x80000000</span><span class="p">,</span> <span class="n">linecount</span> <span class="o">&gt;</span> <span class="n">lpp</span><span class="p">]):</span>
             <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">new_offset</span> <span class="o">&gt;=</span> <span class="n">linecount</span> <span class="o">-</span> <span class="n">lpp</span><span class="p">):</span>
@@ -285,9 +285,9 @@
 
         <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">prev_offset</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">):</span>
             <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span><span class="o">.</span><span class="n">requestUpdate</span><span class="p">()</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StaticApp.loop"><a class="viewcode-back" href="../../../screpl.apps.static.html#screpl.apps.static.StaticApp.loop">[docs]</a>    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># F7 - previous page</span>
         <span class="c1"># F8 - next page</span>
         <span class="n">manager</span> <span class="o">=</span> <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span>
@@ -297,9 +297,9 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">setOffset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines_per_page</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">manager</span><span class="o">.</span><span class="n">keyPress</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">)):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">setOffset</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines_per_page</span><span class="p">)</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
+<div class="viewcode-block" id="StaticApp.print"><a class="viewcode-back" href="../../../screpl.apps.static.html#screpl.apps.static.StaticApp.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
         <span class="c1"># title</span>
         <span class="n">offset</span><span class="p">,</span> <span class="n">linecount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">linecount</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="si">%E</span><span class="s2"> ( %D / %D )</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
@@ -330,7 +330,7 @@
             <span class="n">DoActions</span><span class="p">(</span><span class="n">cur</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
         <span class="n">EUDEndInfLoop</span><span class="p">()</span>
 
-        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div></div>
 </pre></div>
 
           </article>

@@ -1,7 +1,0 @@
-repl.encoder.action module
-==========================
-
-.. automodule:: repl.encoder.action
-   :members:
-   :undoc-members:
-   :show-inheritance:

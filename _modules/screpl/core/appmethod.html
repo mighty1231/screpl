@@ -236,18 +236,22 @@
           <article class="md-content__inner md-typeset" role="main">
             
   <h1 id="modules-screpl-core-appmethod--page-root">Source code for screpl.core.appmethod</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+<span></span><span class="kn">import</span> <span class="nn">functools</span>
+<span class="kn">import</span> <span class="nn">inspect</span>
+
+<span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="kn">from</span> <span class="nn">eudplib.core.eudfunc.eudtypedfuncn</span> <span class="kn">import</span> <span class="n">EUDTypedFuncN</span><span class="p">,</span> <span class="n">applyTypes</span>
 <span class="kn">from</span> <span class="nn">eudplib.core.eudstruct.vararray</span> <span class="kn">import</span> <span class="n">EUDVArrayData</span>
 <span class="kn">from</span> <span class="nn">eudplib.core.eudfunc.eudfptr</span> <span class="kn">import</span> <span class="n">createIndirectCaller</span>
 
 <span class="kn">import</span> <span class="nn">screpl.main</span> <span class="k">as</span> <span class="nn">main</span>
+<span class="kn">import</span> <span class="nn">types</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Callable</span>
 
-<span class="kn">import</span> <span class="nn">inspect</span>
-
-<div class="viewcode-block" id="AppMethodN"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.apps.chatreader.AppMethodN">[docs]</a><span class="k">class</span> <span class="nc">AppMethodN</span><span class="p">:</span>
+<div class="viewcode-block" id="AppMethodN"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.core.appmethod.AppMethodN">[docs]</a><span class="k">class</span> <span class="nc">AppMethodN</span><span class="p">(</span><span class="n">Callable</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">argtypes</span><span class="p">,</span> <span class="n">rettypes</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">getWriterAsParam</span><span class="p">,</span> <span class="n">traced</span><span class="p">):</span>
+        <span class="n">functools</span><span class="o">.</span><span class="n">update_wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span>
         <span class="c1"># Step 1 from parameters</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">argtypes</span> <span class="o">=</span> <span class="n">argtypes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">rettypes</span> <span class="o">=</span> <span class="n">rettypes</span>
@@ -284,16 +288,16 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span>
 
-<div class="viewcode-block" id="AppMethodN.getFuncPtr"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.apps.chatreader.AppMethodN.getFuncPtr">[docs]</a>    <span class="k">def</span> <span class="nf">getFuncPtr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AppMethodN.getFuncPtr"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.core.appmethod.AppMethodN.getFuncPtr">[docs]</a>    <span class="k">def</span> <span class="nf">getFuncPtr</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">funcptr</span></div>
 
-<div class="viewcode-block" id="AppMethodN.setFuncnCallback"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.apps.chatreader.AppMethodN.setFuncnCallback">[docs]</a>    <span class="k">def</span> <span class="nf">setFuncnCallback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funcn_callback</span><span class="p">):</span>
+<div class="viewcode-block" id="AppMethodN.setFuncnCallback"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.core.appmethod.AppMethodN.setFuncnCallback">[docs]</a>    <span class="k">def</span> <span class="nf">setFuncnCallback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">funcn_callback</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">"allocated"</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"AppMethod already has its body"</span><span class="p">)</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">funcn_callback</span> <span class="ow">is</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">funcn_callback</span> <span class="o">=</span> <span class="n">funcn_callback</span></div>
 
-<div class="viewcode-block" id="AppMethodN.initialize"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.apps.chatreader.AppMethodN.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="AppMethodN.initialize"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.core.appmethod.AppMethodN.initialize">[docs]</a>    <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">cls</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">parent</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="c1"># initializing from its Application class</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">'not initialized'</span>
 
@@ -344,7 +348,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">'initialized'</span></div>
 
-<div class="viewcode-block" id="AppMethodN.allocate"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.apps.chatreader.AppMethodN.allocate">[docs]</a>    <span class="k">def</span> <span class="nf">allocate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AppMethodN.allocate"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.core.appmethod.AppMethodN.allocate">[docs]</a>    <span class="k">def</span> <span class="nf">allocate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">'allocated'</span><span class="p">:</span>
             <span class="k">return</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s1">'initialized'</span>
@@ -392,12 +396,12 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="o">=</span> <span class="s1">'allocated'</span></div>
 
-<div class="viewcode-block" id="AppMethodN.apply"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.apps.chatreader.AppMethodN.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AppMethodN.apply"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.core.appmethod.AppMethodN.apply">[docs]</a>    <span class="k">def</span> <span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">manager</span> <span class="o">=</span> <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span>
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">status</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">'initialized'</span><span class="p">,</span> <span class="s1">'allocated'</span><span class="p">],</span> <span class="bp">self</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">funcptr_cls</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">manager</span><span class="o">.</span><span class="n">cur_methods</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">index</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="AppMethodN.applyAbsolute"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.apps.chatreader.AppMethodN.applyAbsolute">[docs]</a>    <span class="k">def</span> <span class="nf">applyAbsolute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="AppMethodN.applyAbsolute"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.core.appmethod.AppMethodN.applyAbsolute">[docs]</a>    <span class="k">def</span> <span class="nf">applyAbsolute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">funcn</span></div>
 
     <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -408,16 +412,16 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">funcn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 <span class="sd">''' Decorator to make AppMethodN '''</span>
-<div class="viewcode-block" id="AppTypedMethod"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.apps.chatreader.AppTypedMethod">[docs]</a><span class="k">def</span> <span class="nf">AppTypedMethod</span><span class="p">(</span><span class="n">argtypes</span><span class="p">,</span> <span class="n">rettypes</span> <span class="o">=</span> <span class="p">[],</span> <span class="o">*</span><span class="p">,</span> <span class="n">getWriterAsParam</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">traced</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="AppTypedMethod"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.core.appmethod.AppTypedMethod">[docs]</a><span class="k">def</span> <span class="nf">AppTypedMethod</span><span class="p">(</span><span class="n">argtypes</span><span class="p">,</span> <span class="n">rettypes</span> <span class="o">=</span> <span class="p">[],</span> <span class="o">*</span><span class="p">,</span> <span class="n">getWriterAsParam</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">traced</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">ret</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">AppMethodN</span><span class="p">(</span><span class="n">argtypes</span><span class="p">,</span> <span class="n">rettypes</span><span class="p">,</span> <span class="n">method</span><span class="p">,</span>
                 <span class="n">getWriterAsParam</span><span class="o">=</span><span class="n">getWriterAsParam</span><span class="p">,</span> <span class="n">traced</span><span class="o">=</span><span class="n">traced</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">ret</span></div>
 
-<div class="viewcode-block" id="AppMethod"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.apps.chatreader.AppMethod">[docs]</a><span class="k">def</span> <span class="nf">AppMethod</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+<div class="viewcode-block" id="AppMethod"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.core.appmethod.AppMethod">[docs]</a><span class="k">def</span> <span class="nf">AppMethod</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">AppTypedMethod</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">[],</span> <span class="n">traced</span><span class="o">=</span><span class="kc">False</span><span class="p">)(</span><span class="n">method</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="AppMethod_writerParam"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.apps.chatreader.AppMethod_writerParam">[docs]</a><span class="k">def</span> <span class="nf">AppMethod_writerParam</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+<div class="viewcode-block" id="AppMethod_writerParam"><a class="viewcode-back" href="../../../screpl.core.appmethod.html#screpl.core.appmethod.AppMethod_writerParam">[docs]</a><span class="k">def</span> <span class="nf">AppMethod_writerParam</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
     <span class="k">return</span> <span class="n">AppTypedMethod</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="p">[],</span> <span class="n">getWriterAsParam</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">traced</span><span class="o">=</span><span class="kc">False</span><span class="p">)(</span><span class="n">method</span><span class="p">)</span></div>
 </pre></div>
 

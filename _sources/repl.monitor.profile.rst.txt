@@ -1,7 +1,0 @@
-repl.monitor.profile module
-===========================
-
-.. automodule:: repl.monitor.profile
-   :members:
-   :undoc-members:
-   :show-inheritance:

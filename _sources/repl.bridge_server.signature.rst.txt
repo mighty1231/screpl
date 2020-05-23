@@ -1,7 +1,0 @@
-repl.bridge\_server.signature module
-====================================
-
-.. automodule:: repl.bridge_server.signature
-   :members:
-   :undoc-members:
-   :show-inheritance:

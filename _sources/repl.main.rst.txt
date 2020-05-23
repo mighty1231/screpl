@@ -1,7 +1,0 @@
-repl.main module
-================
-
-.. automodule:: repl.main
-   :members:
-   :undoc-members:
-   :show-inheritance:

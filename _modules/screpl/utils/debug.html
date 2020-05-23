@@ -237,7 +237,8 @@
             
   <h1 id="modules-screpl-utils-debug--page-root">Source code for screpl.utils.debug</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">.conststring</span> <span class="kn">import</span> <span class="n">EPDConstString</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conststring</span> <span class="k">as</span> <span class="n">cs</span>
 
 <span class="n">_buf</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">2048</span><span class="p">)</span>
 <span class="n">_writer</span> <span class="o">=</span> <span class="kc">None</span>
@@ -271,7 +272,7 @@
 
 <div class="viewcode-block" id="f_raise_error"><a class="viewcode-back" href="../../../screpl.utils.debug.html#screpl.utils.debug.f_raise_error">[docs]</a><span class="k">def</span> <span class="nf">f_raise_error</span><span class="p">(</span><span class="n">txt</span><span class="p">):</span>
     <span class="n">_get_writer</span><span class="p">()</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">_buf</span><span class="p">))</span>
-    <span class="n">_get_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">(</span><span class="n">txt</span><span class="p">))</span>
+    <span class="n">_get_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="n">txt</span><span class="p">))</span>
     <span class="n">_get_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">_print_buf</span><span class="p">()</span>
     <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemory</span><span class="p">(</span><span class="mh">0xDEADBEEF</span> <span class="o">^</span> <span class="mh">0xFFFFFFFF</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span></div>

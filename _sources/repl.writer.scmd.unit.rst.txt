@@ -1,7 +1,0 @@
-repl.writer.scmd.unit module
-============================
-
-.. automodule:: repl.writer.scmd.unit
-   :members:
-   :undoc-members:
-   :show-inheritance:

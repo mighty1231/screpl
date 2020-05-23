@@ -1,7 +1,0 @@
-repl.utils.struct module
-========================
-
-.. automodule:: repl.utils.struct
-   :members:
-   :undoc-members:
-   :show-inheritance:

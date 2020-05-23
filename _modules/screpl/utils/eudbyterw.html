@@ -237,7 +237,8 @@
             
   <h1 id="modules-screpl-utils-eudbyterw--page-root">Source code for screpl.utils.eudbyterw</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">screpl.utils</span> <span class="kn">import</span> <span class="n">conststring</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">conststring</span> <span class="k">as</span> <span class="n">cs</span>
 
 <div class="viewcode-block" id="EUDByteRW"><a class="viewcode-back" href="../../../screpl.utils.eudbyterw.html#screpl.utils.eudbyterw.EUDByteRW">[docs]</a><span class="k">class</span> <span class="nc">EUDByteRW</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -514,9 +515,9 @@
 <div class="viewcode-block" id="EUDByteRW.write_bool"><a class="viewcode-back" href="../../../screpl.utils.eudbyterw.html#screpl.utils.eudbyterw.EUDByteRW.write_bool">[docs]</a>    <span class="nd">@EUDMethod</span>
     <span class="k">def</span> <span class="nf">write_bool</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">value</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">conststring</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"True"</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"True"</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">conststring</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"False"</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"False"</span><span class="p">))</span>
         <span class="n">EUDEndIf</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="EUDByteRW.write_u8"><a class="viewcode-back" href="../../../screpl.utils.eudbyterw.html#screpl.utils.eudbyterw.EUDByteRW.write_u8">[docs]</a>    <span class="nd">@EUDMethod</span>
@@ -704,7 +705,7 @@
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
                 <span class="k">else</span><span class="p">:</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">conststring</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="n">arg</span><span class="p">))</span>
             <span class="k">elif</span> <span class="n">fm</span> <span class="o">==</span> <span class="s1">'H'</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">write_hex</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">fm</span> <span class="o">==</span> <span class="s1">'D'</span><span class="p">:</span>

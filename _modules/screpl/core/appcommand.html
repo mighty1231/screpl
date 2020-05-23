@@ -236,8 +236,9 @@
           <article class="md-content__inner md-typeset" role="main">
             
   <h1 id="modules-screpl-core-appcommand--page-root">Source code for screpl.core.appcommand</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+<span></span><span class="kn">import</span> <span class="nn">inspect</span>
 
+<span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">eudplib.core.eudfunc.eudtypedfuncn</span> <span class="kn">import</span> <span class="n">EUDTypedFuncN</span>
 <span class="kn">from</span> <span class="nn">eudplib.core.eudstruct.vararray</span> <span class="kn">import</span> <span class="n">EUDVArrayData</span>
 <span class="kn">from</span> <span class="nn">eudplib.core.eudfunc.eudfptr</span> <span class="kn">import</span> <span class="n">createIndirectCaller</span>
@@ -250,7 +251,6 @@
 
 <span class="kn">import</span> <span class="nn">screpl.main</span> <span class="k">as</span> <span class="nn">main</span>
 
-<span class="kn">import</span> <span class="nn">inspect</span>
 
 <span class="n">_MAXARGCNT</span> <span class="o">=</span> <span class="mi">8</span>
 
@@ -338,15 +338,11 @@
 <div class="viewcode-block" id="AppCommandN"><a class="viewcode-back" href="../../../screpl.core.appcommand.html#screpl.apps.repl.AppCommandN">[docs]</a><span class="k">class</span> <span class="nc">AppCommandN</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg_encoders</span><span class="p">,</span> <span class="n">func</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">traced</span><span class="p">):</span>
         <span class="c1"># Get argument number of fdecl_func</span>
-        <span class="n">argspec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-        <span class="n">ep_assert</span><span class="p">(</span>
-            <span class="n">argspec</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">'No variadic arguments (*args) allowed for AppCommand.'</span>
-        <span class="p">)</span>
-        <span class="n">ep_assert</span><span class="p">(</span>
-            <span class="n">argspec</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span>
-            <span class="s1">'No variadic keyword arguments (*kwargs) allowed for AppCommand.'</span>
-        <span class="p">)</span>
+        <span class="n">argspec</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getfullargspec</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">argspec</span><span class="o">.</span><span class="n">varargs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> \
+                <span class="s1">'No variadic arguments (*args) allowed for AppCommand'</span>
+        <span class="k">assert</span> <span class="n">argspec</span><span class="o">.</span><span class="n">varkw</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">,</span> \
+                <span class="s1">'No variadic keyword arguments (**kwargs) allowed for AppCommand'</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">arg_encoders</span> <span class="o">=</span> <span class="n">arg_encoders</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">argn</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg_encoders</span><span class="p">)</span>

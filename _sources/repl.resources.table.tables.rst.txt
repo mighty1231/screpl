@@ -1,7 +1,0 @@
-repl.resources.table.tables module
-==================================
-
-.. automodule:: repl.resources.table.tables
-   :members:
-   :undoc-members:
-   :show-inheritance:

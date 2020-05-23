@@ -1,7 +1,0 @@
-repl.utils.keycode module
-=========================
-
-.. automodule:: repl.utils.keycode
-   :members:
-   :undoc-members:
-   :show-inheritance:

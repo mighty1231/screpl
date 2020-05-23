@@ -236,17 +236,17 @@
           <article class="md-content__inner md-typeset" role="main">
             
   <h1 id="modules-screpl-apps-repl--page-root">Source code for screpl.apps.repl</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+<span></span><span class="kn">import</span> <span class="nn">inspect</span>
 
-<span class="kn">from</span> <span class="nn">screpl.core</span> <span class="kn">import</span> <span class="n">application</span>
-<span class="kn">from</span> <span class="nn">screpl.core</span> <span class="kn">import</span> <span class="n">appcommand</span>
-<span class="kn">from</span> <span class="nn">screpl.utils.eudbyterw</span> <span class="kn">import</span> <span class="n">EUDByteRW</span>
+<span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 
-<span class="kn">import</span> <span class="nn">screpl.apps.static</span> <span class="k">as</span> <span class="nn">static</span>
-<span class="kn">from</span> <span class="nn">.logger</span> <span class="kn">import</span> <span class="n">Logger</span>
-<span class="kn">from</span> <span class="nn">screpl</span> <span class="kn">import</span> <span class="n">main</span>
+<span class="kn">import</span> <span class="nn">screpl.core.application</span> <span class="k">as</span> <span class="nn">application</span>
+<span class="kn">import</span> <span class="nn">screpl.core.appcommand</span> <span class="k">as</span> <span class="nn">appcommand</span>
+<span class="kn">import</span> <span class="nn">screpl.main</span> <span class="k">as</span> <span class="nn">main</span>
+<span class="kn">import</span> <span class="nn">screpl.utils.eudbyterw</span> <span class="k">as</span> <span class="nn">rw</span>
 
-<span class="kn">import</span> <span class="nn">inspect</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">static</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">logger</span>
 
 <span class="n">_PAGE_NUMLINES</span> <span class="o">=</span> <span class="mi">8</span>
 <span class="n">_LINE_SIZE</span> <span class="o">=</span> <span class="mi">216</span>
@@ -265,19 +265,19 @@
 
 <span class="n">_repl_outputcolor</span> <span class="o">=</span> <span class="mh">0x16</span>
 
-<span class="n">_repl_writer</span> <span class="o">=</span> <span class="n">EUDByteRW</span><span class="p">()</span>
-
 <div class="viewcode-block" id="REPL"><a class="viewcode-back" href="../../../screpl.apps.repl.html#screpl.apps.repl.REPL">[docs]</a><span class="k">class</span> <span class="nc">REPL</span><span class="p">(</span><span class="n">application</span><span class="o">.</span><span class="n">Application</span><span class="p">):</span>
+    <span class="n">_output_writer</span> <span class="o">=</span> <span class="n">rw</span><span class="o">.</span><span class="n">EUDByteRW</span><span class="p">()</span>
+
 <div class="viewcode-block" id="REPL.get_output_writer"><a class="viewcode-back" href="../../../screpl.apps.repl.html#screpl.apps.repl.REPL.get_output_writer">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_output_writer</span><span class="p">():</span>
         <span class="sd">"""returns writer object that supports to write output"""</span>
-        <span class="n">_repl_writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">_repl_output_epd_ptr</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">_repl_writer</span></div>
+        <span class="n">REPL</span><span class="o">.</span><span class="n">_output_writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">_repl_output_epd_ptr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">REPL</span><span class="o">.</span><span class="n">_output_writer</span></div>
 
-    <span class="k">def</span> <span class="nf">onChat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
-        <span class="n">_repl_writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">_repl_input_epd_ptr</span><span class="p">)</span>
-        <span class="n">_repl_writer</span><span class="o">.</span><span class="n">write_str</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
-        <span class="n">_repl_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<div class="viewcode-block" id="REPL.onChat"><a class="viewcode-back" href="../../../screpl.apps.repl.html#screpl.apps.repl.REPL.onChat">[docs]</a>    <span class="k">def</span> <span class="nf">onChat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+        <span class="n">REPL</span><span class="o">.</span><span class="n">_output_writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">_repl_input_epd_ptr</span><span class="p">)</span>
+        <span class="n">REPL</span><span class="o">.</span><span class="n">_output_writer</span><span class="o">.</span><span class="n">write_str</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+        <span class="n">REPL</span><span class="o">.</span><span class="n">_output_writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cmd_output_epd</span> <span class="o">=</span> <span class="n">_repl_output_epd_ptr</span>
 
         <span class="n">application</span><span class="o">.</span><span class="n">Application</span><span class="o">.</span><span class="n">onChat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">)</span>
@@ -290,9 +290,9 @@
             <span class="n">_repl_output_epd_ptr</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="n">_LINE_SIZE</span> <span class="o">//</span> <span class="mi">4</span><span class="p">),</span>
             <span class="n">_repl_index</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
         <span class="p">])</span>
-        <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span><span class="o">.</span><span class="n">requestUpdate</span><span class="p">()</span>
+        <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span><span class="o">.</span><span class="n">requestUpdate</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="REPL.loop"><a class="viewcode-back" href="../../../screpl.apps.repl.html#screpl.apps.repl.REPL.loop">[docs]</a>    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># F7 - previous page</span>
         <span class="c1"># F8 - next page</span>
         <span class="n">manager</span> <span class="o">=</span> <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span>
@@ -313,9 +313,9 @@
                 <span class="p">])</span>
                 <span class="n">manager</span><span class="o">.</span><span class="n">requestUpdate</span><span class="p">()</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span></div>
 
-    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
+<div class="viewcode-block" id="REPL.print"><a class="viewcode-back" href="../../../screpl.apps.repl.html#screpl.apps.repl.REPL.print">[docs]</a>    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
         <span class="c1"># title</span>
         <span class="n">cur_pn</span> <span class="o">=</span> <span class="n">_repl_cur_page</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">_repl_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
@@ -363,7 +363,7 @@
             <span class="n">DoActions</span><span class="p">(</span><span class="n">cur</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
         <span class="n">EUDEndInfLoop</span><span class="p">()</span>
 
-        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
     <span class="nd">@appcommand</span><span class="o">.</span><span class="n">AppCommand</span><span class="p">([])</span>
     <span class="k">def</span> <span class="nf">help</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -415,7 +415,7 @@
     <span class="nd">@appcommand</span><span class="o">.</span><span class="n">AppCommand</span><span class="p">([])</span>
     <span class="k">def</span> <span class="nf">log</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""Start Logger application"""</span>
-        <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span><span class="o">.</span><span class="n">startApplication</span><span class="p">(</span><span class="n">Logger</span><span class="p">)</span></div>
+        <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span><span class="o">.</span><span class="n">startApplication</span><span class="p">(</span><span class="n">logger</span><span class="o">.</span><span class="n">Logger</span><span class="p">)</span></div>
 </pre></div>
 
           </article>

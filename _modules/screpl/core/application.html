@@ -238,12 +238,13 @@
   <h1 id="modules-screpl-core-application--page-root">Source code for screpl.core.application</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 
-<span class="kn">import</span> <span class="nn">screpl.core.appcommand</span> <span class="k">as</span> <span class="nn">appcommand</span>
-<span class="kn">import</span> <span class="nn">screpl.core.appmethod</span> <span class="k">as</span> <span class="nn">appmethod</span>
 <span class="kn">from</span> <span class="nn">screpl.utils.conststring</span> <span class="kn">import</span> <span class="n">EPDConstString</span>
 <span class="kn">from</span> <span class="nn">screpl.utils.referencetable</span> <span class="kn">import</span> <span class="n">ReferenceTable</span>
 
 <span class="kn">import</span> <span class="nn">screpl.main</span> <span class="k">as</span> <span class="nn">main</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">appcommand</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">appmethod</span>
 
 <span class="k">class</span> <span class="nc">_indexPair</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -426,30 +427,30 @@
     <span class="c1">#    runAppCommand() is written into cmd_output_epd.</span>
     <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"cmd_output_epd"</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">onInit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cmd_output_epd</span> <span class="o">=</span> <span class="mi">0</span>
+<div class="viewcode-block" id="Application.onInit"><a class="viewcode-back" href="../../../screpl.core.application.html#screpl.core.application.Application.onInit">[docs]</a>    <span class="k">def</span> <span class="nf">onInit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cmd_output_epd</span> <span class="o">=</span> <span class="mi">0</span></div>
 
-    <span class="k">def</span> <span class="nf">onDestruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">pass</span>
+<div class="viewcode-block" id="Application.onDestruct"><a class="viewcode-back" href="../../../screpl.core.application.html#screpl.core.application.Application.onDestruct">[docs]</a>    <span class="k">def</span> <span class="nf">onDestruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span></div>
 
-    <span class="k">def</span> <span class="nf">onChat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+<div class="viewcode-block" id="Application.onChat"><a class="viewcode-back" href="../../../screpl.core.application.html#screpl.core.application.Application.onChat">[docs]</a>    <span class="k">def</span> <span class="nf">onChat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
         <span class="n">appcommand</span><span class="o">.</span><span class="n">runAppCommand</span><span class="p">(</span>
             <span class="n">offset</span><span class="p">,</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cmd_output_epd</span>
-        <span class="p">)</span>
+        <span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">onResume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Application.onResume"><a class="viewcode-back" href="../../../screpl.core.application.html#screpl.core.application.Application.onResume">[docs]</a>    <span class="k">def</span> <span class="nf">onResume</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""called exactly once after forward application was closed"""</span>
-        <span class="k">pass</span>
+        <span class="k">pass</span></div>
 
-    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Application.loop"><a class="viewcode-back" href="../../../screpl.core.application.html#screpl.core.application.Application.loop">[docs]</a>    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""called exactly once in every frame"""</span>
-        <span class="k">pass</span>
+        <span class="k">pass</span></div>
 
-    <span class="nd">@appmethod</span><span class="o">.</span><span class="n">AppMethod_writerParam</span>
+<div class="viewcode-block" id="Application.print"><a class="viewcode-back" href="../../../screpl.core.application.html#screpl.core.application.Application.print">[docs]</a>    <span class="nd">@appmethod</span><span class="o">.</span><span class="n">AppMethod_writerParam</span>
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
         <span class="sd">"""called once in a frame that invoked requestUpdate"""</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Application.getSuper"><a class="viewcode-back" href="../../../screpl.core.application.html#screpl.core.application.Application.getSuper">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">getSuper</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
@@ -461,8 +462,10 @@
 <div class="viewcode-block" id="Application.allocate"><a class="viewcode-back" href="../../../screpl.core.application.html#screpl.core.application.Application.allocate">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">allocate</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_allocated_</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="nb">object</span><span class="p">:</span>
-                <span class="bp">cls</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">allocate</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">cls</span> <span class="o">!=</span> <span class="n">Application</span><span class="p">:</span>
+                <span class="n">parent_cls</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="vm">__mro__</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">parent_cls</span><span class="p">,</span> <span class="n">Application</span><span class="p">)</span>
+                <span class="n">parent_cls</span><span class="o">.</span><span class="n">allocate</span><span class="p">()</span>
 
             <span class="c1"># allocate methods</span>
             <span class="n">methodarray</span> <span class="o">=</span> <span class="p">[]</span>

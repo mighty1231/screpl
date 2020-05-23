@@ -1,7 +1,0 @@
-repl.writer.scmd.condition module
-=================================
-
-.. automodule:: repl.writer.scmd.condition
-   :members:
-   :undoc-members:
-   :show-inheritance:

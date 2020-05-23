@@ -259,7 +259,7 @@
 
 <span class="n">dead_signature</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">'</span><span class="se">\x00\x00\x00\x00</span><span class="s1">'</span> <span class="o">+</span> <span class="n">_signature</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>
 
-<div class="viewcode-block" id="RestoreSignature"><a class="viewcode-back" href="../../../screpl.bridge_server.signature.html#screpl.bridge_server.signature.RestoreSignature">[docs]</a><span class="k">def</span> <span class="nf">RestoreSignature</span><span class="p">(</span><span class="n">sign</span><span class="p">):</span>
+<div class="viewcode-block" id="restore_signature"><a class="viewcode-back" href="../../../screpl.bridge_server.signature.html#screpl.bridge_server.signature.restore_signature">[docs]</a><span class="k">def</span> <span class="nf">restore_signature</span><span class="p">(</span><span class="n">sign</span><span class="p">):</span>
 	<span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">sign</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">b2i4</span><span class="p">(</span><span class="n">_signature</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span></div>
 </pre></div>
 

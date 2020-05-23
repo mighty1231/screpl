@@ -1,7 +1,0 @@
-repl.core.appmanager module
-===========================
-
-.. automodule:: repl.core.appmanager
-   :members:
-   :undoc-members:
-   :show-inheritance:

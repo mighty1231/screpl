@@ -238,10 +238,10 @@
   <h1 id="modules-screpl-apps-selector--page-root">Source code for screpl.apps.selector</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 
-<span class="kn">from</span> <span class="nn">screpl.core</span> <span class="kn">import</span> <span class="n">application</span>
-<span class="kn">from</span> <span class="nn">screpl.utils.referencetable</span> <span class="kn">import</span> <span class="n">ReferenceTable</span>
-<span class="kn">from</span> <span class="nn">screpl.resources.table</span> <span class="kn">import</span> <span class="n">tables</span> <span class="k">as</span> <span class="n">tb</span>
-<span class="kn">from</span> <span class="nn">screpl</span> <span class="kn">import</span> <span class="n">main</span>
+<span class="kn">import</span> <span class="nn">screpl.core.application</span> <span class="k">as</span> <span class="nn">application</span>
+<span class="kn">import</span> <span class="nn">screpl.resources.table.tables</span> <span class="k">as</span> <span class="nn">tb</span>
+<span class="kn">import</span> <span class="nn">screpl.main</span> <span class="k">as</span> <span class="nn">main</span>
+<span class="kn">import</span> <span class="nn">screpl.utils.referencetable</span> <span class="k">as</span> <span class="nn">referencetable</span>
 
 <span class="c1"># number of items to show in a page</span>
 <span class="n">NITEMS</span> <span class="o">=</span> <span class="mi">8</span>
@@ -284,7 +284,7 @@
                     <span class="n">EUDReturn</span><span class="p">()</span>
                 <span class="n">EUDEndIf</span><span class="p">()</span>
 
-            <span class="n">ReferenceTable</span><span class="o">.</span><span class="n">Iter</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">reftable</span><span class="p">),</span> <span class="n">func</span><span class="p">)</span>
+            <span class="n">referencetable</span><span class="o">.</span><span class="n">ReferenceTable</span><span class="o">.</span><span class="n">Iter</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">reftable</span><span class="p">),</span> <span class="n">func</span><span class="p">)</span>
 
             <span class="c1"># failed on search</span>
             <span class="n">_value</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
