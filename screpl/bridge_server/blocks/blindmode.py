@@ -1,11 +1,18 @@
-'''
-BlindModeDisplayBlock provides display for blindmode
-'''
+"""Defines BlindModeDisplayBlock"""
 from eudplib import *
 from screpl.bridge_server import block
 import screpl.main as main
 
 class BlindModeDisplayBlock(block.BridgeBlock):
+    """Provides display for blind mode activated
+
+    .. code-block:: C
+
+        struct BlindModeDisplayBlock {
+            char content[DISPLAY_BUFFER_SIZE];
+        };
+    """
+
     signature = b'BLIN'
 
     def GetBufferSize(self):

@@ -1,12 +1,6 @@
-'''
-LoggerBlock provides logs from Logger
-
-struct {
-    int log_index;
-    char logger_log[LOGGER_LINE_COUNT][LOGGER_LINE_SIZE];
-}
-'''
+"""Defines LoggerBlock"""
 from eudplib import *
+
 from screpl.apps.logger import (
     buf_start_epd,
     log_index,
@@ -16,6 +10,15 @@ from screpl.apps.logger import (
 from screpl.bridge_server import block
 
 class LoggerBlock(block.BridgeBlock):
+    """Provides logs from Logger
+
+    .. code-block:: C
+
+        struct LoggerBlock {
+            int log_index;
+            char logger_log[LOGGER_LINE_COUNT][LOGGER_LINE_SIZE];
+        };
+    """
     signature = b'LOGB'
 
     def GetBufferSize(self):

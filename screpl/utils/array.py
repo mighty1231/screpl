@@ -110,9 +110,7 @@ class REPLArray(struct.REPLStruct):
 
     @EUDMethod
     def pop(self):
-        '''
-        Remove and return item at last
-        '''
+        """Removes and returns item at last"""
         end = self.end
         size = self.size
         if EUDIf()(size == 0):
@@ -127,12 +125,15 @@ class REPLArray(struct.REPLStruct):
 
     @EUDMethod
     def insert(self, index, value):
-        '''
-        insert item on index
-                index index+1 index+2 ... size-1  size
-        before: v_i   v_(i+1) v_(i+2) ... v_(s-1) (end)
-        after:  value v_i     v_(i+1) ... v_(s-2) v_(s-1) (end)
-        '''
+        """Inserts item on index
+
+        ====== ===== ======= ======= === ========= ======== ======
+        insert index index+1 index+2 ... size-1    size     size+1
+        ------ ----- ------- ------- --- --------- -------- ------
+        before v_i   v_(i+1) v_(i+2) ... v_(s-1)   (end)
+        after  value v_i     v_(i+1) ... v_(s-2)   v_(s-1)  (end)
+        ====== ===== ======= ======= === ========= ======== ======
+        """
         contents = self.contents
         size = self.size
         end = self.end
@@ -175,11 +176,13 @@ class REPLArray(struct.REPLStruct):
 
     @EUDMethod
     def delete(self, index):
-        '''
-        delete item with index
-        before: index,   index+1, ..., size-2, size-1
-        after:  index+1, index+2, ..., size-1
-        '''
+        """Deletes item with index
+
+        ====== ======= ======= === ====== ======
+        before index   index+1 ... size-2 size-1
+        after  index+1 index+2 ... size-1 (empty)
+        ====== ======= ======= === ====== ======
+        """
         contents = self.contents
         size = self.size
         end = self.end
@@ -218,10 +221,10 @@ class REPLArray(struct.REPLStruct):
 
     @EUDMethod
     def index(self, item):
-        '''
-        returns the smallest index which has item.
-        if there is no such index, returns -1
-        '''
+        """Returns the smallest index which has item.
+
+        If there is no such index, returns -1
+        """
         cond1, cond2 = Forward(), Forward()
         SeqCompute([
             (EPD(cond2 + 4), SetTo, self.contents),
@@ -292,9 +295,16 @@ class REPLArray(struct.REPLStruct):
         stack.free()
 
     def values(self):
-        '''
-        iterate over values in array
-        '''
+        """iterate over values in array
+
+        .. code-block:: python
+
+            array = REPLArray.construct(5, [1, 2, 3, 2, 1])
+            for v in array.values():
+                f_printf("%D", v)
+
+            # prints 1 2 3 2 1 on each lines
+        """
         blockname = 'arrayloop'
         EUDCreateBlock(blockname, self)
 

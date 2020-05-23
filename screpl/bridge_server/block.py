@@ -50,14 +50,14 @@ class BridgeBlock(ConstExpr, metaclass=_BB_Metaclass):
         """Updates contents of the block.
 
         Use `self` as a pointer to contents of the block.
-        Required to be overrided.
+        Required to be overridden.
         """
         raise NotImplementedError("Override UpdateContent")
 
     def GetBufferSize(self):
         """Returns size of its contents.
 
-        Required to be overrided.
+        Required to be overridden.
         """
         raise NotImplementedError("Override GetBufferSize")
 

@@ -1,11 +1,4 @@
-'''
-AppOutputBlock provides game text
-
-struct {
-    int app_output_sz;
-    char app_output[2000];
-}
-'''
+"""Defines AppOutputBlock"""
 from eudplib import *
 from screpl.bridge_server import block
 
@@ -15,6 +8,16 @@ appOutputSize = EUDVariable()
 appOutputBuffer = Db(APP_OUTPUT_MAXSIZE)
 
 class AppOutputBlock(block.BridgeBlock):
+    """Provides utf-8 based text from applications
+
+    .. code-block:: C
+
+        struct AppOutputBlock {
+            int app_output_sz;
+            char app_output[2000];
+        };
+    """
+
     signature = b'AOUT'
 
     def GetBufferSize(self):

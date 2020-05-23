@@ -1,16 +1,18 @@
-'''
-GameTextBlock provides game text
-
-struct {
-    int displayIndex;
-    char display[13][218];
-    char _unused[2]; # padding
-}
-'''
+"""Defines GameTextBlock"""
 from eudplib import *
 from screpl.bridge_server import block
 
 class GameTextBlock(block.BridgeBlock):
+    """Provides game text
+
+    .. code-block:: C
+
+        struct GameTextBlock {
+            int displayIndex;
+            char display[13][218];
+            char _unused[2]; // padding
+        };
+    """
     signature = b'TEXT'
 
     def GetBufferSize(self):

@@ -1,19 +1,4 @@
-'''
-ProfileBlock provides profiled results
-
-struct {
-    int count;
-
-    struct {
-        int name_offset; // relative to block offset
-        int counter;
-        int total_ms;
-        int total_ticks;
-    } monitor[];
-
-    char names[]; // null-ended...
-}
-'''
+"""Defines ProfileBlock"""
 from eudplib import *
 from screpl.bridge_server import block
 from screpl.monitor import profile_table
@@ -51,6 +36,23 @@ def get_block():
 
 
 class ProfileBlock(block.BridgeBlock):
+    """Provides profiled results
+
+    .. code-block:: C
+
+        struct VariableEntry {
+            int name_offset; // relative offset to ProfileBlock address
+            int counter;
+            int total_ms;
+            int total_ticks;
+        };
+
+        struct ProfileBlock {
+            int var_count;
+            VariableEntry var_entries[var_count];
+            char var_names[var_count]; // null-ended strings
+        };
+    """
     signature = b'PROF'
 
     def GetBufferSize(self):
