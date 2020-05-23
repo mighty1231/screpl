@@ -100,15 +100,11 @@ def encodeArguments():
 class AppCommandN:
     def __init__(self, arg_encoders, func, *, traced):
         # Get argument number of fdecl_func
-        argspec = inspect.getargspec(func)
-        ep_assert(
-            argspec[1] is None,
-            'No variadic arguments (*args) allowed for AppCommand.'
-        )
-        ep_assert(
-            argspec[2] is None,
-            'No variadic keyword arguments (*kwargs) allowed for AppCommand.'
-        )
+        argspec = inspect.getfullargspec(func)
+        assert argspec.varargs is None, \
+                'No variadic arguments (*args) allowed for AppCommand'
+        assert argspec.varkw is None, \
+                'No variadic keyword arguments (**kwargs) allowed for AppCommand'
 
         self.arg_encoders = arg_encoders
         self.argn = len(arg_encoders)
