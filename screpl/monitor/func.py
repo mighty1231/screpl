@@ -7,32 +7,33 @@ from screpl.apps.logger import Logger
 from screpl.core.application import ApplicationInstance
 from screpl.core.appmethod import AppMethodN
 from screpl.core.appcommand import AppCommandN
-from .profile import REPLMonitorPush
-from .profile import REPLMonitorPop
+from .profile import repl_monitor_push
+from .profile import repl_monitor_pop
 
 
-def REPLMonitorF(io=True, profile=True):
+def repl_monitor_f(io=True, profile=True):
     '''
     Decorator function to monitor function-classes
     '''
     def monitor(func):
         if isinstance(func, EUDFuncN):
-            return REPLMonitorEUDFunc(func, io, profile)
+            return repl_monitor_eudfunc(func, io, profile)
         elif isinstance(func, AppMethodN):
-            REPLMonitorAppMethod(func, io, profile)
+            repl_monitor_appmethod(func, io, profile)
             return func
         elif isinstance(func, AppCommandN):
-            REPLMonitorAppCommand(func, io, profile)
+            repl_monitor_appcommand(func, io, profile)
             return func
         raise RuntimeError(
-            "Currently REPLMonitorF supports EUDFuncN, AppCommand, and AppMethod"
+            "Currently repl_monitor_f supports EUDFuncN, AppCommand, and AppMethod"
         )
 
     return monitor
 
 monitored_objects = []
 
-def REPLMonitorEUDFunc(funcn, io=True, profile=False):
+def repl_monitor_eudfunc(funcn, io=True, profile=False):
+    # pylint: disable=protected-access
     assert funcn not in monitored_objects, "func should not be monitored twice"
 
     if funcn._fstart:
@@ -55,7 +56,7 @@ def REPLMonitorEUDFunc(funcn, io=True, profile=False):
             Logger.format("<{}> entered".format(func_name))
 
         if profile:
-            REPLMonitorPush(func_name, profile=True, log=False)
+            repl_monitor_push(func_name, profile=True, log=False)
 
         # call original caller
         final_rets = old_caller(*args)
@@ -66,7 +67,7 @@ def REPLMonitorEUDFunc(funcn, io=True, profile=False):
         funcn._fend << NextTrigger() # To catch EUDReturn
 
         if profile:
-            tickdiff, expected = REPLMonitorPop()
+            tickdiff, expected = repl_monitor_pop()
 
         # build log
         if funcn._retn:
@@ -94,13 +95,13 @@ def REPLMonitorEUDFunc(funcn, io=True, profile=False):
 
     return funcn
 
-def REPLMonitorAppMethod(appmtd, io=True, profile=False):
+def repl_monitor_appmethod(appmtd, io=True, profile=False):
     appmtd.set_funcn_callback(
-        functools.partial(REPLMonitorEUDFunc,
+        functools.partial(repl_monitor_eudfunc,
                           io=io, profile=profile
     ))
 
-def REPLMonitorAppCommand(appcmd, io=True, profile=False):
+def repl_monitor_appcommand(appcmd, io=True, profile=False):
     assert appcmd not in monitored_objects, "command should not be monitored twice"
 
     def cb(old_func):
@@ -122,7 +123,7 @@ def REPLMonitorAppCommand(appcmd, io=True, profile=False):
                 Logger.format("<{}> entered".format(func_name))
 
             if profile:
-                REPLMonitorPush(func_name, profile=True, log=False)
+                repl_monitor_push(func_name, profile=True, log=False)
 
             # Call original function, and it should return None.
             # The violation would be checked by AppCommand object
@@ -131,7 +132,7 @@ def REPLMonitorAppCommand(appcmd, io=True, profile=False):
             fmtstring = "<{}> exited".format(func_name)
             args = []
             if profile:
-                tickdiff, expected  = REPLMonitorPop()
+                tickdiff, expected = repl_monitor_pop()
                 fmtstring += ", %D ms (Expected %D)"
                 args += [tickdiff, expected]
 

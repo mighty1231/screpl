@@ -3,7 +3,7 @@ from eudplib import *
 from screpl.apps.logger import Logger
 from . import profile_table, f_get_inversed_millis, f_get_gamespeed
 
-def REPLMonitorPush(name, profile=True, log=True):
+def repl_monitor_push(name, profile=True, log=True):
     blockdata = {
         'name': name,
         'profile': profile,
@@ -30,7 +30,7 @@ def REPLMonitorPush(name, profile=True, log=True):
 
     return True # enables "if REPLMonitorPush():"
 
-def REPLMonitorPop():
+def repl_monitor_pop():
     _, blockdata = EUDPopBlock("replmonitorblock")
 
     name = blockdata['name']
