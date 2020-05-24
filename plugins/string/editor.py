@@ -24,7 +24,7 @@ tmp_storage = Db(10000)
 tmp_storage_epd = EPD(tmp_storage)
 
 class StringEditorApp(Application):
-    def onInit(self):
+    def on_init(self):
         v_mode << MODE_INSERT
         string_offset_epd = STRSection_epd + cur_string_id
         v_oldbuf_offset << f_dwread_epd(string_offset_epd)
@@ -40,7 +40,7 @@ class StringEditorApp(Application):
         EUDEndIf()
         v_cursor_epd << v_string_epd
 
-    def onDestruct(self):
+    def on_destruct(self):
         if EUDIf()(v_changed == 0):
             # fill null bytes for allocated buffer
             temp_epd = EUDVariable()
@@ -67,12 +67,12 @@ class StringEditorApp(Application):
             new_alloc_epd << v_previous_alloc_epd
         EUDEndIf()
 
-    def onChat(self, offset):
+    def on_chat(self, offset):
         global v_cursor_epd
 
         v_changed << 1
 
-        reader = EUDByteRW()
+        reader = REPLByteRW()
         reader.seekoffset(offset)
         clear_overwrite, clear_insert = Forward(), Forward()
         if EUDIf()(v_mode == MODE_OVERWRITE):
@@ -192,23 +192,23 @@ class StringEditorApp(Application):
     def loop(self):
         global v_cursor_epd, v_frame
 
-        if EUDIf()(app_manager.keyPress("ESC")):
-            app_manager.requestDestruct()
-        if EUDElseIf()(app_manager.keyPress("insert")):
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
+        if EUDElseIf()(app_manager.key_press("insert")):
             v_mode << 1 - v_mode
-        if EUDElseIf()(app_manager.keyPress("delete")):
+        if EUDElseIf()(app_manager.key_press("delete")):
             f_strcpy_epd(v_cursor_epd, v_cursor_epd + 1)
-        if EUDElseIf()(app_manager.keyPress("F7")):
+        if EUDElseIf()(app_manager.key_press("F7")):
             if EUDIfNot()(v_cursor_epd == v_string_epd):
                 v_cursor_epd -= 1
                 v_frame << BLINK_PERIOD * 2 - 1
             EUDEndIf()
-        if EUDElseIf()(app_manager.keyPress("F8")):
+        if EUDElseIf()(app_manager.key_press("F8")):
             if EUDIfNot()(MemoryEPD(v_cursor_epd, Exactly, 0)):
                 v_cursor_epd += 1
                 v_frame << BLINK_PERIOD * 2 - 1
             EUDEndIf()
-        if EUDElseIf()(app_manager.keyPress("HOME")):
+        if EUDElseIf()(app_manager.key_press("HOME")):
             if EUDInfLoop()():
                 EUDBreakIf(v_cursor_epd == v_string_epd)
                 v_cursor_epd -= 1
@@ -218,7 +218,7 @@ class StringEditorApp(Application):
                 EUDEndIf()
             EUDEndInfLoop()
             v_frame << BLINK_PERIOD * 2 - 1
-        if EUDElseIf()(app_manager.keyPress("END")):
+        if EUDElseIf()(app_manager.key_press("END")):
             if EUDInfLoop()():
                 EUDBreakIf(MemoryEPD(v_cursor_epd, Exactly, 0))
                 EUDBreakIf(MemoryEPD(v_cursor_epd, Exactly, 0x0D0D0D + ord('\n') * 0x01000000))
@@ -226,7 +226,7 @@ class StringEditorApp(Application):
             EUDEndInfLoop()
             v_frame << BLINK_PERIOD * 2 - 1
         EUDEndIf()
-        app_manager.requestUpdate()
+        app_manager.request_update()
 
         v_frame += 1
         Trigger(

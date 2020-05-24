@@ -36,10 +36,10 @@ funcs_ = buildfuncs(False, False)
 class MonitorTestApp(Application):
     fields = ['var']
 
-    def onInit(self):
+    def on_init(self):
         self.var = 0
 
-    def onDestruct(self):
+    def on_destruct(self):
         pass
 
     @AppCommand([])
@@ -119,11 +119,11 @@ class MonitorTestApp(Application):
         EUDEndInfLoop()
 
     def loop(self):
-        if EUDIf()(app_manager.keyPress("ESC")):
-            app_manager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
         EUDEndIf()
-        app_manager.requestUpdate()
+        app_manager.request_update()
 
     def print(self, writer):
         writer.write_f("MonitorTestApp var %D\n", self.var)

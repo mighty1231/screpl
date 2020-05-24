@@ -8,7 +8,7 @@ import screpl.main as main
 from . import appcommand
 from . import appmethod
 
-class _indexPair:
+class _IndexPair:
     def __init__(self, items = None):
         if items is None:
             items = dict()
@@ -16,7 +16,7 @@ class _indexPair:
         self.size = len(items)
 
     def replace(self, key, new_value):
-        idx, old_value = self.items[key]
+        idx, _ = self.items[key]
         self.items[key] = idx, new_value
 
     def append(self, key, val = None):
@@ -26,17 +26,17 @@ class _indexPair:
 
     def copy(self):
         # Just copy field, not instance
-        return _indexPair(self.items.copy())
+        return _IndexPair(self.items.copy())
 
-    def orderedValues(self):
+    def ordered_values(self):
         return list(map(lambda iv:iv[1], \
             sorted(self.items.values(), key = lambda pair:pair[0])))
 
-    def orderedItems(self):
+    def ordered_items(self):
         return list(map(lambda item:(item[0], item[1][1]), \
             sorted(self.items.items(), key = lambda item:item[1][0])))
 
-    def getValue(self, key):
+    def get_value(self, key):
         return self.items[key][1]
 
     def __len__(self):
@@ -57,9 +57,9 @@ class _Application_Metaclass(type):
         # build methods and members, basically from parent class
         pcls = cls.__mro__[1]
         if pcls == object:
-            methods = _indexPair()
-            commands = _indexPair()
-            fields = _indexPair()
+            methods = _IndexPair()
+            commands = _IndexPair()
+            fields = _IndexPair()
             total_dict = {k:None for k in ApplicationInstance._attributes_}
         else:
             methods = pcls._methods_.copy()
@@ -88,7 +88,7 @@ class _Application_Metaclass(type):
                 setattr(cls, k, v)
                 if k in methods:
                     # Overriding AppMethod
-                    v.initialize(cls, methods[k][0], methods.getValue(k))
+                    v.initialize(cls, methods[k][0], methods.get_value(k))
                     methods.replace(k, v)
                 else:
                     v.initialize(cls, len(methods))
@@ -130,7 +130,7 @@ class ApplicationInstance:
     """
 
     # reserved keywords
-    _attributes_ = ['_cls', '_absolute', 'getReference_epd']
+    _attributes_ = ['_cls', '_absolute', 'get_reference_epd']
 
 
     def __init__(self, cls = None):
@@ -141,25 +141,27 @@ class ApplicationInstance:
             self._cls = Application
             self._absolute = False
 
-    def getReference_epd(self, member):
-        """
-        Get reference for instance member
+    def get_reference_epd(self, member):
+        """Returns address for current foreground app instance member
 
-        self.var << 1                     # self.var is 1
-        v = self.getReference_epd('var')  # get reference for self.var
-        f_dwwrite_epd(v, 12)
-        Logger.format("%D", self.var)     # self.var becomes 12
+        .. code-block:: python
+
+            self.var << 1                      # self.var is 1
+            v = self.get_reference_epd('var')  # get reference for self.var
+            f_dwwrite_epd(v, 12)
+            Logger.format("%D", self.var)      # self.var becomes 12
 
         Traditional EUDVariable can be referenced as EPD(v.getValueAddr())
         """
-        attrid, attrtype = self._cls._fields_[member]
-        return main.get_app_manager().cur_members._epd + (18 * attrid + 348 // 4)
+        attrid, _ = self._cls._fields_[member]
+        return (main.get_app_manager().cur_members._epd
+                + (18*attrid + 348//4))
 
     def __getattr__(self, name):
         if name in self._cls._commands_:
             raise RuntimeError("You should not invoke AppCommand directly")
         elif name in self._cls._methods_:
-            i, v = self._cls._methods_[name]
+            _, v = self._cls._methods_[name]
             if not self._absolute:
                 return v.apply()
             else:
@@ -171,51 +173,65 @@ class ApplicationInstance:
                 return attrtype.cast(attr)
             else:
                 return attr
-        raise AttributeError("Application '%s' has no attribute '%s'" % (self._cls, name))
+        raise AttributeError("Application '%s' has no attribute '%s'"
+                             % (self._cls, name))
 
     def __setattr__(self, name, value):
         if name in ApplicationInstance._attributes_:
             super().__setattr__(name, value)
         elif name in self._cls._fields_:
-            attrid, attrtype = self._cls._fields_[name]
+            attrid, _ = self._cls._fields_[name]
             main.get_app_manager().cur_members.set(attrid, value)
         else:
-            raise AttributeError("Application '%s' has no attribute '%s'" % (self._cls, name))
+            raise AttributeError("Application '%s' has no attribute '%s'"
+                                 % (self._cls, name))
 
-# default application
 class Application(metaclass=_Application_Metaclass):
-    # deafult field - cmd_output_epd
-    # if it is not 0, the reason of failure on
-    #    runAppCommand() is written into cmd_output_epd.
+    """Basic structure that defines the way to interact with user
+
+    It has default field - cmd_output_epd: if it is not 0, the reason of
+    failure is written into the epd address. run_app_command() is written
+    into cmd_output_epd.
+    """
+
     fields = ["cmd_output_epd"]
 
-    def onInit(self):
+    def on_init(self):
         self.cmd_output_epd = 0
 
-    def onDestruct(self):
-        pass
+    def on_destruct(self):
+        """Called when the application is going to be destructed"""
 
-    def onChat(self, offset):
-        appcommand.runAppCommand(
+    def on_chat(self, offset):
+        appcommand.run_app_command(
             offset,
             self.cmd_output_epd
         )
 
-    def onResume(self):
-        """called exactly once after forward application was closed"""
-        pass
+    def on_resume(self):
+        """Called exactly once after the application started other application
+        and reactivated"""
 
     def loop(self):
-        """called exactly once in every frame"""
-        pass
+        """Called exactly once in every frame"""
 
-    @appmethod.AppMethod_writerParam
+    @appmethod.AppMethodWithMainWriter
     def print(self, writer):
-        """called once in a frame that invoked requestUpdate"""
+        """Called once in a frame that invoked request_update"""
         writer.write(0)
 
     @classmethod
-    def getSuper(cls):
+    def get_super(cls):
+        """Get superclass instance
+
+        May be used for overriding AppMethodN object. Usage:
+
+        .. code-block:: python
+
+            def on_init(self):
+                self.my_var = 3
+                self.get_super().on_init()
+        """
         parent = cls.__mro__[1]
         assert parent != object
 
@@ -227,21 +243,21 @@ class Application(metaclass=_Application_Metaclass):
             if cls != Application:
                 parent_cls = cls.__mro__[1]
                 assert issubclass(parent_cls, Application)
-                parent_cls.allocate()
+                parent_cls.allocate() # pylint: disable=no-member
 
             # allocate methods
             methodarray = []
-            for mtd in cls._methods_.orderedValues():
+            for mtd in cls._methods_.ordered_values():
                 mtd.allocate()
-                methodarray.append(mtd.getFuncPtr())
+                methodarray.append(mtd.get_func_ptr())
             cls._methodarray_ = EUDVArray(len(methodarray))(methodarray)
             cls._methodarray_epd_ = EPD(cls._methodarray_)
 
             # allocate commands
             cmdtable = ReferenceTable(key_f=EPDConstString)
-            for name, cmd in cls._commands_.orderedItems():
+            for name, cmd in cls._commands_.ordered_items():
                 cmd.allocate()
-                cmdtable.AddPair(name, cmd.getCmdPtr())
+                cmdtable.add_pair(name, cmd.get_cmd_ptr())
 
             cls._cmdtable_ = cmdtable
             cls._allocated_ = True
@@ -265,7 +281,7 @@ class Application(metaclass=_Application_Metaclass):
             cls._total_dict_[name] = cmd
 
             cmd.allocate()
-            cls._cmdtable_.AddPair(name, cmd.getCmdPtr())
+            cls._cmdtable_.add_pair(name, cmd.get_cmd_ptr())
         else:
             # case not allocated
             #   - replace or add

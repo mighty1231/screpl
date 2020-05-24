@@ -14,9 +14,9 @@ Shared memory region has following structures
         char signature[160];
 
         /* Too much milk solution #3, busy-waiting by A */
-        int noteToSC;
-        int noteFromSC;
-        int regionSize;
+        int note_to_bridge;
+        int note_from_bridge;
+        int region_size;
 
         /* To SC */
         char command[300];
@@ -25,9 +25,9 @@ Shared memory region has following structures
         int frameCount;
 
         /* blocks */
-        DisplayBlock displayBlock;
-        LogBlock logBlock;
-        AppOutBlock appOutBlock;
+        DisplayBlock display_block;
+        LogBlock log_block;
+        AppOutputBlock app_output_block;
 
         /* ...other blocks */
     }
@@ -51,11 +51,11 @@ class BridgeRegion(EUDObject):
         super().__init__()
         self.blocks = []
 
-        self._noteToBridge   = self + 160
-        self._noteFromBridge = self + 164
-        self._regionSize     = self + 168
+        self._note_to_bridge   = self + 160
+        self._note_from_bridge = self + 164
+        self._region_size     = self + 168
         self._command        = self + 172
-        self._frameCount     = self + 472
+        self._frame_count     = self + 472
 
         self.blocks.append(appoutput.AppOutputBlock(self))
         self.blocks.append(blindmode.BlindModeDisplayBlock(self))
@@ -63,7 +63,7 @@ class BridgeRegion(EUDObject):
         self.blocks.append(logger.LoggerBlock(self))
         self.blocks.append(profile.ProfileBlock(self))
 
-        # regionSize is on region+160+4+4
+        # region_size is on region+160+4+4
         Logger.format("Bridge region ptr = %H, size = %D",
                       EUDVariable(self),
                       f_dwread_epd(EPD(self+160+4+4)))
@@ -72,23 +72,23 @@ class BridgeRegion(EUDObject):
         ret = super().Evaluate()
         return ret
 
-    def GetBlockAddr(self, block):
+    def get_block_address(self, block):
         offset = 160 + 4*3 + 300 + 4
         for b in self.blocks:
             if b is block:
                 return self.Evaluate() + offset
-            offset += b.GetBufferSize() + 8
+            offset += b.get_buffer_size() + 8
         raise RuntimeError
 
     def GetDataSize(self):
         size = 160 + 4*3 + 300 + 4
         for block in self.blocks:
-            size += block.GetBufferSize() + 8
+            size += block.get_buffer_size() + 8
         return size
 
     def CollectDependency(self, emitbuffer):
         for block in self.blocks:
-            block.CollectDependency(emitbuffer)
+            block.collect_dependency(emitbuffer)
 
     def WritePayload(self, emitbuffer):
         emitbuffer.WriteBytes(dead_signature)
@@ -100,7 +100,7 @@ class BridgeRegion(EUDObject):
         emitbuffer.WriteDword(0)
 
         for block in self.blocks:
-            block.WritePayload(emitbuffer)
+            block.write_payload(emitbuffer)
 
     def run(self):
         """Maintains the instance"""
@@ -108,8 +108,8 @@ class BridgeRegion(EUDObject):
 
         # Too-much milk solution #3
         # attach note
-        DoActions(SetMemory(self._noteToBridge, SetTo, 1))
-        if EUDIf()(Memory(self._noteFromBridge, Exactly, 0)):
+        DoActions(SetMemory(self._note_to_bridge, SetTo, 1))
+        if EUDIf()(Memory(self._note_from_bridge, Exactly, 0)):
             # during attached note, operations should be minimized
 
             ############# from bridge ###############
@@ -122,24 +122,24 @@ class BridgeRegion(EUDObject):
             EUDEndIf()
 
             ############## to bridge ################
-            # frame Count
-            SeqCompute([(EPD(self._frameCount),
+            # frame count
+            SeqCompute([(EPD(self._frame_count),
                          SetTo,
                          main.get_app_manager().current_frame_number)])
 
             # update blocks
             for b in self.blocks:
-                b.UpdateContent()
+                b.update_content()
         EUDEndIf()
 
         # remove note
-        DoActions(SetMemory(self._noteToBridge, SetTo, 0))
+        DoActions(SetMemory(self._note_to_bridge, SetTo, 0))
 
         # keep signature (make bridge to know REPL is alive)
         restore_signature(self)
 
         # command from bridge client
         if EUDIfNot()(Memory(buf_command, Exactly, 0)):
-            main.get_app_manager().getCurrentAppInstance().onChat(buf_command)
+            main.get_app_manager().get_foreground_app_instance().on_chat(buf_command)
             DoActions(SetMemory(buf_command, SetTo, 0))
         EUDEndIf()

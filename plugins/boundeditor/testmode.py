@@ -15,7 +15,7 @@ Expected TUI
 from eudplib import *
 
 from screpl.core.application import Application
-from screpl.writer import writeLocation
+from screpl.writer import write_location
 
 from . import (
     app_manager,
@@ -40,7 +40,7 @@ TURBOMODE_END      = 3
 v_turbomode = EUDVariable(TURBOMODE_NOTURBO)
 
 class TestPatternApp(Application):
-    def onInit(self):
+    def on_init(self):
         timer << 0
         pattern_id << 0
         next_timer << 0
@@ -48,16 +48,16 @@ class TestPatternApp(Application):
 
     def loop(self):
         global timer, pattern_id, next_timer, v_turbomode
-        if EUDIf()(app_manager.keyPress('ESC')):
-            app_manager.requestDestruct()
+        if EUDIf()(app_manager.key_press('ESC')):
+            app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(app_manager.keyPress('R')):
+        if EUDElseIf()(app_manager.key_press('R')):
             DoActions([
                 timer.SetNumber(0),
                 pattern_id.SetNumber(0),
                 next_timer.SetNumber(0),
             ])
-        if EUDElseIf()(app_manager.keyPress('T')):
+        if EUDElseIf()(app_manager.key_press('T')):
             v_turbomode += 1
             Trigger(
                 conditions = [v_turbomode.Exactly(TURBOMODE_END)],
@@ -100,7 +100,7 @@ class TestPatternApp(Application):
             DoActions([SetMemory(0x6509A0, SetTo, 1)])
         EUDEndIf()
 
-        app_manager.requestUpdate()
+        app_manager.request_update()
 
     def print(self, writer):
         writer.write_f("Bound Editor Test Mode\n")
@@ -127,6 +127,6 @@ class TestPatternApp(Application):
         EUDEndIf()
 
         writer.write_f("\n\n\x02Start location: ")
-        writeLocation(g_start_location)
+        write_location(g_start_location)
         writer.write(ord('\n'))
         writer.write(0)

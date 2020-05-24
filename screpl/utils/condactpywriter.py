@@ -513,252 +513,250 @@ def SetMemoryXEPD(dest, modtype, value, mask):
 
 
 class Cond:
-	def __init__(self, name, args, codedict, condargs):
-		'''
-		name: name of condition
-		args: list of str, arg names on each stockcond
-		codedict: dict args->encoding/decoding name
-		condargs: list of str/int, args to Condition
-		'''
-		self.name = name
-		self.args = args
-		self.codedict = codedict
-		self.condargs = condargs
+    def __init__(self, name, args, codedict, condargs):
+        '''
+        name: name of condition
+        args: list of str, arg names on each stockcond
+        codedict: dict args->encoding/decoding name
+        condargs: list of str/int, args to Condition
+        '''
+        self.name = name
+        self.args = args
+        self.codedict = codedict
+        self.condargs = condargs
 
-		assert all([k in self.args for k in self.codedict]), (self.name, self.args, self.codedict)
-		assert all([k in self.args for k in condargs if type(k) is str])
+        assert all([k in self.args for k in self.codedict]), (self.name, self.args, self.codedict)
+        assert all([k in self.args for k in condargs if type(k) is str])
 
-	def __repr__(self):
-		s = '{}({}) = Condition({})'.format(
-			self.name,
-			', '.join(['{}:{}'.format(a, self.codedict[a]) \
-				if a in self.codedict \
-				else a for a in self.args]),
-			self.condargs
-		)
-		return s
+    def __repr__(self):
+        s = '{}({}) = Condition({})'.format(
+            self.name,
+            ', '.join(['{}:{}'.format(a, self.codedict[a])
+                       if a in self.codedict
+                       else a for a in self.args]),
+            self.condargs)
+        return s
 
 class Act:
-	def __init__(self, name, args, codedict, actargs):
-		'''
-		name: name of action
-		args: list of str, arg names on each stockcond
-		codedict: dict args->encoding/decoding name
-		actargs: list of str/int, args to Action
-		'''
-		self.name = name
-		self.args = args
-		self.codedict = codedict
-		self.actargs = actargs
+    def __init__(self, name, args, codedict, actargs):
+        '''
+        name: name of action
+        args: list of str, arg names on each stockcond
+        codedict: dict args->encoding/decoding name
+        actargs: list of str/int, args to Action
+        '''
+        self.name = name
+        self.args = args
+        self.codedict = codedict
+        self.actargs = actargs
 
-		assert all([k in self.args for k in self.codedict]), (self.name, self.args, self.codedict)
-		assert all([k in self.args for k in actargs if type(k) is str]), actargs
+        assert all([k in self.args for k in self.codedict]), (self.name, self.args, self.codedict)
+        assert all([k in self.args for k in actargs if type(k) is str]), actargs
 
-	def __repr__(self):
-		s = '{}({}) = Action({})'.format(
-			self.name,
-			', '.join(['{}:{}'.format(a, self.codedict[a]) \
-				if a in self.codedict \
-				else a for a in self.args]),
-			self.actargs
-		)
-		return s
+    def __repr__(self):
+        s = '{}({}) = Action({})'.format(
+            self.name,
+            ', '.join(['{}:{}'.format(a, self.codedict[a])
+                       if a in self.codedict
+                       else a for a in self.args]),
+            self.actargs)
+        return s
 
 def _condparse():
-	global condstr
-	conds = []
-	
-	name = ''
-	args = []
-	codedict = {}
-	for line in condstr.split('\n'):
-		if line.startswith('def '):
-			# Start of condition
-			name = line[4:line.index('(')]
-			_argpart = line[line.index('(')+1 : line.index(')')]
-			_args = _argpart.split(',')
-			args = list(map(lambda t:t.strip(), _args))
+    global condstr
+    conds = []
+    
+    name = ''
+    args = []
+    codedict = {}
+    for line in condstr.split('\n'):
+        if line.startswith('def '):
+            # Start of condition
+            name = line[4:line.index('(')]
+            _argpart = line[line.index('(')+1 : line.index(')')]
+            _args = _argpart.split(',')
+            args = list(map(lambda t:t.strip(), _args))
 
-			if args == ['']:
-				args = []
+            if args == ['']:
+                args = []
 
-		elif line.startswith('    return'):
-			# wrap-up
-			_argpart = line[line.index('(')+1 : line.index(')')]
-			condargs = []
-			for arg in _argpart.split(','):
-				arg = arg.strip()
-				try:
-					arg = int(arg)
-				except ValueError:
-					pass
-				finally:
-					condargs.append(arg)
+        elif line.startswith('    return'):
+            # wrap-up
+            _argpart = line[line.index('(')+1 : line.index(')')]
+            condargs = []
+            for arg in _argpart.split(','):
+                arg = arg.strip()
+                try:
+                    arg = int(arg)
+                except ValueError:
+                    pass
+                finally:
+                    condargs.append(arg)
 
-			conds.append(Cond(name, args, codedict, condargs))
+            conds.append(Cond(name, args, codedict, condargs))
 
-			name = ''
-			args = []
-			codedict = {}
+            name = ''
+            args = []
+            codedict = {}
 
-		elif line == '':
-			continue
+        elif line == '':
+            continue
 
-		else:
-			# encoders
-			argname = line[:line.index('=')].strip()
-			codename = line[line.index('=')+1:line.index('(')].strip()
-			assert codename.startswith('Encode'), codename
-			codename = codename[6:]
-			codedict[argname] = codename
+        else:
+            # encoders
+            argname = line[:line.index('=')].strip()
+            codename = line[line.index('=')+1:line.index('(')].strip()
+            assert codename.startswith('Encode'), codename
+            codename = codename[6:]
+            codedict[argname] = codename
 
-	return conds
+    return conds
 
 def _actparse():
-	global actstr
-	acts = []
-	
-	name = ''
-	args = []
-	codedict = {}
-	for line in actstr.split('\n'):
-		if line.startswith('def '):
-			# Start of condition
-			name = line[4:line.index('(')]
-			print(line)
-			_argpart = line[line.index('(')+1 : line.index(')')]
-			_args = _argpart.split(',')
-			args = list(map(lambda t:t.strip(), _args))
+    global actstr
+    acts = []
+    
+    name = ''
+    args = []
+    codedict = {}
+    for line in actstr.split('\n'):
+        if line.startswith('def '):
+            # Start of condition
+            name = line[4:line.index('(')]
+            print(line)
+            _argpart = line[line.index('(')+1 : line.index(')')]
+            _args = _argpart.split(',')
+            args = list(map(lambda t:t.strip(), _args))
 
-			if args == ['']:
-				args = []
+            if args == ['']:
+                args = []
 
-		elif line.startswith('    return'):
-			# wrap-up
-			_argpart = line[line.index('(')+1 : line.index(')')]
-			actargs = []
-			for arg in _argpart.split(','):
-				arg = arg.strip()
-				try:
-					arg = int(arg)
-				except ValueError:
-					pass
-				finally:
-					actargs.append(arg)
+        elif line.startswith('    return'):
+            # wrap-up
+            _argpart = line[line.index('(')+1 : line.index(')')]
+            actargs = []
+            for arg in _argpart.split(','):
+                arg = arg.strip()
+                try:
+                    arg = int(arg)
+                except ValueError:
+                    pass
+                finally:
+                    actargs.append(arg)
 
-			acts.append(Act(name, args, codedict, actargs))
+            acts.append(Act(name, args, codedict, actargs))
 
-			name = ''
-			args = []
-			codedict = {}
+            name = ''
+            args = []
+            codedict = {}
 
-		elif line == '':
-			continue
+        elif line == '':
+            continue
 
-		else:
-			# encoders
-			argname = line[:line.index('=')].strip()
-			codename = line[line.index('=')+1:line.index('(')].strip()
-			assert codename.startswith('Encode'), codename
-			codename = codename[6:]
-			codedict[argname] = codename
+        else:
+            # encoders
+            argname = line[:line.index('=')].strip()
+            codename = line[line.index('=')+1:line.index('(')].strip()
+            assert codename.startswith('Encode'), codename
+            codename = codename[6:]
+            codedict[argname] = codename
 
-	return acts
+    return acts
 
 def writecond():
-	conds = _condparse()
-	condm = ["locid", "player", "amount", "unitid", "comparison",
-		"condtype", "restype", "flags","internal"]
-	s = ''
-	for cond in conds:
-		s += '@EUDFunc\n'
-		s += 'def dec_{}(epd):\n'.format(cond.name)
+    conds = _condparse()
+    condm = ["locid", "player", "amount", "unitid", "comparison",
+        "condtype", "restype", "flags","internal"]
+    s = ''
+    for cond in conds:
+        s += '@EUDFunc\n'
+        s += 'def dec_{}(epd):\n'.format(cond.name)
 
-		if len(cond.args) == 0:
-			# no args like Always()
-			s += '\t_output_writer.write_f("{}()")'.format(cond.name)
-		else:
-			s += '\tm = _condmap(epd)\n'
-			s += '\t_output_writer.write_f("{}(")\n'.format(cond.name)
-			for i, arg in enumerate(cond.args):
-				if arg in cond.codedict:
-					# encode
-					coder = cond.codedict[arg]
-					if coder in ['Unit', 'Location', 'AIScript', 'Switch', 'String']:
-						s += '\twrite{}(m.{})\n'.format(
-							coder, condm[cond.condargs.index(arg)])
-					else:
-						s += '\twrite_constant(EPD(tb_{}), m.{})\n'.format(
-							cond.codedict[arg], condm[cond.condargs.index(arg)])
-				else:
-					s += '\t_output_writer.write_decimal(m.{})\n'.format(
-						condm[cond.condargs.index(arg)])
+        if len(cond.args) == 0:
+            # no args like Always()
+            s += '\t_output_writer.write_f("{}()")'.format(cond.name)
+        else:
+            s += '\tm = _condmap(epd)\n'
+            s += '\t_output_writer.write_f("{}(")\n'.format(cond.name)
+            for i, arg in enumerate(cond.args):
+                if arg in cond.codedict:
+                    # encode
+                    coder = cond.codedict[arg]
+                    if coder in ['Unit', 'Location', 'AIScript', 'Switch', 'String']:
+                        s += '\twrite{}(m.{})\n'.format(
+                            coder, condm[cond.condargs.index(arg)])
+                    else:
+                        s += '\twrite_constant(EPD(tb_{}), m.{})\n'.format(
+                            cond.codedict[arg], condm[cond.condargs.index(arg)])
+                else:
+                    s += '\t_output_writer.write_decimal(m.{})\n'.format(
+                        condm[cond.condargs.index(arg)])
 
-				if i < len(cond.args) - 1:
-					s += '\t_output_writer.write_f(", ")\n'
-				else:
-					s += '\t_output_writer.write_f(")")\n'
-		s += '\n\n'
+                if i < len(cond.args) - 1:
+                    s += '\t_output_writer.write_f(", ")\n'
+                else:
+                    s += '\t_output_writer.write_f(")")\n'
+        s += '\n\n'
 
-	print(s)
+    print(s)
 
-	v = [0 for _ in range(24)]
-	for cond in conds:
-		v[cond.condargs[5]] = "dec_" + cond.name
-	print(v)
+    v = [0 for _ in range(24)]
+    for cond in conds:
+        v[cond.condargs[5]] = "dec_" + cond.name
+    print(v)
 
 
 def writeact():
-	acts = _actparse()
-	actm = ["locid1", "strid", "wavid", "time", "player1", "player2",
-		"unitid", "acttype", "amount", "flags"]
+    acts = _actparse()
+    actm = ["locid1", "strid", "wavid", "time", "player1", "player2",
+        "unitid", "acttype", "amount", "flags"]
 
-	s = ''
-	for act in acts:
-		s += '@EUDFunc\n'
-		s += 'def dec_{}(epd):\n'.format(act.name)
+    s = ''
+    for act in acts:
+        s += '@EUDFunc\n'
+        s += 'def dec_{}(epd):\n'.format(act.name)
 
-		if len(act.args) == 0:
-			# no args like Always()
-			s += '\t_output_writer.write_f("{}()")'.format(act.name)
-		else:
-			s += '\tm = _actmap(epd)\n'
-			s += '\t_output_writer.write_f("{}(")\n'.format(act.name)
-			for i, arg in enumerate(act.args):
-				if arg in act.codedict:
-					# encode
-					coder = act.codedict[arg]
-					pr = actm[act.actargs.index(arg)]
-					if coder in ['Unit', 'Location', 'AIScript', 'Switch', 'String']:
-						s += '\twrite{}(m.{})\n'.format(
-							coder, pr)
-					elif coder == 'Count':
-						s += '\tif EUDIf()(m.{} == 0):\n'.format(pr)
-						s += '\t\t_output_writer.write_f("All")\n'
-						s += '\tif EUDElse()():\n'
-						s += '\t\t_output_writer.write_decimal(m.{})\n'.format(pr)
-						s += '\tEUDEndIf()\n'
-					elif coder == 'Property':
-						s += '\t_output_writer.write_decimal(m.{}) # @TODO property\n'.format(pr)
-					else:
-						s += '\twrite_constant(EPD(tb_{}), m.{})\n'.format(
-							act.codedict[arg], pr)
-				else:
-					s += '\t_output_writer.write_decimal(m.{})\n'.format(
-						actm[act.actargs.index(arg)])
+        if len(act.args) == 0:
+            # no args like Always()
+            s += '\t_output_writer.write_f("{}()")'.format(act.name)
+        else:
+            s += '\tm = _actmap(epd)\n'
+            s += '\t_output_writer.write_f("{}(")\n'.format(act.name)
+            for i, arg in enumerate(act.args):
+                if arg in act.codedict:
+                    # encode
+                    coder = act.codedict[arg]
+                    pr = actm[act.actargs.index(arg)]
+                    if coder in ['Unit', 'Location', 'AIScript', 'Switch', 'String']:
+                        s += '\twrite{}(m.{})\n'.format(
+                            coder, pr)
+                    elif coder == 'Count':
+                        s += '\tif EUDIf()(m.{} == 0):\n'.format(pr)
+                        s += '\t\t_output_writer.write_f("All")\n'
+                        s += '\tif EUDElse()():\n'
+                        s += '\t\t_output_writer.write_decimal(m.{})\n'.format(pr)
+                        s += '\tEUDEndIf()\n'
+                    elif coder == 'Property':
+                        s += '\t_output_writer.write_decimal(m.{}) # @TODO property\n'.format(pr)
+                    else:
+                        s += '\twrite_constant(EPD(tb_{}), m.{})\n'.format(
+                            act.codedict[arg], pr)
+                else:
+                    s += '\t_output_writer.write_decimal(m.{})\n'.format(
+                        actm[act.actargs.index(arg)])
 
-				if i < len(act.args) - 1:
-					s += '\t_output_writer.write_f(", ")\n'
-				else:
-					s += '\t_output_writer.write_f(")")\n'
-		s += '\n\n'
+                if i < len(act.args) - 1:
+                    s += '\t_output_writer.write_f(", ")\n'
+                else:
+                    s += '\t_output_writer.write_f(")")\n'
+        s += '\n\n'
 
-	print(s)
+    print(s)
 
-	v = [0 for _ in range(58)]
-	for act in acts:
-		v[act.actargs[7]] = "dec_" + act.name
-	print(v)
+    v = [0 for _ in range(58)]
+    for act in acts:
+        v[act.actargs[7]] = "dec_" + act.name
+    print(v)
 
 if __name__ == "__main__":
-	writeact()
+    writeact()

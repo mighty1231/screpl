@@ -12,14 +12,14 @@ watched_eud_vars_size = EUDVariable()
 class VariableApp(ScrollApp):
     fields = []
 
-    def onInit(self):
-        ScrollApp.onInit(self)
-        watched_eud_vars_size << ReferenceTable.GetSize(EPD(watched_eud_vars))
+    def on_init(self):
+        ScrollApp.on_init(self)
+        watched_eud_vars_size << ReferenceTable.get_size(EPD(watched_eud_vars))
 
-    def writeTitle(self, writer):
+    def write_title(self, writer):
         writer.write_f("Variable App. press F7 or F8. ( Offset = %D )", self.offset)
 
-    def writeLine(self, writer, line):
+    def write_line(self, writer, line):
         # Ore / Gas
         if accessed_resources:
             if EUDIf()(line == 0):
@@ -84,7 +84,7 @@ class VariableApp(ScrollApp):
             f_dwread_epd(var_value)
         )
 
-    @AppTypedMethod([None], [], getWriterAsParam = True)
+    @AppTypedMethod([None], [], with_main_writer = True)
     def write_pvar_from_epd(self, writer, epd):
         writer.write_f(" : \x08%D", f_dwread_epd(epd))
         writer.write_f("\x1e / \x0e%D", f_dwread_epd(epd + 1))
@@ -96,7 +96,7 @@ class VariableApp(ScrollApp):
         writer.write_f("\x1e / \x17%D", f_dwread_epd(epd + 7))
 
 
-    def getLineCount(self):
+    def get_line_count(self):
         ret = 0
         if accessed_resources:
             ret += 1 + len(accessed_resources)

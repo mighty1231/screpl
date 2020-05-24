@@ -3,7 +3,7 @@ from eudplib import *
 from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
 from screpl.encoder.const import ArgEncNumber
-from screpl.utils.eudbyterw import EUDByteRW
+from screpl.utils.byterw import REPLByteRW
 from screpl.main import is_bridge_mode
 
 from . import *
@@ -12,7 +12,7 @@ def writeFirstLine(string):
     '''
     write the first line of string, excluding empty line
     '''
-    reader = EUDByteRW()
+    reader = REPLByteRW()
     reader.seekoffset(string)
 
     writer = app_manager.getWriter()
@@ -42,26 +42,26 @@ def setStringID(new_string_id):
 
 class StringManagerApp(Application):
     def loop(self):
-        if EUDIf()(app_manager.keyPress("ESC")):
-            app_manager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(app_manager.keyPress("F7")):
+        if EUDElseIf()(app_manager.key_press("F7")):
             setStringID(cur_string_id - 1)
-        if EUDElseIf()(app_manager.keyPress("F8")):
+        if EUDElseIf()(app_manager.key_press("F8")):
             setStringID(cur_string_id + 1)
-        if EUDElseIf()(app_manager.keyPress("E", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
             from .editor import StringEditorApp
-            app_manager.startApplication(StringEditorApp)
+            app_manager.start_application(StringEditorApp)
         if is_bridge_mode():
-            if EUDElseIf()(app_manager.keyPress("B", hold=["LCTRL"])):
+            if EUDElseIf()(app_manager.key_press("B", hold=["LCTRL"])):
                 from .exporter import StringExporterApp
-                app_manager.startApplication(StringExporterApp)
-        if EUDElseIf()(app_manager.keyPress("F", hold=["LCTRL"])):
+                app_manager.start_application(StringExporterApp)
+        if EUDElseIf()(app_manager.key_press("F", hold=["LCTRL"])):
             from .search import StringSearchApp
             StringSearchApp.setReturn_epd(EPD(cur_string_id.getValueAddr()))
-            app_manager.startApplication(StringSearchApp)
+            app_manager.start_application(StringSearchApp)
         EUDEndIf()
-        app_manager.requestUpdate()
+        app_manager.request_update()
 
     def print(self, writer):
         writer.write_f("\x04StringManager id=%D / total %D strings\n", cur_string_id, string_count)

@@ -8,7 +8,7 @@ from eudplib.core.mapdata.stringmap import swmap, locmap
 
 from screpl.utils.conststring import EPDConstString
 from screpl.utils.debug import f_raise_error
-from screpl.utils.eudbyterw import EUDByteRW
+from screpl.utils.byterw import REPLByteRW
 from screpl.utils.referencetable import ReferenceTable
 
 swSub = ReferenceTable(
@@ -109,7 +109,7 @@ def SetLocationName(location_idx, new_string_offset):
     if EUDIfNot()([location_idx.AtLeast(1), location_idx.AtMost(255)]):
         f_raise_error("SC-REPL indexError on SetLocationName")
     EUDEndIf()
-    writer = EUDByteRW()
+    writer = REPLByteRW()
     writer.seekepd(GetLocationNameEPDPointer(location_idx))
     writer.write_str(new_string_offset)
     writer.write(0)

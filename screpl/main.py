@@ -9,10 +9,10 @@ from screpl.core.appmanager import AppManager
 from screpl.encoder.const import ArgEncNumber
 from screpl.utils.debug import f_printf
 from screpl.utils.debug import f_raise_error
-from screpl.utils.eudbyterw import EUDByteRW
+from screpl.utils.byterw import REPLByteRW
 from screpl.utils.string import f_strlen
 
-_main_writer = EUDByteRW()
+_main_writer = REPLByteRW()
 _manager = None
 _bridge_region = None
 _is_blind_mode = None
@@ -26,7 +26,7 @@ def get_app_manager():
 def get_main_writer():
     """Returns main writer.
 
-    Main writer is :class:`~screpl.utils.eudbyterw.EUDByteRW` instance that is
+    Main writer is :class:`~screpl.utils.byterw.REPLByteRW` instance that is
     responsible for text UI of :class:`~screpl.core.application.Application` and
     writers in :mod:`screpl.writer`. One can use the returned object for memory
     usage but the one should follow following restriction:
@@ -84,7 +84,7 @@ def initialize_with_id(su_id):
     _manager = AppManager(su_id, su_prefix, su_prefixlen)
 
     # REPL is the application on the base
-    _manager.startApplication(repl.REPL)
+    _manager.start_application(repl.REPL)
 
 def initialize_with_name(su_name):
     """Initialize REPL with configurations, with name-certification.
@@ -131,7 +131,7 @@ def initialize_with_name(su_name):
     _manager = AppManager(su_id, su_prefix, su_prefixlen)
 
     # REPL is the application on the base
-    _manager.startApplication(repl.REPL)
+    _manager.start_application(repl.REPL)
 
 def set_bridge_mode(bridge_mode):
     """Initialize bridge with specificed mode

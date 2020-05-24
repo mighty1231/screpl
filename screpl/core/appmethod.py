@@ -10,7 +10,7 @@ import screpl.main as main
 
 
 class AppMethodN:
-    def __init__(self, argtypes, rettypes, method, *, getWriterAsParam, traced):
+    def __init__(self, argtypes, rettypes, method, *, with_main_writer, traced):
         # Step 1 from parameters
         self.argtypes = argtypes
         self.rettypes = rettypes
@@ -18,7 +18,7 @@ class AppMethodN:
         self.method = method
         self.name = method.__name__
 
-        self.getWriterAsParam = getWriterAsParam
+        self.with_main_writer = with_main_writer
 
         # Step 2 initialize with class
         self.argn = -1
@@ -47,10 +47,10 @@ class AppMethodN:
         else:
             raise RuntimeError
 
-    def getFuncPtr(self):
+    def get_func_ptr(self):
         return self.funcptr
 
-    def setFuncnCallback(self, funcn_callback):
+    def set_funcn_callback(self, funcn_callback):
         if self.status == "allocated":
             raise RuntimeError("AppMethod already has its body")
         assert self.funcn_callback is None
@@ -81,17 +81,17 @@ class AppMethodN:
             else:
                 self.rettypes = parent.rettypes
 
-            if parent.getWriterAsParam:
-                self.getWriterAsParam = True
+            if parent.with_main_writer:
+                self.with_main_writer = True
 
         # initialize or check argtype
         if self.argtypes:
-            if self.getWriterAsParam:
+            if self.with_main_writer:
                 assert len(self.argtypes) == argn - 2
             else:
                 assert len(self.argtypes) == argn - 1
         else:
-            if self.getWriterAsParam:
+            if self.with_main_writer:
                 self.argtypes = [None for _ in range(argn - 2)]
             else:
                 self.argtypes = [None for _ in range(argn - 1)]
@@ -112,10 +112,10 @@ class AppMethodN:
             return
         assert self.status == 'initialized'
 
-        if not self.getWriterAsParam:
+        if not self.with_main_writer:
             # Set first argument as AppInstance
             def call(*args):
-                instance = main.get_app_manager().getCurrentAppInstance()
+                instance = main.get_app_manager().get_foreground_app_instance()
                 prev_cls = instance._cls
                 instance._cls = self.cls
 
@@ -127,7 +127,7 @@ class AppMethodN:
         else:
             # Additionally set second argument as printer
             def call(*args):
-                instance = main.get_app_manager().getCurrentAppInstance()
+                instance = main.get_app_manager().get_foreground_app_instance()
                 prev_cls = instance._cls
                 instance._cls = self.cls
                 printer = main.get_app_manager().getWriter()
@@ -143,7 +143,7 @@ class AppMethodN:
             traced=self.traced)
 
         if self.funcn_callback:
-            if self.getWriterAsParam:
+            if self.with_main_writer:
                 raise RuntimeError("print() cannot be decorated")
             funcn = self.funcn_callback(funcn)
 
@@ -167,18 +167,18 @@ class AppMethodN:
         '''
         Direct call - used for superclass method call
         '''
-        assert id(instance) == id(main.get_app_manager().getCurrentAppInstance())
+        assert id(instance) == id(main.get_app_manager().get_foreground_app_instance())
         return self.funcn(*args, **kwargs)
 
 ''' Decorator to make AppMethodN '''
-def AppTypedMethod(argtypes, rettypes = [], *, getWriterAsParam=False, traced=False):
+def AppTypedMethod(argtypes, rettypes = [], *, with_main_writer=False, traced=False):
     def ret(method):
         return AppMethodN(argtypes, rettypes, method,
-                getWriterAsParam=getWriterAsParam, traced=traced)
+                with_main_writer=with_main_writer, traced=traced)
     return ret
 
 def AppMethod(method):
     return AppTypedMethod(None, [], traced=False)(method)
 
-def AppMethod_writerParam(method):
-    return AppTypedMethod(None, [], getWriterAsParam=True, traced=False)(method)
+def AppMethodWithMainWriter(method):
+    return AppTypedMethod(None, [], with_main_writer=True, traced=False)(method)

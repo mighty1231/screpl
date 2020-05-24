@@ -1,6 +1,14 @@
 from eudplib import *
 from screpl.resources.table import tables as tb
-from . import *
+from . import (
+    get_main_writer,
+    write_aiscript,
+    write_constant,
+    write_location,
+    write_switch,
+    write_string,
+    write_unit,
+)
 
 _actmap = EPDOffsetMap((
     ('locid1', 0x00, 4),
@@ -83,7 +91,8 @@ def write_action_epd(epd):
     if EUDIf()([acttype >= 1, acttype < 58]):
         EUDFuncPtr(1, 0).cast(actions[acttype])(epd)
     if EUDElse()():
-        getWriter().write_f("Action(%D, %D, %D, %D, %D, %D, %D, %D, %D)",
+        get_main_writer().write_f(
+            "Action(%D, %D, %D, %D, %D, %D, %D, %D, %D)",
             act.locid1,
             act.strid,
             act.wavid,
@@ -97,469 +106,469 @@ def write_action_epd(epd):
     EUDEndIf()
     flags = act.flags
     if EUDIf()(flags.ExactlyX(1, 1)):
-        getWriter().write_f(' WaitExecute')
+        get_main_writer().write_f(' WaitExecute')
     EUDEndIf()
     if EUDIf()(flags.ExactlyX(2, 2)):
-        getWriter().write_f(' IgnoreExecution')
+        get_main_writer().write_f(' IgnoreExecution')
     EUDEndIf()
     if EUDIf()(flags.ExactlyX(4, 4)):
-        getWriter().write_f(' AlwaysDisplay')
+        get_main_writer().write_f(' AlwaysDisplay')
     EUDEndIf()
 
 @EUDFunc
 def _writeVictory(epd):
-    getWriter().write_f("Victory()")
+    get_main_writer().write_f("Victory()")
 
 @EUDFunc
 def _writeDefeat(epd):
-    getWriter().write_f("Defeat()")
+    get_main_writer().write_f("Defeat()")
 
 @EUDFunc
 def _writePreserveTrigger(epd):
-    getWriter().write_f("PreserveTrigger()")
+    get_main_writer().write_f("PreserveTrigger()")
 
 @EUDFunc
 def _writeWait(epd):
     m = _actmap(epd)
-    getWriter().write_f("Wait(")
-    getWriter().write_decimal(m.time)
-    getWriter().write_f(")")
+    get_main_writer().write_f("Wait(")
+    get_main_writer().write_decimal(m.time)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writePauseGame(epd):
-    getWriter().write_f("PauseGame()")
+    get_main_writer().write_f("PauseGame()")
 
 @EUDFunc
 def _writeUnpauseGame(epd):
-    getWriter().write_f("UnpauseGame()")
+    get_main_writer().write_f("UnpauseGame()")
 
 @EUDFunc
 def _writeTransmission(epd):
     m = _actmap(epd)
-    getWriter().write_f("Transmission(")
+    get_main_writer().write_f("Transmission(")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(", ")
-    writeString(m.wavid)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(", ")
+    write_string(m.wavid)
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Modifier), m.amount)
-    getWriter().write_f(", ")
-    getWriter().write_decimal(m.time)
-    getWriter().write_f(", ")
-    writeString(m.strid)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    get_main_writer().write_decimal(m.time)
+    get_main_writer().write_f(", ")
+    write_string(m.strid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writePlayWAV(epd):
     m = _actmap(epd)
-    getWriter().write_f("PlayWAV(")
-    writeString(m.wavid)
-    getWriter().write_f(")")
+    get_main_writer().write_f("PlayWAV(")
+    write_string(m.wavid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeDisplayText(epd):
     m = _actmap(epd)
-    getWriter().write_f("DisplayText(")
-    writeString(m.strid)
-    getWriter().write_f(")")
+    get_main_writer().write_f("DisplayText(")
+    write_string(m.strid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeCenterView(epd):
     m = _actmap(epd)
-    getWriter().write_f("CenterView(")
-    writeLocation(m.locid1)
-    getWriter().write_f(")")
+    get_main_writer().write_f("CenterView(")
+    write_location(m.locid1)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeCreateUnitWithProperties(epd):
     m = _actmap(epd)
-    getWriter().write_f("CreateUnitWithProperties(")
-    getWriter().write_decimal(m.amount)
-    getWriter().write_f(", ")
+    get_main_writer().write_f("CreateUnitWithProperties(")
+    get_main_writer().write_decimal(m.amount)
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(", ")
-    getWriter().write_decimal(m.player2) # @TODO property
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    get_main_writer().write_decimal(m.player2) # @TODO property
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeSetMissionObjectives(epd):
     m = _actmap(epd)
-    getWriter().write_f("SetMissionObjectives(")
-    writeString(m.strid)
-    getWriter().write_f(")")
+    get_main_writer().write_f("SetMissionObjectives(")
+    write_string(m.strid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeSetSwitch(epd):
     m = _actmap(epd)
-    getWriter().write_f("SetSwitch(")
-    writeSwitch(m.player2)
-    getWriter().write_f(", ")
+    get_main_writer().write_f("SetSwitch(")
+    write_switch(m.player2)
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.SwitchAction), m.amount)
-    getWriter().write_f(")")
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeSetCountdownTimer(epd):
     m = _actmap(epd)
-    getWriter().write_f("SetCountdownTimer(")
+    get_main_writer().write_f("SetCountdownTimer(")
     write_constant(EPD(tb.Modifier), m.amount)
-    getWriter().write_f(", ")
-    getWriter().write_decimal(m.time)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    get_main_writer().write_decimal(m.time)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeRunAIScript(epd):
     m = _actmap(epd)
-    getWriter().write_f("RunAIScript(")
-    writeAIScript(m.player2)
-    getWriter().write_f(")")
+    get_main_writer().write_f("RunAIScript(")
+    write_aiscript(m.player2)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeRunAIScriptAt(epd):
     m = _actmap(epd)
-    getWriter().write_f("RunAIScriptAt(")
-    writeAIScript(m.player2)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(")")
+    get_main_writer().write_f("RunAIScriptAt(")
+    write_aiscript(m.player2)
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeLeaderBoardControl(epd):
     m = _actmap(epd)
-    getWriter().write_f("LeaderBoardControl(")
+    get_main_writer().write_f("LeaderBoardControl(")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
-    writeString(m.strid)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_string(m.strid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeLeaderBoardControlAt(epd):
     m = _actmap(epd)
-    getWriter().write_f("LeaderBoardControlAt(")
+    get_main_writer().write_f("LeaderBoardControlAt(")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(", ")
-    writeString(m.strid)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(", ")
+    write_string(m.strid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeLeaderBoardResources(epd):
     m = _actmap(epd)
-    getWriter().write_f("LeaderBoardResources(")
+    get_main_writer().write_f("LeaderBoardResources(")
     write_constant(EPD(tb.Resource), m.unitid)
-    getWriter().write_f(", ")
-    writeString(m.strid)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_string(m.strid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeLeaderBoardKills(epd):
     m = _actmap(epd)
-    getWriter().write_f("LeaderBoardKills(")
+    get_main_writer().write_f("LeaderBoardKills(")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
-    writeString(m.strid)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_string(m.strid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeLeaderBoardScore(epd):
     m = _actmap(epd)
-    getWriter().write_f("LeaderBoardScore(")
+    get_main_writer().write_f("LeaderBoardScore(")
     write_constant(EPD(tb.Score), m.unitid)
-    getWriter().write_f(", ")
-    writeString(m.strid)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_string(m.strid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeKillUnit(epd):
     m = _actmap(epd)
-    getWriter().write_f("KillUnit(")
+    get_main_writer().write_f("KillUnit(")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(")")
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeKillUnitAt(epd):
     m = _actmap(epd)
-    getWriter().write_f("KillUnitAt(")
+    get_main_writer().write_f("KillUnitAt(")
     if EUDIf()(m.amount == 0):
-        getWriter().write_f("All")
+        get_main_writer().write_f("All")
     if EUDElse()():
-        getWriter().write_decimal(m.amount)
+        get_main_writer().write_decimal(m.amount)
     EUDEndIf()
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(")")
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeRemoveUnit(epd):
     m = _actmap(epd)
-    getWriter().write_f("RemoveUnit(")
+    get_main_writer().write_f("RemoveUnit(")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(")")
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeRemoveUnitAt(epd):
     m = _actmap(epd)
-    getWriter().write_f("RemoveUnitAt(")
+    get_main_writer().write_f("RemoveUnitAt(")
     if EUDIf()(m.amount == 0):
-        getWriter().write_f("All")
+        get_main_writer().write_f("All")
     if EUDElse()():
-        getWriter().write_decimal(m.amount)
+        get_main_writer().write_decimal(m.amount)
     EUDEndIf()
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(")")
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeSetResources(epd):
     m = _actmap(epd)
-    getWriter().write_f("SetResources(")
+    get_main_writer().write_f("SetResources(")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Modifier), m.amount)
-    getWriter().write_f(", ")
-    getWriter().write_decimal(m.player2)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
+    get_main_writer().write_decimal(m.player2)
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Resource), m.unitid)
-    getWriter().write_f(")")
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeSetScore(epd):
     m = _actmap(epd)
-    getWriter().write_f("SetScore(")
+    get_main_writer().write_f("SetScore(")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Modifier), m.amount)
-    getWriter().write_f(", ")
-    getWriter().write_decimal(m.player2)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
+    get_main_writer().write_decimal(m.player2)
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Score), m.unitid)
-    getWriter().write_f(")")
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeMinimapPing(epd):
     m = _actmap(epd)
-    getWriter().write_f("MinimapPing(")
-    writeLocation(m.locid1)
-    getWriter().write_f(")")
+    get_main_writer().write_f("MinimapPing(")
+    write_location(m.locid1)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeTalkingPortrait(epd):
     m = _actmap(epd)
-    getWriter().write_f("TalkingPortrait(")
+    get_main_writer().write_f("TalkingPortrait(")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
-    getWriter().write_decimal(m.time)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    get_main_writer().write_decimal(m.time)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeMuteUnitSpeech(epd):
-    getWriter().write_f("MuteUnitSpeech()")
+    get_main_writer().write_f("MuteUnitSpeech()")
 
 @EUDFunc
 def _writeUnMuteUnitSpeech(epd):
-    getWriter().write_f("UnMuteUnitSpeech()")
+    get_main_writer().write_f("UnMuteUnitSpeech()")
 
 @EUDFunc
 def _writeLeaderBoardComputerPlayers(epd):
     m = _actmap(epd)
-    getWriter().write_f("LeaderBoardComputerPlayers(")
+    get_main_writer().write_f("LeaderBoardComputerPlayers(")
     write_constant(EPD(tb.PropState), m.amount)
-    getWriter().write_f(")")
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeLeaderBoardGoalControl(epd):
     m = _actmap(epd)
-    getWriter().write_f("LeaderBoardGoalControl(")
-    getWriter().write_decimal(m.player2)
-    getWriter().write_f(", ")
+    get_main_writer().write_f("LeaderBoardGoalControl(")
+    get_main_writer().write_decimal(m.player2)
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
-    writeString(m.strid)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_string(m.strid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeLeaderBoardGoalControlAt(epd):
     m = _actmap(epd)
-    getWriter().write_f("LeaderBoardGoalControlAt(")
-    getWriter().write_decimal(m.player2)
-    getWriter().write_f(", ")
+    get_main_writer().write_f("LeaderBoardGoalControlAt(")
+    get_main_writer().write_decimal(m.player2)
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(", ")
-    writeString(m.strid)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(", ")
+    write_string(m.strid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeLeaderBoardGoalResources(epd):
     m = _actmap(epd)
-    getWriter().write_f("LeaderBoardGoalResources(")
-    getWriter().write_decimal(m.player2)
-    getWriter().write_f(", ")
+    get_main_writer().write_f("LeaderBoardGoalResources(")
+    get_main_writer().write_decimal(m.player2)
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Resource), m.unitid)
-    getWriter().write_f(", ")
-    writeString(m.strid)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_string(m.strid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeLeaderBoardGoalKills(epd):
     m = _actmap(epd)
-    getWriter().write_f("LeaderBoardGoalKills(")
-    getWriter().write_decimal(m.player2)
-    getWriter().write_f(", ")
+    get_main_writer().write_f("LeaderBoardGoalKills(")
+    get_main_writer().write_decimal(m.player2)
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
-    writeString(m.strid)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_string(m.strid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeLeaderBoardGoalScore(epd):
     m = _actmap(epd)
-    getWriter().write_f("LeaderBoardGoalScore(")
-    getWriter().write_decimal(m.player2)
-    getWriter().write_f(", ")
+    get_main_writer().write_f("LeaderBoardGoalScore(")
+    get_main_writer().write_decimal(m.player2)
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Score), m.unitid)
-    getWriter().write_f(", ")
-    writeString(m.strid)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_string(m.strid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeMoveLocation(epd):
     m = _actmap(epd)
-    getWriter().write_f("MoveLocation(")
-    writeLocation(m.player2)
-    getWriter().write_f(", ")
+    get_main_writer().write_f("MoveLocation(")
+    write_location(m.player2)
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeMoveUnit(epd):
     m = _actmap(epd)
-    getWriter().write_f("MoveUnit(")
+    get_main_writer().write_f("MoveUnit(")
     if EUDIf()(m.amount == 0):
-        getWriter().write_f("All")
+        get_main_writer().write_f("All")
     if EUDElse()():
-        getWriter().write_decimal(m.amount)
+        get_main_writer().write_decimal(m.amount)
     EUDEndIf()
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(", ")
-    writeLocation(m.player2)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(", ")
+    write_location(m.player2)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeLeaderBoardGreed(epd):
     m = _actmap(epd)
-    getWriter().write_f("LeaderBoardGreed(")
-    getWriter().write_decimal(m.player2)
-    getWriter().write_f(")")
+    get_main_writer().write_f("LeaderBoardGreed(")
+    get_main_writer().write_decimal(m.player2)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeSetNextScenario(epd):
     m = _actmap(epd)
-    getWriter().write_f("SetNextScenario(")
-    writeString(m.strid)
-    getWriter().write_f(")")
+    get_main_writer().write_f("SetNextScenario(")
+    write_string(m.strid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeSetDoodadState(epd):
     m = _actmap(epd)
-    getWriter().write_f("SetDoodadState(")
+    get_main_writer().write_f("SetDoodadState(")
     write_constant(EPD(tb.PropState), m.amount)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeSetInvincibility(epd):
     m = _actmap(epd)
-    getWriter().write_f("SetInvincibility(")
+    get_main_writer().write_f("SetInvincibility(")
     write_constant(EPD(tb.PropState), m.amount)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeCreateUnit(epd):
     m = _actmap(epd)
-    getWriter().write_f("CreateUnit(")
-    getWriter().write_decimal(m.amount)
-    getWriter().write_f(", ")
+    get_main_writer().write_f("CreateUnit(")
+    get_main_writer().write_decimal(m.amount)
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(")")
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
@@ -573,188 +582,188 @@ def _writeSetDeaths(epd):
             [m.internal == 0x4353])):
         # check EUDX
         if EUDIf()(m.internal == 0x4353): # eudx
-            getWriter().write_f("SetMemoryX(%H, ",
+            get_main_writer().write_f("SetMemoryX(%H, ",
                 0x58A364 + 4*m.player1 + 48*m.unitid)
             write_constant(EPD(tb.Modifier), m.amount)
-            getWriter().write_f(", %H(=%D), %H)", m.player2, m.player2, m.locid1)
+            get_main_writer().write_f(", %H(=%D), %H)", m.player2, m.player2, m.locid1)
         if EUDElse()():
-            getWriter().write_f("SetMemory(%H, ",
+            get_main_writer().write_f("SetMemory(%H, ",
                 0x58A364 + 4*m.player1 + 48*m.unitid)
             write_constant(EPD(tb.Modifier), m.amount)
-            getWriter().write_f(", %H(=%D))", m.player2, m.player2)
+            get_main_writer().write_f(", %H(=%D))", m.player2, m.player2)
         EUDEndIf()
     if EUDElse()():
-        getWriter().write_f("SetDeaths(")
+        get_main_writer().write_f("SetDeaths(")
         write_constant(EPD(tb.Player), m.player1)
-        getWriter().write_f(", ")
+        get_main_writer().write_f(", ")
         write_constant(EPD(tb.Modifier), m.amount)
-        getWriter().write_f(", ")
-        getWriter().write_decimal(m.player2)
-        getWriter().write_f(", ")
+        get_main_writer().write_f(", ")
+        get_main_writer().write_decimal(m.player2)
+        get_main_writer().write_f(", ")
         write_unit(m.unitid)
-        getWriter().write_f(")")
+        get_main_writer().write_f(")")
     EUDEndIf()
 
 @EUDFunc
 def _writeOrder(epd):
     m = _actmap(epd)
-    getWriter().write_f("Order(")
+    get_main_writer().write_f("Order(")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Order), m.amount)
-    getWriter().write_f(", ")
-    writeLocation(m.player2)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_location(m.player2)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeComment(epd):
     m = _actmap(epd)
-    getWriter().write_f("Comment(")
-    writeString(m.strid)
-    getWriter().write_f(")")
+    get_main_writer().write_f("Comment(")
+    write_string(m.strid)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeGiveUnits(epd):
     m = _actmap(epd)
-    getWriter().write_f("GiveUnits(")
+    get_main_writer().write_f("GiveUnits(")
     if EUDIf()(m.amount == 0):
-        getWriter().write_f("All")
+        get_main_writer().write_f("All")
     if EUDElse()():
-        getWriter().write_decimal(m.amount)
+        get_main_writer().write_decimal(m.amount)
     EUDEndIf()
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player2)
-    getWriter().write_f(")")
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeModifyUnitHitPoints(epd):
     m = _actmap(epd)
-    getWriter().write_f("ModifyUnitHitPoints(")
+    get_main_writer().write_f("ModifyUnitHitPoints(")
     if EUDIf()(m.amount == 0):
-        getWriter().write_f("All")
+        get_main_writer().write_f("All")
     if EUDElse()():
-        getWriter().write_decimal(m.amount)
+        get_main_writer().write_decimal(m.amount)
     EUDEndIf()
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(", ")
-    getWriter().write_decimal(m.player2)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(", ")
+    get_main_writer().write_decimal(m.player2)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeModifyUnitEnergy(epd):
     m = _actmap(epd)
-    getWriter().write_f("ModifyUnitEnergy(")
+    get_main_writer().write_f("ModifyUnitEnergy(")
     if EUDIf()(m.amount == 0):
-        getWriter().write_f("All")
+        get_main_writer().write_f("All")
     if EUDElse()():
-        getWriter().write_decimal(m.amount)
+        get_main_writer().write_decimal(m.amount)
     EUDEndIf()
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(", ")
-    getWriter().write_decimal(m.player2)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(", ")
+    get_main_writer().write_decimal(m.player2)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeModifyUnitShields(epd):
     m = _actmap(epd)
-    getWriter().write_f("ModifyUnitShields(")
+    get_main_writer().write_f("ModifyUnitShields(")
     if EUDIf()(m.amount == 0):
-        getWriter().write_f("All")
+        get_main_writer().write_f("All")
     if EUDElse()():
-        getWriter().write_decimal(m.amount)
+        get_main_writer().write_decimal(m.amount)
     EUDEndIf()
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(", ")
-    getWriter().write_decimal(m.player2)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(", ")
+    get_main_writer().write_decimal(m.player2)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeModifyUnitResourceAmount(epd):
     m = _actmap(epd)
-    getWriter().write_f("ModifyUnitResourceAmount(")
+    get_main_writer().write_f("ModifyUnitResourceAmount(")
     if EUDIf()(m.amount == 0):
-        getWriter().write_f("All")
+        get_main_writer().write_f("All")
     if EUDElse()():
-        getWriter().write_decimal(m.amount)
+        get_main_writer().write_decimal(m.amount)
     EUDEndIf()
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(", ")
-    getWriter().write_decimal(m.player2)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(", ")
+    get_main_writer().write_decimal(m.player2)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writeModifyUnitHangarCount(epd):
     m = _actmap(epd)
-    getWriter().write_f("ModifyUnitHangarCount(")
-    getWriter().write_decimal(m.player2)
-    getWriter().write_f(", ")
+    get_main_writer().write_f("ModifyUnitHangarCount(")
+    get_main_writer().write_decimal(m.player2)
+    get_main_writer().write_f(", ")
     if EUDIf()(m.amount == 0):
-        getWriter().write_f("All")
+        get_main_writer().write_f("All")
     if EUDElse()():
-        getWriter().write_decimal(m.amount)
+        get_main_writer().write_decimal(m.amount)
     EUDEndIf()
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_unit(m.unitid)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(", ")
-    writeLocation(m.locid1)
-    getWriter().write_f(")")
+    get_main_writer().write_f(", ")
+    write_location(m.locid1)
+    get_main_writer().write_f(")")
 
 
 @EUDFunc
 def _writePauseTimer(epd):
-    getWriter().write_f("PauseTimer()")
+    get_main_writer().write_f("PauseTimer()")
 
 @EUDFunc
 def _writeUnpauseTimer(epd):
-    getWriter().write_f("UnpauseTimer()")
+    get_main_writer().write_f("UnpauseTimer()")
 
 @EUDFunc
 def _writeDraw(epd):
-    getWriter().write_f("Draw()")
+    get_main_writer().write_f("Draw()")
 
 @EUDFunc
 def _writeSetAllianceStatus(epd):
     m = _actmap(epd)
-    getWriter().write_f("SetAllianceStatus(")
+    get_main_writer().write_f("SetAllianceStatus(")
     write_constant(EPD(tb.Player), m.player1)
-    getWriter().write_f(", ")
+    get_main_writer().write_f(", ")
     write_constant(EPD(tb.AllyStatus), m.unitid)
-    getWriter().write_f(")")
+    get_main_writer().write_f(")")
 

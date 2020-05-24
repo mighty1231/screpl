@@ -55,16 +55,16 @@ class ProfileBlock(block.BridgeBlock):
     """
     signature = b'PROF'
 
-    def GetBufferSize(self):
+    def get_buffer_size(self):
         return len(get_block())
 
     def WritePayload(self, emitbuffer):
-        buf_size = self.GetBufferSize()
+        buf_size = self.get_buffer_size()
         emitbuffer.WriteDword(b2i4(type(self).signature))
         emitbuffer.WriteDword(buf_size)
         emitbuffer.WriteBytes(get_block())
 
-    def UpdateContent(self):
+    def update_content(self):
         computes = []
         for i, (name, counter, total_ms, total_ems) in \
                 enumerate(profile_table.table):

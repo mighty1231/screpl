@@ -1,7 +1,7 @@
 from eudplib import *
 from screpl.main import get_main_writer
 
-def makeSCMDConstWriter(encoder, kvmap):
+def make_scmd_const_writer(encoder, kvmap):
     @EUDFunc
     def writeVar(var):
         for i, (k, v) in enumerate(kvmap):
@@ -30,9 +30,9 @@ def SCMDWriteNumber(value):
     else:
         get_main_writer().write_f(str(value))
 
-def writeTrigger(player, conditions, actions, preserved = True):
-    from .condition import SCMDWriteCondition
-    from .action import write_scmdaction, SCMDwrite_action_epd
+def write_scmdtrigger(player, conditions, actions, preserved=True):
+    from .condition import write_scmdcondition
+    from .action import write_scmdaction, write_scmdaction_epd
     '''
     actions = [SetDeaths(~~), SetDeaths(~~), ...]
     or
@@ -44,12 +44,12 @@ def writeTrigger(player, conditions, actions, preserved = True):
 
     get_main_writer().write_f("){\nConditions:\n")
     for cond in conditions:
-        if type(cond) == str:
+        if isinstance(cond, str):
             get_main_writer().write_f(cond)
-        elif type(cond) == tuple:
+        elif isinstance(cond, tuple):
             get_main_writer().write_f(*cond)
-        elif type(cond) == Condition:
-            SCMDWriteCondition(cond)
+        elif isinstance(cond, Condition):
+            write_scmdcondition(cond)
         else:
             raise RuntimeError("Unknown type condition {}".format(cond))
 
@@ -57,11 +57,11 @@ def writeTrigger(player, conditions, actions, preserved = True):
 
     if isinstance(actions, list):
         for act in actions:
-            if type(act) == str:
+            if isinstance(act, str):
                 get_main_writer().write_f(act)
-            elif type(act) == tuple:
+            elif isinstance(act, tuple):
                 get_main_writer().write_f(*act)
-            elif type(act) == Action:
+            elif isinstance(act, Action):
                 write_scmdaction(act)
             else:
                 raise RuntimeError("Unknown type action {}".format(act))
@@ -74,7 +74,7 @@ def writeTrigger(player, conditions, actions, preserved = True):
         if EUDInfLoop()():
             EUDBreakIf(cur_epd >= end_epd)
 
-            SCMDwrite_action_epd(cur_epd)
+            write_scmdaction_epd(cur_epd)
             cur_epd += (32//4)
         EUDEndInfLoop()
 
@@ -83,7 +83,7 @@ def writeTrigger(player, conditions, actions, preserved = True):
     get_main_writer().write_f("}\n\n")
 
 
-SCMDWritePlayer = makeSCMDConstWriter(EncodePlayer, [
+SCMDWritePlayer = make_scmd_const_writer(EncodePlayer, [
     (Player1, "\"Player 1\""),
     (Player2, "\"Player 2\""),
     (Player3, "\"Player 3\""),
@@ -101,25 +101,25 @@ SCMDWritePlayer = makeSCMDConstWriter(EncodePlayer, [
     (CurrentPlayer, "\"Current Player\""),
 ])
 
-SCMDWriteModifier = makeSCMDConstWriter(EncodeModifier, [
+SCMDWriteModifier = make_scmd_const_writer(EncodeModifier, [
     (SetTo, "Set To"),
     (Add, "Add"),
     (Subtract, "Subtract")
 ])
 
-SCMDWriteComparison = makeSCMDConstWriter(EncodeComparison, [
+SCMDWriteComparison = make_scmd_const_writer(EncodeComparison, [
     (AtLeast, "At least"),
     (AtMost, "At most"),
     (Exactly, "Exactly"),
 ])
 
-SCMDWriteOrder = makeSCMDConstWriter(EncodeOrder, [
+SCMDWriteOrder = make_scmd_const_writer(EncodeOrder, [
     (Move, "move"),
     (Patrol, "patrol"),
     (Attack, "attack"),
 ])
 
-SCMDWriteScore = makeSCMDConstWriter(EncodeScore, [
+SCMDWriteScore = make_scmd_const_writer(EncodeScore, [
     (Total, "Total"),
     (Units, "Units"),
     (Buildings, "Buildings"),

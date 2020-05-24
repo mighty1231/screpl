@@ -16,29 +16,29 @@ def _createapp(domainname, reftable):
 
 
     @EUDFunc
-    def focusOffset(new_offset):
+    def focus_offset(new_offset):
         Trigger(
-            conditions = new_offset.AtLeast(0x80000000),
-            actions = new_offset.SetNumber(0)
+            conditions=new_offset.AtLeast(0x80000000),
+            actions=new_offset.SetNumber(0)
         )
         Trigger(
-            conditions = new_offset.AtLeast(reftable_sz),
-            actions = new_offset.SetNumber(reftable_sz - 1)
+            conditions=new_offset.AtLeast(reftable_sz),
+            actions=new_offset.SetNumber(reftable_sz - 1)
         )
         if EUDIfNot()(new_offset == _offset):
             _offset << new_offset
             _value << f_dwread_epd((EPD(reftable)+2) + 2*new_offset)
-            main.get_app_manager().requestUpdate()
+            main.get_app_manager().request_update()
         EUDEndIf()
 
     class _SelectorApp(application.Application):
         @staticmethod
-        def setContent(default, result_epd = None):
+        def setContent(default, result_epd=None):
             _value << default
             if result_epd:
                 _result_epd << result_epd
 
-        def onInit(self):
+        def on_init(self):
             _offset << 0
             def func(i, name_epd, value_epd):
                 if EUDIf()(MemoryEPD(value_epd, Exactly, _value)):
@@ -46,12 +46,12 @@ def _createapp(domainname, reftable):
                     EUDReturn()
                 EUDEndIf()
 
-            referencetable.ReferenceTable.Iter(EPD(reftable), func)
+            referencetable.ReferenceTable.iter_table(EPD(reftable), func)
 
             # failed on search
             _value << 0
 
-        def onDestruct(self):
+        def on_destruct(self):
             if EUDIfNot()(_result_epd == 0):
                 f_dwwrite_epd(_result_epd, _value)
                 _result_epd << 0
@@ -59,21 +59,22 @@ def _createapp(domainname, reftable):
 
         def loop(self):
             app_manager = main.get_app_manager()
-            if EUDIf()(app_manager.keyPress("ESC")):
-                app_manager.requestDestruct()
-            if EUDElseIf()(app_manager.keyPress("F7", hold=["LCTRL"])):
-                focusOffset(_offset - NITEMS)
-            if EUDElseIf()(app_manager.keyPress("F7")):
-                focusOffset(_offset - 1)
-            if EUDElseIf()(app_manager.keyPress("F8", hold=["LCTRL"])):
-                focusOffset(_offset + NITEMS)
-            if EUDElseIf()(app_manager.keyPress("F8")):
-                focusOffset(_offset + 1)
+            if EUDIf()(app_manager.key_press("ESC")):
+                app_manager.request_destruct()
+            if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
+                focus_offset(_offset - NITEMS)
+            if EUDElseIf()(app_manager.key_press("F7")):
+                focus_offset(_offset - 1)
+            if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
+                focus_offset(_offset + NITEMS)
+            if EUDElseIf()(app_manager.key_press("F8")):
+                focus_offset(_offset + 1)
             EUDEndIf()
-            app_manager.requestUpdate()
+            app_manager.request_update()
 
         def print(self, writer):
-            writer.write_f("\x16{} Selector, value=%D, ESC, F7, F8\n".format(domainname),
+            writer.write_f(
+                "\x16{} Selector, value=%D, ESC, F7, F8\n".format(domainname),
                 _value)
 
             cur, until, pageend, key_epd = EUDCreateVariables(4)

@@ -5,7 +5,7 @@ from eudplib import *
 import screpl.core.application as application
 import screpl.core.appcommand as appcommand
 import screpl.main as main
-import screpl.utils.eudbyterw as rw
+import screpl.utils.byterw as rw
 
 from . import static
 from . import logger
@@ -28,7 +28,7 @@ _repl_cur_page = EUDVariable()
 _repl_outputcolor = 0x16
 
 class REPL(application.Application):
-    _output_writer = rw.EUDByteRW()
+    _output_writer = rw.REPLByteRW()
 
     @staticmethod
     def get_output_writer():
@@ -36,13 +36,13 @@ class REPL(application.Application):
         REPL._output_writer.seekepd(_repl_output_epd_ptr)
         return REPL._output_writer
 
-    def onChat(self, offset):
+    def on_chat(self, offset):
         REPL._output_writer.seekepd(_repl_input_epd_ptr)
         REPL._output_writer.write_str(offset)
         REPL._output_writer.write(0)
         self.cmd_output_epd = _repl_output_epd_ptr
 
-        application.Application.onChat(self, offset)
+        application.Application.on_chat(self, offset)
 
         quot, mod = f_div(_repl_index, _PAGE_NUMLINES // 2)
         _repl_top_index << _repl_index - mod
@@ -52,28 +52,28 @@ class REPL(application.Application):
             _repl_output_epd_ptr.AddNumber(_LINE_SIZE // 4),
             _repl_index.AddNumber(1)
         ])
-        main.get_app_manager().requestUpdate()
+        main.get_app_manager().request_update()
 
     def loop(self):
         # F7 - previous page
         # F8 - next page
         manager = main.get_app_manager()
-        if EUDIf()(manager.keyPress("F7")):
+        if EUDIf()(manager.key_press("F7")):
             if EUDIfNot()(_repl_top_index == 0):
                 DoActions([
                     _repl_top_index.SubtractNumber(_PAGE_NUMLINES//2),
                     _repl_cur_page.SubtractNumber(1)
                 ])
-                manager.requestUpdate()
+                manager.request_update()
             EUDEndIf()
-        if EUDElseIf()(manager.keyPress("F8")):
+        if EUDElseIf()(manager.key_press("F8")):
             if EUDIf()((
                 _repl_top_index+(_PAGE_NUMLINES//2+1)).AtMost(_repl_index)):
                 DoActions([
                     _repl_top_index.AddNumber(_PAGE_NUMLINES//2),
                     _repl_cur_page.AddNumber(1),
                 ])
-                manager.requestUpdate()
+                manager.request_update()
             EUDEndIf()
         EUDEndIf()
 
@@ -143,14 +143,14 @@ class REPL(application.Application):
             "help() - Opens a manual\n"
             "cmds() - Shows registered commands\n"
         )
-        main.get_app_manager().startApplication(static.StaticApp)
+        main.get_app_manager().start_application(static.StaticApp)
 
     @appcommand.AppCommand([])
     def cmds(self):
         """Show REPL commands"""
         content = ''
         cmd_id = 1
-        for name, cmd in REPL._commands_.orderedItems():
+        for name, cmd in REPL._commands_.ordered_items():
             argspec = inspect.getfullargspec(cmd.func)
             try:
                 docstring = ': ' + cmd.func.__doc__.strip().split('\n')[0]
@@ -172,9 +172,9 @@ class REPL(application.Application):
             content = content[:-1]
 
         static.StaticApp.setContent("\x16SC-REPL commands", content)
-        main.get_app_manager().startApplication(static.StaticApp)
+        main.get_app_manager().start_application(static.StaticApp)
 
     @appcommand.AppCommand([])
     def log(self):
         """Start Logger application"""
-        main.get_app_manager().startApplication(logger.Logger)
+        main.get_app_manager().start_application(logger.Logger)

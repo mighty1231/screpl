@@ -1,9 +1,9 @@
 from eudplib import *
 
-from screpl.utils import eudbyterw as rw
+from screpl.utils import byterw as rw
 
-_reader = rw.EUDByteRW()
-_writer = rw.EUDByteRW()
+_reader = rw.REPLByteRW()
+_writer = rw.REPLByteRW()
 
 ArgEncoderPtr = EUDFuncPtr(4, 1)
 
@@ -51,13 +51,22 @@ def _read_until_delimiter(_b, delim):
     EUDEndInfLoop()
 
 @EUDFunc
-def ReadNumber(offset, delim, ref_offset_epd, ref_retval_epd):
+def read_number(offset, delim, ref_offset_epd, ref_retval_epd):
     """Reads string and extracts corresponding number.
 
     It reads following regular expression
 
-        [-]?[1-9][0-9]*
-        [-]?0x[0-9A-Fa-f]+
+    .. code-block:: python
+
+        regex_decimal = r"[-]?[1-9][0-9]*"
+        regex_hexadecimal = r"[-]?0x[0-9A-Fa-f]+"
+
+    Examples
+
+    .. code-block:: text
+
+        0x1535
+        -9000
 
     Args:
         offset (EUDVariable): pointer to string
@@ -88,23 +97,25 @@ def ReadNumber(offset, delim, ref_offset_epd, ref_retval_epd):
         # Hex
         if EUDIf()(_b == ord('x')):
             _b << _reader.read()
+            ret *= 16
             if EUDIf()([ord('0') <= _b, _b <= ord('9')]):
-                ret << ret * 16 + _b - ord('0')
+                ret += _b - ord('0')
             if EUDElseIf()([ord('a') <= _b, _b <= ord('f')]):
-                ret << ret * 16 + _b - (ord('a') - 10)
+                ret += _b - (ord('a') - 10)
             if EUDElseIf()([ord('A') <= _b, _b <= ord('F')]):
-                ret << ret * 16 + _b - (ord('A') - 10)
+                ret += _b - (ord('A') - 10)
             if EUDElse()():
                 EUDJump(failed) # At least one character
             EUDEndIf()
             if EUDInfLoop()():
                 _b << _reader.read()
+                ret *= 16
                 if EUDIf()([ord('0') <= _b, _b <= ord('9')]):
-                    ret << ret * 16 + _b - ord('0')
+                    ret += _b - ord('0')
                 if EUDElseIf()([ord('a') <= _b, _b <= ord('f')]):
-                    ret << ret * 16 + _b - (ord('a') - 10)
+                    ret += _b - (ord('a') - 10)
                 if EUDElseIf()([ord('A') <= _b, _b <= ord('F')]):
-                    ret << ret * 16 + _b - (ord('A') - 10)
+                    ret += _b - (ord('A') - 10)
                 if EUDElse()():
                     EUDJump(read_delim)
                 EUDEndIf()
@@ -152,10 +163,20 @@ def ReadNumber(offset, delim, ref_offset_epd, ref_retval_epd):
     EUDReturn(0)
 
 @EUDFunc
-def ReadName(offset, delim, ref_offset_epd, ref_retval_epd):
+def read_name(offset, delim, ref_offset_epd, ref_retval_epd):
     """Reads string and extracts corresponding symbol
 
-    [_a-zA-Z][_0-9a-zA-Z]*
+    .. code-block:: python
+
+        regex_symbol = r"[_a-zA-Z][_0-9a-zA-Z]*"
+
+    Examples
+
+    .. code-block:: text
+
+        MyCommand
+        _abc02
+
     ref_retval_epd is pointer for Db
     """
     _reader.seekoffset(offset)
@@ -171,12 +192,16 @@ def ReadName(offset, delim, ref_offset_epd, ref_retval_epd):
     failed = Forward()
 
     _b = _trim()
-    if EUDIf()(EUDOr([_b == ord('_')], [ord('a') <= _b, _b <= ord('z')], [ord('A') <= _b, _b <= ord('Z')])):
+    if EUDIf()(EUDOr([_b == ord('_')],
+                     [ord('a') <= _b, _b <= ord('z')],
+                     [ord('A') <= _b, _b <= ord('Z')])):
         _writer.write(_b)
         if EUDInfLoop()():
             _b << _reader.read()
-            if EUDIf()(EUDOr([_b == ord('_')], [ord('a') <= _b, _b <= ord('z')], [ord('A') <= _b, _b <= ord('Z')], \
-                    [ord('0') <= _b, _b <= ord('9')])):
+            if EUDIf()(EUDOr([_b == ord('_')],
+                             [ord('a') <= _b, _b <= ord('z')],
+                             [ord('A') <= _b, _b <= ord('Z')],
+                             [ord('0') <= _b, _b <= ord('9')])):
                 _writer.write(_b)
             if EUDElse()():
                 EUDJump(read_delim)
@@ -203,12 +228,23 @@ def ReadName(offset, delim, ref_offset_epd, ref_retval_epd):
     EUDReturn(0)
 
 @EUDFunc
-def ReadString(offset, delim, ref_offset_epd, ref_retval_epd):
-    '''
-    "[CHARACTERS]*"
-    CHARACTERS : 0x20~0x7E, except for ord('"') = 34
+def read_string(offset, delim, ref_offset_epd, ref_retval_epd):
+    """Reads string wrapped with "
+
+    .. code-block:: python
+
+        regex_string = r"[usual_character]*"
+        regex_character = range(0x20, 0x7F) # except ord("\"") = 34
+
+    Examples
+
+    .. code-block:: text
+
+        "string1"
+        "my string"
+
     ref_retval_epd is pointer for Db
-    '''
+    """
     _reader.seekoffset(offset)
 
     # result is stored on Db

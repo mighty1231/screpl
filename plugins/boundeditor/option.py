@@ -19,7 +19,7 @@ from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
 from screpl.encoder.const import ArgEncNumber
 from screpl.writer import write_unit
-from screpl.writer import writeLocation
+from screpl.writer import write_location
 
 from ..location import LocationManagerApp
 from ..unit import UnitManagerApp
@@ -75,45 +75,45 @@ focus = EUDVariable(0)
 
 class OptionApp(Application):
     def loop(self):
-        if EUDIf()(app_manager.keyPress("ESC")):
-            app_manager.requestDestruct()
-        if EUDElseIf()(app_manager.keyPress("F7")):
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
+        if EUDElseIf()(app_manager.key_press("F7")):
             Trigger(
                 conditions = focus.Exactly(0),
                 actions = focus.SetNumber(FOCUS_END)
             )
             DoActions(focus.SubtractNumber(1))
-        if EUDElseIf()(app_manager.keyPress("F8")):
+        if EUDElseIf()(app_manager.key_press("F8")):
             DoActions(focus.AddNumber(1))
             Trigger(
                 conditions = focus.Exactly(FOCUS_END),
                 actions = focus.SetNumber(0)
             )
-        if EUDElseIf()(app_manager.keyPress("insert")):
+        if EUDElseIf()(app_manager.key_press("insert")):
             if EUDIf()(focus.Exactly(FOCUS_EFFECTPLAYER)):
                 PlayerSelectorApp.setContent(g_effectplayer, EPD(g_effectplayer.getValueAddr()))
-                app_manager.startApplication(PlayerSelectorApp)
+                app_manager.start_application(PlayerSelectorApp)
             if EUDElseIf()(focus.Exactly(FOCUS_EFFECTUNIT1)):
                 UnitManagerApp.setContent(g_effectunit_1, EPD(g_effectunit_1.getValueAddr()))
-                app_manager.startApplication(UnitManagerApp)
+                app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_EFFECTUNIT2)):
                 UnitManagerApp.setContent(g_effectunit_2, EPD(g_effectunit_2.getValueAddr()))
-                app_manager.startApplication(UnitManagerApp)
+                app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_EFFECTUNIT3)):
                 UnitManagerApp.setContent(g_effectunit_3, EPD(g_effectunit_3.getValueAddr()))
-                app_manager.startApplication(UnitManagerApp)
+                app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_OBSTACLEUNIT)):
                 UnitManagerApp.setContent(g_obstacle_unit, EPD(g_obstacle_unit.getValueAddr()))
-                app_manager.startApplication(UnitManagerApp)
+                app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_RUNNER_FORCE)):
                 PlayerSelectorApp.setContent(g_runner_force, EPD(g_runner_force.getValueAddr()))
-                app_manager.startApplication(PlayerSelectorApp)
+                app_manager.start_application(PlayerSelectorApp)
             if EUDElseIf()(focus.Exactly(FOCUS_RUNNER_UNIT)):
                 UnitManagerApp.setContent(g_runner_unit, EPD(g_runner_unit.getValueAddr()))
-                app_manager.startApplication(UnitManagerApp)
+                app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_START_LOCATION)):
                 LocationManagerApp.setContent(g_start_location, EPD(g_start_location.getValueAddr()))
-                app_manager.startApplication(LocationManagerApp)
+                app_manager.start_application(LocationManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_OBSCREATE_PATTERN)):
                 DoActions(g_obstacle_createpattern.AddNumber(1))
                 Trigger(
@@ -128,7 +128,7 @@ class OptionApp(Application):
                 )
             EUDEndIf()
         EUDEndIf()
-        app_manager.requestUpdate()
+        app_manager.request_update()
 
     def print(self, writer):
         def _emphasize(val):
@@ -167,7 +167,7 @@ class OptionApp(Application):
 
         writer.write_f("\x02\nStart location: ")
         _emphasize(FOCUS_START_LOCATION)
-        writeLocation(g_start_location)
+        write_location(g_start_location)
 
         writer.write_f("\x02\nOn obstacle be created, runner be ")
         _emphasize(FOCUS_OBSCREATE_PATTERN)

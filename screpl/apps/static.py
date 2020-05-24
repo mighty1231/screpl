@@ -26,14 +26,14 @@ class StaticApp(application.Application):
         _epdarray << EPD(epdarray)
         _linecount << linecount
 
-    def onInit(self):
+    def on_init(self):
         self.title_epd = _title_epd
         self.linecount = _linecount
         self.content_epd = _epdarray
         self.lines_per_page = 8
         self.offset = 0
 
-    def setOffset(self, new_offset):
+    def set_offset(self, new_offset):
         prev_offset, linecount, lpp = self.offset, self.linecount, self.lines_per_page
         if EUDIf()([new_offset <= 0x80000000, linecount > lpp]):
             if EUDIfNot()(new_offset >= linecount - lpp):
@@ -46,19 +46,19 @@ class StaticApp(application.Application):
         EUDEndIf()
 
         if EUDIfNot()(prev_offset == self.offset):
-            main.get_app_manager().requestUpdate()
+            main.get_app_manager().request_update()
         EUDEndIf()
 
     def loop(self):
         # F7 - previous page
         # F8 - next page
         manager = main.get_app_manager()
-        if EUDIf()(manager.keyPress("ESC")):
-            manager.requestDestruct()
-        if EUDElseIf()(manager.keyPress("F7")):
-            self.setOffset(self.offset - self.lines_per_page)
-        if EUDElseIf()(manager.keyPress("F8")):
-            self.setOffset(self.offset + self.lines_per_page)
+        if EUDIf()(manager.key_press("ESC")):
+            manager.request_destruct()
+        if EUDElseIf()(manager.key_press("F7")):
+            self.set_offset(self.offset - self.lines_per_page)
+        if EUDElseIf()(manager.key_press("F8")):
+            self.set_offset(self.offset + self.lines_per_page)
         EUDEndIf()
 
     def print(self, writer):

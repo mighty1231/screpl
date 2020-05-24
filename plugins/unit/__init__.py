@@ -12,6 +12,6 @@ from .manager import UnitManagerApp
 
 @AppCommand([])
 def startCommand(self):
-    app_manager.startApplication(UnitManagerApp)
+    app_manager.start_application(UnitManagerApp)
 
 REPL.add_command('unit', startCommand)

@@ -104,7 +104,7 @@ class CUnitMemberEntry(REPLStruct):
         else:
             comments = EPDConstString(comments)
 
-        entry = CUnitMemberEntry.initializeWith(
+        entry = CUnitMemberEntry.initialize_with(
             off_epd,
             off,
             write_f,

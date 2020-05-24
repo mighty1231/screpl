@@ -1,4 +1,14 @@
-from eudplib import *
+from eudplib import (
+    DoActions,
+    EUDBreakIf,
+    EUDEndInfLoop,
+    EUDFunc,
+    EUDInfLoop,
+    EUDReturn,
+    EUDVariable,
+    f_strcmp,
+)
+from . import byterw
 
 @EUDFunc
 def f_strcmp_ptrepd(s1, s2):
@@ -6,8 +16,7 @@ def f_strcmp_ptrepd(s1, s2):
 
 @EUDFunc
 def f_strlen(s):
-    from ..utils.eudbyterw import EUDByteRW
-    reader = EUDByteRW()
+    reader = byterw.REPLByteRW()
     cnt = EUDVariable()
 
     reader.seekoffset(s)

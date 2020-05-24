@@ -5,9 +5,9 @@ from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN
 from eudplib.core.eudstruct.vararray import EUDVArrayData
 from eudplib.core.eudfunc.eudfptr import createIndirectCaller
 
-from screpl.encoder.encoder import ArgEncoderPtr, ReadName, _read_until_delimiter
-from screpl.utils.eudbyterw import EUDByteRW
-from screpl.utils.referencetable import SearchTable
+from screpl.encoder.encoder import ArgEncoderPtr, read_name, _read_until_delimiter
+from screpl.utils.byterw import REPLByteRW
+from screpl.utils.referencetable import search_table
 from screpl.utils.conststring import EPDConstString
 from screpl.utils.string import f_strcmp_ptrepd
 
@@ -24,31 +24,31 @@ _arg_storage = EUDArray(_MAXARGCNT)
 # Used as global variable during parsing iteratively
 _offset = EUDVariable()
 _encode_success = EUDVariable()
-_output_writer = EUDByteRW()
+_output_writer = REPLByteRW()
 _ref_stdout_epd = EUDVariable()
 
 AppCommandPtr = EUDFuncPtr(0, 0)
 
-def runAppCommand(txtptr, ref_stdout_epd):
+def run_app_command(txtptr, ref_stdout_epd):
     _offset << txtptr
     _ref_stdout_epd << ref_stdout_epd
-    _runAppCommand()
+    _run_app_command()
 
 @EUDFunc
-def _runAppCommand():
+def _run_app_command():
     # get current AppCommand table
     cmdtable_epd = main.get_app_manager().cur_cmdtable_epd
     funcname = Db(50)
     _output_writer.seekepd(_ref_stdout_epd)
 
     # read function name
-    if EUDIf()(ReadName(_offset, ord('('), \
+    if EUDIf()(read_name(_offset, ord('('), \
             EPD(_offset.getValueAddr()), EPD(funcname)) == 1):
         func = AppCommandPtr()
         ret = EUDVariable()
 
         # search command
-        if EUDIf()(SearchTable(funcname, cmdtable_epd, \
+        if EUDIf()(search_table(funcname, cmdtable_epd, \
                 f_strcmp_ptrepd, EPD(ret.getValueAddr())) == 1):
 
             # encode argument
@@ -64,7 +64,7 @@ def _runAppCommand():
     EUDEndIf()
 
 @EUDFunc
-def encodeArguments():
+def encode_arguments():
     i, delim = EUDCreateVariables(2)
     i << 0
     _encode_success << 1
@@ -112,8 +112,8 @@ class AppCommandN:
             raise RuntimeError("Too many arguments!")
 
         self.func = func
-        self.cmdptr_val = EUDVArrayData(2)([0, 0])
-        self.cmdptr = AppCommandPtr(self.cmdptr_val)
+        self.cmd_ptr_val = EUDVArrayData(2)([0, 0])
+        self.cmd_ptr = AppCommandPtr(self.cmd_ptr_val)
 
         # Step 2 initialize
         self.cls = None
@@ -125,11 +125,11 @@ class AppCommandN:
         self.traced = traced
         self.status = 'not initialized'
 
-    def getCmdPtr(self):
+    def get_cmd_ptr(self):
         assert self.cls is not None
-        return self.cmdptr
+        return self.cmd_ptr
 
-    def setFuncCallback(self, func_callback):
+    def set_func_callback(self, func_callback):
         if self.status == "allocated":
             raise RuntimeError("AppCommand already has its body")
         assert self.func_callback is None
@@ -147,14 +147,14 @@ class AppCommandN:
             self.func = self.func_callback(self.func)
 
         def call_inner():
-            instance = main.get_app_manager().getCurrentAppInstance()
+            instance = main.get_app_manager().get_foreground_app_instance()
             prev_cls = instance._cls
             instance._cls = self.cls
 
             _argn << self.argn
             for i, enc in enumerate(self.arg_encoders):
                 _arg_encoders[i] = enc
-            encodeArguments()
+            encode_arguments()
 
             if EUDIf()(_encode_success == 1):
                 encoded_args = [_arg_storage[i] for i in range(self.argn)]
@@ -173,7 +173,7 @@ class AppCommandN:
         assert funcn._retn == 0, "You should not return anything on AppCommand"
 
         self.funcn = funcn
-        self.cmdptr_val._initvars = [f_idcstart, EPD(f_idcend + 4)]
+        self.cmd_ptr_val._initvars = [f_idcstart, EPD(f_idcend + 4)]
 
         self.status = 'allocated'
 

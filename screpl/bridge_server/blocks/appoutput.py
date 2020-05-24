@@ -20,10 +20,10 @@ class AppOutputBlock(block.BridgeBlock):
 
     signature = b'AOUT'
 
-    def GetBufferSize(self):
+    def get_buffer_size(self):
         return 4 + 2000
 
-    def UpdateContent(self):
+    def update_content(self):
         # Check for flushed to client
         if EUDIf()(Memory(self, Exactly, 0)):
             SeqCompute([(EPD(self), SetTo, appOutputSize)])

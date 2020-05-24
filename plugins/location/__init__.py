@@ -19,8 +19,8 @@ FRAME_PERIOD = 24
 # initialize variables
 app_manager = get_app_manager()
 dim = GetChkTokenized().getsection(b'DIM ')
-mapw = app_manager.getMapWidth()
-maph = app_manager.getMapHeight()
+mapw = app_manager.get_map_width()
+maph = app_manager.get_map_height()
 
 DoActions([
     # make enable to create "Scanner Sweep"
@@ -36,6 +36,6 @@ from .manager import LocationManagerApp
 
 @AppCommand([])
 def startCommand(self):
-    app_manager.startApplication(LocationManagerApp)
+    app_manager.start_application(LocationManagerApp)
 
 REPL.add_command('location', startCommand)

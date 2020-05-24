@@ -95,6 +95,6 @@ from .manager import BoundManagerApp
 
 @AppCommand([])
 def startCommand(self):
-    app_manager.startApplication(BoundManagerApp)
+    app_manager.start_application(BoundManagerApp)
 
 REPL.add_command('bound', startCommand)

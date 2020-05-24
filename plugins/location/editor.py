@@ -80,7 +80,7 @@ class LocationEditorApp(Application):
         re << cur_epd + 2
         be << cur_epd + 3
 
-    def onInit(self):
+    def on_init(self):
         frame << 0
         for i in range(len(py_modes)):
             prev_available_modes[i] = 0
@@ -162,10 +162,10 @@ class LocationEditorApp(Application):
     def loop(self):
         global cur_mode, cur_grid_mode
 
-        if EUDIf()(app_manager.keyPress("ESC")):
-            app_manager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(app_manager.keyPress(keymap["editor"]["change_grid_mode"])):
+        if EUDElseIf()(app_manager.key_press(keymap["editor"]["change_grid_mode"])):
             cur_grid_mode += 1
             Trigger(
                 conditions=[cur_grid_mode == len(py_grid_modes)],
@@ -174,7 +174,7 @@ class LocationEditorApp(Application):
         EUDEndIf()
 
         # new mouse values and location
-        pos = app_manager.getMousePositionXY()
+        pos = app_manager.get_mouse_position()
         cur_mX << pos[0]
         cur_mY << pos[1]
         cur_lv << f_dwread_epd(le)
@@ -183,7 +183,7 @@ class LocationEditorApp(Application):
         cur_bv << f_dwread_epd(be)
 
         # set modes!
-        if EUDIf()(app_manager.mouseLClick()):
+        if EUDIf()(app_manager.mouse_lclick()):
             '''
             evaluate available modes
             if available modes not changed,
@@ -221,11 +221,11 @@ class LocationEditorApp(Application):
         EUDEndIf()
 
         # get new mode
-        if EUDIf()(app_manager.keyDown(keymap["editor"]["hold"])):
+        if EUDIf()(app_manager.key_down(keymap["editor"]["hold"])):
             is_holding << 1
             prev_mX << cur_mX
             prev_mY << cur_mY
-        if EUDElseIf()(app_manager.keyUp(keymap["editor"]["hold"])):
+        if EUDElseIf()(app_manager.key_up(keymap["editor"]["hold"])):
             is_holding << 0
         EUDEndIf()
 
@@ -331,7 +331,7 @@ class LocationEditorApp(Application):
             conditions = frame.Exactly(FRAME_PERIOD),
             actions = frame.SetNumber(0)
         )
-        app_manager.requestUpdate()
+        app_manager.request_update()
 
     def print(self, writer):
         # Title, tells its editing mode
@@ -406,4 +406,4 @@ class LocationEditorApp(Application):
     @AppCommand([])
     def changeName(self):
         ChatReaderApp.set_return_epd(GetLocationNameEPDPointer(target))
-        app_manager.startApplication(ChatReaderApp)
+        app_manager.start_application(ChatReaderApp)

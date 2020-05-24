@@ -70,12 +70,12 @@ class REPLArray(struct.REPLStruct):
             size = 0
             contents = EPD(EUDArray(max_size))
 
-        return REPLArray.initializeWith(max_size, size, contents, contents+size)
+        return REPLArray.initialize_with(max_size, size, contents, contents+size)
 
     @staticmethod
     def allocate(max_size):
         contents = _pool.alloc_epd(max_size)
-        instance = REPLArray.initializeWith(0, 0, 0, 0)
+        instance = REPLArray.initialize_with(0, 0, 0, 0)
         instance.max_size = max_size
         instance.contents = contents
         instance.end = contents
@@ -265,7 +265,6 @@ class REPLArray(struct.REPLStruct):
         The function shall not modify any of its arguments.
         This can either be a function pointer or a function object.
         '''
-        contents = self.contents
         size = self.size
 
         # non-recursive quicksort

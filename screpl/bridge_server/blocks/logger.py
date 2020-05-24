@@ -21,10 +21,10 @@ class LoggerBlock(block.BridgeBlock):
     """
     signature = b'LOGB'
 
-    def GetBufferSize(self):
+    def get_buffer_size(self):
         return 4 + LOGGER_LINE_COUNT * LOGGER_LINE_SIZE
 
-    def UpdateContent(self):
+    def update_content(self):
         prev_log_index = EUDVariable(0)
         quot, rem = f_div(prev_log_index, LOGGER_LINE_COUNT)
         rel = rem * (LOGGER_LINE_SIZE // 4)

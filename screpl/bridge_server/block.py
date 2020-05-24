@@ -4,7 +4,7 @@ from eudplib import ConstExpr, b2i4
 class _BB_Metaclass(type):
     """Supporting class for BridgeBlock
 
-    It manages :attribute:`BridgeBlock.signature` of BridgeBlock instances
+    It manages :attr:`BridgeBlock.signature` of BridgeBlock instances
     """
     sigdict = {}
     def __init__(cls, name, bases, dct):
@@ -29,8 +29,8 @@ class _BB_Metaclass(type):
 class BridgeBlock(ConstExpr, metaclass=_BB_Metaclass):
     """Basic buffer management class used for shared memory
 
-    BridgeBlock is abstract class to manage memory block that is shared
-    with bridge client. It has following c structure:
+    BridgeBlock is abstract class to manage memory block that is shared with
+    bridge client. It has following c structure:
 
     .. code-block:: C
 
@@ -46,36 +46,35 @@ class BridgeBlock(ConstExpr, metaclass=_BB_Metaclass):
         super().__init__(self)
         self.region = region
 
-    def UpdateContent(self):
+    def update_content(self):
         """Updates contents of the block.
 
         Use `self` as a pointer to contents of the block.
         Required to be overridden.
         """
-        raise NotImplementedError("Override UpdateContent")
+        raise NotImplementedError("Override update_content")
 
-    def GetBufferSize(self):
+    def get_buffer_size(self):
         """Returns size of its contents.
 
         Required to be overridden.
         """
-        raise NotImplementedError("Override GetBufferSize")
+        raise NotImplementedError("Override get_buffer_size")
 
     def Evaluate(self):
         """Magic method to address `self`
 
-        It makes the block as a pointer to its contents.
-        Override from :meth:`~eudplib.ConstExpr.Evaluate`.
+        It makes the block as a pointer to its contents. Override from
+        :meth:`~eudplib.ConstExpr.Evaluate`.
         """
-        return self.region.GetBlockAddr(self) + 8
+        return self.region.get_block_address(self) + 8
 
-    def CollectDependency(self, emitbuffer):
-        """Override from :meth:`~eudplib.ConstExpr.CollectDependency`."""
-        pass
+    def collect_dependency(self, emitbuffer):
+        """Collects dependent objects"""
 
-    def WritePayload(self, emitbuffer):
-        """Override from :meth:`~eudplib.ConstExpr.WritePayload`."""
-        buf_size = self.GetBufferSize()
+    def write_payload(self, emitbuffer):
+        """Fills payload buffer"""
+        buf_size = self.get_buffer_size()
         emitbuffer.WriteDword(b2i4(type(self).signature))
         emitbuffer.WriteDword(buf_size)
         emitbuffer.WriteBytes(bytes(buf_size))

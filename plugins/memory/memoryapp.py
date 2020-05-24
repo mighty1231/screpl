@@ -30,7 +30,7 @@ class MemoryApp(Application):
         _epd << epd
         _size << size
 
-    def onInit(self):
+    def on_init(self):
         self.ptr = _ptr
         self.epd = _epd
         self.size = _size
@@ -39,12 +39,12 @@ class MemoryApp(Application):
         _size << 0
 
     def loop(self):
-        if EUDIf()(manager.keyPress("ESC")):
-            manager.requestDestruct()
+        if EUDIf()(manager.key_press("ESC")):
+            manager.request_destruct()
             EUDReturn()
         EUDEndIf()
         if EUDIfNot()(self.autorefresh == 0):
-            manager.requestUpdate()
+            manager.request_update()
         EUDEndIf()
 
     def print(self, writer):
@@ -59,13 +59,13 @@ class MemoryApp(Application):
 
         if EUDWhileNot()(cur_ptr >= endp):
             writer.write_f("%H :  ", cur_ptr)
-            writer.write_memoryTable(cur_ptr, 4)
+            writer.write_memory_table(cur_ptr, 4)
             cur_ptr += 4
 
             for _ in range(3):
                 EUDBreakIf(cur_ptr >= endp)
                 writer.write_f(" | ")
-                writer.write_memoryTable(cur_ptr, 4)
+                writer.write_memory_table(cur_ptr, 4)
                 cur_ptr += 4
             writer.write(ord("\n"))
         EUDEndWhile()
@@ -75,11 +75,11 @@ class MemoryApp(Application):
     def setptr(self, ptr):
         self.ptr = ptr
         self.epd = EPD(ptr)
-        manager.requestUpdate()
+        manager.request_update()
 
     @AppCommand([ArgEncNumber, ArgEncNumber])
     def setptrsz(self, ptr, size):
         self.ptr = ptr
         self.epd = EPD(ptr)
         self.size = size
-        manager.requestUpdate()
+        manager.request_update()

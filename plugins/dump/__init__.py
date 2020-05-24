@@ -21,6 +21,6 @@ def startCommand(self, ptr, size):
     Dump memory to bridge, given ptr and size
     '''
     DumpApp.setTarget(ptr, size)
-    app_manager.startApplication(DumpApp)
+    app_manager.start_application(DumpApp)
 
 REPL.add_command('dump', startCommand)

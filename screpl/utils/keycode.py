@@ -1,4 +1,4 @@
-KeyCodeDict = {
+_key_code_dict = {
     'LBUTTON': 0x01,
     'RBUTTON': 0x02,
     'CANCEL': 0x03,
@@ -29,11 +29,13 @@ KeyCodeDict = {
     'PGDN': 0x22,
     'END': 0x23,
     'HOME': 0x24,
+
+    # ARROW keys
     'LEFT': 0x25,
     'UP': 0x26,
     'RIGHT': 0x27,
     'DOWN': 0x28,
-     # ARROW keys
+
     'SELECT': 0x29,
     'PRINTSCREEN': 0x2A,
     'EXECUTE': 0x2B,
@@ -195,10 +197,10 @@ KeyCodeDict = {
     'NONAME': 0xFC,
     'PA1': 0xFD,
     'OEM_CLEAR': 0xFE,
-    '_NONE_': 0xFF
+    '_NONE_': 0xFF,
 }
 
-def getKeyCode(key):
+def get_key_code(key):
     if type(key) == int:
         return key
-    return KeyCodeDict[key.upper()]
+    return _key_code_dict[key.upper()]

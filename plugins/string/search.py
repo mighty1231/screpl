@@ -41,7 +41,7 @@ code
 from eudplib import *
 
 from screpl.core.application import Application
-from screpl.utils.eudbyterw import EUDByteRW
+from screpl.utils.byterw import REPLByteRW
 from screpl.utils.string import f_strlen
 
 from . import *
@@ -71,7 +71,7 @@ v_return_epd = EUDVariable(0)
 v_is_utf8 = EUDVariable()
 
 def strcpy_until_newline(v_ptr):
-    reader, writer = EUDByteRW(), EUDByteRW()
+    reader, writer = REPLByteRW(), REPLByteRW()
     reader.seekoffset(v_ptr)
     writer.seekepd(EPD(db_line_buffer))
     is_null_end = EUDVariable()
@@ -181,7 +181,7 @@ def computeLPSArray(pattern):
     KMP Search preprocessing - evaluate LPS array
     '''
     i, length = EUDCreateVariables(2)
-    preader = EUDByteRW()
+    preader = REPLByteRW()
     cond = Forward()
 
     DoActions([length.SetNumber(0), i.SetNumber(1)])
@@ -217,7 +217,7 @@ def KMPSearch(pattern):
     '''
     Search string starts with PTR on db_line_buffer
     '''
-    treader, preader = EUDByteRW(), EUDByteRW()
+    treader, preader = REPLByteRW(), REPLByteRW()
     i, j = EUDCreateVariables(2)
 
     treader.seekepd(EPD(db_line_buffer))
@@ -260,7 +260,7 @@ def focusResult(new_focus):
     if EUDIfNot()(new_focus >= v_search_cnt):
         if EUDIfNot()(new_focus == v_focused):
             v_focused << new_focus
-            app_manager.requestUpdate()
+            app_manager.request_update()
         EUDEndIf()
     EUDEndIf()
 
@@ -269,17 +269,17 @@ class StringSearchApp(Application):
     def setReturn_epd(return_epd):
         v_return_epd << return_epd
 
-    def onDestruct(self):
+    def on_destruct(self):
         if EUDIf()([v_return_epd >= 1, v_search_cnt >= 1]):
             f_dwwrite_epd(v_return_epd, v_search_ids[v_focused])
         EUDEndIf()
         v_return_epd << 0
 
-    def onChat(self, pattern):
+    def on_chat(self, pattern):
         v_string_id, v_result_line_ptr = EUDCreateVariables(2)
         c_dupcheck = Forward()
         trig_cpoint = Forward() # continue point
-        result_buf_writer = EUDByteRW()
+        result_buf_writer = REPLByteRW()
 
         # evaluate LPS array
         # https://www.geeksforgeeks.org/kmp-algorithm-for-pattern-searching/
@@ -329,22 +329,22 @@ class StringSearchApp(Application):
             v_string_id += 1
         EUDEndInfLoop()
 
-        writer = EUDByteRW()
+        writer = REPLByteRW()
         writer.seekepd(EPD(db_target))
         writer.write_str(pattern)
         writer.write(0)
         v_focused << 0
 
     def loop(self):
-        if EUDIf()(app_manager.keyPress("ESC")):
-            app_manager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(app_manager.keyPress('F7')):
+        if EUDElseIf()(app_manager.key_press('F7')):
             focusResult(v_focused-1)
-        if EUDElseIf()(app_manager.keyPress('F8')):
+        if EUDElseIf()(app_manager.key_press('F8')):
             focusResult(v_focused+1)
         EUDEndIf()
-        app_manager.requestUpdate()
+        app_manager.request_update()
 
     def print(self, writer):
         if EUDIf()(v_search_cnt == 0):

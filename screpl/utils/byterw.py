@@ -2,7 +2,7 @@ from eudplib import *
 
 from . import conststring as cs
 
-class EUDByteRW:
+class REPLByteRW:
     def __init__(self):
         self.epd, self.off = EUDCreateVariables(2)
 
@@ -17,8 +17,8 @@ class EUDByteRW:
 
     def seekoffset(self, ptr):
         if not IsEUDVariable(ptr):
-            raise RuntimeError("If you want to seek offset of EUDObject," \
-                    "use seekepd(EPD(EUDObject))")
+            raise ValueError("If you want to seek offset of EUDObject, "
+                               "use seekepd(EPD(EUDObject))")
 
         epd, off = f_div(ptr, 4)
         epd += -0x58A364 // 4
@@ -35,33 +35,29 @@ class EUDByteRW:
         if EUDSwitchCase()(0):
             for i in range(8):
                 Trigger(
-                    conditions = MemoryXEPD(self.epd, Exactly, 2**i, 2**i),
-                    actions = ret.AddNumber(2**i)
-                )
+                    conditions=MemoryXEPD(self.epd, Exactly, 2**i, 2**i),
+                    actions=ret.AddNumber(2**i))
             self.off += 1
             EUDBreak()
         if EUDSwitchCase()(1):
             for i in range(8):
                 Trigger(
-                    conditions = MemoryXEPD(self.epd, Exactly, 2**(i+8), 2**(i+8)),
-                    actions = ret.AddNumber(2**i)
-                )
+                    conditions=MemoryXEPD(self.epd, Exactly, 2**(i+8), 2**(i+8)),
+                    actions=ret.AddNumber(2**i))
             self.off += 1
             EUDBreak()
         if EUDSwitchCase()(2):
             for i in range(8):
                 Trigger(
-                    conditions = MemoryXEPD(self.epd, Exactly, 2**(i+16), 2**(i+16)),
-                    actions = ret.AddNumber(2**i)
-                )
+                    conditions=MemoryXEPD(self.epd, Exactly, 2**(i+16), 2**(i+16)),
+                    actions=ret.AddNumber(2**i))
             self.off += 1
             EUDBreak()
         if EUDSwitchCase()(3):
             for i in range(8):
                 Trigger(
-                    conditions = MemoryXEPD(self.epd, Exactly, 2**(i+24), 2**(i+24)),
-                    actions = ret.AddNumber(2**i)
-                )
+                    conditions=MemoryXEPD(self.epd, Exactly, 2**(i+24), 2**(i+24)),
+                    actions=ret.AddNumber(2**i))
             DoActions([self.epd.AddNumber(1), self.off.SetNumber(0)])
             EUDBreak()
         EUDEndSwitch()
@@ -74,10 +70,8 @@ class EUDByteRW:
         DoActions([SetMemory(_act+20, SetTo, 0) for _act in _acts])
         for i in range(8):
             RawTrigger(
-                conditions = [
-                    MemoryX(val.getValueAddr(), Exactly, 2**i, 2**i)
-                ],
-                actions = [
+                conditions=[MemoryX(val.getValueAddr(), Exactly, 2**i, 2**i)],
+                actions=[
                     SetMemoryX(_acts[off]+20, Add, 2**(i+off*8), _offvals[off])
                     for off in range(4)
                 ]
@@ -114,7 +108,7 @@ class EUDByteRW:
     '''
     @EUDMethod
     def write_str(self, srcptr):
-        reader = EUDByteRW()
+        reader = REPLByteRW()
         reader.seekoffset(srcptr)
 
         if EUDInfLoop()():
@@ -130,7 +124,7 @@ class EUDByteRW:
 
     @EUDMethod
     def write_strn(self, srcptr, n):
-        reader = EUDByteRW()
+        reader = REPLByteRW()
         reader.seekoffset(srcptr)
 
         written = EUDVariable()
@@ -153,7 +147,7 @@ class EUDByteRW:
 
     @EUDMethod
     def write_strepd(self, srcepd):
-        reader = EUDByteRW()
+        reader = REPLByteRW()
         reader.seekepd(srcepd)
 
         if EUDInfLoop()():
@@ -169,7 +163,7 @@ class EUDByteRW:
 
     @EUDMethod
     def write_strnepd(self, srcepd, n):
-        reader = EUDByteRW()
+        reader = REPLByteRW()
         reader.seekepd(srcepd)
 
         written = EUDVariable()
@@ -257,8 +251,8 @@ class EUDByteRW:
             EUDEndIf()
 
     @EUDMethod
-    def write_memoryTable(self, offset, cnt):
-        reader = EUDByteRW()
+    def write_memory_table(self, offset, cnt):
+        reader = REPLByteRW()
         reader.seekoffset(offset)
 
         written = EUDVariable()
@@ -358,7 +352,7 @@ class EUDByteRW:
         EUDEndIf()
 
     @EUDMethod
-    def write_STR_string(self, strId):
+    def write_strx_string(self, strId):
         strsect = f_dwread_epd(EPD(0x5993D4))
         self.write_str(strsect + f_dwread(strsect + strId*4))
 
@@ -449,7 +443,7 @@ class EUDByteRW:
         for fm, arg in items[1:]:
             if fm == 'const' and merged_items[-1][0] == 'const':
                 merged_items[-1] = (merged_items[-1][0],
-                        merged_items[-1][1] + arg)
+                                    merged_items[-1][1] + arg)
             else:
                 merged_items.append((fm, arg))
 

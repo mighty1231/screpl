@@ -95,7 +95,7 @@ def REPLMonitorEUDFunc(funcn, io=True, profile=False):
     return funcn
 
 def REPLMonitorAppMethod(appmtd, io=True, profile=False):
-    appmtd.setFuncnCallback(
+    appmtd.set_funcn_callback(
         functools.partial(REPLMonitorEUDFunc,
                           io=io, profile=profile
     ))
@@ -139,4 +139,4 @@ def REPLMonitorAppCommand(appcmd, io=True, profile=False):
 
             return ret
         return new_func
-    appcmd.setFuncCallback(cb)
+    appcmd.set_func_callback(cb)

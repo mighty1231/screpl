@@ -15,16 +15,16 @@ class BlindModeDisplayBlock(block.BridgeBlock):
 
     signature = b'BLIN'
 
-    def GetBufferSize(self):
+    def get_buffer_size(self):
         buffer_size = main.get_app_manager().display_buffer.GetDataSize()
         return buffer_size
 
-    def UpdateContent(self):
+    def update_content(self):
         app_manager = main.get_app_manager()
         if EUDIf()(main.is_blind_mode()):
             f_repmovsd_epd(
                 EPD(self),
                 EPD(app_manager.display_buffer),
-                self.GetBufferSize() // 4
+                self.get_buffer_size() // 4
             )
         EUDEndIf()

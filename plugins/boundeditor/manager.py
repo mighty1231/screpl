@@ -54,19 +54,19 @@ def deleteSelectedUnit():
 
 class BoundManagerApp(Application):
     def loop(self):
-        if EUDIf()(app_manager.keyPress("ESC")):
-            app_manager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(app_manager.keyPress("O", hold=["LCTRL"])):
-            app_manager.startApplication(OptionApp)
-        if EUDElseIf()(app_manager.keyPress("P", hold=["LCTRL"])):
-            app_manager.startApplication(PatternApp)
-        if EUDElseIf()(app_manager.keyPress("T", hold=["LCTRL"])):
-            app_manager.startApplication(TestPatternApp)
+        if EUDElseIf()(app_manager.key_press("O", hold=["LCTRL"])):
+            app_manager.start_application(OptionApp)
+        if EUDElseIf()(app_manager.key_press("P", hold=["LCTRL"])):
+            app_manager.start_application(PatternApp)
+        if EUDElseIf()(app_manager.key_press("T", hold=["LCTRL"])):
+            app_manager.start_application(TestPatternApp)
         if is_bridge_mode():
-            if EUDElseIf()(app_manager.keyPress("E", hold=["LCTRL"])):
-                app_manager.startApplication(ExporterApp)
-        if EUDElseIf()(app_manager.keyPress("delete")):
+            if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
+                app_manager.start_application(ExporterApp)
+        if EUDElseIf()(app_manager.key_press("delete")):
             deleteSelectedUnit()
         EUDEndIf()
 
@@ -90,8 +90,8 @@ class BoundManagerApp(Application):
 
         lv, tv, rv, bv = [f_dwread_epd(ee) for ee in [le, te, re, be]]
 
-        mapw = app_manager.getMapWidth()
-        maph = app_manager.getMapHeight()
+        mapw = app_manager.get_map_width()
+        maph = app_manager.get_map_height()
 
         actions = []
         for y in range(256, maph * 32, 512):

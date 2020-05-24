@@ -18,6 +18,6 @@ from .manager import CUnitManagerApp
 
 @AppCommand([])
 def startCommand(self):
-    app_manager.startApplication(CUnitManagerApp)
+    app_manager.start_application(CUnitManagerApp)
 
 REPL.add_command('cunit', startCommand)

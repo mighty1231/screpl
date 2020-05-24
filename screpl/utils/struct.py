@@ -17,6 +17,8 @@ print(s.a) # 5
 from eudplib import *
 
 class _REPLStruct_Metaclass(type):
+
+    # pylint: disable=no-value-for-parameter
     fieldmap = {}
     def __new__(mcl, name, bases, dct):
         cls = super().__new__(mcl, name, bases, dct)
@@ -45,7 +47,7 @@ class _REPLStruct_Metaclass(type):
 
         return instance
 
-    def initializeWith(cls, *args):
+    def initialize_with(cls, *args):
         from eudplib.core.eudstruct.vararray import EUDVArrayData
         fields = _REPLStruct_Metaclass.fieldmap[cls]
         assert len(args) == len(fields)

@@ -1,7 +1,7 @@
 ''' plugin sample '''
 
 from eudplib import *
-from screpl import REPL, get_app_manager, AppCommand, EUDByteRW, ArgEncNumber
+from screpl import REPL, get_app_manager, AppCommand, REPLByteRW, ArgEncNumber
 from .myapp import MyApp
 
 # MY_COMMAND decides how to invoke the command in-game
@@ -22,7 +22,7 @@ def command2(self, n):
     '''
     print("hello? " * n)
     '''
-    rw = EUDByteRW()
+    rw = REPLByteRW()
     rw.seekepd(self.cmd_output_epd)
     i = EUDVariable()
     i << 0

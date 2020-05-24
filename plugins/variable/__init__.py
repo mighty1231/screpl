@@ -74,13 +74,13 @@ exploreTriggers()
 
 def watchVariable(name, var):
     assert IsEUDVariable(var)
-    watched_eud_vars.AddPair(name, EPD(var.getValueAddr()))
+    watched_eud_vars.add_pair(name, EPD(var.getValueAddr()))
 
 # make commands
 from .varapp import VariableApp
 
 @AppCommand([])
 def startCommand(self):
-    manager.startApplication(VariableApp)
+    manager.start_application(VariableApp)
 
 REPL.add_command('var', startCommand)

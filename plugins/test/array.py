@@ -12,11 +12,11 @@ ret = EUDVariable()
 
 class REPLArrayTestApp(Application):
     def loop(self):
-        if EUDIf()(app_manager.keyPress("ESC")):
-            app_manager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
         EUDEndIf()
-        app_manager.requestUpdate()
+        app_manager.request_update()
 
     @AppCommand([ArgEncNumber])
     def append(self, value):

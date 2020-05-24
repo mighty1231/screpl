@@ -1,13 +1,13 @@
 from eudplib import *
 from screpl.main import get_main_writer
-from screpl.writer import writeLocation
+from screpl.writer import write_location
 from screpl.writer.action import _actmap
 from . import *
 from .unit import write_scmdunit
 
 def write_scmdaction(act):
     assert isinstance(act, Action)
-    
+
     acttype = act.fields[7]
     assert not IsEUDVariable(acttype)
 
@@ -23,7 +23,7 @@ def write_scmdaction(act):
         raise RuntimeError("Unknown action type %d" % acttype)
 
 @EUDFunc
-def SCMDwrite_action_epd(epd):
+def write_scmdaction_epd(epd):
     act = _actmap(epd)
     acttype = act.acttype
     if EUDIf()(acttype == 44):
@@ -70,7 +70,7 @@ def _writeCreateUnit(act):
     get_main_writer().write_f(", ")
     SCMDWriteNumber(act.fields[8])
     get_main_writer().write_f(", ")
-    writeLocation(act.fields[0])
+    write_location(act.fields[0])
     get_main_writer().write_f(");\n")
 
 @EUDFunc
@@ -84,7 +84,7 @@ def _writeCreateUnit_epd(epd):
     get_main_writer().write_f(", ")
     SCMDWriteNumber(m.amount)
     get_main_writer().write_f(", ")
-    writeLocation(m.locid1)
+    write_location(m.locid1)
     get_main_writer().write_f(");\n")
 
 @EUDFunc
@@ -98,7 +98,7 @@ def _writeKillUnitAt_epd(epd):
     get_main_writer().write_f(", ")
     SCMDWriteNumber(m.amount)
     get_main_writer().write_f(", ")
-    writeLocation(m.locid1)
+    write_location(m.locid1)
     get_main_writer().write_f(");\n")
 
 @EUDFunc
@@ -112,5 +112,5 @@ def _writeRemoveUnitAt_epd(epd):
     get_main_writer().write_f(", ")
     SCMDWriteNumber(m.amount)
     get_main_writer().write_f(", ")
-    writeLocation(m.locid1)
+    write_location(m.locid1)
     get_main_writer().write_f(");\n")

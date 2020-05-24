@@ -3,7 +3,7 @@ from eudplib import *
 from screpl.apps.repl import REPL
 from screpl.core.appcommand import AppCommand
 from screpl.utils.debug import f_raise_warning
-from screpl.utils.eudbyterw import EUDByteRW
+from screpl.utils.byterw import REPLByteRW
 from screpl.main import get_app_manager
 
 # initialize variables
@@ -43,7 +43,7 @@ def allocateForBuffer(string_id):
     EUDEndIf()
 
     cur_epd = EUDVariable()
-    reader = EUDByteRW()
+    reader = REPLByteRW()
     reader.seekoffset(string_ptr)
 
     # for each character, allocate 4byte containing prefix 0xD
@@ -139,7 +139,7 @@ def UTF8Check(offset):
     if string starts with OFFSET is utf-8 decodable, return 1
     otherwise 0
     '''
-    reader = EUDByteRW()
+    reader = REPLByteRW()
     reader.seekoffset(offset)
 
     if EUDInfLoop()():
@@ -206,6 +206,6 @@ from .manager import StringManagerApp
 
 @AppCommand([])
 def startCommand(self):
-    app_manager.startApplication(StringManagerApp)
+    app_manager.start_application(StringManagerApp)
 
 REPL.add_command('string', startCommand)

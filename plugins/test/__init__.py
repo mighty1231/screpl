@@ -15,5 +15,5 @@ apps_to_test = [
 for name, app in apps_to_test:
     @AppCommand([])
     def cmd(self):
-        app_manager.startApplication(app)
+        app_manager.start_application(app)
     REPL.add_command(name, cmd)

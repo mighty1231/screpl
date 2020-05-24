@@ -7,43 +7,43 @@ class ProfileTable:
     def __init__(self):
         self.table = []
 
-    def append(self, name, counter, totalMillis, totalExpectedMillis):
+    def append(self, name, counter, total_millis, total_expected_millis):
         '''
         name        : variable name
         counter     : monitored counter
-        totalMillis : total milliseconds
-        totalExpectedMillis : total expected milliseconds
+        total_millis : total milliseconds
+        total_expected_millis : total expected milliseconds
         '''
-        self.table.append((name, counter, totalMillis, totalExpectedMillis))
+        self.table.append((name, counter, total_millis, total_expected_millis))
 
-    def getSize(self):
+    def get_size(self):
         return len(self.table)
 
 profile_table = ProfileTable()
 
 @EUDFunc
-def f_getInversedMillis():
+def f_get_inversed_millis():
     '''
     0x51CE8C: inversed tick count. 1 for 1 ms
      * Since it is not updated during trigger execution,
        EUDDoEvents should be called
     '''
-    countdownTimer = f_dwread_epd(EPD(0x57F0F0 + 0xe604))
-    elapsedTime    = f_dwread_epd(EPD(0x57F0F0 + 0xe608))
-    triggerTimer   = f_dwread_epd(EPD(0x6509A0))
+    v_countdown_timer = f_dwread_epd(EPD(0x57F0F0 + 0xe604))
+    v_elapsed_time = f_dwread_epd(EPD(0x57F0F0 + 0xe608))
+    v_trigger_timer = f_dwread_epd(EPD(0x6509A0))
     DoActions(SetMemory(0x6509A0, SetTo, 0))
     EUDDoEvents()
 
     # restore timers
     SeqCompute([
-        (EPD(0x57F0F0 + 0xe604), SetTo, countdownTimer),
-        (EPD(0x57F0F0 + 0xe608), SetTo, elapsedTime),
-        (EPD(0x6509A0), SetTo, triggerTimer),
+        (EPD(0x57F0F0 + 0xe604), SetTo, v_countdown_timer),
+        (EPD(0x57F0F0 + 0xe608), SetTo, v_elapsed_time),
+        (EPD(0x6509A0), SetTo, v_trigger_timer),
     ])
     EUDReturn(f_dwread_epd(EPD(0x51CE8C)))
 
 @EUDFunc
-def f_getGameSpeed():
+def f_get_gamespeed():
     '''
     0x5124F0 : GameSpeedModifier
      - count of milliseconds per a single gametick

@@ -29,7 +29,7 @@ def focusActionID(new_actionid):
     if EUDIfNot()(new_actionid >= actionCount):
         if EUDIfNot()(new_actionid == action_id):
             action_id << new_actionid
-            app_manager.requestUpdate()
+            app_manager.request_update()
         EUDEndIf()
     EUDEndIf()
 
@@ -60,25 +60,25 @@ def deleteAction():
         if EUDIf()(action_id == actionCount):
             action_id -= 1
         EUDEndIf()
-        app_manager.requestUpdate()
+        app_manager.request_update()
     EUDEndIf()
 
 
 class DetailedActionApp(Application):
-    def onInit(self):
+    def on_init(self):
         actionCount << p_actionCount[focused_pattern_id]
         action_id << actionCount - 1
         actionArrayEPD << p_actionArrayEPD[focused_pattern_id]
 
     def loop(self):
-        if EUDIf()(app_manager.keyPress('ESC')):
-            app_manager.requestDestruct()
+        if EUDIf()(app_manager.key_press('ESC')):
+            app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(app_manager.keyPress('f7')):
+        if EUDElseIf()(app_manager.key_press('f7')):
             focusActionID(action_id-1)
-        if EUDElseIf()(app_manager.keyPress('f8')):
+        if EUDElseIf()(app_manager.key_press('f8')):
             focusActionID(action_id+1)
-        if EUDElseIf()(app_manager.keyPress('delete')):
+        if EUDElseIf()(app_manager.key_press('delete')):
             deleteAction()
         EUDEndIf()
 

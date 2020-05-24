@@ -3,11 +3,11 @@ from eudplib import *
 
 import screpl.core.application as application
 import screpl.main as main
-import screpl.utils.eudbyterw as rw
+import screpl.utils.byterw as rw
 
 _temp_storage = Db(220)
-_temp_writer = rw.EUDByteRW()
-_result_writer = rw.EUDByteRW()
+_temp_writer = rw.REPLByteRW()
+_result_writer = rw.REPLByteRW()
 
 class ChatReaderApp(application.Application):
     """Receives user's chat and write to specific offset
@@ -27,7 +27,7 @@ class ChatReaderApp(application.Application):
 
         my_database = Db(220)
         ChatReaderApp.set_return_epd(EPD(my_database))
-        app_manager.startApplication(ChatReaderApp)
+        app_manager.start_application(ChatReaderApp)
 
         # Then, ChatReaderApp runs, and it stores text to my_database
     """
@@ -37,20 +37,20 @@ class ChatReaderApp(application.Application):
         """Set target address to store text from chat
 
         Call this before
-        :meth:`~screpl.core.appmanager.AppManager.startApplication`
+        :meth:`~screpl.core.appmanager.AppManager.start_application`
 
         Args:
             addr(int, :class:`ConstExpr`, or :class:`EUDVariable`):
                 target address
         """
-        _result_writer.seekoffset(address)
+        _result_writer.seekoffset(addr)
 
     @staticmethod
     def set_return_epd(epd):
         """Set epd value of target address to store text from chat
 
         Call this before
-        :meth:`~screpl.core.appmanager.AppManager.startApplication`
+        :meth:`~screpl.core.appmanager.AppManager.start_application`
 
         Args:
             epd(int, :class:`ConstExpr`, or :class:`EUDVariable`):
@@ -58,7 +58,7 @@ class ChatReaderApp(application.Application):
         """
         _result_writer.seekepd(epd)
 
-    def onInit(self):
+    def on_init(self):
         """Initialize application
 
         It makes writer to focus return address
@@ -68,26 +68,26 @@ class ChatReaderApp(application.Application):
         _temp_writer.write_str(_result_writer.getoffset())
         _temp_writer.write(0)
 
-    def onDestruct(self):
+    def on_destruct(self):
         _result_writer.seekepd(EPD(0))
 
-    def onChat(self, offset):
+    def on_chat(self, offset):
         """Receives chat to store to temporary storage"""
         _temp_writer.seekepd(EPD(_temp_storage))
         _temp_writer.write_str(offset)
         _temp_writer.write(0)
-        main.get_app_manager().requestUpdate()
+        main.get_app_manager().request_update()
 
     def loop(self):
         app_manager = main.get_app_manager()
-        if EUDIf()([app_manager.keyPress('Y', hold=['LCTRL'])]):
+        if EUDIf()([app_manager.key_press('Y', hold=['LCTRL'])]):
             _result_writer.write_strepd(EPD(_temp_storage))
             _result_writer.write(0)
-            app_manager.requestDestruct()
-        if EUDElseIf()(app_manager.keyPress('ESC')):
-            app_manager.requestDestruct()
-        if EUDElseIf()([app_manager.keyPress('N', hold=['LCTRL'])]):
-            app_manager.requestDestruct()
+            app_manager.request_destruct()
+        if EUDElseIf()(app_manager.key_press('ESC')):
+            app_manager.request_destruct()
+        if EUDElseIf()([app_manager.key_press('N', hold=['LCTRL'])]):
+            app_manager.request_destruct()
         EUDEndIf()
 
     def print(self, writer):

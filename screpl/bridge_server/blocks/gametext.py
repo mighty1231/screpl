@@ -15,9 +15,9 @@ class GameTextBlock(block.BridgeBlock):
     """
     signature = b'TEXT'
 
-    def GetBufferSize(self):
+    def get_buffer_size(self):
         return 4 + (13*218) + 2
 
-    def UpdateContent(self):
+    def update_content(self):
         f_dwwrite_epd(EPD(self), f_dwread_epd(EPD(0x640B58)))
         f_repmovsd_epd(EPD(self + 4), EPD(0x640B60), (13*218+2)//4)

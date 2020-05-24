@@ -1,13 +1,13 @@
 from eudplib import *
 from screpl.main import get_main_writer
-from screpl.writer import writeLocation
+from screpl.writer import write_location
 from screpl.writer.condition import _condmap
 from . import *
 from .unit import write_scmdunit
 
-def SCMDWriteCondition(cond):
+def write_scmdcondition(cond):
     assert isinstance(cond, Condition)
-    
+
     condtype = cond.fields[5]
     assert not IsEUDVariable(condtype)
 

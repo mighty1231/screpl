@@ -25,7 +25,7 @@ class CUnitDetailApp(Application):
     def setFocus_epd(cunit_epd):
         _cunit_epd << cunit_epd
 
-    def onInit(self):
+    def on_init(self):
         self.focused_memid = 0
         self.cunit_epd = _cunit_epd
         activemem_size << cu_mem_activeids.size
@@ -44,22 +44,22 @@ class CUnitDetailApp(Application):
 
     def loop(self):
         focused_memid = self.focused_memid
-        if EUDIf()(app_manager.keyPress("ESC")):
-            app_manager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(app_manager.keyPress("F7", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
             self.focusMemID(focused_memid - 8)
-        if EUDElseIf()(app_manager.keyPress("F7")):
+        if EUDElseIf()(app_manager.key_press("F7")):
             self.focusMemID(focused_memid - 1)
-        if EUDElseIf()(app_manager.keyPress("F8", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
             self.focusMemID(focused_memid + 8)
-        if EUDElseIf()(app_manager.keyPress("F8")):
+        if EUDElseIf()(app_manager.key_press("F8")):
             self.focusMemID(focused_memid + 1)
-        if EUDElseIf()(app_manager.keyPress("H", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.key_press("H", hold=["LCTRL"])):
             dw, epd = f_cunitepdread_epd(EPD(0x6284B8))
             self.cunit_epd = epd
         EUDEndIf()
-        app_manager.requestUpdate()
+        app_manager.request_update()
 
     def print(self, writer):
         cunit_epd = self.cunit_epd

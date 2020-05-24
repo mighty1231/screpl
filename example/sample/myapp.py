@@ -4,19 +4,19 @@ Application sample for REPL
 A series of methods is executed in each frame as follows.
 
 Case 1. app starts with get_app_manager().startApplication(app)
-  - onInit, (onChat), loop, print
+  - on_init, (on_chat), loop, print
 
-Case 2. If 'onChat' or 'loop' invoked 'get_app_manager().requestUpdate()',
-  - (onChat), loop, print
+Case 2. If 'on_chat' or 'loop' invoked 'get_app_manager().request_update()',
+  - (on_chat), loop, print
 
-Case 3. If 'onChat' or 'loop' did not invoked 'get_app_manager().requestUpdate()',
-  - (onChat), loop
+Case 3. If 'on_chat' or 'loop' did not invoked 'get_app_manager().request_update()',
+  - (on_chat), loop
 
-Case 4. If 'onChat' or 'loop' invoked 'get_app_manager().requestDestruct()'
-  - (onChat), loop, onDestruct
+Case 4. If 'on_chat' or 'loop' invoked 'get_app_manager().request_destruct()'
+  - (on_chat), loop, on_destruct
 
 Case 5. Previously launched app is dead,
-  - onResume, (onChat), loop
+  - on_resume, (on_chat), loop
   - 
 '''
 
@@ -38,35 +38,35 @@ class MyApp(Application):
         'trial'
     ]
 
-    def onInit(self):
+    def on_init(self):
         '''
         Initialize members
 
-        'cmd_output_epd' is reserved member to get results of onChats (compile error etc.)
+        'cmd_output_epd' is reserved member to get results of on_chats (compile error etc.)
         If those results are not necessary, set self.cmd_output_epd as 0
 
         Caution. Avoid to use lshift (ex. self.var1 << 0)
         '''
-        self.cmd_output_epd = manager.allocDb_epd(16 // 4)
+        self.cmd_output_epd = manager.alloc_db_epd(16 // 4)
         self.var1 = 0
         self.var2 = 341
         self.trial = 0
 
-    def onDestruct(self):
+    def on_destruct(self):
         '''
         You should free variable that had allocated on init()
         '''
-        manager.freeDb_epd(self.cmd_output_epd)
+        manager.free_db_epd(self.cmd_output_epd)
 
-    def onChat(self, offset):
+    def on_chat(self, offset):
         '''
         It reads command and execute AppCommands given OFFSET as a string pointer as a default
         '''
         self.trial += 1
         f_dwwrite_epd(self.cmd_output_epd, 0)
-        MyApp.getSuper().onChat(offset)
+        Application.on_chat(offset)
 
-    def onResume(self):
+    def on_resume(self):
         '''
         It is executed exactly once when previously launched app was dead
         '''
@@ -78,14 +78,14 @@ class MyApp(Application):
         This example destruct itself with pressing ESC,
           but it does not necessarily to be pressing ESC
         '''
-        if EUDIf()(manager.keyPress("ESC")):
-            manager.requestDestruct()
+        if EUDIf()(manager.key_press("ESC")):
+            manager.request_destruct()
             EUDReturn()
         EUDEndIf()
 
         self.var1 += 1
         self.noReturn(self.var1)
-        manager.requestUpdate()
+        manager.request_update()
 
     def print(self, writer):
         '''
