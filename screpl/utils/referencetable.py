@@ -1,17 +1,26 @@
 from eudplib import *
 
 class ReferenceTable(EUDObject):
-    '''
-    Same as EUDArray with contents =
-        size(=N), key 1, value 1, key 2, value 2, ..., key N, value N
+    """Dynamic object to store key-value pair
+
+    Same as EUDArray with contents:
+
+    ===== ======== ===== ======= ===== ======= === =========  =======
+    index 0        1     2       3     4       ...   2N-1     2N
+    value size(=N) key1  value1  key2  value2  ...   keyN     valueN
+    ===== ======== ===== ======= ===== ======= === =========  =======
+
     However, these key-value pair are lazily collected.
 
     key_f transforms key before registered.
-    rt = ReferenceTable(key_transformer = EPDConstString)
-    rt.AddPair("Hello", 3) # transforms "Hello" to EPD(Db())
+
+    .. code-block:: python
+
+        rt = ReferenceTable(key_transformer = EPDConstString)
+        rt.AddPair("Hello", 3) # transforms "Hello" to EPD(Db())
 
     value_f works similar to key_f
-    '''
+    """
     def __init__(self,
             initdict=[], 
             ref_by = [],
