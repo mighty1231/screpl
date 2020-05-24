@@ -48,7 +48,7 @@ class _IndexPair:
     def __getitem__(self, key):
         return self.items[key]
 
-class _Application_Metaclass(type):
+class _ApplicationMetaclass(type):
     apps = []
     def __init__(cls, name, bases, dct):
         """ Fill methods, commands, members """
@@ -116,7 +116,7 @@ class _Application_Metaclass(type):
         cls._commands_ = commands
         cls._fields_ = fields
         cls._allocated_ = False
-        _Application_Metaclass.apps.append(cls)
+        _ApplicationMetaclass.apps.append(cls)
 
 class ApplicationInstance:
     """
@@ -186,7 +186,7 @@ class ApplicationInstance:
             raise AttributeError("Application '%s' has no attribute '%s'"
                                  % (self._cls, name))
 
-class Application(metaclass=_Application_Metaclass):
+class Application(metaclass=_ApplicationMetaclass):
     """Basic structure that defines the way to interact with user
 
     It has default field - cmd_output_epd: if it is not 0, the reason of

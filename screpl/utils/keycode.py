@@ -201,6 +201,6 @@ _key_code_dict = {
 }
 
 def get_key_code(key):
-    if type(key) == int:
+    if isinstance(key, int):
         return key
     return _key_code_dict[key.upper()]

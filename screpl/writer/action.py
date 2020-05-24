@@ -583,12 +583,12 @@ def _writeSetDeaths(epd):
         # check EUDX
         if EUDIf()(m.internal == 0x4353): # eudx
             get_main_writer().write_f("SetMemoryX(%H, ",
-                0x58A364 + 4*m.player1 + 48*m.unitid)
+                                      0x58A364 + 4*m.player1 + 48*m.unitid)
             write_constant(EPD(tb.Modifier), m.amount)
             get_main_writer().write_f(", %H(=%D), %H)", m.player2, m.player2, m.locid1)
         if EUDElse()():
             get_main_writer().write_f("SetMemory(%H, ",
-                0x58A364 + 4*m.player1 + 48*m.unitid)
+                                      0x58A364 + 4*m.player1 + 48*m.unitid)
             write_constant(EPD(tb.Modifier), m.amount)
             get_main_writer().write_f(", %H(=%D))", m.player2, m.player2)
         EUDEndIf()

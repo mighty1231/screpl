@@ -13,13 +13,13 @@ from screpl.utils.referencetable import ReferenceTable
 
 swSub = ReferenceTable(
     DefSwitchDict.items(),
-    key_f=EPDConstString, sortkey_f=lambda k,v:k)
+    key_f=EPDConstString, sortkey_f=lambda k, v: k)
 swMap = ReferenceTable(
     swmap._s2id.items(),
-    key_f=EPDConstString, sortkey_f=lambda k,v:k)
+    key_f=EPDConstString, sortkey_f=lambda k, v: k)
 AIScript = ReferenceTable(
-    list(map(lambda a:(a[0], b2i4(a[1])), DefAIScriptDict.items())),
-    key_f=EPDConstString, sortkey_f=lambda k,v:k)
+    list(map(lambda a: (a[0], b2i4(a[1])), DefAIScriptDict.items())),
+    key_f=EPDConstString, sortkey_f=lambda k, v: k)
 Modifier = ReferenceTable([
     ("SetTo", EncodeModifier(SetTo)),
     ("Add", EncodeModifier(Add)),
@@ -99,7 +99,7 @@ _locstrings = [bytes(100) for _ in range(255)]
 for k, v in locmap._s2id.items():
     _locstrings[v] = k + bytes(100-len(k))
 Location = ReferenceTable(
-    list(map(lambda i:(EPD(Db(_locstrings[i])), i+1), range(255))))
+    list(map(lambda i: (EPD(Db(_locstrings[i])), i+1), range(255))))
 
 def GetLocationNameEPDPointer(location_idx):
     return f_dwread_epd((EPD(Location) - 1) + location_idx * 2)

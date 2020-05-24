@@ -30,7 +30,7 @@ from . import (
     g_runner_unit,
     g_start_location
 )
-from screpl.writer.scmd import write_scmdtrigger
+from screpl.writer.scmd import write_scmd_trigger
 
 MODE_CONFIG    = 0
 MODE_EXPORTING = 1
@@ -53,7 +53,7 @@ def writeBoundTriggers():
     global writer
     writer.seekepd(EPD(storage))
 
-    write_scmdtrigger(
+    write_scmd_trigger(
         g_runner_force,
         [Always()],
         ["Comment(\"Score\");\n",
@@ -62,12 +62,12 @@ def writeBoundTriggers():
          SetScore(g_runner_force, SetTo, 0, Custom)],
         preserved = False
     )
-    write_scmdtrigger(
+    write_scmd_trigger(
         g_effectplayer,
         ["Command(\"Player 12\", \"Men\", At least, 1);\n"],
         ["Remove Unit(\"Player 12\", \"Men\");\n"]
     )
-    write_scmdtrigger(
+    write_scmd_trigger(
         AllPlayers,
         [Always()],
         ["Set Alliance Status(\"All players\", Ally);\n"],
@@ -98,7 +98,7 @@ def writeBoundTriggers():
                 num_actions_to_send << rem_action_count
             EUDEndIf()
 
-            write_scmdtrigger(
+            write_scmd_trigger(
                 g_effectplayer,
                 ["// EXTRA_CONDITION\n",
                  Deaths(g_effectplayer, Exactly, next_timer, v_death_unit)],
@@ -114,13 +114,13 @@ def writeBoundTriggers():
     EUDEndInfLoop()
 
     # making loop
-    write_scmdtrigger(
+    write_scmd_trigger(
         g_effectplayer,
         ["// EXTRA_CONDITION\n",
          Always()],
         [SetDeaths(g_effectplayer, Add, 1, v_death_unit)]
     )
-    write_scmdtrigger(
+    write_scmd_trigger(
         g_effectplayer,
         ["// EXTRA_CONDITION\n",
          Deaths(g_effectplayer, Exactly, next_timer, v_death_unit)],
@@ -128,7 +128,7 @@ def writeBoundTriggers():
     )
 
     # death condition
-    write_scmdtrigger(
+    write_scmd_trigger(
         g_runner_force,
         ["// EXTRA_CONDITION\n",
          Command(CurrentPlayer, Exactly, 0, g_runner_unit)],
@@ -138,14 +138,14 @@ def writeBoundTriggers():
 
     # turbo, timer, ...
     if EUDIf()(v_turbo_mode.Exactly(TURBO_EUD)):
-        write_scmdtrigger(
+        write_scmd_trigger(
             g_effectplayer,
             [Always()],
             ["MemoryAddr(0x6509A0, Set To, 0);\n"]
         )
     if EUDElseIf()(v_turbo_mode.Exactly(TURBO_NORMAL)):
         for i in range(3):
-            write_scmdtrigger(
+            write_scmd_trigger(
                 g_effectplayer,
                 [Always()],
                 ["Wait(0);\n" * 63]

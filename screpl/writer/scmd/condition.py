@@ -3,9 +3,9 @@ from screpl.main import get_main_writer
 from screpl.writer import write_location
 from screpl.writer.condition import _condmap
 from . import *
-from .unit import write_scmdunit
+from .unit import write_scmd_unit
 
-def write_scmdcondition(cond):
+def write_scmd_condition(cond):
     assert isinstance(cond, Condition)
 
     condtype = cond.fields[5]
@@ -24,22 +24,22 @@ def _writeDeaths(cond):
     assert cond.fields[8] == 0, "eudx is currently not supported"
 
     get_main_writer().write_f("Deaths(")
-    SCMDWritePlayer(cond.fields[1])
+    write_scmd_player(cond.fields[1])
     get_main_writer().write_f(", ")
-    write_scmdunit(cond.fields[3])
+    write_scmd_unit(cond.fields[3])
     get_main_writer().write_f(", ")
-    SCMDWriteComparison(cond.fields[4])
+    write_scmd_comparison(cond.fields[4])
     get_main_writer().write_f(", ")
-    SCMDWriteNumber(cond.fields[2])
+    write_scmd_number(cond.fields[2])
     get_main_writer().write_f(");\n")
 
 def _writeCommand(cond):
     get_main_writer().write_f("Command(")
-    SCMDWritePlayer(cond.fields[1])
+    write_scmd_player(cond.fields[1])
     get_main_writer().write_f(", ")
-    write_scmdunit(cond.fields[3])
+    write_scmd_unit(cond.fields[3])
     get_main_writer().write_f(", ")
-    SCMDWriteComparison(cond.fields[4])
+    write_scmd_comparison(cond.fields[4])
     get_main_writer().write_f(", ")
-    SCMDWriteNumber(cond.fields[2])
+    write_scmd_number(cond.fields[2])
     get_main_writer().write_f(");\n")

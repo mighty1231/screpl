@@ -4,7 +4,7 @@ from screpl.utils.conststring import EPDConstString
 from screpl.main import get_main_writer
 
 @EUDFunc
-def write_scmdunit_var(unit):
+def write_scmd_unit_var(unit):
     if EUDIf()(unit >= 233):
         get_main_writer().write_decimal(unit)
     if EUDElseIf()(unit == 228):
@@ -13,9 +13,9 @@ def write_scmdunit_var(unit):
         get_main_writer().write_strepd(SCMDDefaultUnitArray[unit])
     EUDEndIf()
 
-def write_scmdunit(unit):
+def write_scmd_unit(unit):
     if IsEUDVariable(unit):
-        write_scmdunit_var(unit)
+        write_scmd_unit_var(unit)
     else:
         get_main_writer().write_f(SCMDDefaultUnits[unit])
 

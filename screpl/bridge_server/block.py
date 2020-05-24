@@ -1,7 +1,7 @@
 """BridgeBlock class and its metaclass"""
 from eudplib import ConstExpr, b2i4
 
-class _BB_Metaclass(type):
+class _BBMetaclass(type):
     """Supporting class for BridgeBlock
 
     It manages :attr:`BridgeBlock.signature` of BridgeBlock instances
@@ -20,13 +20,13 @@ class _BB_Metaclass(type):
                                   or len(signature) != 4):
             raise RuntimeError("Signature should be bytes with length 4")
 
-        if signature in _BB_Metaclass.sigdict:
+        if signature in _BBMetaclass.sigdict:
             raise RuntimeError("Signature duplicate - %s" % signature)
 
-        _BB_Metaclass.sigdict[signature] = cls
+        _BBMetaclass.sigdict[signature] = cls
 
 
-class BridgeBlock(ConstExpr, metaclass=_BB_Metaclass):
+class BridgeBlock(ConstExpr, metaclass=_BBMetaclass):
     """Basic buffer management class used for shared memory
 
     BridgeBlock is abstract class to manage memory block that is shared with

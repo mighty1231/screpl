@@ -16,7 +16,7 @@ print(s.a) # 5
 '''
 from eudplib import *
 
-class _REPLStruct_Metaclass(type):
+class _REPLStructMetaclass(type):
 
     # pylint: disable=no-value-for-parameter
     fieldmap = {}
@@ -33,7 +33,7 @@ class _REPLStruct_Metaclass(type):
             assert name not in ['_epd', '_from', '_value'], \
                     "attribute '%s' is reserved" % name
             fields[name] = (index, ty)
-        _REPLStruct_Metaclass.fieldmap[cls] = fields
+        _REPLStructMetaclass.fieldmap[cls] = fields
         return cls
 
     def __call__(cls, _from):
@@ -49,14 +49,14 @@ class _REPLStruct_Metaclass(type):
 
     def initialize_with(cls, *args):
         from eudplib.core.eudstruct.vararray import EUDVArrayData
-        fields = _REPLStruct_Metaclass.fieldmap[cls]
+        fields = _REPLStructMetaclass.fieldmap[cls]
         assert len(args) == len(fields)
 
         baseobj = EUDVArrayData(len(args))(args)
         return cls(baseobj)
 
     def getfield(cls, instance, name):
-        attrid, attrtype = _REPLStruct_Metaclass.fieldmap[cls][name]
+        attrid, attrtype = _REPLStructMetaclass.fieldmap[cls][name]
 
         # same as EUDVArray.get(attrid)
         value = EUDVariable()
@@ -84,7 +84,7 @@ class _REPLStruct_Metaclass(type):
         return value
 
     def setfield(cls, instance, name, value):
-        attrid, attrtype = _REPLStruct_Metaclass.fieldmap[cls][name]
+        attrid, attrtype = _REPLStructMetaclass.fieldmap[cls][name]
 
         # same as EUDVArray.set(attrid, value)
         a0, t = Forward(), Forward()
@@ -98,7 +98,7 @@ class _REPLStruct_Metaclass(type):
             ]
         )
 
-class REPLStruct(ExprProxy, metaclass=_REPLStruct_Metaclass):
+class REPLStruct(ExprProxy, metaclass=_REPLStructMetaclass):
     fields = []
 
     @classmethod

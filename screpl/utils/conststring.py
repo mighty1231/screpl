@@ -15,9 +15,9 @@ def EPDConstString(msg):
 
 def EPDConstStringArray(txt):
     lines = []
-    if type(txt) == str:
+    if isinstance(txt, str):
         lines = txt.split('\n')
-    elif type(txt) == list:
+    elif isinstance(txt, list):
         for line in txt:
             lines += line.split('\n')
     ln = len(lines)

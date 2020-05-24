@@ -61,7 +61,7 @@ class REPLArray(struct.REPLStruct):
     ]
 
     @staticmethod
-    def construct(max_size, initvals = None):
+    def construct(max_size, initvals=None):
         if initvals:
             size = len(initvals)
             initvals += [0 for _ in range(max_size - size)]
