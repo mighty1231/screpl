@@ -1,4 +1,5 @@
 from eudplib import *
+
 from screpl.apps.scroll import ScrollApp
 from screpl.utils.referencetable import ReferenceTable
 from screpl.core.appcommand import AppCommand

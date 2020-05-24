@@ -1,6 +1,5 @@
 from eudplib import *
 
-
 from screpl.apps.repl import REPL
 from screpl.core.appcommand import AppCommand
 from screpl.main import get_app_manager

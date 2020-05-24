@@ -1,5 +1,4 @@
-'''
-Application sample for REPL
+"""Application sample for REPL
 
 A series of methods is executed in each frame as follows.
 
@@ -17,17 +16,14 @@ Case 4. If 'on_chat' or 'loop' invoked 'get_app_manager().request_destruct()'
 
 Case 5. Previously launched app is dead,
   - on_resume, (on_chat), loop
-  - 
-'''
+"""
 
 from eudplib import *
-from screpl import (
-    Application,
-    AppTypedMethod,
-    AppCommand,
-    get_app_manager,
-    ArgEncNumber
-)
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+from screpl.core.appmethod import AppTypedMethod
+from screpl.encoder.const import ArgEncNumber
+from screpl.main import get_app_manager
 
 manager = get_app_manager()
 
@@ -39,71 +35,73 @@ class MyApp(Application):
     ]
 
     def on_init(self):
-        '''
-        Initialize members
+        """Initialize members
 
-        'cmd_output_epd' is reserved member to get results of on_chats (compile error etc.)
-        If those results are not necessary, set self.cmd_output_epd as 0
+        'cmd_output_epd' is reserved member to get results of on_chats
+        (compile error etc.) If those results are unnecessary, set
+        self.cmd_output_epd as 0
 
         Caution. Avoid to use lshift (ex. self.var1 << 0)
-        '''
+        """
         self.cmd_output_epd = manager.alloc_db_epd(16 // 4)
         self.var1 = 0
         self.var2 = 341
         self.trial = 0
 
     def on_destruct(self):
-        '''
-        You should free variable that had allocated on init()
-        '''
+        """You may free variable that had allocated on init()"""
         manager.free_db_epd(self.cmd_output_epd)
 
     def on_chat(self, offset):
-        '''
-        It reads command and execute AppCommands given OFFSET as a string pointer as a default
-        '''
+        """Callback for super user chat
+
+        As default behavior, (from Application class), it reads command
+        and execute AppCommands given  OFFSET as a string pointer as a
+        default.
+        """
         self.trial += 1
         f_dwwrite_epd(self.cmd_output_epd, 0)
         Application.on_chat(offset)
 
     def on_resume(self):
-        '''
-        It is executed exactly once when previously launched app was dead
-        '''
+        """Called exactly once after newly started app was dead"""
         pass
 
     def loop(self):
-        '''
-        You may make the way to destruct your app.
-        This example destruct itself with pressing ESC,
-          but it does not necessarily to be pressing ESC
-        '''
+        """Called for every loop during the app is on foreground
+
+        You may make the way to destruct your app. This example destruct
+        itself with pressing ESC, but it does not have to.
+        """
         if EUDIf()(manager.key_press("ESC")):
             manager.request_destruct()
             EUDReturn()
         EUDEndIf()
 
         self.var1 += 1
-        self.noReturn(self.var1)
+        self.no_return(self.var1)
         manager.request_update()
 
     def print(self, writer):
-        '''
-        writer.write_f()
-        '''
+        """Called for every request for text UI.
+
+        It may print text ui using REPLByteRW
+        """
         writer.write_f('var1 = %D\n', self.var1)
         writer.write_f('var2 = %D\n', self.var2)
-        writer.write_f('cmd result -> %D: %E\n', self.trial, self.cmd_output_epd)
+        writer.write_f('cmd result -> %D: %E\n',
+                       self.trial, self.cmd_output_epd)
 
-    def noReturn(self, a):
+    def no_return(self, a):
+        """Methods with no returns"""
         self.var2 = a // 4
 
     @AppTypedMethod([None, None], [None, None])
-    def someReturns(self, a, b):
-        '''
-        Some methods that should have return must be decorated with AppTypedMethod
-          - AppTypedMethod(argtypes, rettypes)
-        '''
+    def some_returns(self, a, b):
+        """Methods with some returns
+
+        Those methods have to be decorated with AppTypedMethod
+        """
         plus = a + b
         multiply = a * b
         DoActions([
@@ -114,13 +112,14 @@ class MyApp(Application):
 
     @AppCommand([ArgEncNumber, ArgEncNumber])
     def plus(self, x, y):
-        '''
-        In-game chat like "plus(3, 4)" executes this part
-        '''
+        """AppCommand example
+
+        In-game chat like "plus(3, 4)" will call this with x=3, y=4.
+        """
         DoActions([
             CreateUnit(x, "Zerg Zergling", 1, P1),
             CreateUnit(y, "Zerg Hydralisk", 1, P1),
         ])
-        c, d = self.someReturns(x, y)
+        c, d = self.some_returns(x, y)
         self.var1 = c
         self.var2 = d
