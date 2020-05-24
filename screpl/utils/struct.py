@@ -2,17 +2,19 @@
 REPLStruct
 similar to EUDStruct, but specialized to REPL
 
-class MyStruct(REPLStruct):
-    fields = ['a']
+.. code-block:: python
 
-s1 = MyStruct(a=4)
-v = EUDVariable()
-v << s1
-print(v) # has same value with s
+    class MyStruct(REPLStruct):
+        fields = ['a']
 
-s2 = MyStruct.cast(v)
-s2.a += 5
-print(s.a) # 5
+    s1 = MyStruct(a=4)
+    v = EUDVariable()
+    v << s1
+    print(v) # has same value with s
+
+    s2 = MyStruct.cast(v)
+    s2.a += 5
+    print(s.a) # 5
 '''
 from eudplib import *
 
