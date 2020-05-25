@@ -403,16 +403,43 @@ class REPLByteRW:
             if fmt[pos+1] == '%':
                 items.append(('const', '%'))
             elif fmt[pos+1] == 'H':
-                items.append(('H', curarg))
+                if isinstance(curarg, int):
+                    items.append(('const', hex(curarg)))
+                else:
+                    items.append(('H', curarg))
                 argidx += 1
             elif fmt[pos+1] == 'D':
-                items.append(('D', curarg))
+                if isinstance(curarg, int):
+                    items.append(('const', str(curarg)))
+                else:
+                    items.append(('D', curarg))
                 argidx += 1
             elif fmt[pos+1] == 'I':
                 check = False
                 for fs in ['8d', '16d', '32d', '8u', '16u', '32u']:
                     if fmt[pos+2:].startswith(fs):
-                        items.append(('I' + fs, curarg))
+                        if isinstance(curarg, int):
+                            # integer case
+                            _bitarr = {'8': 0xFF,
+                                       '16': 0xFFFF,
+                                       '32': 0xFFFFFFFF}
+                            _sbit = {'8': 0x80,
+                                     '16': 0x8000,
+                                     '32': 0x80000000}
+                            _bits, _sign = fs[:-1], fs[-1]
+                            if _sign == 'u':
+                                items.append(('const',
+                                              str(_bitarr[_bits] & curarg)))
+                            else:
+                                if curarg & _sbit[_bits]:
+                                    curarg = -curarg
+                                    items.append(('const', '-'))
+                                items.append(('const',
+                                              str(_bitarr[_bits] & curarg)))
+
+                        else:
+                            # EUDVariable or ConstExpr
+                            items.append(('I' + fs, curarg))
                         pos += len(fs)
                         argidx += 1
                         check = True
@@ -421,13 +448,24 @@ class REPLByteRW:
                     print(fmt[pos:])
                     raise RuntimeError("Unable to parse {}".format(fmt))
             elif fmt[pos+1] == 'S':
-                items.append(('S', curarg))
+                if isinstance(curarg, str):
+                    items.append(('const', curarg))
+                else:
+                    items.append(('S', curarg))
                 argidx += 1
             elif fmt[pos+1] == 'E':
-                items.append(('E', curarg))
+                if isinstance(curarg, str):
+                    raise ValueError(
+                        "To give string argument, use %S instead %E, "
+                        "given {}".format(curarg))
+                else:
+                    items.append(('E', curarg))
                 argidx += 1
             elif fmt[pos+1] == 'C':
-                items.append(('C', curarg))
+                if isinstance(curarg, int):
+                    items.append(('const', chr(curarg)))
+                else:
+                    items.append(('C', curarg))
                 argidx += 1
             else:
                 print(fmt[pos:])
@@ -456,6 +494,10 @@ class REPLByteRW:
             'I16u': self.write_u16,
             'I32u': self.write_u32
         }
+        print('-------------')
+        for fm, arg in merged_items:
+            print(fm, arg)
+        print('-------------')
         for fm, arg in merged_items:
             if fm == 'const':
                 if len(arg) == 1:
