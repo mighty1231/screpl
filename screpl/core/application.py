@@ -20,7 +20,8 @@ class _IndexPair:
         self.items[key] = idx, new_value
 
     def append(self, key, val = None):
-        assert key not in self.items, "Key duplicates: {}".format(key)
+        if key in self.items:
+            raise ValueError("Key duplicates: {}".format(key))
         self.items[key] = (self.size, val)
         self.size += 1
 
@@ -49,6 +50,12 @@ class _IndexPair:
         return self.items[key]
 
 class _ApplicationMetaclass(type):
+    """Magically modify Application
+
+    1. Change default methods to AppMethods.
+    2. Register AppCommands and AppMethods.
+    3. Read 'field' attribute to construct field.
+    """
     apps = []
     def __init__(cls, name, bases, dct):
         """ Fill methods, commands, members """
@@ -67,49 +74,67 @@ class _ApplicationMetaclass(type):
             fields = pcls._fields_.copy()
             total_dict = pcls._total_dict_.copy()
 
-        # methods and commands
-        for k, v in dct.items():
-            if isinstance(v, appcommand.AppCommandN):
-                assert k not in total_dict or isinstance(total_dict[k], appcommand.AppCommandN), \
-                        "Conflict on attribute - %s.%s" % (name, k)
-                if k in commands:
-                    commands.replace(k, v)
+        # iterate over attributes on class
+        # register AppMethodN and AppCommandN
+        # for k, v in dct.items():
+        for key in sorted(dct.keys()):
+            value = dct[key]
+            if isinstance(value, appcommand.AppCommandN):
+                if (key in total_dict
+                        and not isinstance(
+                            total_dict[key],
+                            appcommand.AppCommandN)):
+                    raise ValueError("Attribute name conflict %s.%s"
+                                     % (name, key))
+                if key in commands:
+                    # replace AppCommand from parent class
+                    commands.replace(key, value)
                 else:
-                    commands.append(k, v)
-                v.initialize(cls)
-                total_dict[k] = v
-            elif callable(v) or isinstance(v, appmethod.AppMethodN):
-                assert not (k[:2] == k[-2:] == "__"), \
-                        "Illegal method - %s.%s" % (name, k)
-                assert k not in total_dict or isinstance(total_dict[k], appmethod.AppMethodN), \
-                        "Conflict on attribute - %s.%s" % (name, k)
-                if not isinstance(v, appmethod.AppMethodN):
-                    v = appmethod.AppMethod(v)
-                setattr(cls, k, v)
-                if k in methods:
-                    # Overriding AppMethod
-                    v.initialize(cls, methods[k][0], methods.get_value(k))
-                    methods.replace(k, v)
+                    commands.append(key, value)
+                value.initialize(cls)
+                total_dict[key] = value
+            elif callable(value) or isinstance(value, appmethod.AppMethodN):
+                if key[:2] == key[-2:] == "__":
+                    raise ValueError(
+                        "You cannot define special python methods - %s.%s"
+                        % (name, key))
+                if (key in total_dict
+                        and not isinstance(
+                            total_dict[key],
+                            appmethod.AppMethodN)):
+                    raise ValueError("Attribute name conflict %s.%s"
+                                     % (name, key))
+                if not isinstance(value, appmethod.AppMethodN):
+                    value = appmethod.AppMethod(value)
+                setattr(cls, key, value)
+                if key in methods:
+                    # override AppMethodN
+                    pidx, pmethod = methods[key]
+                    value.initialize(cls, pidx, pmethod)
+                    methods.replace(key, value)
                 else:
-                    v.initialize(cls, len(methods))
-                    methods.append(k, v)
-                total_dict[k] = v
+                    value.initialize(cls, len(methods))
+                    methods.append(key, value)
+                total_dict[key] = value
             else:
-                assert k not in total_dict or total_dict[k] == 'Other', \
-                        "Conflict on attribute - %s.%s" % (name, k)
-                total_dict[k] = 'Other'
+                if (key in total_dict
+                        and total_dict[key] != 'Other'):
+                    raise ValueError("Attribute name conflict %s.%s"
+                                     % (name, key))
+                total_dict[key] = 'Other'
 
         # fields for the cases that a child newly defined field
         if pcls == object or id(cls.fields) != id(pcls.fields):
-            for f in cls.fields:
-                if isinstance(f, str):
-                    k, typ = f, None
+            for field in cls.fields:
+                if isinstance(field, str):
+                    fname, ftype = field, None
                 else:
-                    k, typ = f
-                assert k not in total_dict, \
-                        "Conflict on attribute - %s.%s" % (name, k)
-                fields.append(k, typ)
-                total_dict[k] = 'F'
+                    fname, ftype = field
+                if fname in total_dict:
+                    raise ValueError("Attribute name conflict %s.%s"
+                                     % (name, fname))
+                fields.append(fname, ftype)
+                total_dict[fname] = 'F'
 
         cls._total_dict_ = total_dict
         cls._methods_ = methods
@@ -119,19 +144,53 @@ class _ApplicationMetaclass(type):
         _ApplicationMetaclass.apps.append(cls)
 
 class ApplicationInstance:
-    """
-    Mimic object for application instance, used in AppMethod.
-    It supports field access and method invocation.
+    """Mimic object for application instance.
 
-    Typically _absolute is False.
-    Leaf AppMethods are called, set by current instance.
-    Otherwise, their absolute address are used.
-    It would applied into calling methods from superclasses.
+    ApplicationInstance is a pure python object to manage attributes of
+    Application instance, which is on the foreground of application stack,
+    instead of 'self' parameter.
+
+    It enables following:
+
+    1. Invoke its AppMethods.
+
+    2. Access and modify its fields.
+
+    3. Used as the first parameter (self) for AppCommand and AppMethod.
+
+    Typically _absolute is False. This case methods and commands are
+    referenced relative to the foreground app and its original class type.
+    Otherwise, using _cls attribute, their absolute functions are referenced.
+
+    It enables successful AppMethod overriding.
+
+    .. code-block:: python
+
+        # class definitions
+        class MyApp1(Application):
+            def func(self):
+                f_printf("hello")
+
+        class MyApp2(MyApp1):
+            def func(self):
+                f_printf("hi")
+
+        # appmanager loaded MyApp2 object as a foreground app
+        #  - app stack
+        #    [1]: MyApp2
+        #    [0]: REPL
+
+        # relative call (MyApp2 is on foreground)
+        in1 = ApplicationInstance()
+        in1.func() # prints hi
+
+        # absolute call
+        in2 = ApplicationInstance(MyApp1)
+        in2.func() # prints hello
     """
 
     # reserved keywords
     _attributes_ = ['_cls', '_absolute', 'get_reference_epd']
-
 
     def __init__(self, cls = None):
         if cls:
@@ -146,12 +205,19 @@ class ApplicationInstance:
 
         .. code-block:: python
 
-            self.var << 1                      # self.var is 1
-            v = self.get_reference_epd('var')  # get reference for self.var
-            f_dwwrite_epd(v, 12)
-            Logger.format("%D", self.var)      # self.var becomes 12
+            class MyApp(Application):
+                fields = ['var']
 
-        Traditional EUDVariable can be referenced as EPD(v.getValueAddr())
+                def someMethod(self):
+                    self.var = 1
+
+                    # get reference for self.var
+                    var_ref = self.get_reference_epd('var')
+                    f_dwwrite_epd(var_ref, 12)
+
+                    # now self.var becomes 12
+
+        Traditional EUDVariable can be referenced as EPD(var.getValueAddr())
         """
         attrid, _ = self._cls._fields_[member]
         return (main.get_app_manager().cur_members._epd
@@ -190,19 +256,25 @@ class Application(metaclass=_ApplicationMetaclass):
     """Basic structure that defines the way to interact with user
 
     It has default field - cmd_output_epd: if it is not 0, the reason of
-    failure is written into the epd address. run_app_command() is written
-    into cmd_output_epd.
+    failure on parsing command is written into the epd address.
+    run_app_command() is written into cmd_output_epd.
     """
 
     fields = ["cmd_output_epd"]
 
     def on_init(self):
+        """Called once when the application initialized and goes foreground"""
         self.cmd_output_epd = 0
 
     def on_destruct(self):
         """Called when the application is going to be destructed"""
 
     def on_chat(self, offset):
+        """Called when the super user has chatted something.
+
+        Arguments:
+            offset (EUDVariable): address of chat from super user.
+        """
         appcommand.run_app_command(
             offset,
             self.cmd_output_epd
@@ -233,12 +305,17 @@ class Application(metaclass=_ApplicationMetaclass):
                 self.get_super().on_init()
         """
         parent = cls.__mro__[1]
-        assert parent != object
+        if parent == object:
+            raise ValueError("The class %s has no superclass" % cls.__name__)
 
         return ApplicationInstance(parent)
 
     @classmethod
     def allocate(cls):
+        """Constructs the array for commands and methods on the app.
+
+        Before the AppManager start the appliction, it should be called.
+        """
         if not cls._allocated_:
             if cls != Application:
                 parent_cls = cls.__mro__[1]
@@ -264,8 +341,10 @@ class Application(metaclass=_ApplicationMetaclass):
 
     @classmethod
     def add_command(cls, name, cmd):
+        """Add AppCommand for application"""
         if not isinstance(cmd, appcommand.AppCommandN):
-            raise ValueError("CMD (%s) must be callable or AppCommand" % cmd)
+            raise ValueError("AppCommand (%s) must be callable or AppCommand"
+                             % cmd)
 
         if cls._allocated_:
             # case allocated
@@ -273,7 +352,7 @@ class Application(metaclass=_ApplicationMetaclass):
             #   - initialize and allocate
             if name in cls._total_dict_:
                 raise ValueError(
-                    "Please avoid to use '%s' as the command name on class %s,"
+                    "Please avoid to use '%s' on AppCommand name on class %s,"
                     "or add it before allocation of the class"
                     % (name, cls.__name__))
             cls._commands_.append(name, cmd)
