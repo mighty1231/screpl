@@ -79,14 +79,34 @@ class Logger(scroll.ScrollApp):
         EUDEndIf()
 
     @staticmethod
-    def multiline_log_writer(title):
+    def get_writer(simple=False):
+        writer.seekepd(next_epd_to_write)
+        if not simple:
+            writer.write_f("\x16%D: [frame %D] ",
+                           log_index,
+                           main.get_app_manager().get_current_frame_number())
+        else:
+            writer.write_f("\x16%D: ", log_index)
+
+        DoActions([
+            next_epd_to_write.AddNumber(LOGGER_LINE_SIZE // 4),
+            log_index.AddNumber(1)
+        ])
+        if EUDIf()(next_epd_to_write == buf_end_epd):
+            next_epd_to_write << buf_start_epd
+        EUDEndIf()
+
+        return writer
+
+    @staticmethod
+    def get_multiline_writer(title):
         """Supports to log several lines
 
         Usage
 
         .. code-block: python
 
-            with Logger.multiline_log_writer("log_title") as writer:
+            with Logger.get_multiline_writer("log_title") as writer:
                 writer.write_f("Hello!\n")
                 writer.write_f("World!\n")
                 writer.write(0)

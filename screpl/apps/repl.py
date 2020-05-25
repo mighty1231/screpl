@@ -40,7 +40,6 @@ class REPL(application.Application):
         REPL._output_writer.seekepd(_repl_input_epd_ptr)
         REPL._output_writer.write_str(offset)
         REPL._output_writer.write(0)
-        self.cmd_output_epd = _repl_output_epd_ptr
 
         application.Application.on_chat(self, offset)
 

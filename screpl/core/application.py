@@ -253,18 +253,12 @@ class ApplicationInstance:
                                  % (self._cls, name))
 
 class Application(metaclass=_ApplicationMetaclass):
-    """Basic structure that defines the way to interact with user
+    """Basic structure that defines the way to interact with user"""
 
-    It has default field - cmd_output_epd: if it is not 0, the reason of
-    failure on parsing command is written into the epd address.
-    run_app_command() is written into cmd_output_epd.
-    """
-
-    fields = ["cmd_output_epd"]
+    fields = []
 
     def on_init(self):
         """Called once when the application initialized and goes foreground"""
-        self.cmd_output_epd = 0
 
     def on_destruct(self):
         """Called when the application is going to be destructed"""
@@ -275,10 +269,7 @@ class Application(metaclass=_ApplicationMetaclass):
         Arguments:
             offset (EUDVariable): address of chat from super user.
         """
-        appcommand.run_app_command(
-            offset,
-            self.cmd_output_epd
-        )
+        appcommand.run_app_command(offset)
 
     def on_resume(self):
         """Called exactly once after the application started other application

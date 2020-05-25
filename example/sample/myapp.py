@@ -37,20 +37,14 @@ class MyApp(Application):
     def on_init(self):
         """Initialize members
 
-        'cmd_output_epd' is reserved member to get results of on_chats
-        (compile error etc.) If those results are unnecessary, set
-        self.cmd_output_epd as 0
-
         Caution. Avoid to use lshift (ex. self.var1 << 0)
         """
-        self.cmd_output_epd = manager.alloc_db_epd(16 // 4)
         self.var1 = 0
         self.var2 = 341
         self.trial = 0
 
     def on_destruct(self):
         """You may free variable that had allocated on init()"""
-        manager.free_db_epd(self.cmd_output_epd)
 
     def on_chat(self, offset):
         """Callback for super user chat
@@ -60,7 +54,6 @@ class MyApp(Application):
         default.
         """
         self.trial += 1
-        f_dwwrite_epd(self.cmd_output_epd, 0)
         Application.on_chat(offset)
 
     def on_resume(self):
@@ -89,8 +82,6 @@ class MyApp(Application):
         """
         writer.write_f('var1 = %D\n', self.var1)
         writer.write_f('var2 = %D\n', self.var2)
-        writer.write_f('cmd result -> %D: %E\n',
-                       self.trial, self.cmd_output_epd)
 
     def no_return(self, a):
         """Methods with no returns"""

@@ -156,7 +156,6 @@ class AppManager:
                 self.cur_methods._epd << EPD(methods)
                 self.cur_cmdtable_epd << table_epd
 
-                self._foreground_app_instance.cmd_output_epd = 0
                 self._foreground_app_instance.on_init()
 
                 EUDBreakIf(self.cur_app_id >= self.app_cnt - 1)

@@ -60,7 +60,6 @@ class ProfileBlock(block.BridgeBlock):
 
     def write_payload(self, emitbuffer):
         buf_size = self.get_buffer_size()
-        print(get_block())
         emitbuffer.WriteDword(b2i4(type(self).signature))
         emitbuffer.WriteDword(buf_size)
         emitbuffer.WriteBytes(get_block())

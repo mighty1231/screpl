@@ -24,22 +24,20 @@ _arg_storage = EUDArray(_MAXARGCNT)
 # Used as global variable during parsing iteratively
 _offset = EUDVariable()
 _encode_success = EUDVariable()
-_output_writer = REPLByteRW()
-_ref_stdout_epd = EUDVariable()
 
 AppCommandPtr = EUDFuncPtr(0, 0)
 
-def run_app_command(txtptr, ref_stdout_epd):
+def run_app_command(txtptr):
     _offset << txtptr
-    _ref_stdout_epd << ref_stdout_epd
     _run_app_command()
 
 @EUDFunc
 def _run_app_command():
+    import screpl.apps.logger as logger
+
     # get current AppCommand table
     cmdtable_epd = main.get_app_manager().cur_cmdtable_epd
     funcname = Db(50)
-    _output_writer.seekepd(_ref_stdout_epd)
 
     # read function name
     if EUDIf()(read_name(_offset, ord('('), \
@@ -54,17 +52,19 @@ def _run_app_command():
             # encode argument
             func.setFunc(AppCommandPtr.cast(ret))
             func()
-        if EUDElseIfNot()(_ref_stdout_epd == 0):
-            _output_writer.write_strepd(EPDConstString('\x06Failed to read function name'))
-            _output_writer.write(0)
+        if EUDElse()():
+            logger.Logger.format(
+                "run_app_command(): Failed to search function %E",
+                EPD(funcname))
         EUDEndIf()
-    if EUDElseIfNot()(_ref_stdout_epd == 0):
-        _output_writer.write_strepd(EPDConstString('\x06Failed to read command'))
-        _output_writer.write(0)
+    if EUDElse()():
+        logger.Logger.format("run_app_command(): Failed to read command")
     EUDEndIf()
 
 @EUDFunc
 def encode_arguments():
+    import screpl.apps.logger as logger
+
     i, delim = EUDCreateVariables(2)
     i << 0
     _encode_success << 1
@@ -82,15 +82,14 @@ def encode_arguments():
                     EPD(_offset.getValueAddr()), \
                     EPD(_arg_storage)+i) == 1):
                 _encode_success << 0 # failed to encode argument
-                if EUDIfNot()(_ref_stdout_epd == 0):
-                    _output_writer.write_strepd(EPDConstString(\
-                            '\x06Syntax Error: during encoding argument ['))
-                    _output_writer.write_decimal(i)
-                    _output_writer.write_strepd(EPDConstString('] \x16'))
-                    _output_writer.write_strn(_offset, 5)
-                    _output_writer.write_strepd(EPDConstString('...'))
-                    _output_writer.write(0)
-                EUDEndIf()
+                writer = logger.Logger.get_writer()
+                writer.write_strepd(EPDConstString(\
+                        '\x06Syntax Error: during encoding argument ['))
+                writer.write_decimal(i)
+                writer.write_strepd(EPDConstString('] \x16'))
+                writer.write_strn(_offset, 5)
+                writer.write_strepd(EPDConstString('...'))
+                writer.write(0)
                 EUDBreak()
             EUDEndIf()
             i += 1
