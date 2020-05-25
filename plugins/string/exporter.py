@@ -1,5 +1,6 @@
 from eudplib import *
-from repl import Application
+
+from screpl.core.application import Application
 
 from . import *
 
@@ -17,9 +18,9 @@ storage = Db(STRING_BUFFER_SZ)
 remaining_bytes = EUDVariable(0)
 written = EUDVariable(0)
 
-def writeStrings():
+def write_strings():
     global string_buffer, new_alloc_epd, v_mode
-    writer = appManager.getWriter()
+    writer = app_manager.getWriter()
     writer.seekepd(EPD(storage))
 
     cur_epd = EUDVariable()
@@ -100,25 +101,25 @@ def writeStrings():
     remaining_bytes << (writer.getoffset() - storage)
 
 class StringExporterApp(Application):
-    def onInit(self):
+    def on_init(self):
         pass
 
-    def onDestruct(self):
+    def on_destruct(self):
         pass
 
     def loop(self):
         global written, remaining_bytes, v_mode
 
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
         EUDEndIf()
 
         if EUDIf()(v_state == STATE_CONFIG):
-            if EUDIf()(appManager.keyPress("Y", hold = ["LCTRL"])):
+            if EUDIf()(app_manager.key_press("Y", hold = ["LCTRL"])):
                 v_state << STATE_EXPORTING
-                writeStrings()
-            if EUDElseIf()(appManager.keyPress("O", hold = ["LCTRL"])):
+                write_strings()
+            if EUDElseIf()(app_manager.key_press("O", hold = ["LCTRL"])):
                 v_mode += 1
                 Trigger(
                     conditions=v_mode.Exactly(MODE_END),
@@ -126,7 +127,7 @@ class StringExporterApp(Application):
                 )
             EUDEndIf()
         if EUDElse()():
-            new_written = appManager.exportAppOutputToBridge(storage + written, remaining_bytes)
+            new_written = app_manager.send_app_output_to_bridge(storage + written, remaining_bytes)
 
             remaining_bytes -= new_written
             written += new_written
@@ -134,7 +135,7 @@ class StringExporterApp(Application):
                 v_state << STATE_CONFIG
             EUDEndIf()
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.request_update()
 
     def print(self, writer):
         writer.write_f("String Editor - Exporter (Bridge Client required)\n")

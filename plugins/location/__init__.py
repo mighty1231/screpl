@@ -1,6 +1,8 @@
 from eudplib import *
 
-from repl import REPL, getAppManager, AppCommand
+from screpl.apps.repl import REPL
+from screpl.core.appcommand import AppCommand
+from screpl.main import get_app_manager
 
 keymap = {
     "manager" : {
@@ -15,10 +17,10 @@ keymap = {
 FRAME_PERIOD = 24
 
 # initialize variables
-appManager = getAppManager()
+app_manager = get_app_manager()
 dim = GetChkTokenized().getsection(b'DIM ')
-mapw = appManager.getMapWidth()
-maph = appManager.getMapHeight()
+mapw = app_manager.get_map_width()
+maph = app_manager.get_map_height()
 
 DoActions([
     # make enable to create "Scanner Sweep"
@@ -34,6 +36,6 @@ from .manager import LocationManagerApp
 
 @AppCommand([])
 def startCommand(self):
-    appManager.startApplication(LocationManagerApp)
+    app_manager.start_application(LocationManagerApp)
 
-REPL.addCommand('location', startCommand)
+REPL.add_command('location', startCommand)

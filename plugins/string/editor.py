@@ -1,8 +1,7 @@
 from eudplib import *
-from repl import (
-    Application,
-    f_raiseWarning
-)
+
+from screpl.core.application import Application
+from screpl.utils.debug import f_raise_warning
 
 from . import *
 
@@ -25,7 +24,7 @@ tmp_storage = Db(10000)
 tmp_storage_epd = EPD(tmp_storage)
 
 class StringEditorApp(Application):
-    def onInit(self):
+    def on_init(self):
         v_mode << MODE_INSERT
         string_offset_epd = STRSection_epd + cur_string_id
         v_oldbuf_offset << f_dwread_epd(string_offset_epd)
@@ -41,7 +40,7 @@ class StringEditorApp(Application):
         EUDEndIf()
         v_cursor_epd << v_string_epd
 
-    def onDestruct(self):
+    def on_destruct(self):
         if EUDIf()(v_changed == 0):
             # fill null bytes for allocated buffer
             temp_epd = EUDVariable()
@@ -68,12 +67,12 @@ class StringEditorApp(Application):
             new_alloc_epd << v_previous_alloc_epd
         EUDEndIf()
 
-    def onChat(self, offset):
+    def on_chat(self, offset):
         global v_cursor_epd
 
         v_changed << 1
 
-        reader = EUDByteRW()
+        reader = REPLByteRW()
         reader.seekoffset(offset)
         clear_overwrite, clear_insert = Forward(), Forward()
         if EUDIf()(v_mode == MODE_OVERWRITE):
@@ -108,13 +107,13 @@ class StringEditorApp(Application):
                             if EUDElseIf()([hexb >= ord('A'), hexb <= ord('F')]):
                                 b1 += (hexb - ord('A') + 10)
                             if EUDElse()():
-                                f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
+                                f_raise_warning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                                 EUDJump(clear_overwrite)
                             EUDEndIf()
                             if nnn == 0:
                                 b1 *= 16
                     if EUDElse()():
-                        f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
+                        f_raise_warning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                         EUDJump(clear_overwrite)
                     EUDEndIf()
                 EUDEndIf()
@@ -162,13 +161,13 @@ class StringEditorApp(Application):
                             if EUDElseIf()([hexb >= ord('A'), hexb <= ord('F')]):
                                 b1 += (hexb - ord('A') + 10)
                             if EUDElse()():
-                                f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
+                                f_raise_warning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                                 EUDJump(clear_insert)
                             EUDEndIf()
                             if nnn == 0:
                                 b1 *= 16
                     if EUDElse()():
-                        f_raiseWarning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
+                        f_raise_warning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
                         EUDJump(clear_insert)
                     EUDEndIf()
                 EUDEndIf()
@@ -193,23 +192,23 @@ class StringEditorApp(Application):
     def loop(self):
         global v_cursor_epd, v_frame
 
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
-        if EUDElseIf()(appManager.keyPress("insert")):
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
+        if EUDElseIf()(app_manager.key_press("insert")):
             v_mode << 1 - v_mode
-        if EUDElseIf()(appManager.keyPress("delete")):
+        if EUDElseIf()(app_manager.key_press("delete")):
             f_strcpy_epd(v_cursor_epd, v_cursor_epd + 1)
-        if EUDElseIf()(appManager.keyPress("F7")):
+        if EUDElseIf()(app_manager.key_press("F7")):
             if EUDIfNot()(v_cursor_epd == v_string_epd):
                 v_cursor_epd -= 1
                 v_frame << BLINK_PERIOD * 2 - 1
             EUDEndIf()
-        if EUDElseIf()(appManager.keyPress("F8")):
+        if EUDElseIf()(app_manager.key_press("F8")):
             if EUDIfNot()(MemoryEPD(v_cursor_epd, Exactly, 0)):
                 v_cursor_epd += 1
                 v_frame << BLINK_PERIOD * 2 - 1
             EUDEndIf()
-        if EUDElseIf()(appManager.keyPress("HOME")):
+        if EUDElseIf()(app_manager.key_press("HOME")):
             if EUDInfLoop()():
                 EUDBreakIf(v_cursor_epd == v_string_epd)
                 v_cursor_epd -= 1
@@ -219,7 +218,7 @@ class StringEditorApp(Application):
                 EUDEndIf()
             EUDEndInfLoop()
             v_frame << BLINK_PERIOD * 2 - 1
-        if EUDElseIf()(appManager.keyPress("END")):
+        if EUDElseIf()(app_manager.key_press("END")):
             if EUDInfLoop()():
                 EUDBreakIf(MemoryEPD(v_cursor_epd, Exactly, 0))
                 EUDBreakIf(MemoryEPD(v_cursor_epd, Exactly, 0x0D0D0D + ord('\n') * 0x01000000))
@@ -227,7 +226,7 @@ class StringEditorApp(Application):
             EUDEndInfLoop()
             v_frame << BLINK_PERIOD * 2 - 1
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.request_update()
 
         v_frame += 1
         Trigger(

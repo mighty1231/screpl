@@ -13,12 +13,16 @@ Expected TUI
 
 from eudplib import *
 
-from repl import Application, writeLocation, encodeAction_epd, f_raiseWarning
+from screpl.core.application import Application
+from screpl.encoder.action import encode_action_epd
+from screpl.writer import write_location
+from screpl.utils.debug import f_raise_warning
+
 from ..location.rect import drawRectangle
 from .detail import DetailedActionApp
 from . import (
-    appManager,
-    superuser,
+    app_manager,
+    su_id,
     MAX_ACTION_COUNT,
     focused_pattern_id,
     g_effectplayer,
@@ -63,7 +67,7 @@ FRAME_PERIOD = 24
 
 @EUDFunc
 def evaluateLocations():
-    posX, posY = appManager.getMousePositionXY()
+    posX, posY = app_manager.get_mouse_position()
 
     cur = EUDVariable()
     cur << chosen_location
@@ -205,67 +209,67 @@ def appendAction(action):
     actionArray_epd = p_actionArrayEPD[focused_pattern_id]
     actionCount = p_actionCount[focused_pattern_id]
     if EUDIf()(actionCount == MAX_ACTION_COUNT - 1):
-        f_raiseWarning("Cannot create more action")
+        f_raise_warning("Cannot create more action")
         EUDReturn()
     EUDEndIf()
 
-    encodeAction_epd(actionArray_epd + (actionCount * (32 // 4)), action)
+    encode_action_epd(actionArray_epd + (actionCount * (32 // 4)), action)
     DoActions(SetMemoryEPD(EPD(p_actionCount) + focused_pattern_id, Add, 1))
 
 class PatternApp(Application):
-    def onInit(self):
+    def on_init(self):
         cur_wait_value << p_waitValue[focused_pattern_id]
         chosen_location << 0
 
     def loop(self):
         global macro_mode
-        if EUDIf()(appManager.keyPress('ESC')):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.key_press('ESC')):
+            app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(appManager.keyPress('Q')):
+        if EUDElseIf()(app_manager.key_press('Q')):
             focusPatternID(0)
-        if EUDElseIf()(appManager.keyPress('W')):
+        if EUDElseIf()(app_manager.key_press('W')):
             focusPatternID(focused_pattern_id - 1)
-        if EUDElseIf()(appManager.keyPress('E')):
+        if EUDElseIf()(app_manager.key_press('E')):
             focusPatternID(focused_pattern_id + 1)
-        if EUDElseIf()(appManager.keyPress('R')):
+        if EUDElseIf()(app_manager.key_press('R')):
             focusPatternID(p_count-1)
-        if EUDElseIf()(appManager.keyPress('A')):
+        if EUDElseIf()(app_manager.key_press('A')):
             appendPattern()
-        if EUDElseIf()(appManager.keyPress('I')):
+        if EUDElseIf()(app_manager.key_press('I')):
             insertPattern()
-        if EUDElseIf()(appManager.keyPress('D')):
+        if EUDElseIf()(app_manager.key_press('D')):
             deletePattern()
-        if EUDElseIf()(appManager.keyPress('T')):
+        if EUDElseIf()(app_manager.key_press('T')):
             executePattern(focused_pattern_id)
-        if EUDElseIf()(appManager.keyPress('P')):
-            appManager.startApplication(DetailedActionApp)
-        if EUDElseIf()(appManager.keyPress('M')):
+        if EUDElseIf()(app_manager.key_press('P')):
+            app_manager.start_application(DetailedActionApp)
+        if EUDElseIf()(app_manager.key_press('M')):
             macro_mode += 1
             Trigger(
                 conditions=macro_mode.Exactly(MACRO_UNDEFINED),
                 actions=macro_mode.SetNumber(0)
             )
-        if EUDElseIf()(appManager.keyPress(',')):
+        if EUDElseIf()(app_manager.key_press(',')):
             if EUDIfNot()(cur_wait_value == 1):
                 DoActions([
                     cur_wait_value.SubtractNumber(1),
                     SetMemoryEPD(EPD(p_waitValue) + focused_pattern_id, Subtract, 1),
                 ])
             EUDEndIf()
-        if EUDElseIf()(appManager.keyPress('.')):
+        if EUDElseIf()(app_manager.key_press('.')):
             DoActions([
                 cur_wait_value.AddNumber(1),
                 SetMemoryEPD(EPD(p_waitValue) + focused_pattern_id, Add, 1),
             ])
-        if EUDElseIf()(appManager.mouseLClick()):
+        if EUDElseIf()(app_manager.mouse_lclick()):
             evaluateLocations()
-        # if EUDElseIf()(appManager.mouseRClick()):
-        if EUDElseIf()(appManager.keyPress('N')):
+        # if EUDElseIf()(app_manager.mouse_rclick()):
+        if EUDElseIf()(app_manager.key_press('N')):
             # confirm
             if EUDIfNot()(chosen_location.Exactly(0)):
                 cp = f_getcurpl()
-                f_setcurpl(superuser)
+                f_setcurpl(su_id)
                 DoActions(PlayWAV("sound\\Misc\\Button.wav"))
                 f_setcurpl(cp)
                 if EUDIf()(macro_mode.Exactly(MACRO_BOMB)):
@@ -327,7 +331,7 @@ class PatternApp(Application):
                 DoActions(frame.SetNumber(0))
             EUDEndIf()
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.request_update()
 
     def print(self, writer):
         writer.write_f("\x04Bound Editor - Pattern mode\n")
@@ -366,7 +370,7 @@ class PatternApp(Application):
             writer.write_f("No Location is chosen")
         if EUDElse()():
             writer.write_f("Chosen location: \x03")
-            writeLocation(chosen_location)
+            write_location(chosen_location)
         EUDEndIf()
         writer.write_f("\n")
         writer.write(0)

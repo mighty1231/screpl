@@ -1,13 +1,15 @@
 from eudplib import *
-from repl import Application, EUDByteRW
 
-from . import appManager
+from screpl.core.application import Application
+from screpl.utils.byterw import REPLByteRW
+
+from . import app_manager
 
 storage = Db(200000)
 remaining_bytes = EUDVariable(0)
 written = EUDVariable(0)
 
-writer = appManager.getWriter()
+writer = app_manager.getWriter()
 
 _ptr = EUDVariable()
 _size = EUDVariable()
@@ -15,7 +17,7 @@ _size = EUDVariable()
 def dumpToStorage():
     global writer
     writer.seekepd(EPD(storage))
-    reader = EUDByteRW()
+    reader = REPLByteRW()
 
     reader.seekoffset(_ptr)
     if EUDInfLoop()():
@@ -38,25 +40,25 @@ class DumpApp(Application):
         _ptr << ptr
         _size << size
 
-    def onInit(self):
+    def on_init(self):
         dumpToStorage()
 
     def loop(self):
         global written, remaining_bytes
 
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
         EUDEndIf()
 
-        new_written = appManager.exportAppOutputToBridge(storage + written, remaining_bytes)
+        new_written = app_manager.send_app_output_to_bridge(storage + written, remaining_bytes)
 
         remaining_bytes -= new_written
         written += new_written
         if EUDIf()(remaining_bytes == 0):
-            appManager.requestDestruct()
+            app_manager.request_destruct()
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.request_update()
 
     def print(self, writer):
         writer.write_f("\x13Memory Dumping...\n")

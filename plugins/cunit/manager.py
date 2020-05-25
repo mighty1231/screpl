@@ -4,12 +4,10 @@ cunit viewer
 option - what to view
 '''
 from eudplib import *
-from repl import (
-    Application,
-    AppTypedMethod,
-    AppCommand,
-    argEncNumber
-)
+
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+from screpl.encoder.const import ArgEncNumber
 
 from . import *
 from .detail import CUnitDetailApp
@@ -17,15 +15,15 @@ from .option import CUnitOptionApp
 
 class CUnitManagerApp(Application):
     def loop(self):
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(appManager.keyPress("E", hold=["LCTRL"])):
-            appManager.startApplication(CUnitDetailApp)
-        if EUDElseIf()(appManager.keyPress("O", hold=["LCTRL"])):
-            appManager.startApplication(CUnitOptionApp)
+        if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
+            app_manager.start_application(CUnitDetailApp)
+        if EUDElseIf()(app_manager.key_press("O", hold=["LCTRL"])):
+            app_manager.start_application(CUnitOptionApp)
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.request_update()
 
     def print(self, writer):
         writer.write_f("\x04CUnit Manager\n")

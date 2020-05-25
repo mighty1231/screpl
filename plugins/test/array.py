@@ -1,41 +1,40 @@
 from eudplib import *
-from repl import (
-    Application,
-    AppCommand,
-    argEncNumber,
-    Array
-)
 
-from . import appManager
+from screpl.core.application import Application
+from screpl.core.appcommand import AppCommand
+from screpl.encoder.const import ArgEncNumber
+from screpl.utils.array import REPLArray
 
-array = Array.construct(10, [1, 2, 3])
+from . import app_manager
+
+array = REPLArray.construct(10, [1, 2, 3])
 ret = EUDVariable()
 
-class ArrayTestApp(Application):
+class REPLArrayTestApp(Application):
     def loop(self):
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.request_update()
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def append(self, value):
         array.append(value)
 
-    @AppCommand([argEncNumber, argEncNumber])
+    @AppCommand([ArgEncNumber, ArgEncNumber])
     def insert(self, i, value):
         array.insert(i, value)
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def delete(self, i):
         array.delete(i)
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def at(self, i):
         ret << array.at(i)
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def contains(self, i):
         ret << array.contains(i)
 
@@ -68,7 +67,7 @@ class ArrayTestApp(Application):
         arr2 = EUDVariable()
         arr2 << array
 
-        arr3 = Array(arr2)
+        arr3 = REPLArray(arr2)
         for value in arr3.values():
             writer.write_f("%D ", value)
         writer.write_f("\n")

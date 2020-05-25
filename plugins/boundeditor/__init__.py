@@ -1,13 +1,15 @@
 from eudplib import *
 
-from repl import REPL, getAppManager, AppCommand
+from screpl.apps.repl import REPL
+from screpl.main import get_app_manager
+from screpl.core.appcommand import AppCommand
 
 # plugin dependencies
 from .. import location, unit
 
 # initialize variables
-appManager = getAppManager()
-superuser = appManager.superuser
+app_manager = get_app_manager()
+su_id = app_manager.get_superuser_id()
 
 computer_player_initvar = -1
 for i in range(7, -1, -1):
@@ -58,9 +60,9 @@ p_actionArrayEPD = EUDArray([
 ])
 
 def writePlayer(value):
-    from repl.resources.writer import writeConstant
-    from repl.resources.table.tables import tb_Player
-    writeConstant(EPD(tb_Player), value)
+    from screpl.writer import write_constant
+    from screpl.resources.table.tables import Player
+    write_constant(EPD(Player), value)
 
 # pattern, detail
 focused_pattern_id = EUDVariable(0)
@@ -93,6 +95,6 @@ from .manager import BoundManagerApp
 
 @AppCommand([])
 def startCommand(self):
-    appManager.startApplication(BoundManagerApp)
+    app_manager.start_application(BoundManagerApp)
 
-REPL.addCommand('bound', startCommand)
+REPL.add_command('bound', startCommand)

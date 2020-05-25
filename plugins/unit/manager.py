@@ -1,7 +1,9 @@
 from eudplib import *
 
-from repl import Application, writeUnit
-from . import appManager
+from screpl.core.application import Application
+from screpl.writer import write_unit
+
+from . import app_manager
 
 # app-specific initializing arguments
 _unitid = EUDVariable(0)
@@ -30,7 +32,7 @@ class UnitManagerApp(Application):
         if resultref_unitid_epd:
             _resultref_unitid_epd << resultref_unitid_epd
 
-    def onInit(self):
+    def on_init(self):
         self.unitid = 0
         self.resultref_unitid_epd = _resultref_unitid_epd
 
@@ -39,7 +41,7 @@ class UnitManagerApp(Application):
         # restore initializing arguments
         _resultref_unitid_epd << 0
 
-    def onDestruct(self):
+    def on_destruct(self):
         unitid = self.unitid
         resultref_unitid_epd = self.resultref_unitid_epd
         if EUDIfNot()(resultref_unitid_epd == 0):
@@ -58,21 +60,21 @@ class UnitManagerApp(Application):
         )
         if EUDIfNot()(new_unitid == self.unitid):
             self.unitid = new_unitid
-            appManager.requestUpdate()
+            app_manager.request_update()
         EUDEndIf()
 
     def loop(self):
         unitid = self.unitid
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(appManager.keyPress("F7", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
             self.focusUnitID(unitid - 8)
-        if EUDElseIf()(appManager.keyPress("F7")):
+        if EUDElseIf()(app_manager.key_press("F7")):
             self.focusUnitID(unitid - 1)
-        if EUDElseIf()(appManager.keyPress("F8", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
             self.focusUnitID(unitid + 8)
-        if EUDElseIf()(appManager.keyPress("F8")):
+        if EUDElseIf()(app_manager.key_press("F8")):
             self.focusUnitID(unitid + 1)
         EUDEndIf()
 
@@ -106,7 +108,7 @@ class UnitManagerApp(Application):
             EUDEndIf()
 
             writer.write_f(" %D: ", cur)
-            writeUnit(cur)
+            write_unit(cur)
             writer.write(ord('\n'))
 
             DoActions(cur.AddNumber(1))

@@ -1,7 +1,11 @@
 from eudplib import *
-from repl import ScrollApp, ReferenceTable, AppTypedMethod, writeUnit
 
-from repl.resources.offset import off_unitsdat_UnitMapString
+from screpl.apps.scroll import ScrollApp
+from screpl.utils.referencetable import ReferenceTable
+from screpl.core.appcommand import AppCommand
+from screpl.core.appmethod import AppTypedMethod
+from screpl.writer import write_unit
+
 from . import death_units, watched_eud_vars, accessed_resources
 
 watched_eud_vars_size = EUDVariable()
@@ -9,14 +13,14 @@ watched_eud_vars_size = EUDVariable()
 class VariableApp(ScrollApp):
     fields = []
 
-    def onInit(self):
-        ScrollApp.onInit(self)
-        watched_eud_vars_size << ReferenceTable.GetSize(EPD(watched_eud_vars))
+    def on_init(self):
+        ScrollApp.on_init(self)
+        watched_eud_vars_size << ReferenceTable.get_size(EPD(watched_eud_vars))
 
-    def writeTitle(self, writer):
+    def write_title(self, writer):
         writer.write_f("Variable App. press F7 or F8. ( Offset = %D )", self.offset)
 
-    def writeLine(self, writer, line):
+    def write_line(self, writer, line):
         # Ore / Gas
         if accessed_resources:
             if EUDIf()(line == 0):
@@ -52,7 +56,7 @@ class VariableApp(ScrollApp):
                     writer.write_f("\x1e # {} ".format(i+1))
 
                     # write unit name
-                    writeUnit(unitID)
+                    write_unit(unitID)
 
                     # write death values
                     self.write_pvar_from_epd(EPD(0x58A364 + 48*unitID))
@@ -81,7 +85,7 @@ class VariableApp(ScrollApp):
             f_dwread_epd(var_value)
         )
 
-    @AppTypedMethod([None], [], getWriterAsParam = True)
+    @AppTypedMethod([None], [], with_main_writer = True)
     def write_pvar_from_epd(self, writer, epd):
         writer.write_f(" : \x08%D", f_dwread_epd(epd))
         writer.write_f("\x1e / \x0e%D", f_dwread_epd(epd + 1))
@@ -93,7 +97,7 @@ class VariableApp(ScrollApp):
         writer.write_f("\x1e / \x17%D", f_dwread_epd(epd + 7))
 
 
-    def getLineCount(self):
+    def get_line_count(self):
         ret = 0
         if accessed_resources:
             ret += 1 + len(accessed_resources)

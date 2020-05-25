@@ -1,15 +1,17 @@
 from eudplib import *
 
-from repl import REPL, getAppManager, AppCommand
+from screpl.apps.repl import REPL
+from screpl.core.appcommand import AppCommand
+from screpl.main import get_app_manager
 
 # initialize variables
-appManager = getAppManager()
+app_manager = get_app_manager()
 
 # make commands
 from .manager import UnitManagerApp
 
 @AppCommand([])
 def startCommand(self):
-    appManager.startApplication(UnitManagerApp)
+    app_manager.start_application(UnitManagerApp)
 
-REPL.addCommand('unit', startCommand)
+REPL.add_command('unit', startCommand)

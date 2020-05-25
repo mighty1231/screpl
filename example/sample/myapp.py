@@ -1,35 +1,31 @@
-'''
-Application sample for REPL
+"""Application sample for REPL
 
 A series of methods is executed in each frame as follows.
 
-Case 1. app starts with getAppManager().startApplication(app)
-  - onInit, (onChat), loop, print
+Case 1. app starts with get_app_manager().startApplication(app)
+  - on_init, (on_chat), loop, print
 
-Case 2. If 'onChat' or 'loop' invoked 'getAppManager().requestUpdate()',
-  - (onChat), loop, print
+Case 2. If 'on_chat' or 'loop' invoked 'get_app_manager().request_update()',
+  - (on_chat), loop, print
 
-Case 3. If 'onChat' or 'loop' did not invoked 'getAppManager().requestUpdate()',
-  - (onChat), loop
+Case 3. If 'on_chat' or 'loop' did not invoked 'get_app_manager().request_update()',
+  - (on_chat), loop
 
-Case 4. If 'onChat' or 'loop' invoked 'getAppManager().requestDestruct()'
-  - (onChat), loop, onDestruct
+Case 4. If 'on_chat' or 'loop' invoked 'get_app_manager().request_destruct()'
+  - (on_chat), loop, on_destruct
 
 Case 5. Previously launched app is dead,
-  - onResume, (onChat), loop
-  - 
-'''
+  - on_resume, (on_chat), loop
+"""
 
 from eudplib import *
-from repl import (
-    Application,
-    AppTypedMethod,
-    AppCommand,
-    getAppManager,
-    argEncNumber
-)
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+from screpl.core.appmethod import AppTypedMethod
+from screpl.encoder.const import ArgEncNumber
+from screpl.main import get_app_manager
 
-manager = getAppManager()
+manager = get_app_manager()
 
 class MyApp(Application):
     fields = [
@@ -38,72 +34,65 @@ class MyApp(Application):
         'trial'
     ]
 
-    def onInit(self):
-        '''
-        Initialize members
-
-        'cmd_output_epd' is reserved member to get results of onChats (compile error etc.)
-        If those results are not necessary, set self.cmd_output_epd as 0
+    def on_init(self):
+        """Initialize members
 
         Caution. Avoid to use lshift (ex. self.var1 << 0)
-        '''
-        self.cmd_output_epd = manager.allocDb_epd(16 // 4)
+        """
         self.var1 = 0
         self.var2 = 341
         self.trial = 0
 
-    def onDestruct(self):
-        '''
-        You should free variable that had allocated on init()
-        '''
-        manager.freeDb_epd(self.cmd_output_epd)
+    def on_destruct(self):
+        """You may free variable that had allocated on init()"""
 
-    def onChat(self, offset):
-        '''
-        It reads command and execute AppCommands given OFFSET as a string pointer as a default
-        '''
+    def on_chat(self, offset):
+        """Callback for super user chat
+
+        As default behavior, (from Application class), it reads command
+        and execute AppCommands given  OFFSET as a string pointer as a
+        default.
+        """
         self.trial += 1
-        f_dwwrite_epd(self.cmd_output_epd, 0)
-        MyApp.getSuper().onChat(offset)
+        Application.on_chat(offset)
 
-    def onResume(self):
-        '''
-        It is executed exactly once when previously launched app was dead
-        '''
+    def on_resume(self):
+        """Called exactly once after newly started app was dead"""
         pass
 
     def loop(self):
-        '''
-        You may make the way to destruct your app.
-        This example destruct itself with pressing ESC,
-          but it does not necessarily to be pressing ESC
-        '''
-        if EUDIf()(manager.keyPress("ESC")):
-            manager.requestDestruct()
+        """Called for every loop during the app is on foreground
+
+        You may make the way to destruct your app. This example destruct
+        itself with pressing ESC, but it does not have to.
+        """
+        if EUDIf()(manager.key_press("ESC")):
+            manager.request_destruct()
             EUDReturn()
         EUDEndIf()
 
         self.var1 += 1
-        self.noReturn(self.var1)
-        manager.requestUpdate()
+        self.no_return(self.var1)
+        manager.request_update()
 
     def print(self, writer):
-        '''
-        writer.write_f()
-        '''
+        """Called for every request for text UI.
+
+        It may print text ui using REPLByteRW
+        """
         writer.write_f('var1 = %D\n', self.var1)
         writer.write_f('var2 = %D\n', self.var2)
-        writer.write_f('cmd result -> %D: %E\n', self.trial, self.cmd_output_epd)
 
-    def noReturn(self, a):
+    def no_return(self, a):
+        """Methods with no returns"""
         self.var2 = a // 4
 
     @AppTypedMethod([None, None], [None, None])
-    def someReturns(self, a, b):
-        '''
-        Some methods that should have return must be decorated with AppTypedMethod
-          - AppTypedMethod(argtypes, rettypes)
-        '''
+    def some_returns(self, a, b):
+        """Methods with some returns
+
+        Those methods have to be decorated with AppTypedMethod
+        """
         plus = a + b
         multiply = a * b
         DoActions([
@@ -112,15 +101,16 @@ class MyApp(Application):
         ])
         EUDReturn(plus, multiply)
 
-    @AppCommand([argEncNumber, argEncNumber])
+    @AppCommand([ArgEncNumber, ArgEncNumber])
     def plus(self, x, y):
-        '''
-        In-game chat like "plus(3, 4)" executes this part
-        '''
+        """AppCommand example
+
+        In-game chat like "plus(3, 4)" will call this with x=3, y=4.
+        """
         DoActions([
             CreateUnit(x, "Zerg Zergling", 1, P1),
             CreateUnit(y, "Zerg Hydralisk", 1, P1),
         ])
-        c, d = self.someReturns(x, y)
+        c, d = self.some_returns(x, y)
         self.var1 = c
         self.var2 = d

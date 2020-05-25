@@ -1,7 +1,11 @@
 from eudplib import *
 
-from repl import Application, AppCommand
-from . import appManager, superuser
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+
+from screpl.main import is_bridge_mode
+
+from . import app_manager, su_id
 from .option import OptionApp
 from .pattern import PatternApp
 from .testmode import TestPatternApp
@@ -50,19 +54,19 @@ def deleteSelectedUnit():
 
 class BoundManagerApp(Application):
     def loop(self):
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(appManager.keyPress("O", hold=["LCTRL"])):
-            appManager.startApplication(OptionApp)
-        if EUDElseIf()(appManager.keyPress("P", hold=["LCTRL"])):
-            appManager.startApplication(PatternApp)
-        if EUDElseIf()(appManager.keyPress("T", hold=["LCTRL"])):
-            appManager.startApplication(TestPatternApp)
-        if appManager.isBridgeMode():
-            if EUDElseIf()(appManager.keyPress("E", hold=["LCTRL"])):
-                appManager.startApplication(ExporterApp)
-        if EUDElseIf()(appManager.keyPress("delete")):
+        if EUDElseIf()(app_manager.key_press("O", hold=["LCTRL"])):
+            app_manager.start_application(OptionApp)
+        if EUDElseIf()(app_manager.key_press("P", hold=["LCTRL"])):
+            app_manager.start_application(PatternApp)
+        if EUDElseIf()(app_manager.key_press("T", hold=["LCTRL"])):
+            app_manager.start_application(TestPatternApp)
+        if is_bridge_mode():
+            if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
+                app_manager.start_application(ExporterApp)
+        if EUDElseIf()(app_manager.key_press("delete")):
             deleteSelectedUnit()
         EUDEndIf()
 
@@ -71,7 +75,7 @@ class BoundManagerApp(Application):
         writer.write_f("LCTRL + O: Option\n")
         writer.write_f("LCTRL + P: Pattern\n")
         writer.write_f("LCTRL + T: Test\n")
-        if appManager.isBridgeMode():
+        if is_bridge_mode():
             writer.write_f("LCTRL + E: Exporter\n")
         writer.write_f("Chat maphack() to turn on maphack\n")
         writer.write_f("Press DELETE key to remove selected units\n")
@@ -86,8 +90,8 @@ class BoundManagerApp(Application):
 
         lv, tv, rv, bv = [f_dwread_epd(ee) for ee in [le, te, re, be]]
 
-        mapw = appManager.getMapWidth()
-        maph = appManager.getMapHeight()
+        mapw = app_manager.get_map_width()
+        maph = app_manager.get_map_height()
 
         actions = []
         for y in range(256, maph * 32, 512):
@@ -97,7 +101,7 @@ class BoundManagerApp(Application):
             for x in range(256, mapw * 32, 512):
                 actions.append(SetMemoryEPD(le, SetTo, x))
                 actions.append(SetMemoryEPD(re, SetTo, x))
-                actions.append(CreateUnit(1, "Map Revealer", 1, superuser))
+                actions.append(CreateUnit(1, "Map Revealer", 1, su_id))
         DoActions(actions)
 
         for ee, vv in zip([le, te, re, be], [lv, tv, rv, bv]):

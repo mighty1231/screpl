@@ -1,10 +1,8 @@
 from eudplib import *
-from repl import (
-    Application,
-    AppTypedMethod,
-    AppCommand,
-    argEncNumber
-)
+
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+from screpl.encoder.const import ArgEncNumber
 
 from . import *
 from .cunitrw import cu_members, CUnitMemberEntry
@@ -23,23 +21,23 @@ def setFocus(new_focus):
     )
     if EUDIfNot()(v_focused >= cu_members.length):
         v_focused << new_focus
-        appManager.requestUpdate()
+        app_manager.request_update()
     EUDEndIf()
 
 class CUnitOptionApp(Application):
     def loop(self):
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(appManager.keyPress("F7", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
             setFocus(v_focused - 8)
-        if EUDElseIf()(appManager.keyPress("F7")):
+        if EUDElseIf()(app_manager.key_press("F7")):
             setFocus(v_focused - 1)
-        if EUDElseIf()(appManager.keyPress("F8", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
             setFocus(v_focused + 8)
-        if EUDElseIf()(appManager.keyPress("F8")):
+        if EUDElseIf()(app_manager.key_press("F8")):
             setFocus(v_focused + 1)
-        if EUDElseIf()(appManager.keyPress("H")):
+        if EUDElseIf()(app_manager.key_press("H")):
             member = CUnitMemberEntry.cast(cu_members[v_focused])
             if EUDIf()(member.activated == 1):
                 idx = cu_mem_activeids.index(v_focused)

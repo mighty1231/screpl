@@ -1,9 +1,13 @@
 from eudplib import *
 
-from repl import REPL, getAppManager, AppCommand, EPDConstString, ReferenceTable
+from screpl.apps.repl import REPL
+from screpl.core.appcommand import AppCommand
+from screpl.main import get_app_manager
+from screpl.utils.conststring import EPDConstString
+from screpl.utils.referencetable import ReferenceTable
 
 # initialize global variables
-manager = getAppManager()
+manager = get_app_manager()
 accessed_resources = set()
 death_units = []
 watched_eud_vars = ReferenceTable(key_f=EPDConstString)
@@ -69,13 +73,13 @@ exploreTriggers()
 
 def watchVariable(name, var):
     assert IsEUDVariable(var)
-    watched_eud_vars.AddPair(name, EPD(var.getValueAddr()))
+    watched_eud_vars.add_pair(name, EPD(var.getValueAddr()))
 
 # make commands
 from .varapp import VariableApp
 
 @AppCommand([])
 def startCommand(self):
-    manager.startApplication(VariableApp)
+    manager.start_application(VariableApp)
 
-REPL.addCommand('var', startCommand)
+REPL.add_command('var', startCommand)

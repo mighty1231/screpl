@@ -1,11 +1,9 @@
 from eudplib import *
-from repl import (
-    Application,
-    AppTypedMethod,
-    AppCommand,
-    argEncNumber,
-    print_f
-)
+
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+from screpl.encoder.const import ArgEncNumber
+from screpl.utils.debug import f_raise_warning
 
 from . import *
 from .cunitrw import cu_members, CUnitMemberEntry
@@ -27,7 +25,7 @@ class CUnitDetailApp(Application):
     def setFocus_epd(cunit_epd):
         _cunit_epd << cunit_epd
 
-    def onInit(self):
+    def on_init(self):
         self.focused_memid = 0
         self.cunit_epd = _cunit_epd
         activemem_size << cu_mem_activeids.size
@@ -46,22 +44,22 @@ class CUnitDetailApp(Application):
 
     def loop(self):
         focused_memid = self.focused_memid
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(appManager.keyPress("F7", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
             self.focusMemID(focused_memid - 8)
-        if EUDElseIf()(appManager.keyPress("F7")):
+        if EUDElseIf()(app_manager.key_press("F7")):
             self.focusMemID(focused_memid - 1)
-        if EUDElseIf()(appManager.keyPress("F8", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
             self.focusMemID(focused_memid + 8)
-        if EUDElseIf()(appManager.keyPress("F8")):
+        if EUDElseIf()(app_manager.key_press("F8")):
             self.focusMemID(focused_memid + 1)
-        if EUDElseIf()(appManager.keyPress("H", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.key_press("H", hold=["LCTRL"])):
             dw, epd = f_cunitepdread_epd(EPD(0x6284B8))
             self.cunit_epd = epd
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.request_update()
 
     def print(self, writer):
         cunit_epd = self.cunit_epd
@@ -112,7 +110,7 @@ class CUnitDetailApp(Application):
 
         writer.write(0)
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def p(self, ptr):
         '''
         Set current cunit pointer as ptr
@@ -132,4 +130,4 @@ class CUnitDetailApp(Application):
         EUDReturn()
 
         label_error << NextTrigger()
-        print_f("Warning: ptr %D is not valid CUnit pointer", ptr)
+        f_raise_warning("Warning: ptr %D is not valid CUnit pointer", ptr)

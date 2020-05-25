@@ -1,28 +1,27 @@
 from eudplib import *
-from repl import (
-    Application,
-    AppCommand,
-    AppTypedMethod,
-    argEncNumber,
-    REPLMonitorPush,
-    REPLMonitorPop,
-    REPLMonitorF
-)
 
-from . import appManager
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+from screpl.core.appmethod import AppTypedMethod
+from screpl.encoder.const import ArgEncNumber
+from screpl.monitor.func import repl_monitor_f
+from screpl.monitor.profile import repl_monitor_push
+from screpl.monitor.profile import repl_monitor_pop
+
+from . import app_manager
 
 def buildfuncs(io, profile):
-    @REPLMonitorF(io=io, profile=profile)
+    @repl_monitor_f(io=io, profile=profile)
     @EUDFunc
     def test_0_2():
         EUDReturn([1, 2])
 
-    @REPLMonitorF(io=io, profile=profile)
+    @repl_monitor_f(io=io, profile=profile)
     @EUDFunc
     def test_1_0(a):
         pass
 
-    @REPLMonitorF(io=io, profile=profile)
+    @repl_monitor_f(io=io, profile=profile)
     @EUDFunc
     def test_2_1(a, b):
         EUDReturn(a + b)
@@ -37,10 +36,10 @@ funcs_ = buildfuncs(False, False)
 class MonitorTestApp(Application):
     fields = ['var']
 
-    def onInit(self):
+    def on_init(self):
         self.var = 0
 
-    def onDestruct(self):
+    def on_destruct(self):
         pass
 
     @AppCommand([])
@@ -71,44 +70,44 @@ class MonitorTestApp(Application):
         t10(3)
         t21(4, 5)
 
-    @REPLMonitorF(io=True, profile=False)
-    @AppCommand([argEncNumber, argEncNumber])
+    @repl_monitor_f(io=True, profile=False)
+    @AppCommand([ArgEncNumber, ArgEncNumber])
     def multi(self, v1, v2):
         self.var = self._multi(v1, v2)
 
-    @REPLMonitorF(io=True, profile=False)
+    @repl_monitor_f(io=True, profile=False)
     @AppTypedMethod([None, None], [None])
     def _multi(self, a, b):
         EUDReturn(a+b)
 
-    @REPLMonitorF(io=True, profile=False)
-    @AppCommand([argEncNumber])
+    @repl_monitor_f(io=True, profile=False)
+    @AppCommand([ArgEncNumber])
     def c_i(self, a):
         self.var = a
 
-    @REPLMonitorF(io=True, profile=True)
+    @repl_monitor_f(io=True, profile=True)
     @AppCommand([])
     def c_ip(self):
         self.var += 1
 
     @AppCommand([])
     def monitor(self):
-        if REPLMonitorPush("monitor", profile=True, log=True):
-            if REPLMonitorPush("moni_pl", profile=True, log=True):
+        if repl_monitor_push("monitor", profile=True, log=True):
+            if repl_monitor_push("moni_pl", profile=True, log=True):
                 pass
-            REPLMonitorPop()
-            if REPLMonitorPush("moni_p", profile=True, log=False):
+            repl_monitor_pop()
+            if repl_monitor_push("moni_p", profile=True, log=False):
                 pass
-            REPLMonitorPop()
-            if REPLMonitorPush("moni_l", profile=False, log=True):
+            repl_monitor_pop()
+            if repl_monitor_push("moni_l", profile=False, log=True):
                 pass
-            REPLMonitorPop()
-            if REPLMonitorPush("moni_", profile=False, log=False):
+            repl_monitor_pop()
+            if repl_monitor_push("moni_", profile=False, log=False):
                 pass
-            REPLMonitorPop()
-        REPLMonitorPop()
+            repl_monitor_pop()
+        repl_monitor_pop()
 
-    @REPLMonitorF(io=False, profile=True)
+    @repl_monitor_f(io=False, profile=True)
     @AppCommand([])
     def heavy(self):
         i = EUDVariable()
@@ -120,11 +119,11 @@ class MonitorTestApp(Application):
         EUDEndInfLoop()
 
     def loop(self):
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.request_update()
 
     def print(self, writer):
         writer.write_f("MonitorTestApp var %D\n", self.var)

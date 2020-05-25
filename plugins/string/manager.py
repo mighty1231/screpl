@@ -1,10 +1,10 @@
 from eudplib import *
-from repl import (
-    Application,
-    AppCommand,
-    argEncNumber,
-    EUDByteRW
-)
+
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+from screpl.encoder.const import ArgEncNumber
+from screpl.utils.byterw import REPLByteRW
+from screpl.main import is_bridge_mode
 
 from . import *
 
@@ -12,10 +12,10 @@ def writeFirstLine(string):
     '''
     write the first line of string, excluding empty line
     '''
-    reader = EUDByteRW()
+    reader = REPLByteRW()
     reader.seekoffset(string)
 
-    writer = appManager.getWriter()
+    writer = app_manager.getWriter()
 
     writingLine = EUDVariable()
     writingLine << 0
@@ -42,39 +42,39 @@ def setStringID(new_string_id):
 
 class StringManagerApp(Application):
     def loop(self):
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(appManager.keyPress("F7")):
+        if EUDElseIf()(app_manager.key_press("F7")):
             setStringID(cur_string_id - 1)
-        if EUDElseIf()(appManager.keyPress("F8")):
+        if EUDElseIf()(app_manager.key_press("F8")):
             setStringID(cur_string_id + 1)
-        if EUDElseIf()(appManager.keyPress("E", hold=["LCTRL"])):
+        if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
             from .editor import StringEditorApp
-            appManager.startApplication(StringEditorApp)
-        if appManager.isBridgeMode():
-            if EUDElseIf()(appManager.keyPress("B", hold=["LCTRL"])):
+            app_manager.start_application(StringEditorApp)
+        if is_bridge_mode():
+            if EUDElseIf()(app_manager.key_press("B", hold=["LCTRL"])):
                 from .exporter import StringExporterApp
-                appManager.startApplication(StringExporterApp)
-        if EUDElseIf()(appManager.keyPress("F", hold=["LCTRL"])):
+                app_manager.start_application(StringExporterApp)
+        if EUDElseIf()(app_manager.key_press("F", hold=["LCTRL"])):
             from .search import StringSearchApp
             StringSearchApp.setReturn_epd(EPD(cur_string_id.getValueAddr()))
-            appManager.startApplication(StringSearchApp)
+            app_manager.start_application(StringSearchApp)
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.request_update()
 
     def print(self, writer):
         writer.write_f("\x04StringManager id=%D / total %D strings\n", cur_string_id, string_count)
         writeFirstLine(STRSection + f_dwread_epd(STRSection_epd + cur_string_id))
         writer.write_f("\n\n\x04LCTRL+E Edit string...\n")
         writer.write_f("LCTRL+F Search strings...\n")
-        if appManager.isBridgeMode():
+        if is_bridge_mode():
             writer.write_f("LCTRL+B Export to Bridge...\n")
         writer.write_f("To navigate strings, ...\n")
         writer.write_f("  - Press F7 or F8\n")
         writer.write_f("  - Use a command \"id(##)\"\n")
         writer.write(0)
 
-    @AppCommand([argEncNumber])
+    @AppCommand([ArgEncNumber])
     def id(self, new_string_id):
         setStringID(new_string_id)

@@ -1,10 +1,13 @@
 from eudplib import *
 
-from repl import REPL, getAppManager, AppCommand, EUDByteRW, f_raiseWarning
+from screpl.apps.repl import REPL
+from screpl.core.appcommand import AppCommand
+from screpl.utils.debug import f_raise_warning
+from screpl.utils.byterw import REPLByteRW
+from screpl.main import get_app_manager
 
 # initialize variables
-appManager = getAppManager()
-superuser = appManager.superuser
+app_manager = get_app_manager()
 STRSection, STRSection_epd = f_dwepdread_epd(EPD(0x5993D4))
 
 STRING_BUFFER_SZ = 200000
@@ -40,7 +43,7 @@ def allocateForBuffer(string_id):
     EUDEndIf()
 
     cur_epd = EUDVariable()
-    reader = EUDByteRW()
+    reader = REPLByteRW()
     reader.seekoffset(string_ptr)
 
     # for each character, allocate 4byte containing prefix 0xD
@@ -50,7 +53,7 @@ def allocateForBuffer(string_id):
         if EUDInfLoop()():
             # buffer check
             if EUDIf()(cur_epd >= EPD(string_buffer_end)):
-                f_raiseWarning("Warning: No more space for string buffer")
+                f_raise_warning("Warning: No more space for string buffer")
                 EUDReturn(0)
             EUDEndIf()
 
@@ -73,7 +76,7 @@ def allocateForBuffer(string_id):
         if EUDInfLoop()():
             # buffer check
             if EUDIf()(cur_epd >= EPD(string_buffer_end)):
-                f_raiseWarning("Warning: No more space for string buffer")
+                f_raise_warning("Warning: No more space for string buffer")
                 EUDReturn(0)
             EUDEndIf()
 
@@ -136,7 +139,7 @@ def UTF8Check(offset):
     if string starts with OFFSET is utf-8 decodable, return 1
     otherwise 0
     '''
-    reader = EUDByteRW()
+    reader = REPLByteRW()
     reader.seekoffset(offset)
 
     if EUDInfLoop()():
@@ -203,6 +206,6 @@ from .manager import StringManagerApp
 
 @AppCommand([])
 def startCommand(self):
-    appManager.startApplication(StringManagerApp)
+    app_manager.start_application(StringManagerApp)
 
-REPL.addCommand('string', startCommand)
+REPL.add_command('string', startCommand)

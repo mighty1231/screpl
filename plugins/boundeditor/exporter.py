@@ -13,16 +13,14 @@ TUI - Exporting
  3.
 '''
 
-
 from eudplib import *
-from repl import (
-    Application,
-    writeUnit
-)
+
+from screpl.core.application import Application
+from screpl.writer import write_unit
 
 from ..unit import UnitManagerApp
 from . import (
-    appManager,
+    app_manager,
     g_effectplayer,
     p_count,
     p_actionCount,
@@ -32,7 +30,7 @@ from . import (
     g_runner_unit,
     g_start_location
 )
-from repl.resources.scmdtrigwriter import writeTrigger
+from screpl.writer.scmd import write_scmd_trigger
 
 MODE_CONFIG    = 0
 MODE_EXPORTING = 1
@@ -49,13 +47,13 @@ storage = Db(200000)
 remaining_bytes = EUDVariable(0)
 written = EUDVariable(0)
 
-writer = appManager.getWriter()
+writer = app_manager.getWriter()
 
 def writeBoundTriggers():
     global writer
     writer.seekepd(EPD(storage))
 
-    writeTrigger(
+    write_scmd_trigger(
         g_runner_force,
         [Always()],
         ["Comment(\"Score\");\n",
@@ -64,12 +62,12 @@ def writeBoundTriggers():
          SetScore(g_runner_force, SetTo, 0, Custom)],
         preserved = False
     )
-    writeTrigger(
+    write_scmd_trigger(
         g_effectplayer,
         ["Command(\"Player 12\", \"Men\", At least, 1);\n"],
         ["Remove Unit(\"Player 12\", \"Men\");\n"]
     )
-    writeTrigger(
+    write_scmd_trigger(
         AllPlayers,
         [Always()],
         ["Set Alliance Status(\"All players\", Ally);\n"],
@@ -100,7 +98,7 @@ def writeBoundTriggers():
                 num_actions_to_send << rem_action_count
             EUDEndIf()
 
-            writeTrigger(
+            write_scmd_trigger(
                 g_effectplayer,
                 ["// EXTRA_CONDITION\n",
                  Deaths(g_effectplayer, Exactly, next_timer, v_death_unit)],
@@ -116,13 +114,13 @@ def writeBoundTriggers():
     EUDEndInfLoop()
 
     # making loop
-    writeTrigger(
+    write_scmd_trigger(
         g_effectplayer,
         ["// EXTRA_CONDITION\n",
          Always()],
         [SetDeaths(g_effectplayer, Add, 1, v_death_unit)]
     )
-    writeTrigger(
+    write_scmd_trigger(
         g_effectplayer,
         ["// EXTRA_CONDITION\n",
          Deaths(g_effectplayer, Exactly, next_timer, v_death_unit)],
@@ -130,7 +128,7 @@ def writeBoundTriggers():
     )
 
     # death condition
-    writeTrigger(
+    write_scmd_trigger(
         g_runner_force,
         ["// EXTRA_CONDITION\n",
          Command(CurrentPlayer, Exactly, 0, g_runner_unit)],
@@ -140,14 +138,14 @@ def writeBoundTriggers():
 
     # turbo, timer, ...
     if EUDIf()(v_turbo_mode.Exactly(TURBO_EUD)):
-        writeTrigger(
+        write_scmd_trigger(
             g_effectplayer,
             [Always()],
             ["MemoryAddr(0x6509A0, Set To, 0);\n"]
         )
     if EUDElseIf()(v_turbo_mode.Exactly(TURBO_NORMAL)):
         for i in range(3):
-            writeTrigger(
+            write_scmd_trigger(
                 g_effectplayer,
                 [Always()],
                 ["Wait(0);\n" * 63]
@@ -163,19 +161,19 @@ class ExporterApp(Application):
     def loop(self):
         global written, remaining_bytes, v_turbo_mode
 
-        if EUDIf()(appManager.keyPress("ESC")):
-            appManager.requestDestruct()
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
             EUDReturn()
         EUDEndIf()
 
         if EUDIf()(mode == MODE_CONFIG):
-            if EUDIf()(appManager.keyPress("Y", hold = ["LCTRL"])):
+            if EUDIf()(app_manager.key_press("Y", hold = ["LCTRL"])):
                 mode << MODE_EXPORTING
                 writeBoundTriggers()
-            if EUDElseIf()(appManager.keyPress("U")):
+            if EUDElseIf()(app_manager.key_press("U")):
                 UnitManagerApp.setContent(v_death_unit, EPD(v_death_unit.getValueAddr()))
-                appManager.startApplication(UnitManagerApp)
-            if EUDElseIf()(appManager.keyPress("T")):
+                app_manager.start_application(UnitManagerApp)
+            if EUDElseIf()(app_manager.key_press("T")):
                 v_turbo_mode += 1
                 Trigger(
                     conditions = v_turbo_mode.Exactly(TURBO_END),
@@ -183,7 +181,7 @@ class ExporterApp(Application):
                 )
             EUDEndIf()
         if EUDElse()(): # MODE_EXPORTING
-            new_written = appManager.exportAppOutputToBridge(storage + written, remaining_bytes)
+            new_written = app_manager.send_app_output_to_bridge(storage + written, remaining_bytes)
 
             remaining_bytes -= new_written
             written += new_written
@@ -191,13 +189,13 @@ class ExporterApp(Application):
                 mode << MODE_CONFIG
             EUDEndIf()
         EUDEndIf()
-        appManager.requestUpdate()
+        app_manager.request_update()
 
     def print(self, writer):
         writer.write_f("Bound Editor - Exporter (Bridge Client required)\n")
         if EUDIf()(mode == MODE_CONFIG):
             writer.write_f("Death Unit used as timer (U): ")
-            writeUnit(v_death_unit)
+            write_unit(v_death_unit)
             writer.write_f("\nTurbo mode (T) - ")
 
             if EUDIf()(v_turbo_mode == TURBO_EUD):

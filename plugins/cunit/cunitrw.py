@@ -1,6 +1,7 @@
 from eudplib import *
-from repl import EPDConstString, StaticStruct
-from . import appManager
+from screpl.utils.conststring import EPDConstString
+from screpl.utils.struct import REPLStruct
+from . import app_manager
 
 """
 type
@@ -18,7 +19,7 @@ point: s32 x, y;
 rect: s16 l, t, r, b;
 points: s16 x, y;
 """
-writer = appManager.getWriter()
+writer = app_manager.getWriter()
 
 @EUDFunc
 def cw_bool(epd, off):
@@ -83,7 +84,7 @@ def cw_rect(epd, off):
     writer.write_f("rect(l=%I16d, t=%I16d, r=%I16d, b=%I16d)",
         l, t, r, b)
 
-class CUnitMemberEntry(StaticStruct):
+class CUnitMemberEntry(REPLStruct):
     fields = [
         'off_epd',
         'off',
@@ -103,7 +104,7 @@ class CUnitMemberEntry(StaticStruct):
         else:
             comments = EPDConstString(comments)
 
-        entry = CUnitMemberEntry.initializeWith(
+        entry = CUnitMemberEntry.initialize_with(
             off_epd,
             off,
             write_f,
