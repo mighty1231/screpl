@@ -33,10 +33,9 @@ def onPluginStart():
 
     # load plugins
     # split plugins with ',' or ' '
-    plugins = re.split(',| ', settings['plugins'])
-    for plugin in plugins:
-        if plugin:
-            importlib.import_module(plugin)
+
+    from screpl.plugin import PluginManager
+    PluginManager(re.split(',| ', settings['plugins']))
 
 def afterTriggerExec():
     main.run()

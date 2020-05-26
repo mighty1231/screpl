@@ -11,13 +11,17 @@ app_manager = get_app_manager()
 # members
 from .cunitrw import cu_members
 cu_mem_activeids = REPLArray.construct(cu_members.length, list(range(cu_members.length)))
-cu_mem_activeid_contents = cu_mem_activeids.contents
+cu_mem_activeid_contents = EUDVariable()
 
-# make commands
-from .manager import CUnitManagerApp
+def plugin_setup():
+    global cu_mem_activeids, cu_mem_activeid_contents
 
-@AppCommand([])
-def startCommand(self):
-    app_manager.start_application(CUnitManagerApp)
+    cu_mem_activeid_contents << cu_mem_activeids.contents
+    # make commands
+    from .manager import CUnitManagerApp
 
-REPL.add_command('cunit', startCommand)
+    @AppCommand([])
+    def startCommand(self):
+        app_manager.start_application(CUnitManagerApp)
+
+    REPL.add_command('cunit', startCommand)

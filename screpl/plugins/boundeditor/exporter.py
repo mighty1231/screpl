@@ -18,7 +18,7 @@ from eudplib import *
 from screpl.core.application import Application
 from screpl.writer import write_unit
 
-from ..unit import UnitManagerApp
+from screpl.plugins.unit.manager import UnitManagerApp
 from . import (
     app_manager,
     g_effectplayer,

@@ -10,17 +10,18 @@ from screpl.main import is_bridge_mode
 app_manager = get_app_manager()
 
 if not is_bridge_mode():
-    raise RuntimeError("Turn on the bridge mode to use [dump] plugin")
+    raise RuntimeError("Turn on the bridge mode to use 'dump' plugin")
 
-# make commands
-from .dump import DumpApp
+def plugin_setup():
+    # make commands
+    from .dump import DumpApp
 
-@AppCommand([ArgEncNumber, ArgEncNumber])
-def startCommand(self, ptr, size):
-    '''
-    Dump memory to bridge, given ptr and size
-    '''
-    DumpApp.setTarget(ptr, size)
-    app_manager.start_application(DumpApp)
+    @AppCommand([ArgEncNumber, ArgEncNumber])
+    def startCommand(self, ptr, size):
+        '''
+        Dump memory to bridge, given ptr and size
+        '''
+        DumpApp.setTarget(ptr, size)
+        app_manager.start_application(DumpApp)
 
-REPL.add_command('dump', startCommand)
+    REPL.add_command('dump', startCommand)

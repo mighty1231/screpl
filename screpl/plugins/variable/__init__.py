@@ -75,11 +75,12 @@ def watchVariable(name, var):
     assert IsEUDVariable(var)
     watched_eud_vars.add_pair(name, EPD(var.getValueAddr()))
 
-# make commands
-from .varapp import VariableApp
+def plugin_setup():
+    # make commands
+    from .varapp import VariableApp
 
-@AppCommand([])
-def startCommand(self):
-    manager.start_application(VariableApp)
+    @AppCommand([])
+    def startCommand(self):
+        manager.start_application(VariableApp)
 
-REPL.add_command('var', startCommand)
+    REPL.add_command('var', startCommand)

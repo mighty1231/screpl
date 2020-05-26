@@ -110,6 +110,7 @@ class AppCommandN:
             raise RuntimeError("Too many arguments!")
 
         self.func = func
+        self.name = func.__qualname__
         self.cmd_ptr_val = EUDVArrayData(2)([0, 0])
         self.cmd_ptr = AppCommandPtr(self.cmd_ptr_val)
 
@@ -122,6 +123,18 @@ class AppCommandN:
         self.func_callback = None
         self.traced = traced
         self.status = 'not initialized'
+
+    def __repr__(self):
+        if self.status == 'not initialized':
+            return '<AppCommand %s, st=NI>' % self.name
+        elif self.status == 'initialized':
+            return ('<AppCommand %s.%s, st=I>'
+                    % (self.cls.__name__, self.name))
+        elif self.status == 'allocated':
+            return ('<AppCommand %s.%s, st=A>'
+                    % (self.cls.__name__, self.name))
+        else:
+            raise RuntimeError
 
     def get_cmd_ptr(self):
         assert self.cls is not None

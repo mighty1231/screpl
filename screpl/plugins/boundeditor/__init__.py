@@ -4,9 +4,6 @@ from screpl.apps.repl import REPL
 from screpl.main import get_app_manager
 from screpl.core.appcommand import AppCommand
 
-# plugin dependencies
-from .. import location, unit
-
 # initialize variables
 app_manager = get_app_manager()
 su_id = app_manager.get_superuser_id()
@@ -90,11 +87,16 @@ def executePattern(pattern_id):
         ])
     EUDEndInfLoop()
 
-# make commands
-from .manager import BoundManagerApp
+def plugin_get_dependencies():
+    # plugin dependencies
+    return ['screpl.plugins.location', 'screpl.plugins.unit']
 
-@AppCommand([])
-def startCommand(self):
-    app_manager.start_application(BoundManagerApp)
+def plugin_setup():
+    # make commands
+    from .manager import BoundManagerApp
 
-REPL.add_command('bound', startCommand)
+    @AppCommand([])
+    def startCommand(self):
+        app_manager.start_application(BoundManagerApp)
+
+    REPL.add_command('bound', startCommand)

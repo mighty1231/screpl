@@ -8,14 +8,14 @@ from screpl.main import get_app_manager
 
 # initialize variables
 app_manager = get_app_manager()
-STRSection, STRSection_epd = f_dwepdread_epd(EPD(0x5993D4))
+STRSection, STRSection_epd = EUDCreateVariables(2)
 
 STRING_BUFFER_SZ = 200000
 string_buffer = Db(STRING_BUFFER_SZ)
 string_buffer_end = string_buffer + STRING_BUFFER_SZ
 new_alloc_epd = EUDVariable(EPD(string_buffer))
 
-string_count = f_dwread_epd(STRSection_epd)
+string_count = EUDVariable()
 
 cur_string_id = EUDVariable(1)
 
@@ -201,11 +201,18 @@ def f_strcpy_epd(dstepdp, srcepdp):
 
     # EUDReturn(f_dwread_epd(EPD(cpmoda)))
 
-# make commands
-from .manager import StringManagerApp
+def plugin_setup():
+    global STRSection, STRSection_epd, string_count
+    sect, sect_epd = f_dwepdread_epd(EPD(0x5993D4))
+    STRSection << sect
+    STRSection_epd  << sect_epd
+    string_count << f_dwread_epd(STRSection_epd)
 
-@AppCommand([])
-def startCommand(self):
-    app_manager.start_application(StringManagerApp)
+    # make commands
+    from .manager import StringManagerApp
 
-REPL.add_command('string', startCommand)
+    @AppCommand([])
+    def startCommand(self):
+        app_manager.start_application(StringManagerApp)
+
+    REPL.add_command('string', startCommand)

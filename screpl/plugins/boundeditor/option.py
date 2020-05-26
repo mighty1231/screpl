@@ -21,8 +21,8 @@ from screpl.encoder.const import ArgEncNumber
 from screpl.writer import write_unit
 from screpl.writer import write_location
 
-from ..location import LocationManagerApp
-from ..unit import UnitManagerApp
+from screpl.plugins.location.manager import LocationManagerApp
+from screpl.plugins.unit.manager import UnitManagerApp
 
 from . import (
     app_manager,

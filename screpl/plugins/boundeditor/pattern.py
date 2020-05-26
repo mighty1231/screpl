@@ -18,7 +18,7 @@ from screpl.encoder.action import encode_action_epd
 from screpl.writer import write_location
 from screpl.utils.debug import f_raise_warning
 
-from ..location.rect import drawRectangle
+from screpl.plugins.location.rect import drawRectangle
 from .detail import DetailedActionApp
 from . import (
     app_manager,

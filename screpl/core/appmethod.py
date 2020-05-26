@@ -41,9 +41,11 @@ class AppMethodN:
         if self.status == 'not initialized':
             return '<AppMethod %s, st=NI>' % self.name
         elif self.status == 'initialized':
-            return '<AppMethod %s.%s, st=I, idx=%d>' % (self.cls.__name__, self.name, self.index)
+            return ('<AppMethod %s.%s, st=I, idx=%d>'
+                    % (self.cls.__name__, self.name, self.index))
         elif self.status == 'allocated':
-            return '<AppMethod %s.%s, st=A, idx=%d>' % (self.cls.__name__, self.name, self.index)
+            return ('<AppMethod %s.%s, st=A, idx=%d>'
+                    % (self.cls.__name__, self.name, self.index))
         else:
             raise RuntimeError
 
