@@ -5,7 +5,7 @@ functions to explain themselves to SC-REPL:
 
 .. function:: plugin_get_dependency()
 
-    Returns: list of plugins with string
+    Returns list of plugins with string
 
 .. function:: plugin_setup()
 

@@ -1,7 +1,7 @@
 """
 Expected TUI:
 
-.. code-block: text
+.. code-block:: text
 
      1. BoundEditor Options
      2. Effect player: P8

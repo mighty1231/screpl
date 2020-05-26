@@ -1,15 +1,19 @@
-''' PATTERN MODE
+""" PATTERN MODE
+
 Expected TUI
- 1. Bound Editor - PATTERN MODE
- 2. [<<(Q)] [<(W)] {focused_pattern_id}/{p_count} [>(E)] [>>(R)]
- 3. Append(A), Insert(I), Delete(D), Test(T)
- 4. Wait Value(,.): 1
- 5. 
- 6. Total {num_actions} actions, press 'P' to detailed action editor
- 7. Mode(M): Bomb, Obstacle, ObstacleDestruct
- 8. LClick to select location, press 'N' to confirm
- 9. Chosen location
-'''
+
+.. code-block:: text
+
+    1. Bound Editor - PATTERN MODE
+    2. [<<(Q)] [<(W)] {focused_pattern_id}/{p_count} [>(E)] [>>(R)]
+    3. Append(A), Insert(I), Delete(D), Test(T)
+    4. Wait Value(,.): 1
+    5.
+    6. Total {num_actions} actions, press 'P' to detailed action editor
+    7. Mode(M): Bomb, Obstacle, ObstacleDestruct
+    8. LClick to select location, press 'N' to confirm
+    9. Chosen location
+"""
 
 from eudplib import *
 

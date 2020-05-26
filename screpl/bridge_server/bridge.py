@@ -2,7 +2,7 @@
 
 Shared memory region has following structures
 
-.. code-block: C
+.. code-block:: C
 
     struct Block {
         char signature[4];

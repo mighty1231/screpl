@@ -1,17 +1,21 @@
-''' TEST MODE
+""" TestPatternApp
+
 Expected TUI
- 1. Bound Editor - TEST MODE
- 2. Timer = {timer}
- 3. 
- 4. 
- 5. Press 'R' to reset
- 6. Start location: {g_start_location}
- 7. 
- 8.
- 9.
-10.
-11.
-'''
+
+.. code-block:: text
+
+     1. Bound Editor - TEST MODE
+     2. Timer = {timer}
+     3.
+     4.
+     5. Press 'R' to reset
+     6. Start location: {g_start_location}
+     7.
+     8.
+     9.
+    10.
+    11.
+"""
 from eudplib import *
 
 from screpl.core.application import Application
