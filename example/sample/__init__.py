@@ -9,7 +9,7 @@ from screpl.main import get_app_manager
 from screpl.utils.byterw import REPLByteRW
 from .myapp import MyApp
 
-def setup():
+def plugin_setup():
     """setups plugin.
 
     Called exactly once when the plugin is going to be imported.

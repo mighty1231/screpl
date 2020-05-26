@@ -54,7 +54,7 @@ class MyApp(Application):
         default.
         """
         self.trial += 1
-        Application.on_chat(offset)
+        Application.on_chat(self, offset)
 
     def on_resume(self):
         """Called exactly once after newly started app was dead"""
