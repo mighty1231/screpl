@@ -22,4 +22,4 @@ If you want it with another language, please contact to repository owner.
 ## Contact
 
 * E-mail: mighty1231@gmail.com
-* Slack: Feel free to come in. [link](https://join.slack.com/t/screpl/shared_invite/zt-dr1cr56b-4W~Vzecg8DwXX3p4BY1f0g)
+* Slack: Feel free to come in. [link](https://join.slack.com/t/screpl/shared_invite/zt-erqyasdd-bgioX6oAW_c_tevioNOVUA)

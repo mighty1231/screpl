@@ -1,0 +1,1 @@
+"""manages bridge and its blocks"""

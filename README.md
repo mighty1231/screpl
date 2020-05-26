@@ -1,43 +1,69 @@
 # SC-REPL
 
-SC-REPL is a text-UI framework on StarCraft I UMS maps, built on [euddraft](https://github.com/armoha/euddraft).
+SC-REPL provides command line interface and text UI based application framework on StarCraft I UMS maps, built on [euddraft](https://github.com/armoha/euddraft).
 
 It helps to debug UMS maps in Starcraft I.
 
 ## Example
 
-UMS maps applied SC-ERPL with...
+You can debug your map easily and effectively using `Application`. For example,
+
+```python
+class MyApp(Application):
+    def loop(self):
+        if EUDIf()(get_app_manager().key_press("ESC")):
+            get_app_manager().request_destruct()
+            EUDReturn()
+        EUDEndIf()
+        get_app_manager().request_update()
+
+    def print(self, writer):
+        # get hit point of unit 0
+        hit_point_of_unit_0 = f_dwread_epd(EPD(0x59CCB0))
+        writer.write_f("%D\n", hit_point_of_unit_0)
+        writer.write(0) # null-end
+
+@AppCommand
+def starting_command(self):
+    get_app_manager().start_application(MyApp)
+
+REPL.add_command("hpcheck", starting_command)
+```
+
+Above lines of codes enable your UMS map display the HP of specific unit continously, if you chat `hpcheck()`.
+
+There are some standard plugins, and corresponding demo videos.
 
 * `sample` plugin - [video](https://youtu.be/6RexCF3SBFU), [source](example/sample/myapp.py)
-* `location` plugin - [video](https://youtu.be/f3M0CDGIX2A), [source](plugins/location)
-* `boundeditor` plugin - [video](https://youtu.be/c_VYYc7Ozy8), [source](plugins/boundeditor
+* `location` plugin - [video](https://youtu.be/f3M0CDGIX2A), [source](screpl/plugins/location)
+* `boundeditor` plugin - [video](https://youtu.be/c_VYYc7Ozy8), [source](screpl/plugins/boundeditor
 )
 * `variable` and `string`  plugin - [video](https://youtu.be/s9jIWKP2bfE)
 
-## Required
+There are many amazing features other than them. `bridge` enables to communicate applications by using remote client.
+
+## Installation
+
+### Required
 
 * Starcraft I Remastered
 * [euddraft](https://github.com/armoha/euddraft) version >= 0.8.9.9
 
+### Instruction
 
-## Installation
 * Install one of [release versions](https://github.com/mighty1231/screpl/releases)
-* Move a directory `repl` and `plugins` to `euddraft/lib`.
+* Move a directory `screpl` to `euddraft/lib`.
 * Move a file `prepl.py` to `euddraft/plugins`.
 
 ```bash
 euddraft0.*.*.*
 ├── lib
-│   ├── repl
-│   │   ├── apps
-│   │   ├── base
-│   │   └── ...
-│   └── plugins //plugins of repl
-│       ├── boundeditor
-│       ├── cunit
-│       ├── dump
+│   └── screpl
+│       ├── apps
+│       ├── bridge_server
+│       ├── core
 │       └── ...
-├── plugins //plugins of euddraft
+├── plugins
 │   └── prepl.py
 └── euddraft.exe
 ```
@@ -51,7 +77,7 @@ euddraft0.*.*.*
 ```
 [prepl]
 superuser: P1
-plugins: plugins.location plugins.string plugins.cunit
+plugins: screpl.plugins.location screpl.plugins.string screpl.plugins.cunit
 ```
 * Check [how to write edd file](https://github.com/mighty1231/screpl/wiki/How-to-write-edd-file)
 
@@ -64,7 +90,9 @@ You can make your customized application as a plugin of SC-REPL. Check it [here]
 
 ## Documentation
 
-Documentation is provided with [Github wiki](https://github.com/mighty1231/screpl/wiki)
+You can check [doc](https://mighty1231.github.io/screpl/) to get information on functions.
+
+High-level documentations (application level) are provided with [Github wiki](https://github.com/mighty1231/screpl/wiki), but so far, most of them are written in Korean.
 
 ## Contribution Guide
 

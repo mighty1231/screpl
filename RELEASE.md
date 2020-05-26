@@ -1,3 +1,23 @@
+# Release 1.1.1
+
+## Major Features and Improvements
+* run `pylint`
+  * changed a lot of namings
+  * added docstrings
+  * injected dependency on some code
+* new plugin system
+  * `plugin_setup()` and `plugin_get_dependencies()` must be defined on `__init__.py`
+* plugin `cunit` supports `ReadStructApp`
+  * enables to export cunit array information to `bridge`
+
+## Bug Fixes and Other Changes
+* documentation for some modules, classes and functions
+* new class `DisplayWriter` to simply support text UI
+* removed `cmd_output_epd` member for default `Application`
+  * syntax error for command is logged by `Logger` application
+* changed heartbeat signal between `bridge` to use inversed system time
+* `AppManager.getWriter()` was removed. Instead, use `main.get_main_writer()`
+
 # Release 1.1.0
 
 ## Major Features and Improvements

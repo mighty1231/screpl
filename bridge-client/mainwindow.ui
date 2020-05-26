@@ -178,6 +178,11 @@
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
              <widget class="QTextEdit" name="from_appoutput">
+              <property name="font">
+               <font>
+                <family>Courier New</family>
+               </font>
+              </property>
               <property name="acceptRichText">
                <bool>false</bool>
               </property>

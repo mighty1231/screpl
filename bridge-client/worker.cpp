@@ -205,7 +205,7 @@ bool Worker::searchREPL()
 
     if (found) {
         status = STATUS_REPL_FOUND;
-        last_framecount = -1;
+        last_inversed_system_millis = -1;
         emit metREPL(true, REPLRegion);
         return true;
     } else {
@@ -217,7 +217,7 @@ bool Worker::searchREPL()
 void Worker::communicateREPL()
 {
     // Too much milk solution #3, busy-waiting by A
-    if (!writeRegionInt(offsetof(SharedRegionHeader, noteToSC), 1)) { // leave note A
+    if (!writeRegionInt(offsetof(SharedRegionHeader, note_to_sc), 1)) { // leave note A
         status = STATUS_PROCESS_FOUND;
         emit metREPL(false, REPLRegion);
         makeError("WriteProcessMemory, leave note A");
@@ -225,7 +225,7 @@ void Worker::communicateREPL()
     }
     int noteB;
     for (int i=0; i<10; i++) {
-        if (!readRegionInt(offsetof(SharedRegionHeader, noteFromSC), &noteB)) {
+        if (!readRegionInt(offsetof(SharedRegionHeader, note_from_sc), &noteB)) {
             status = STATUS_PROCESS_FOUND;
             emit metREPL(false, REPLRegion);
             makeError("ReadProcessMemory, leave note B");
@@ -251,7 +251,7 @@ void Worker::process()
     QVector<RegionBlock *> block_computed;
     QString _command_tmp;
     uint regionSize;
-    if (!readRegionInt(offsetof(SharedRegionHeader, regionSize), (int *)&regionSize)) {
+    if (!readRegionInt(offsetof(SharedRegionHeader, region_size), (int *)&regionSize)) {
         status = STATUS_PROCESS_FOUND;
         emit metREPL(false, REPLRegion);
         makeError("ReadProcessMemory, read region size");
@@ -273,9 +273,9 @@ void Worker::process()
 
     // Check the section is not polluted (exits game...)
     if (memcmp(header->signature, SIGNATURE.constData(), SIGNATURE.size())
-        || header->noteToSC != 1
-        || header->noteFromSC != 0
-        || header->regionSize != regionSize ) {
+        || header->note_to_sc != 1
+        || header->note_from_sc != 0
+        || header->region_size != regionSize ) {
         status = STATUS_PROCESS_FOUND;
         emit metREPL(false, REPLRegion);
         makeError("ReadProcessMemory, read region");
@@ -294,7 +294,7 @@ void Worker::process()
     }
 
     // restore note
-    header->noteToSC = 0;
+    header->note_to_sc = 0;
 
     // blocks
     int *blockptr = (int *)(((char *)all_region) + sizeof(SharedRegionHeader));
@@ -341,8 +341,8 @@ void Worker::process()
     if (!_command_tmp.isNull())
         emit sentCommand(_command_tmp);
 
-    // check framecount
-    if (last_framecount == header->frameCount) {
+    // check heartbeat
+    if (last_inversed_system_millis == header->inversed_system_millis) {
         // nothing to do
         if (last_interaction_timer.elapsed() > 2000) {
             // called when user returns to lobby.
@@ -357,7 +357,7 @@ void Worker::process()
         delete[] all_region;
         return;
     } else {
-        last_framecount = header->frameCount;
+        last_inversed_system_millis = header->inversed_system_millis;
         last_interaction_timer.start();
     }
 
