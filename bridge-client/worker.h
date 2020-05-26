@@ -42,7 +42,7 @@ private:
     inline bool readRegionInt(int offset, int *value);
 
     QElapsedTimer last_interaction_timer;
-    int last_framecount;
+    int last_inversed_system_millis;
 
     // members
     QByteArray SIGNATURE;

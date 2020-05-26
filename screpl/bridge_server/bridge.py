@@ -21,8 +21,8 @@ Shared memory region has following structures
         /* To SC */
         char command[300];
 
-        /* From SC */
-        int loop_count;
+        /* Heartbeat from SC */
+        int inversed_system_millis;
 
         /* blocks */
         DisplayBlock display_block;
@@ -51,11 +51,11 @@ class BridgeRegion(EUDObject):
         super().__init__()
         self.blocks = []
 
-        self._note_to_bridge   = self + 160
+        self._note_to_bridge = self + 160
         self._note_from_bridge = self + 164
-        self._region_size     = self + 168
-        self._command        = self + 172
-        self._loop_count     = self + 472
+        self._region_size = self + 168
+        self._command = self + 172
+        self._inversed_system_millis = self + 472
 
         self.blocks.append(appoutput.AppOutputBlock(self))
         self.blocks.append(blindmode.BlindModeDisplayBlock(self))
@@ -122,10 +122,10 @@ class BridgeRegion(EUDObject):
             EUDEndIf()
 
             ############## to bridge ################
-            # loop count
-            SeqCompute([(EPD(self._loop_count),
-                         SetTo,
-                         main.get_loop_count())])
+            # heart beat
+            f_dwwrite_epd(
+                EPD(self._inversed_system_millis),
+                f_dwread_epd(EPD(0x51CE8C)))
 
             # update blocks
             for b in self.blocks:
@@ -140,6 +140,8 @@ class BridgeRegion(EUDObject):
 
         # command from bridge client
         if EUDIfNot()(Memory(buf_command, Exactly, 0)):
-            main.get_app_manager().get_foreground_app_instance().on_chat(buf_command)
+            main.get_app_manager()              \
+                .get_foreground_app_instance()  \
+                .on_chat(buf_command)
             DoActions(SetMemory(buf_command, SetTo, 0))
         EUDEndIf()

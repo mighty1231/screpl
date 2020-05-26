@@ -12,15 +12,15 @@ struct SharedRegionHeader {
     char signature[160];
 
     // Too much milk solution #3, busy-waiting by A
-    int noteToSC;
-    int noteFromSC;
-    unsigned int regionSize;
+    int note_to_sc;
+    int note_from_sc;
+    unsigned int region_size;
 
     /* To SC */
     char command[300];
 
-    /* From SC */
-    int frameCount;
+    /* Heartbeat from SC */
+    int inversed_system_millis;
 
     // several blocks...
 };
