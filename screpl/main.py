@@ -218,7 +218,7 @@ def run():
     EUDEndIf()
 
     # app-related things
-    _manager.run()
+    _manager.run(get_main_writer())
 
     # print top of the screen, enables chat simultaneously
     if _bridge_region:

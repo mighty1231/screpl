@@ -101,7 +101,7 @@ class AppManager:
     @EUDMethod
     def _start_application(self, fieldsize, methods, table_epd):
         if EUDIfNot()(self.is_terminating_app == 0):
-            f_raise_error("FATAL ERROR: start_application <-> request_destruct")
+            f_raise_error("Conflict: start_application and request_destruct")
         EUDEndIf()
 
         if EUDIf()(self.app_cnt < _APP_MAX_COUNT):
@@ -258,7 +258,7 @@ class AppManager:
     def key_down(self, key):
         key = get_key_code(key)
         ret = [
-            Memory(0x68C144, Exactly, 0),               # chat status - not chatting
+            Memory(0x68C144, Exactly, 0), # chat status - not chatting
             MemoryEPD(self.keystates + key, Exactly, 1)
         ]
         return ret
@@ -266,7 +266,7 @@ class AppManager:
     def key_up(self, key):
         key = get_key_code(key)
         ret = [
-            Memory(0x68C144, Exactly, 0),               # chat status - not chatting
+            Memory(0x68C144, Exactly, 0), # chat status - not chatting
             MemoryEPD(self.keystates + key, Exactly, 2**32-1)
         ]
         return ret
@@ -279,7 +279,7 @@ class AppManager:
 
         key = get_key_code(key)
         actions = [
-            Memory(0x68C144, Exactly, 0),               # chat status - not chatting
+            Memory(0x68C144, Exactly, 0), # chat status - not chatting
             MemoryEPD(self.keystates + key, AtLeast, 1),
             MemoryEPD(self.keystates_sub + key, Exactly, 1)
         ]
@@ -301,12 +301,17 @@ class AppManager:
         # down -> up   : 0
         # down -> down : 3
         for i, c in enumerate([2, 8, 32]): # L, R, M
-            for _bef, _cur, _state in [(0, 0, 1), (0, 1, 2), (1, 0, 0), (1, 1, 3)]:
+            for _bef, _cur, _state in [(0, 0, 1),
+                                       (0, 1, 2),
+                                       (1, 0, 0),
+                                       (1, 1, 3)]:
                 Trigger(
                     conditions = [
-                        self.mouse_prev_state.ExactlyX(c * _bef, c),
-                        MemoryX(0x6CDDC0, Exactly, c * _cur, c)
-                    ], actions = SetMemoryEPD(EPD(self.mouse_state) + i, SetTo, _state)
+                        self.mouse_prev_state.ExactlyX(c*_bef, c),
+                        MemoryX(0x6CDDC0, Exactly, c*_cur, c)
+                    ], actions = SetMemoryEPD(EPD(self.mouse_state) + i,
+                                              SetTo,
+                                              _state)
                 )
             # store previous value
             Trigger(
@@ -372,7 +377,7 @@ class AppManager:
           destruction should not be requested at the same frame.
         '''
         if EUDIfNot()(self.is_starting_app == 0):
-            f_raise_error("FATAL ERROR: start_application <-> request_destruct")
+            f_raise_error("Conflict: start_application and request_destruct")
         EUDEndIf()
         self.is_terminating_app << 1
 
@@ -386,7 +391,7 @@ class AppManager:
         from screpl.main import is_bridge_mode
 
         if not is_bridge_mode():
-            raise RuntimeError("Currently bridge is not inactivated")
+            raise RuntimeError("Currently bridge is not activated")
 
         if EUDIfNot()(appOutputSize == 0):
             EUDReturn(0)
@@ -423,7 +428,7 @@ class AppManager:
     def get_strx_section_size(self):
         return self.payload_size
 
-    def run(self):
+    def run(self, writer):
         # only super user may interact with apps
         if EUDIf()(Memory(0x512684, Exactly, self.su_id)):
             self._update_mouse_state()
@@ -454,8 +459,11 @@ class AppManager:
         chat_off = db_gametext + 218 * i
         if EUDInfLoop()():
             EUDBreakIf(i == cur_text_idx)
-            if EUDIf()(f_memcmp(chat_off, self.su_prefix, self.su_prefixlen) == 0):
-                self._foreground_app_instance.on_chat(chat_off + self.su_prefixlen)
+            if EUDIf()(f_memcmp(chat_off,
+                                self.su_prefix,
+                                self.su_prefixlen) == 0):
+                self._foreground_app_instance.on_chat(chat_off
+                                                      + self.su_prefixlen)
             EUDEndIf()
 
             # search next updated lines
@@ -475,9 +483,9 @@ class AppManager:
 
         # evaluate display buffer
         if EUDIfNot()(self.update == 0):
-            main.get_main_writer().seekepd(EPD(self.display_buffer))
+            writer.seekepd(EPD(self.display_buffer))
 
-            # print() uses self.writer internally
+            # print() uses main writer internally
             self._foreground_app_instance.print()
             self.update << 0
         EUDEndIf()
