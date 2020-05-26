@@ -1,0 +1,7 @@
+screpl.plugins.cunit.readstruct module
+======================================
+
+.. automodule:: screpl.plugins.cunit.readstruct
+   :members:
+   :undoc-members:
+   :show-inheritance:

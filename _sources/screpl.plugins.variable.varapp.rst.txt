@@ -1,0 +1,7 @@
+screpl.plugins.variable.varapp module
+=====================================
+
+.. automodule:: screpl.plugins.variable.varapp
+   :members:
+   :undoc-members:
+   :show-inheritance:

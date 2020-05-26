@@ -1,0 +1,7 @@
+screpl.plugins.string.manager module
+====================================
+
+.. automodule:: screpl.plugins.string.manager
+   :members:
+   :undoc-members:
+   :show-inheritance:

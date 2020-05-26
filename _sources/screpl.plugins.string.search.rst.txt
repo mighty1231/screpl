@@ -1,0 +1,7 @@
+screpl.plugins.string.search module
+===================================
+
+.. automodule:: screpl.plugins.string.search
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -1,0 +1,7 @@
+screpl.plugins.boundeditor.pattern module
+=========================================
+
+.. automodule:: screpl.plugins.boundeditor.pattern
+   :members:
+   :undoc-members:
+   :show-inheritance:

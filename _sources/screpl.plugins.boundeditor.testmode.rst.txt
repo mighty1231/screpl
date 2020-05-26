@@ -1,0 +1,7 @@
+screpl.plugins.boundeditor.testmode module
+==========================================
+
+.. automodule:: screpl.plugins.boundeditor.testmode
+   :members:
+   :undoc-members:
+   :show-inheritance:

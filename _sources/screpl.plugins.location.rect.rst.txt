@@ -1,0 +1,7 @@
+screpl.plugins.location.rect module
+===================================
+
+.. automodule:: screpl.plugins.location.rect
+   :members:
+   :undoc-members:
+   :show-inheritance:

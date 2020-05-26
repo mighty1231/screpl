@@ -1,0 +1,22 @@
+screpl.plugins.cunit package
+============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.plugins.cunit.cunitrw
+   screpl.plugins.cunit.detail
+   screpl.plugins.cunit.manager
+   screpl.plugins.cunit.option
+   screpl.plugins.cunit.readstruct
+
+Module contents
+---------------
+
+.. automodule:: screpl.plugins.cunit
+   :members:
+   :undoc-members:
+   :show-inheritance:

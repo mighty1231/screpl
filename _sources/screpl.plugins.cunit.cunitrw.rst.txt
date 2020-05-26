@@ -1,0 +1,7 @@
+screpl.plugins.cunit.cunitrw module
+===================================
+
+.. automodule:: screpl.plugins.cunit.cunitrw
+   :members:
+   :undoc-members:
+   :show-inheritance:

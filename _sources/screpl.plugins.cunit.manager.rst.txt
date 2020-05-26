@@ -1,0 +1,7 @@
+screpl.plugins.cunit.manager module
+===================================
+
+.. automodule:: screpl.plugins.cunit.manager
+   :members:
+   :undoc-members:
+   :show-inheritance:

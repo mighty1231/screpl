@@ -1,0 +1,21 @@
+screpl.plugins.string package
+=============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.plugins.string.editor
+   screpl.plugins.string.exporter
+   screpl.plugins.string.manager
+   screpl.plugins.string.search
+
+Module contents
+---------------
+
+.. automodule:: screpl.plugins.string
+   :members:
+   :undoc-members:
+   :show-inheritance:

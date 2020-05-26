@@ -1,0 +1,19 @@
+screpl.plugins.test package
+===========================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.plugins.test.array
+   screpl.plugins.test.monitor
+
+Module contents
+---------------
+
+.. automodule:: screpl.plugins.test
+   :members:
+   :undoc-members:
+   :show-inheritance:

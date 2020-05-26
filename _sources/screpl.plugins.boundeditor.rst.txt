@@ -1,0 +1,23 @@
+screpl.plugins.boundeditor package
+==================================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.plugins.boundeditor.detail
+   screpl.plugins.boundeditor.exporter
+   screpl.plugins.boundeditor.manager
+   screpl.plugins.boundeditor.option
+   screpl.plugins.boundeditor.pattern
+   screpl.plugins.boundeditor.testmode
+
+Module contents
+---------------
+
+.. automodule:: screpl.plugins.boundeditor
+   :members:
+   :undoc-members:
+   :show-inheritance:

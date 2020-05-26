@@ -1,0 +1,18 @@
+screpl.plugins.dump package
+===========================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.plugins.dump.dump
+
+Module contents
+---------------
+
+.. automodule:: screpl.plugins.dump
+   :members:
+   :undoc-members:
+   :show-inheritance:

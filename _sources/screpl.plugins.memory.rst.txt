@@ -1,0 +1,18 @@
+screpl.plugins.memory package
+=============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.plugins.memory.memoryapp
+
+Module contents
+---------------
+
+.. automodule:: screpl.plugins.memory
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -8,10 +8,10 @@ Submodules
    :maxdepth: 4
 
    screpl.utils.array
+   screpl.utils.byterw
    screpl.utils.condactpywriter
    screpl.utils.conststring
    screpl.utils.debug
-   screpl.utils.eudbyterw
    screpl.utils.keycode
    screpl.utils.pool
    screpl.utils.referencetable

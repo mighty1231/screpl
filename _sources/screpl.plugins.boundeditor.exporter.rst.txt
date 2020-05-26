@@ -1,0 +1,7 @@
+screpl.plugins.boundeditor.exporter module
+==========================================
+
+.. automodule:: screpl.plugins.boundeditor.exporter
+   :members:
+   :undoc-members:
+   :show-inheritance:

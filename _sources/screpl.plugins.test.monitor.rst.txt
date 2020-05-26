@@ -1,0 +1,7 @@
+screpl.plugins.test.monitor module
+==================================
+
+.. automodule:: screpl.plugins.test.monitor
+   :members:
+   :undoc-members:
+   :show-inheritance:

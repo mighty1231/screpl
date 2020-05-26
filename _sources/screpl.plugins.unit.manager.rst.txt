@@ -1,0 +1,7 @@
+screpl.plugins.unit.manager module
+==================================
+
+.. automodule:: screpl.plugins.unit.manager
+   :members:
+   :undoc-members:
+   :show-inheritance:

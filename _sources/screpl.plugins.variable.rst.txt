@@ -1,0 +1,18 @@
+screpl.plugins.variable package
+===============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.plugins.variable.varapp
+
+Module contents
+---------------
+
+.. automodule:: screpl.plugins.variable
+   :members:
+   :undoc-members:
+   :show-inheritance:

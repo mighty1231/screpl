@@ -1,0 +1,7 @@
+screpl.utils.byterw module
+==========================
+
+.. automodule:: screpl.utils.byterw
+   :members:
+   :undoc-members:
+   :show-inheritance:

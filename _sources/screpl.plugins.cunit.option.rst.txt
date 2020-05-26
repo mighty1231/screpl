@@ -1,0 +1,7 @@
+screpl.plugins.cunit.option module
+==================================
+
+.. automodule:: screpl.plugins.cunit.option
+   :members:
+   :undoc-members:
+   :show-inheritance:

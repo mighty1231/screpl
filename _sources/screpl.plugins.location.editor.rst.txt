@@ -1,0 +1,7 @@
+screpl.plugins.location.editor module
+=====================================
+
+.. automodule:: screpl.plugins.location.editor
+   :members:
+   :undoc-members:
+   :show-inheritance:

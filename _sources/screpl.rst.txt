@@ -12,6 +12,7 @@ Subpackages
    screpl.core
    screpl.encoder
    screpl.monitor
+   screpl.plugins
    screpl.resources
    screpl.utils
    screpl.writer
@@ -23,6 +24,7 @@ Submodules
    :maxdepth: 4
 
    screpl.main
+   screpl.plugin
 
 Module contents
 ---------------

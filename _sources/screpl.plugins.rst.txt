@@ -1,0 +1,26 @@
+screpl.plugins package
+======================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.plugins.boundeditor
+   screpl.plugins.cunit
+   screpl.plugins.dump
+   screpl.plugins.location
+   screpl.plugins.memory
+   screpl.plugins.string
+   screpl.plugins.test
+   screpl.plugins.unit
+   screpl.plugins.variable
+
+Module contents
+---------------
+
+.. automodule:: screpl.plugins
+   :members:
+   :undoc-members:
+   :show-inheritance:

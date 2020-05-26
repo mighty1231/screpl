@@ -1,0 +1,7 @@
+screpl.plugins.test.array module
+================================
+
+.. automodule:: screpl.plugins.test.array
+   :members:
+   :undoc-members:
+   :show-inheritance:

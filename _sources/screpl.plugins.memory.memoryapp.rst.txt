@@ -1,0 +1,7 @@
+screpl.plugins.memory.memoryapp module
+======================================
+
+.. automodule:: screpl.plugins.memory.memoryapp
+   :members:
+   :undoc-members:
+   :show-inheritance:

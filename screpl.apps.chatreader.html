@@ -1,27 +1,22 @@
-
 <!DOCTYPE html>
-
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <meta name="lang:clipboard.copy" content="Copy to clipboard">
-  <meta name="lang:clipboard.copied" content="Copied to clipboard">
-  <meta name="lang:search.language" content="en">
-  <meta name="lang:search.pipeline.stopwords" content="True">
-  <meta name="lang:search.pipeline.trimmer" content="True">
-  <meta name="lang:search.result.none" content="No matching documents">
-  <meta name="lang:search.result.one" content="1 matching document">
-  <meta name="lang:search.result.other" content="# matching documents">
-  <meta name="lang:search.tokenizer" content="[\s\-]+">
-
-  
-    <link href="https://fonts.gstatic.com/" rel="preconnect" crossorigin>
-    <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500,700|Roboto:300,400,400i,700&display=fallback" rel="stylesheet">
-
-    <style>
-      body,
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <meta content="ie=edge" http-equiv="x-ua-compatible"/>
+  <meta content="Copy to clipboard" name="lang:clipboard.copy"/>
+  <meta content="Copied to clipboard" name="lang:clipboard.copied"/>
+  <meta content="en" name="lang:search.language"/>
+  <meta content="True" name="lang:search.pipeline.stopwords"/>
+  <meta content="True" name="lang:search.pipeline.trimmer"/>
+  <meta content="No matching documents" name="lang:search.result.none"/>
+  <meta content="1 matching document" name="lang:search.result.one"/>
+  <meta content="# matching documents" name="lang:search.result.other"/>
+  <meta content="[\s\-]+" name="lang:search.tokenizer"/>
+  <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+  <link href="https://fonts.googleapis.com/css?family=Roboto+Mono:400,500,700|Roboto:300,400,400i,700&amp;display=fallback" rel="stylesheet"/>
+  <style>
+   body,
       input {
         font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif
       }
@@ -31,345 +26,801 @@
       pre {
         font-family: "Roboto Mono", "Courier New", Courier, monospace
       }
-    </style>
-  
-
-  <link rel="stylesheet" href="_static/stylesheets/application.css"/>
-  <link rel="stylesheet" href="_static/stylesheets/application-palette.css"/>
-  <link rel="stylesheet" href="_static/stylesheets/application-fixes.css"/>
-  
-  <link rel="stylesheet" href="_static/fonts/material-icons.css"/>
-  
-  <meta name="theme-color" content="#3f51b5">
-  <script src="_static/javascripts/modernizr.js"></script>
-  
+  </style>
+  <link href="_static/stylesheets/application.css" rel="stylesheet"/>
+  <link href="_static/stylesheets/application-palette.css" rel="stylesheet"/>
+  <link href="_static/stylesheets/application-fixes.css" rel="stylesheet"/>
+  <link href="_static/fonts/material-icons.css" rel="stylesheet"/>
+  <meta content="#3f51b5" name="theme-color"/>
+  <script src="_static/javascripts/modernizr.js">
+  </script>
   <script>
-      window.ga = window.ga || function () {
+   window.ga = window.ga || function () {
           (ga.q = ga.q || []).push(arguments)
       };
       ga.l = +new Date;
       ga('create', 'UA-167445948-1', 'auto');
       ga('send', 'pageview');
   </script>
-  <script async src='https://www.google-analytics.com/analytics.js'></script>
-  
-  
-    <title>screpl.apps.chatreader module &#8212; SC-REPL 1.1.0 documentation</title>
-    <link rel="stylesheet" href="_static/material.css" type="text/css" />
-    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="_static/graphviz.css" />
-    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="_static/language_data.js"></script>
-    <link rel="index" title="Index" href="genindex.html" />
-    <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="screpl.apps.logger module" href="screpl.apps.logger.html" />
-    <link rel="prev" title="screpl.apps package" href="screpl.apps.html" />
-  
-   
-
-  </head>
-  <body dir=ltr
-        data-md-color-primary=blue data-md-color-accent=light-blue>
-  
+  <script async="" src="https://www.google-analytics.com/analytics.js">
+  </script>
+  <title>
+   screpl.apps.chatreader module — SC-REPL 1.1.1 documentation
+  </title>
+  <link href="_static/material.css" rel="stylesheet" type="text/css"/>
+  <link href="_static/pygments.css" rel="stylesheet" type="text/css"/>
+  <link href="_static/graphviz.css" rel="stylesheet" type="text/css"/>
+  <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js">
+  </script>
+  <script src="_static/jquery.js">
+  </script>
+  <script src="_static/underscore.js">
+  </script>
+  <script src="_static/doctools.js">
+  </script>
+  <script src="_static/language_data.js">
+  </script>
+  <link href="genindex.html" rel="index" title="Index"/>
+  <link href="search.html" rel="search" title="Search"/>
+  <link href="screpl.apps.logger.html" rel="next" title="screpl.apps.logger module"/>
+  <link href="screpl.apps.html" rel="prev" title="screpl.apps package"/>
+ </head>
+ <body data-md-color-accent="light-blue" data-md-color-primary="blue" dir="ltr">
   <svg class="md-svg">
-    <defs data-children-count="0">
-      
-      <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="__github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
-      
-    </defs>
+   <defs data-children-count="0">
+    <svg height="448" id="__github" viewbox="0 0 416 448" width="416" xmlns="http://www.w3.org/2000/svg">
+     <path d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z" fill="currentColor">
+     </path>
+    </svg>
+   </defs>
   </svg>
-  
-  <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer">
-  <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search">
-  <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
-  <a href="#screpl.apps.chatreader" tabindex="1" class="md-skip"> Skip to content </a>
+  <input class="md-toggle" data-md-toggle="drawer" id="__drawer" type="checkbox"/>
+  <input class="md-toggle" data-md-toggle="search" id="__search" type="checkbox"/>
+  <label class="md-overlay" data-md-component="overlay" for="__drawer">
+  </label>
+  <a class="md-skip" href="#screpl.apps.chatreader" tabindex="1">
+   Skip to content
+  </a>
   <header class="md-header" data-md-component="header">
-  <nav class="md-header-nav md-grid">
+   <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
-      <div class="md-flex__cell md-flex__cell--shrink">
-        <a href="index.html" title="SC-REPL 1.1.0 documentation"
-           class="md-header-nav__button md-logo">
-          
-            &nbsp;
-          
-        </a>
+     <div class="md-flex__cell md-flex__cell--shrink">
+      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.1 documentation">
+      </a>
+     </div>
+     <div class="md-flex__cell md-flex__cell--shrink">
+      <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer">
+      </label>
+     </div>
+     <div class="md-flex__cell md-flex__cell--stretch">
+      <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+       <span class="md-header-nav__topic">
+        SC-REPL
+       </span>
+       <span class="md-header-nav__topic">
+        screpl.apps.chatreader module
+       </span>
       </div>
-      <div class="md-flex__cell md-flex__cell--shrink">
-        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
-      </div>
-      <div class="md-flex__cell md-flex__cell--stretch">
-        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
-          <span class="md-header-nav__topic">SC-REPL</span>
-          <span class="md-header-nav__topic"> screpl.apps.chatreader module </span>
-        </div>
-      </div>
-      <div class="md-flex__cell md-flex__cell--shrink">
-        <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
-        
-<div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="__search"></label>
-  <div class="md-search__inner" role="search">
-    <form class="md-search__form" action="search.html" method="GET" name="search">
-      <input type="text" class="md-search__input" name="q" placeholder="Search"
-             autocapitalize="off" autocomplete="off" spellcheck="false"
-             data-md-component="query" data-md-state="active">
-      <label class="md-icon md-search__icon" for="__search"></label>
-      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
-        &#xE5CD;
-      </button>
-    </form>
-    <div class="md-search__output">
-      <div class="md-search__scrollwrap" data-md-scrollfix>
-        <div class="md-search-result" data-md-component="result">
-          <div class="md-search-result__meta">
+     </div>
+     <div class="md-flex__cell md-flex__cell--shrink">
+      <label class="md-icon md-icon--search md-header-nav__button" for="__search">
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+       <label class="md-search__overlay" for="__search">
+       </label>
+       <div class="md-search__inner" role="search">
+        <form action="search.html" class="md-search__form" method="GET" name="search">
+         <input autocapitalize="off" autocomplete="off" class="md-search__input" data-md-component="query" data-md-state="active" name="q" placeholder="Search" spellcheck="false" type="text"/>
+         <label class="md-icon md-search__icon" for="__search">
+         </label>
+         <button class="md-icon md-search__icon" data-md-component="reset" tabindex="-1" type="reset">
+          
+         </button>
+        </form>
+        <div class="md-search__output">
+         <div class="md-search__scrollwrap" data-md-scrollfix="">
+          <div class="md-search-result" data-md-component="result">
+           <div class="md-search-result__meta">
             Type to start searching
+           </div>
+           <ol class="md-search-result__list">
+           </ol>
           </div>
-          <ol class="md-search-result__list"></ol>
+         </div>
         </div>
+       </div>
       </div>
-    </div>
-  </div>
-</div>
-
-      </div>
-      
-        <div class="md-flex__cell md-flex__cell--shrink">
-          <div class="md-header-nav__source">
-            <a href="https://github.com/mighty1231/screpl/" title="Go to repository" class="md-source" data-md-source="github">
-
-    <div class="md-source__icon">
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" width="28" height="28">
-        <use xlink:href="#__github" width="24" height="24"></use>
-      </svg>
-    </div>
-  
-  <div class="md-source__repository">
-    SC-REPL
-  </div>
-</a>
-          </div>
+     </div>
+     <div class="md-flex__cell md-flex__cell--shrink">
+      <div class="md-header-nav__source">
+       <a class="md-source" data-md-source="github" href="https://github.com/mighty1231/screpl/" title="Go to repository">
+        <div class="md-source__icon">
+         <svg height="28" viewbox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+          <use height="24" width="24" xlink:href="#__github">
+          </use>
+         </svg>
         </div>
-      
-      
-  
-  <script src="_static/javascripts/version_dropdown.js"></script>
-  <script>
-    var json_loc = ""versions.json"",
+        <div class="md-source__repository">
+         SC-REPL
+        </div>
+       </a>
+      </div>
+     </div>
+     <script src="_static/javascripts/version_dropdown.js">
+     </script>
+     <script>
+      var json_loc = ""versions.json"",
         target_loc = "../",
         text = "Versions";
     $( document ).ready( add_version_dropdown(json_loc, target_loc, text));
-  </script>
-  
-
+     </script>
     </div>
-  </nav>
-</header>
-
-  
+   </nav>
+  </header>
   <div class="md-container">
-    
-    
-    
-  <nav class="md-tabs" data-md-component="tabs">
+   <nav class="md-tabs" data-md-component="tabs">
     <div class="md-tabs__inner md-grid">
-      <ul class="md-tabs__list">
-          <li class="md-tabs__item"><a href="index.html" class="md-tabs__link">SC-REPL 1.1.0 documentation</a></li>
-          <li class="md-tabs__item"><a href="screpl.html" class="md-tabs__link">screpl package</a></li>
-          <li class="md-tabs__item"><a href="screpl.apps.html" class="md-tabs__link">screpl.apps package</a></li>
-      </ul>
+     <ul class="md-tabs__list">
+      <li class="md-tabs__item">
+       <a class="md-tabs__link" href="index.html">
+        SC-REPL 1.1.1 documentation
+       </a>
+      </li>
+      <li class="md-tabs__item">
+       <a class="md-tabs__link" href="screpl.html">
+        screpl package
+       </a>
+      </li>
+      <li class="md-tabs__item">
+       <a class="md-tabs__link" href="screpl.apps.html">
+        screpl.apps package
+       </a>
+      </li>
+     </ul>
     </div>
-  </nav>
-    <main class="md-main">
-      <div class="md-main__inner md-grid" data-md-component="container">
-        
-          <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
-            <div class="md-sidebar__scrollwrap">
-              <div class="md-sidebar__inner">
-                <nav class="md-nav md-nav--primary" data-md-level="0">
-  <label class="md-nav__title md-nav__title--site" for="__drawer">
-    <a href="index.html" title="SC-REPL 1.1.0 documentation" class="md-nav__button md-logo">
-      
-        <img src="_static/" alt=" logo" width="48" height="48">
-      
-    </a>
-    <a href="index.html"
-       title="SC-REPL 1.1.0 documentation">SC-REPL</a>
-  </label>
-    <div class="md-nav__source">
-      <a href="https://github.com/mighty1231/screpl/" title="Go to repository" class="md-source" data-md-source="github">
-
-    <div class="md-source__icon">
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24" width="28" height="28">
-        <use xlink:href="#__github" width="24" height="24"></use>
-      </svg>
-    </div>
-  
-  <div class="md-source__repository">
-    SC-REPL
-  </div>
-</a>
-    </div>
-  
-  
-
-</nav>
-              </div>
-            </div>
-          </div>
-          <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
-            <div class="md-sidebar__scrollwrap">
-              <div class="md-sidebar__inner">
-                
-<nav class="md-nav md-nav--secondary">
-  <ul class="md-nav__list" data-md-scrollfix="">
-    
-<li class="md-nav__item"><a class="md-nav__extra_link" href="_sources/screpl.apps.chatreader.rst.txt">Show Source</a> </li>
-
-<li id="searchbox" class="md-nav__item"></li>
-
-  </ul>
-</nav>
-              </div>
-            </div>
-          </div>
-        
-        <div class="md-content">
-          <article class="md-content__inner md-typeset" role="main">
-            
-  
-<span id="screpl-apps-chatreader-module"></span><h1 id="screpl-apps-chatreader--page-root">screpl.apps.chatreader module<a class="headerlink" href="#screpl-apps-chatreader--page-root" title="Permalink to this headline">¶</a></h1>
-<p>defines ChatReaderApp</p>
-<dl class="py class">
-<dt id="screpl.apps.chatreader.ChatReaderApp">
-<em class="property">class </em><code class="sig-prename descclassname">screpl.apps.chatreader.</code><code class="sig-name descname">ChatReaderApp</code><a class="reference internal" href="_modules/screpl/apps/chatreader.html#ChatReaderApp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="screpl.core.application.html#screpl.core.application.Application" title="screpl.core.application.Application"><code class="xref py py-class docutils literal notranslate"><span class="pre">screpl.core.application.Application</span></code></a></p>
-<p>Receives user’s chat and write to specific offset</p>
-<p>Text UI:</p>
-<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ChatReader
+   </nav>
+   <main class="md-main">
+    <div class="md-main__inner md-grid" data-md-component="container">
+     <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+      <div class="md-sidebar__scrollwrap">
+       <div class="md-sidebar__inner">
+        <nav class="md-nav md-nav--primary" data-md-level="0">
+         <label class="md-nav__title md-nav__title--site" for="__drawer">
+          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.1 documentation">
+           <img alt=" logo" height="48" src="_static/" width="48"/>
+          </a>
+          <a href="index.html" title="SC-REPL 1.1.1 documentation">
+           SC-REPL
+          </a>
+         </label>
+         <div class="md-nav__source">
+          <a class="md-source" data-md-source="github" href="https://github.com/mighty1231/screpl/" title="Go to repository">
+           <div class="md-source__icon">
+            <svg height="28" viewbox="0 0 24 24" width="28" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+             <use height="24" width="24" xlink:href="#__github">
+             </use>
+            </svg>
+           </div>
+           <div class="md-source__repository">
+            SC-REPL
+           </div>
+          </a>
+         </div>
+        </nav>
+       </div>
+      </div>
+     </div>
+     <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+      <div class="md-sidebar__scrollwrap">
+       <div class="md-sidebar__inner">
+        <nav class="md-nav md-nav--secondary">
+         <ul class="md-nav__list" data-md-scrollfix="">
+          <li class="md-nav__item">
+           <a class="md-nav__extra_link" href="_sources/screpl.apps.chatreader.rst.txt">
+            Show Source
+           </a>
+          </li>
+          <li class="md-nav__item" id="searchbox">
+          </li>
+         </ul>
+        </nav>
+       </div>
+      </div>
+     </div>
+     <div class="md-content">
+      <article class="md-content__inner md-typeset" role="main">
+       <span id="screpl-apps-chatreader-module">
+       </span>
+       <h1 id="screpl-apps-chatreader--page-root">
+        screpl.apps.chatreader module
+        <a class="headerlink" href="#screpl-apps-chatreader--page-root" title="Permalink to this headline">
+         ¶
+        </a>
+       </h1>
+       <p>
+        defines ChatReaderApp
+       </p>
+       <dl class="py class">
+        <dt id="screpl.apps.chatreader.ChatReaderApp">
+         <em class="property">
+          class
+         </em>
+         <code class="sig-prename descclassname">
+          screpl.apps.chatreader.
+         </code>
+         <code class="sig-name descname">
+          ChatReaderApp
+         </code>
+         <a class="reference internal" href="_modules/screpl/apps/chatreader.html#ChatReaderApp">
+          <span class="viewcode-link">
+           [source]
+          </span>
+         </a>
+         <a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp" title="Permalink to this definition">
+          ¶
+         </a>
+        </dt>
+        <dd>
+         <p>
+          Bases:
+          <a class="reference internal" href="screpl.core.application.html#screpl.core.application.Application" title="screpl.core.application.Application">
+           <code class="xref py py-class docutils literal notranslate">
+            <span class="pre">
+             screpl.core.application.Application
+            </span>
+           </code>
+          </a>
+         </p>
+         <p>
+          Receives user’s chat and write to specific offset
+         </p>
+         <p>
+          Text UI:
+         </p>
+         <div class="highlight-text notranslate">
+          <div class="highlight">
+           <pre><span></span>ChatReader
 Your input: '{Content}'
 
 [ OK (CTRL+Y) ]    [ CANCEL (CTRL+N) ]
-</pre></div>
-</div>
-<p>Application usage to store text from user</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">my_database</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">220</span><span class="p">)</span>
+</pre>
+          </div>
+         </div>
+         <p>
+          Application usage to store text from user:
+         </p>
+         <div class="highlight-default notranslate">
+          <div class="highlight">
+           <pre><span></span><span class="n">my_database</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">220</span><span class="p">)</span>
 <span class="n">ChatReaderApp</span><span class="o">.</span><span class="n">set_return_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">my_database</span><span class="p">))</span>
-<span class="n">app_manager</span><span class="o">.</span><span class="n">startApplication</span><span class="p">(</span><span class="n">ChatReaderApp</span><span class="p">)</span>
+<span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">ChatReaderApp</span><span class="p">)</span>
 
 <span class="c1"># Then, ChatReaderApp runs, and it stores text to my_database</span>
-</pre></div>
-</div>
-<dl class="py method">
-<dt id="screpl.apps.chatreader.ChatReaderApp.onInit">
-<code class="sig-name descname">onInit</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/screpl/apps/chatreader.html#ChatReaderApp.onInit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp.onInit" title="Permalink to this definition">¶</a></dt>
-<dd><p>abc</p>
-</dd></dl>
-<dl class="py attribute">
-<dt id="screpl.apps.chatreader.ChatReaderApp.loop">
-<code class="sig-name descname">loop</code><em class="property"> = &lt;AppMethod ChatReaderApp.loop, st=I, idx=4&gt;</em><a class="reference internal" href="_modules/screpl/apps/chatreader.html#ChatReaderApp.loop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp.loop" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt id="screpl.apps.chatreader.ChatReaderApp.onChat">
-<code class="sig-name descname">onChat</code><em class="property"> = &lt;AppMethod ChatReaderApp.onChat, st=I, idx=2&gt;</em><a class="reference internal" href="_modules/screpl/apps/chatreader.html#ChatReaderApp.onChat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp.onChat" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt id="screpl.apps.chatreader.ChatReaderApp.onDestruct">
-<code class="sig-name descname">onDestruct</code><em class="property"> = &lt;AppMethod ChatReaderApp.onDestruct, st=I, idx=1&gt;</em><a class="reference internal" href="_modules/screpl/apps/chatreader.html#ChatReaderApp.onDestruct"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp.onDestruct" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt id="id0">
-<code class="sig-name descname">onInit</code><em class="property"> = &lt;AppMethod ChatReaderApp.onInit, st=I, idx=0&gt;</em><a class="reference internal" href="_modules/screpl/apps/chatreader.html#ChatReaderApp.onInit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#id0" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py attribute">
-<dt id="screpl.apps.chatreader.ChatReaderApp.print">
-<code class="sig-name descname">print</code><em class="property"> = &lt;AppMethod ChatReaderApp.print, st=I, idx=5&gt;</em><a class="reference internal" href="_modules/screpl/apps/chatreader.html#ChatReaderApp.print"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp.print" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-<dl class="py method">
-<dt id="screpl.apps.chatreader.ChatReaderApp.set_return_address">
-<em class="property">static </em><code class="sig-name descname">set_return_address</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">addr</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screpl/apps/chatreader.html#ChatReaderApp.set_return_address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp.set_return_address" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set target address to store text from chat</p>
-<p>Call this before
-<a class="reference internal" href="screpl.core.appmanager.html#screpl.core.appmanager.AppManager.startApplication" title="screpl.core.appmanager.AppManager.startApplication"><code class="xref py py-meth docutils literal notranslate"><span class="pre">startApplication()</span></code></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>addr</strong> (int, <code class="xref py py-class docutils literal notranslate"><span class="pre">ConstExpr</span></code>, or <code class="xref py py-class docutils literal notranslate"><span class="pre">EUDVariable</span></code>) – target address</p>
-</dd>
-</dl>
-</dd></dl>
-<dl class="py method">
-<dt id="screpl.apps.chatreader.ChatReaderApp.set_return_epd">
-<em class="property">static </em><code class="sig-name descname">set_return_epd</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">epd</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/screpl/apps/chatreader.html#ChatReaderApp.set_return_epd"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp.set_return_epd" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set epd value of target address to store text from chat</p>
-<p>Call this before
-<a class="reference internal" href="screpl.core.appmanager.html#screpl.core.appmanager.AppManager.startApplication" title="screpl.core.appmanager.AppManager.startApplication"><code class="xref py py-meth docutils literal notranslate"><span class="pre">startApplication()</span></code></a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>epd</strong> (int, <code class="xref py py-class docutils literal notranslate"><span class="pre">ConstExpr</span></code>, or <code class="xref py py-class docutils literal notranslate"><span class="pre">EUDVariable</span></code>) – EPD value of target address</p>
-</dd>
-</dl>
-</dd></dl>
-</dd></dl>
-
-
-
-          </article>
-        </div>
-      </div>
-    </main>
+</pre>
+          </div>
+         </div>
+         <p>
+          <em>
+           Application Fields
+          </em>
+         </p>
+         <p>
+          <em>
+           Application Methods
+          </em>
+         </p>
+         <table>
+          <colgroup>
+           <col style="width: 11%"/>
+           <col style="width: 89%"/>
+          </colgroup>
+          <thead>
+           <tr class="row-odd">
+            <th class="head">
+             <p>
+              index
+             </p>
+            </th>
+            <th class="head">
+             <p>
+              methods
+             </p>
+            </th>
+           </tr>
+          </thead>
+          <tbody>
+           <tr class="row-even">
+            <td>
+             <p>
+              0
+             </p>
+            </td>
+            <td>
+             <p>
+              <a class="reference internal" href="#screpl.apps.chatreader.ChatReaderApp.loop" title="screpl.apps.chatreader.ChatReaderApp.loop">
+               <code class="xref py py-meth docutils literal notranslate">
+                <span class="pre">
+                 screpl.apps.chatreader.ChatReaderApp.loop()
+                </span>
+               </code>
+              </a>
+             </p>
+            </td>
+           </tr>
+           <tr class="row-odd">
+            <td>
+             <p>
+              1
+             </p>
+            </td>
+            <td>
+             <p>
+              <a class="reference internal" href="#screpl.apps.chatreader.ChatReaderApp.on_chat" title="screpl.apps.chatreader.ChatReaderApp.on_chat">
+               <code class="xref py py-meth docutils literal notranslate">
+                <span class="pre">
+                 screpl.apps.chatreader.ChatReaderApp.on_chat()
+                </span>
+               </code>
+              </a>
+             </p>
+            </td>
+           </tr>
+           <tr class="row-even">
+            <td>
+             <p>
+              2
+             </p>
+            </td>
+            <td>
+             <p>
+              <a class="reference internal" href="#screpl.apps.chatreader.ChatReaderApp.on_destruct" title="screpl.apps.chatreader.ChatReaderApp.on_destruct">
+               <code class="xref py py-meth docutils literal notranslate">
+                <span class="pre">
+                 screpl.apps.chatreader.ChatReaderApp.on_destruct()
+                </span>
+               </code>
+              </a>
+             </p>
+            </td>
+           </tr>
+           <tr class="row-odd">
+            <td>
+             <p>
+              3
+             </p>
+            </td>
+            <td>
+             <p>
+              <a class="reference internal" href="#screpl.apps.chatreader.ChatReaderApp.on_init" title="screpl.apps.chatreader.ChatReaderApp.on_init">
+               <code class="xref py py-meth docutils literal notranslate">
+                <span class="pre">
+                 screpl.apps.chatreader.ChatReaderApp.on_init()
+                </span>
+               </code>
+              </a>
+             </p>
+            </td>
+           </tr>
+           <tr class="row-even">
+            <td>
+             <p>
+              4
+             </p>
+            </td>
+            <td>
+             <p>
+              <a class="reference internal" href="screpl.core.application.html#screpl.core.application.Application.on_resume" title="screpl.core.application.Application.on_resume">
+               <code class="xref py py-meth docutils literal notranslate">
+                <span class="pre">
+                 screpl.core.application.Application.on_resume()
+                </span>
+               </code>
+              </a>
+             </p>
+            </td>
+           </tr>
+           <tr class="row-odd">
+            <td>
+             <p>
+              5
+             </p>
+            </td>
+            <td>
+             <p>
+              <a class="reference internal" href="#screpl.apps.chatreader.ChatReaderApp.print" title="screpl.apps.chatreader.ChatReaderApp.print">
+               <code class="xref py py-meth docutils literal notranslate">
+                <span class="pre">
+                 screpl.apps.chatreader.ChatReaderApp.print()
+                </span>
+               </code>
+              </a>
+             </p>
+            </td>
+           </tr>
+          </tbody>
+         </table>
+         <dl class="py method">
+          <dt id="screpl.apps.chatreader.ChatReaderApp.loop">
+           <code class="sig-name descname">
+            loop
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             self
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp.loop" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+           <p>
+            <a class="reference internal" href="screpl.core.appmethod.html#screpl.core.appmethod.AppMethodN" title="screpl.core.appmethod.AppMethodN">
+             <code class="xref py py-class docutils literal notranslate">
+              <span class="pre">
+               AppMethodN
+              </span>
+             </code>
+            </a>
+            (index=0)
+           </p>
+          </dd>
+         </dl>
+         <dl class="py method">
+          <dt id="screpl.apps.chatreader.ChatReaderApp.on_chat">
+           <code class="sig-name descname">
+            on_chat
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             self
+            </span>
+           </em>
+           ,
+           <em class="sig-param">
+            <span class="n">
+             offset
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp.on_chat" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+           <p>
+            <a class="reference internal" href="screpl.core.appmethod.html#screpl.core.appmethod.AppMethodN" title="screpl.core.appmethod.AppMethodN">
+             <code class="xref py py-class docutils literal notranslate">
+              <span class="pre">
+               AppMethodN
+              </span>
+             </code>
+            </a>
+            (index=1) - Receives chat to store to temporary storage
+           </p>
+          </dd>
+         </dl>
+         <dl class="py method">
+          <dt id="screpl.apps.chatreader.ChatReaderApp.on_destruct">
+           <code class="sig-name descname">
+            on_destruct
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             self
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp.on_destruct" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+           <p>
+            <a class="reference internal" href="screpl.core.appmethod.html#screpl.core.appmethod.AppMethodN" title="screpl.core.appmethod.AppMethodN">
+             <code class="xref py py-class docutils literal notranslate">
+              <span class="pre">
+               AppMethodN
+              </span>
+             </code>
+            </a>
+            (index=2)
+           </p>
+          </dd>
+         </dl>
+         <dl class="py method">
+          <dt id="screpl.apps.chatreader.ChatReaderApp.on_init">
+           <code class="sig-name descname">
+            on_init
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             self
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp.on_init" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+           <p>
+            <a class="reference internal" href="screpl.core.appmethod.html#screpl.core.appmethod.AppMethodN" title="screpl.core.appmethod.AppMethodN">
+             <code class="xref py py-class docutils literal notranslate">
+              <span class="pre">
+               AppMethodN
+              </span>
+             </code>
+            </a>
+            (index=3) - Initialize application
+           </p>
+           <p>
+            It makes writer to focus return address
+           </p>
+          </dd>
+         </dl>
+         <dl class="py method">
+          <dt id="screpl.apps.chatreader.ChatReaderApp.print">
+           <code class="sig-name descname">
+            print
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             self
+            </span>
+           </em>
+           ,
+           <em class="sig-param">
+            <span class="n">
+             writer
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp.print" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+           <p>
+            <a class="reference internal" href="screpl.core.appmethod.html#screpl.core.appmethod.AppMethodN" title="screpl.core.appmethod.AppMethodN">
+             <code class="xref py py-class docutils literal notranslate">
+              <span class="pre">
+               AppMethodN
+              </span>
+             </code>
+            </a>
+            (index=5)
+           </p>
+          </dd>
+         </dl>
+         <dl class="py method">
+          <dt id="screpl.apps.chatreader.ChatReaderApp.set_return_address">
+           <em class="property">
+            static
+           </em>
+           <code class="sig-name descname">
+            set_return_address
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             addr
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="reference internal" href="_modules/screpl/apps/chatreader.html#ChatReaderApp.set_return_address">
+            <span class="viewcode-link">
+             [source]
+            </span>
+           </a>
+           <a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp.set_return_address" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+           <p>
+            Set target address to store text from chat
+           </p>
+           <p>
+            Call this before
+            <a class="reference internal" href="screpl.core.appmanager.html#screpl.core.appmanager.AppManager.start_application" title="screpl.core.appmanager.AppManager.start_application">
+             <code class="xref py py-meth docutils literal notranslate">
+              <span class="pre">
+               start_application()
+              </span>
+             </code>
+            </a>
+           </p>
+           <dl class="field-list simple">
+            <dt class="field-odd">
+             Parameters
+            </dt>
+            <dd class="field-odd">
+             <p>
+              <strong>
+               addr
+              </strong>
+              (int,
+              <code class="xref py py-class docutils literal notranslate">
+               <span class="pre">
+                ConstExpr
+               </span>
+              </code>
+              , or
+              <code class="xref py py-class docutils literal notranslate">
+               <span class="pre">
+                EUDVariable
+               </span>
+              </code>
+              ) – target address
+             </p>
+            </dd>
+           </dl>
+          </dd>
+         </dl>
+         <dl class="py method">
+          <dt id="screpl.apps.chatreader.ChatReaderApp.set_return_epd">
+           <em class="property">
+            static
+           </em>
+           <code class="sig-name descname">
+            set_return_epd
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             epd
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="reference internal" href="_modules/screpl/apps/chatreader.html#ChatReaderApp.set_return_epd">
+            <span class="viewcode-link">
+             [source]
+            </span>
+           </a>
+           <a class="headerlink" href="#screpl.apps.chatreader.ChatReaderApp.set_return_epd" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+           <p>
+            Set epd value of target address to store text from chat
+           </p>
+           <p>
+            Call this before
+            <a class="reference internal" href="screpl.core.appmanager.html#screpl.core.appmanager.AppManager.start_application" title="screpl.core.appmanager.AppManager.start_application">
+             <code class="xref py py-meth docutils literal notranslate">
+              <span class="pre">
+               start_application()
+              </span>
+             </code>
+            </a>
+           </p>
+           <dl class="field-list simple">
+            <dt class="field-odd">
+             Parameters
+            </dt>
+            <dd class="field-odd">
+             <p>
+              <strong>
+               epd
+              </strong>
+              (int,
+              <code class="xref py py-class docutils literal notranslate">
+               <span class="pre">
+                ConstExpr
+               </span>
+              </code>
+              , or
+              <code class="xref py py-class docutils literal notranslate">
+               <span class="pre">
+                EUDVariable
+               </span>
+              </code>
+              ) – EPD value of target address
+             </p>
+            </dd>
+           </dl>
+          </dd>
+         </dl>
+        </dd>
+       </dl>
+      </article>
+     </div>
+    </div>
+   </main>
   </div>
   <footer class="md-footer">
-    <div class="md-footer-nav">
-      <nav class="md-footer-nav__inner md-grid">
-          
-            <a href="screpl.apps.html" title="screpl.apps package"
-               class="md-flex md-footer-nav__link md-footer-nav__link--prev"
-               rel="prev">
-              <div class="md-flex__cell md-flex__cell--shrink">
-                <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
-              </div>
-              <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
-                <span class="md-flex__ellipsis">
-                  <span
-                      class="md-footer-nav__direction"> Previous </span> screpl.apps package </span>
-              </div>
-            </a>
-          
-          
-            <a href="screpl.apps.logger.html" title="screpl.apps.logger module"
-               class="md-flex md-footer-nav__link md-footer-nav__link--next"
-               rel="next">
-            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title"><span
-                class="md-flex__ellipsis"> <span
-                class="md-footer-nav__direction"> Next </span> screpl.apps.logger module </span>
-            </div>
-            <div class="md-flex__cell md-flex__cell--shrink"><i
-                class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
-            </div>
-          
-        </a>
-        
-      </nav>
-    </div>
-    <div class="md-footer-meta md-typeset">
-      <div class="md-footer-meta__inner md-grid">
-        <div class="md-footer-copyright">
-          <div class="md-footer-copyright__highlight">
-              &#169; Copyright mighty1231.
-              
-          </div>
-            Created using
-            <a href="http://www.sphinx-doc.org/">Sphinx</a> 3.0.3.
-             and
-            <a href="https://github.com/bashtage/sphinx-material/">Material for
-              Sphinx</a>
-        </div>
+   <div class="md-footer-nav">
+    <nav class="md-footer-nav__inner md-grid">
+     <a class="md-flex md-footer-nav__link md-footer-nav__link--prev" href="screpl.apps.html" rel="prev" title="screpl.apps package">
+      <div class="md-flex__cell md-flex__cell--shrink">
+       <i class="md-icon md-icon--arrow-back md-footer-nav__button">
+       </i>
       </div>
+      <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+       <span class="md-flex__ellipsis">
+        <span class="md-footer-nav__direction">
+         Previous
+        </span>
+        screpl.apps package
+       </span>
+      </div>
+     </a>
+     <a class="md-flex md-footer-nav__link md-footer-nav__link--next" href="screpl.apps.logger.html" rel="next" title="screpl.apps.logger module">
+      <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+       <span class="md-flex__ellipsis">
+        <span class="md-footer-nav__direction">
+         Next
+        </span>
+        screpl.apps.logger module
+       </span>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
+       <i class="md-icon md-icon--arrow-forward md-footer-nav__button">
+       </i>
+      </div>
+     </a>
+    </nav>
+   </div>
+   <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+     <div class="md-footer-copyright">
+      <div class="md-footer-copyright__highlight">
+       © Copyright mighty1231.
+      </div>
+      Created using
+      <a href="http://www.sphinx-doc.org/">
+       Sphinx
+      </a>
+      3.0.3.
+             and
+      <a href="https://github.com/bashtage/sphinx-material/">
+       Material for
+              Sphinx
+      </a>
+     </div>
     </div>
+   </div>
   </footer>
-  <script src="_static/javascripts/application.js"></script>
-  <script>app.initialize({version: "1.0.4", url: {base: ".."}})</script>
-  </body>
+  <script src="_static/javascripts/application.js">
+  </script>
+  <script>
+   app.initialize({version: "1.0.4", url: {base: ".."}})
+  </script>
+ </body>
 </html>

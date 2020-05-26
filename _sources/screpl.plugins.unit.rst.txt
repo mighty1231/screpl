@@ -1,0 +1,18 @@
+screpl.plugins.unit package
+===========================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.plugins.unit.manager
+
+Module contents
+---------------
+
+.. automodule:: screpl.plugins.unit
+   :members:
+   :undoc-members:
+   :show-inheritance:

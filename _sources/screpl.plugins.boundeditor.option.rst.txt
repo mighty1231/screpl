@@ -1,0 +1,7 @@
+screpl.plugins.boundeditor.option module
+========================================
+
+.. automodule:: screpl.plugins.boundeditor.option
+   :members:
+   :undoc-members:
+   :show-inheritance:

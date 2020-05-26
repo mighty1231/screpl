@@ -1,0 +1,7 @@
+screpl.plugins.boundeditor.manager module
+=========================================
+
+.. automodule:: screpl.plugins.boundeditor.manager
+   :members:
+   :undoc-members:
+   :show-inheritance:

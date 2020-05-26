@@ -1,0 +1,7 @@
+screpl.plugins.dump.dump module
+===============================
+
+.. automodule:: screpl.plugins.dump.dump
+   :members:
+   :undoc-members:
+   :show-inheritance:

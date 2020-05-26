@@ -1,0 +1,7 @@
+screpl.plugins.location.manager module
+======================================
+
+.. automodule:: screpl.plugins.location.manager
+   :members:
+   :undoc-members:
+   :show-inheritance:
