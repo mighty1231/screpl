@@ -1,17 +1,24 @@
-'''
-TUI - Configuring
- 1. Bound Editor - Exporter (Bridge Client required)
- 2. Death Unit used as timer (U) - {Cave}
- 3. Turbo mode (T) - eudturbo, turbo, nothing
- 4.
- 5. Press CTRL+Y to EXPORT
- 6.
+"""ExporterApp
 
-TUI - Exporting
- 1. Bound Editor - Exporter (Bridge Client required)
- 2. Sent %D bytes / total %D bytes
- 3.
-'''
+Expected TUI - Configuring
+
+.. code-block:: text
+
+    1. Bound Editor - Exporter (Bridge Client required)
+    2. Death Unit used as timer (U) - {Cave}
+    3. Turbo mode (T) - eudturbo, turbo, nothing
+    4.
+    5. Press CTRL+Y to EXPORT
+    6.
+
+Expected TUI - Exporting
+
+.. code-block:: text
+
+    1. Bound Editor - Exporter (Bridge Client required)
+    2. Sent %D bytes / total %D bytes
+    3.
+"""
 
 from eudplib import *
 
@@ -41,7 +48,7 @@ TURBO_NORMAL  = 1
 TURBO_NOTHING = 2
 TURBO_END     = 3
 v_turbo_mode = EUDVariable()
-v_death_unit = EUDVariable(EncodeUnit("Cave"))
+v_death_unit = EUDVariable(EncodeUnit("Cave (Unused)"))
 
 storage = Db(200000)
 remaining_bytes = EUDVariable(0)

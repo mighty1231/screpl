@@ -1,16 +1,20 @@
-'''
- 1. BoundEditor Options
- 2. Effect player: P8
- 3. Effect unit 1/2/3: Zerg Scourge, Zerg Overlord, Terran Battlecruiser
- 4. Obstacle unit: Psi Emitter
- 5. Runner force: Force1
- 6. Runner unit: Zerg Zergling
- 7. Start location: location
- 8. On obstacle be created, runner be killed/removed/alive
- 9. On obstacle be destructed, kill/remove it
-10.
-11.
-'''
+"""
+Expected TUI:
+
+.. code-block: text
+
+     1. BoundEditor Options
+     2. Effect player: P8
+     3. Effect unit 1/2/3: Zerg Scourge, Zerg Overlord, Terran Battlecruiser
+     4. Obstacle unit: Psi Emitter
+     5. Runner force: Force1
+     6. Runner unit: Zerg Zergling
+     7. Start location: location
+     8. On obstacle be created, runner be killed/removed/alive
+     9. On obstacle be destructed, kill/remove it
+    10.
+    11.
+"""
 
 from eudplib import *
 

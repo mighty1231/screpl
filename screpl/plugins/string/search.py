@@ -1,43 +1,60 @@
-'''
-TUI
-<no result>
- 1. Results {""} not found, search string with chat.
+"""StringSearchApp
 
-<result>
- 1. Search results "{string}", %D / Total %D found.
- 2.  ##. {found line}
- 3.  ##. {found line}
+TUI - <no result> case
+
+.. code-block:: text
+
+    1. Results {""} not found, search string with chat.
+
+<result> case
+
+.. code-block:: text
+
+    1. Search results "{string}", %D / Total %D found.
+    2.  ##. {found line}
+    3.  ##. {found line}
 
 Feature
  * Search with plain text, prints rich text
 
 pseudocode
 global variable
-  * count: searched count
-  * searched_ids: array of string id that contains target
-  * searched_string: array of lines containing target
+
+* count: searched count
+* searched_ids: array of string id that contains target
+* searched_string: array of lines containing target
+
 input
+
   * target : given string
-code
+
+code:
+
+.. code-block:: c
+
     for each string_id:
-        char *ptr <- get_string_ptr(string_id)
-        while *ptr != 0:
+        char *ptr = get_string_ptr(string_id)
+        while (*ptr != 0){
             // make utf-8, remove color code
-            length, is_null_end <- strcpy_until_newline(line_buffer, ptr)
+            length, is_null_end = strcpy_until_newline(line_buffer, ptr)
 
             // use KMP search
             // https://www.geeksforgeeks.org/kmp-algorithm-for-pattern-searching/
             found = KMPSearch(line_buffer, target)
-            if found:
-                searched_ids[count] = string_id
-                searched_strings[count] = allocate_line(ptr)
+            if (found) {
+                searched_ids[count] = string_id;
+                searched_strings[count] = allocate_line(ptr);
                 count ++;
+                break;
+            }
+            if (is_null_end)
+                break;
+            if (is_null_end):
                 break
-            if is_null_end:
-                break
-            else:
+            else
                 ptr += length + 1
-'''
+        }
+"""
 from eudplib import *
 
 from screpl.core.application import Application
