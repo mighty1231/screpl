@@ -1,17 +1,17 @@
-"""Application sample for REPL
+"""Application sample for SC-REPL
 
 A series of methods is executed in each frame as follows.
 
-Case 1. app starts with get_app_manager().startApplication(app)
+Case 1. app starts with app_manager.startApplication(app)
   - on_init, (on_chat), loop, print
 
-Case 2. If 'on_chat' or 'loop' invoked 'get_app_manager().request_update()',
+Case 2. If 'on_chat' or 'loop' invoked 'app_manager.request_update()',
   - (on_chat), loop, print
 
-Case 3. If 'on_chat' or 'loop' did not invoked 'get_app_manager().request_update()',
+Case 3. If 'on_chat' or 'loop' did not invoked 'app_manager.request_update()',
   - (on_chat), loop
 
-Case 4. If 'on_chat' or 'loop' invoked 'get_app_manager().request_destruct()'
+Case 4. If 'on_chat' or 'loop' invoked 'app_manager.request_destruct()'
   - (on_chat), loop, on_destruct
 
 Case 5. Previously launched app is dead,
