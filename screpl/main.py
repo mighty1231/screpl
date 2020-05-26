@@ -17,6 +17,7 @@ _manager = None
 _bridge_region = None
 _is_blind_mode = None
 _trigger_timer = EUDVariable(-1)
+_loop_count = EUDVariable(0)
 
 def get_app_manager():
     """Returns the unique :class:`~screpl.core.appmanager.AppManager` instance"""
@@ -35,6 +36,11 @@ def get_main_writer():
         It may be used freely on the outside of the method.
     """
     return _main_writer
+
+@EUDFunc
+def get_loop_count():
+    """Returns counter that measures how much loops are called"""
+    return _loop_count
 
 def is_bridge_mode():
     """Returns bool that indicates bridge is active"""
@@ -233,3 +239,6 @@ def run():
         text_ptr = f_dwread_epd(EPD(0x640B58))
         f_printf("%E", EPD(_manager.display_buffer))
         SeqCompute([(EPD(0x640B58), SetTo, text_ptr)])
+
+    # update loop count
+    _loop_count += 1

@@ -125,7 +125,7 @@ class BridgeRegion(EUDObject):
             # frame count
             SeqCompute([(EPD(self._frame_count),
                          SetTo,
-                         main.get_app_manager().current_frame_number)])
+                         main.get_loop_count())])
 
             # update blocks
             for b in self.blocks:

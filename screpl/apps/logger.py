@@ -64,7 +64,7 @@ class Logger(scroll.ScrollApp):
         if not simple:
             writer.write_f("\x16%D: [frame %D] ",
                            log_index,
-                           main.get_app_manager().get_current_frame_number())
+                           main.get_loop_count())
         else:
             writer.write_f("\x16%D: ", log_index)
         writer.write_f(fmtstring, *args)
@@ -84,7 +84,7 @@ class Logger(scroll.ScrollApp):
         if not simple:
             writer.write_f("\x16%D: [frame %D] ",
                            log_index,
-                           main.get_app_manager().get_current_frame_number())
+                           main.get_loop_count())
         else:
             writer.write_f("\x16%D: ", log_index)
 
@@ -142,15 +142,14 @@ class Logger(scroll.ScrollApp):
         manager.request_update()
 
     def write_title(self, writer):
-        manager = main.get_app_manager()
         if EUDIf()(mode == MODE_REALTIME):
             writer.write_f("\x16SC-REPL logs (frame=%D), Realtime View, "
                            "press 'S' to stop view",
-                           manager.get_current_frame_number())
+                           main.get_loop_count())
         if EUDElse()():
             writer.write_f("\x16SC-REPL logs (frame=%D), Stopped View, "
                            "press 'ESC', 'F7' or 'F8'",
-                           manager.get_current_frame_number())
+                           main.get_loop_count())
         EUDEndIf()
 
     def write_line(self, writer, line):

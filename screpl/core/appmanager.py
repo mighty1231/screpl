@@ -60,7 +60,6 @@ class AppManager:
         self.mouse_prev_state = EUDVariable(0)
         self.mouse_state = EUDArray([1, 1, 1])
         self.mouse_pos = EUDCreateVariables(2)
-        self.current_frame_number = EUDVariable(0)
 
         # 64, 96, 128, 192, 256
         # Multiply 32 to get pixel coordinate
@@ -288,13 +287,6 @@ class AppManager:
             actions.append(MemoryEPD(self.keystates + holdkey, AtLeast, 1))
         return actions
 
-    @EUDMethod
-    def get_current_frame_number(self):
-        '''
-        Counter that measures how much loops are called
-        '''
-        return self.current_frame_number
-
     def _update_mouse_state(self):
         # up   -> up   : 1
         # up   -> down : 2
@@ -489,5 +481,3 @@ class AppManager:
             self._foreground_app_instance.print()
             self.update << 0
         EUDEndIf()
-
-        self.current_frame_number += 1
