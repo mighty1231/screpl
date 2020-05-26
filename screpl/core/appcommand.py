@@ -11,9 +11,6 @@ from screpl.utils.referencetable import search_table
 from screpl.utils.conststring import EPDConstString
 from screpl.utils.string import f_strcmp_ptrepd
 
-import screpl.main as main
-
-
 _MAXARGCNT = 8
 
 _argn = EUDVariable()
@@ -27,16 +24,15 @@ _encode_success = EUDVariable()
 
 AppCommandPtr = EUDFuncPtr(0, 0)
 
-def run_app_command(txtptr):
+def run_app_command(manager, txtptr):
     _offset << txtptr
-    _run_app_command()
-
-@EUDFunc
-def _run_app_command():
-    import screpl.apps.logger as logger
 
     # get current AppCommand table
-    cmdtable_epd = main.get_app_manager().cur_cmdtable_epd
+    _run_app_command(manager.cur_cmdtable_epd)
+
+@EUDFunc
+def _run_app_command(cmdtable_epd):
+    import screpl.apps.logger as logger
     funcname = Db(50)
 
     # read function name
@@ -100,10 +96,13 @@ class AppCommandN:
     def __init__(self, arg_encoders, func, *, traced):
         # Get argument number of fdecl_func
         argspec = inspect.getfullargspec(func)
-        assert argspec.varargs is None, \
-                'No variadic arguments (*args) allowed for AppCommand'
-        assert argspec.varkw is None, \
-                'No variadic keyword arguments (**kwargs) allowed for AppCommand'
+
+        if argspec.varargs:
+            raise ValueError(
+                "No variadic arguments (*args) allowed for AppCommandN")
+        if argspec.varkw:
+            raise ValueError(
+                "No variadic keyword arguments (**kwargs) allowed for AppCommandN")
 
         self.arg_encoders = arg_encoders
         self.argn = len(arg_encoders)
@@ -139,14 +138,14 @@ class AppCommandN:
         self.cls = cls
         self.status = 'initialized'
 
-    def allocate(self):
+    def allocate(self, manager):
         assert self.status == 'initialized'
 
         if self.func_callback:
             self.func = self.func_callback(self.func)
 
         def call_inner():
-            instance = main.get_app_manager().get_foreground_app_instance()
+            instance = manager.get_foreground_app_instance()
             prev_cls = instance._cls
             instance._cls = self.cls
 

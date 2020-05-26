@@ -494,10 +494,6 @@ class REPLByteRW:
             'I16u': self.write_u16,
             'I32u': self.write_u32
         }
-        print('-------------')
-        for fm, arg in merged_items:
-            print(fm, arg)
-        print('-------------')
         for fm, arg in merged_items:
             if fm == 'const':
                 if len(arg) == 1:

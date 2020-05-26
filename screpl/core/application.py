@@ -3,8 +3,6 @@ from eudplib import *
 from screpl.utils.conststring import EPDConstString
 from screpl.utils.referencetable import ReferenceTable
 
-import screpl.main as main
-
 from . import appcommand
 from . import appmethod
 
@@ -190,9 +188,11 @@ class ApplicationInstance:
     """
 
     # reserved keywords
-    _attributes_ = ['_cls', '_absolute', 'get_reference_epd']
+    _attributes_ = ['_cls', '_absolute', '_manager',
+                    'get_reference_epd', 'run_command']
 
-    def __init__(self, cls = None):
+    def __init__(self, manager, cls = None):
+        self._manager = manager
         if cls:
             self._cls = cls
             self._absolute = True
@@ -220,8 +220,13 @@ class ApplicationInstance:
         Traditional EUDVariable can be referenced as EPD(var.getValueAddr())
         """
         attrid, _ = self._cls._fields_[member]
-        return (main.get_app_manager().cur_members._epd
+        return (self._manager.cur_members._epd
                 + (18*attrid + 348//4))
+
+    def run_command(self, address):
+        if self._absolute:
+            raise ValueError("Running command absolutely is not supported")
+        appcommand.run_app_command(self._manager, address)
 
     def __getattr__(self, name):
         if name in self._cls._commands_:
@@ -229,12 +234,12 @@ class ApplicationInstance:
         elif name in self._cls._methods_:
             _, v = self._cls._methods_[name]
             if not self._absolute:
-                return v.apply()
+                return v.apply(self._manager)
             else:
                 return v.applyAbsolute()
         elif name in self._cls._fields_:
             attrid, attrtype = self._cls._fields_[name]
-            attr = main.get_app_manager().cur_members.get(attrid)
+            attr = self._manager.cur_members.get(attrid)
             if attrtype:
                 return attrtype.cast(attr)
             else:
@@ -247,7 +252,7 @@ class ApplicationInstance:
             super().__setattr__(name, value)
         elif name in self._cls._fields_:
             attrid, _ = self._cls._fields_[name]
-            main.get_app_manager().cur_members.set(attrid, value)
+            self._manager.cur_members.set(attrid, value)
         else:
             raise AttributeError("Application '%s' has no attribute '%s'"
                                  % (self._cls, name))
@@ -263,13 +268,13 @@ class Application(metaclass=_ApplicationMetaclass):
     def on_destruct(self):
         """Called when the application is going to be destructed"""
 
-    def on_chat(self, offset):
+    def on_chat(self, address):
         """Called when the super user has chatted something.
 
         Arguments:
-            offset (EUDVariable): address of chat from super user.
+            address (EUDVariable): address of chat from super user.
         """
-        appcommand.run_app_command(offset)
+        self.run_command(address)
 
     def on_resume(self):
         """Called exactly once after the application started other application
@@ -302,21 +307,23 @@ class Application(metaclass=_ApplicationMetaclass):
         return ApplicationInstance(parent)
 
     @classmethod
-    def allocate(cls):
+    def allocate(cls, manager):
         """Constructs the array for commands and methods on the app.
 
         Before the AppManager start the appliction, it should be called.
         """
         if not cls._allocated_:
+            cls.manager = manager
+
             if cls != Application:
                 parent_cls = cls.__mro__[1]
                 assert issubclass(parent_cls, Application)
-                parent_cls.allocate() # pylint: disable=no-member
+                parent_cls.allocate(manager) # pylint: disable=no-member
 
             # allocate methods
             methodarray = []
             for mtd in cls._methods_.ordered_values():
-                mtd.allocate()
+                mtd.allocate(manager)
                 methodarray.append(mtd.get_func_ptr())
             cls._methodarray_ = EUDVArray(len(methodarray))(methodarray)
             cls._methodarray_epd_ = EPD(cls._methodarray_)
@@ -324,7 +331,7 @@ class Application(metaclass=_ApplicationMetaclass):
             # allocate commands
             cmdtable = ReferenceTable(key_f=EPDConstString)
             for name, cmd in cls._commands_.ordered_items():
-                cmd.allocate()
+                cmd.allocate(manager)
                 cmdtable.add_pair(name, cmd.get_cmd_ptr())
 
             cls._cmdtable_ = cmdtable
@@ -350,7 +357,7 @@ class Application(metaclass=_ApplicationMetaclass):
             cmd.initialize(cls)
             cls._total_dict_[name] = cmd
 
-            cmd.allocate()
+            cmd.allocate(cls.manager)
             cls._cmdtable_.add_pair(name, cmd.get_cmd_ptr())
         else:
             # case not allocated

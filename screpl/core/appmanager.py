@@ -34,7 +34,7 @@ class AppManager:
         self.varpool = VarPool(800)
 
         # variables that support several apps
-        self._foreground_app_instance = ApplicationInstance()
+        self._foreground_app_instance = ApplicationInstance(self)
         self.app_cnt = EUDVariable(0)
         self.cur_app_id = EUDVariable(-1)
         self.app_method_stack = EUDArray(_APP_MAX_COUNT)
@@ -93,7 +93,7 @@ class AppManager:
         from .application import Application
         assert issubclass(app, Application)
 
-        app.allocate()
+        app.allocate(self)
         self._start_application(len(app._fields_),
                                 app._methodarray_,
                                 EPD(app._cmdtable_))

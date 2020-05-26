@@ -6,7 +6,7 @@ from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN, applyTypes
 from eudplib.core.eudstruct.vararray import EUDVArrayData
 from eudplib.core.eudfunc.eudfptr import createIndirectCaller
 
-import screpl.main as main
+from . import application
 
 
 class AppMethodN:
@@ -63,10 +63,13 @@ class AppMethodN:
         # Get argument number of fdecl_func
         argspec = inspect.getfullargspec(self.method)
         argn = len(argspec.args)
-        assert argspec.varargs is None, \
-                'No variadic arguments (*args) allowed for AppMethod'
-        assert argspec.varkw is None, \
-                'No variadic keyword arguments (**kwargs) allowed for AppMethod'
+
+        if argspec.varargs:
+            raise ValueError(
+                "No variadic arguments (*args) allowed for AppMethodN")
+        if argspec.varkw:
+            raise ValueError(
+                "No variadic keyword arguments (**kwargs) allowed for AppMethodN")
 
         if parent:
             # override
@@ -107,7 +110,7 @@ class AppMethodN:
 
         self.status = 'initialized'
 
-    def allocate(self):
+    def allocate(self, manager):
         if self.status == 'allocated':
             return
         assert self.status == 'initialized'
@@ -115,7 +118,7 @@ class AppMethodN:
         if not self.with_main_writer:
             # Set first argument as AppInstance
             def call(*args):
-                instance = main.get_app_manager().get_foreground_app_instance()
+                instance = manager.get_foreground_app_instance()
                 prev_cls = instance._cls
                 instance._cls = self.cls
 
@@ -127,10 +130,10 @@ class AppMethodN:
         else:
             # Additionally set second argument as printer
             def call(*args):
-                instance = main.get_app_manager().get_foreground_app_instance()
+                instance = manager.get_foreground_app_instance()
                 prev_cls = instance._cls
                 instance._cls = self.cls
-                printer = main.get_app_manager().getWriter()
+                printer = manager.getWriter()
 
                 args = applyTypes(self.argtypes, args)
                 ret = self.method(instance, printer, *args)
@@ -155,8 +158,7 @@ class AppMethodN:
 
         self.status = 'allocated'
 
-    def apply(self):
-        manager = main.get_app_manager()
+    def apply(self, manager):
         assert self.status in ['initialized', 'allocated'], self
         return self.funcptr_cls.cast(manager.cur_methods[self.index])
 
@@ -167,11 +169,17 @@ class AppMethodN:
         '''
         Direct call - used for superclass method call
         '''
-        assert id(instance) == id(main.get_app_manager().get_foreground_app_instance())
+        if not isinstance(instance, application.ApplicationInstance):
+            raise ValueError(
+                "The first argument should be ApplicationInstance")
         return self.funcn(*args, **kwargs)
 
 ''' Decorator to make AppMethodN '''
-def AppTypedMethod(argtypes, rettypes = [], *, with_main_writer=False, traced=False):
+def AppTypedMethod(argtypes,
+                   rettypes = [],
+                   *,
+                   with_main_writer=False,
+                   traced=False):
     def ret(method):
         return AppMethodN(argtypes, rettypes, method,
                 with_main_writer=with_main_writer, traced=traced)
@@ -181,4 +189,7 @@ def AppMethod(method):
     return AppTypedMethod(None, [], traced=False)(method)
 
 def AppMethodWithMainWriter(method):
-    return AppTypedMethod(None, [], with_main_writer=True, traced=False)(method)
+    return AppTypedMethod(None,
+                          [],
+                          with_main_writer=True,
+                          traced=False)(method)
