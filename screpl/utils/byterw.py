@@ -8,6 +8,7 @@ class REPLByteRW:
 
     @EUDMethod
     def getoffset(self):
+        """Returns current offset"""
         EUDReturn(0x58A364 + 4 * self.epd + self.off)
 
     def seekepd(self, epd):
