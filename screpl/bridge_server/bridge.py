@@ -22,7 +22,7 @@ Shared memory region has following structures
         char command[300];
 
         /* From SC */
-        int frameCount;
+        int loop_count;
 
         /* blocks */
         DisplayBlock display_block;
@@ -55,7 +55,7 @@ class BridgeRegion(EUDObject):
         self._note_from_bridge = self + 164
         self._region_size     = self + 168
         self._command        = self + 172
-        self._frame_count     = self + 472
+        self._loop_count     = self + 472
 
         self.blocks.append(appoutput.AppOutputBlock(self))
         self.blocks.append(blindmode.BlindModeDisplayBlock(self))
@@ -122,8 +122,8 @@ class BridgeRegion(EUDObject):
             EUDEndIf()
 
             ############## to bridge ################
-            # frame count
-            SeqCompute([(EPD(self._frame_count),
+            # loop count
+            SeqCompute([(EPD(self._loop_count),
                          SetTo,
                          main.get_loop_count())])
 

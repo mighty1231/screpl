@@ -88,9 +88,6 @@ def initialize_with_id(su_id):
 
     _manager = AppManager(su_id, su_prefix, su_prefixlen)
 
-    # REPL is the application on the base
-    _manager.start_application(repl.REPL)
-
 def initialize_with_name(su_name):
     """Initialize REPL with configurations, with name-certification.
 
@@ -134,9 +131,6 @@ def initialize_with_name(su_name):
     EUDEndIf()
 
     _manager = AppManager(su_id, su_prefix, su_prefixlen)
-
-    # REPL is the application on the base
-    _manager.start_application(repl.REPL)
 
 def set_bridge_mode(bridge_mode):
     """Initialize bridge with specificed mode
@@ -214,11 +208,19 @@ def _cmd_eudturbo(self):
 
 def run():
     """Run main loop of SC-REPL"""
-    # turbo mode
-    repl.REPL.add_command("timer", _cmd_trig_timer)
-    repl.REPL.add_command("timerOff", _cmd_trig_timer_off)
-    repl.REPL.add_command("turbo", _cmd_turbo)
-    repl.REPL.add_command("eudturbo", _cmd_eudturbo)
+    global _loop_count
+
+    if EUDExecuteOnce()():
+        # turbo mode
+        repl.REPL.add_command("timer", _cmd_trig_timer)
+        repl.REPL.add_command("timerOff", _cmd_trig_timer_off)
+        repl.REPL.add_command("turbo", _cmd_turbo)
+        repl.REPL.add_command("eudturbo", _cmd_eudturbo)
+
+        # REPL is the application on the base
+        _manager.start_application(repl.REPL)
+    EUDEndExecuteOnce()
+
     if EUDIfNot()(_trigger_timer.Exactly(-1)):
         DoActions(SetMemory(0x6509A0, SetTo, _trigger_timer))
     EUDEndIf()
