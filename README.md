@@ -23,7 +23,7 @@ class MyApp(Application):
         writer.write_f("%D\n", hit_point_of_unit_0)
         writer.write(0) # null-end
 
-@AppCommand
+@AppCommand([])
 def starting_command(self):
     get_app_manager().start_application(MyApp)
 
