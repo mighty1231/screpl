@@ -4,7 +4,7 @@ from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
 from screpl.encoder.const import ArgEncNumber
 from screpl.utils.byterw import REPLByteRW
-from screpl.main import is_bridge_mode
+from screpl.main import is_bridge_mode, get_main_writer
 
 from . import *
 
@@ -15,7 +15,7 @@ def writeFirstLine(string):
     reader = REPLByteRW()
     reader.seekoffset(string)
 
-    writer = app_manager.getWriter()
+    writer = get_main_writer()
 
     writingLine = EUDVariable()
     writingLine << 0

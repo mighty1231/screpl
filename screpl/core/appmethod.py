@@ -132,10 +132,11 @@ class AppMethodN:
         else:
             # Additionally set second argument as printer
             def call(*args):
+                from screpl.main import get_main_writer
                 instance = manager.get_foreground_app_instance()
                 prev_cls = instance._cls
                 instance._cls = self.cls
-                printer = manager.getWriter()
+                printer = get_main_writer()
 
                 args = applyTypes(self.argtypes, args)
                 ret = self.method(instance, printer, *args)

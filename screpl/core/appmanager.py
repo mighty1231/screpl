@@ -404,12 +404,6 @@ class AppManager:
     def get_superuser_id(self):
         return self.su_id
 
-    def getWriter(self):
-        '''
-        Internally printing function uses this method
-        '''
-        return main.get_main_writer()
-
     def clean_text(self):
         """Cleans text UI of previous app."""
         EUDIfNot()(main.is_blind_mode())

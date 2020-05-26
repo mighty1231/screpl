@@ -1,6 +1,7 @@
 from eudplib import *
 
 from screpl.core.application import Application
+from screpl.main import get_main_writer
 
 from . import *
 
@@ -20,7 +21,7 @@ written = EUDVariable(0)
 
 def write_strings():
     global string_buffer, new_alloc_epd, v_mode
-    writer = app_manager.getWriter()
+    writer = get_main_writer()
     writer.seekepd(EPD(storage))
 
     cur_epd = EUDVariable()

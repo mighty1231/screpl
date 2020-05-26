@@ -38,6 +38,7 @@ from . import (
     g_start_location
 )
 from screpl.writer.scmd import write_scmd_trigger
+from screpl.main import get_main_writer
 
 MODE_CONFIG    = 0
 MODE_EXPORTING = 1
@@ -54,7 +55,7 @@ storage = Db(200000)
 remaining_bytes = EUDVariable(0)
 written = EUDVariable(0)
 
-writer = app_manager.getWriter()
+writer = get_main_writer()
 
 def writeBoundTriggers():
     global writer

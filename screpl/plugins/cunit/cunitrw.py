@@ -1,4 +1,5 @@
 from eudplib import *
+from screpl.main import get_main_writer
 from screpl.utils.conststring import EPDConstString
 from screpl.utils.struct import REPLStruct
 from . import app_manager
@@ -19,7 +20,7 @@ point: s32 x, y;
 rect: s16 l, t, r, b;
 points: s16 x, y;
 """
-writer = app_manager.getWriter()
+writer = get_main_writer()
 
 @EUDFunc
 def cw_bool(epd, off):
