@@ -1,17 +1,25 @@
-'''
-focused cunit
-cunit viewer
-option - what to view
-'''
+"""Defines CUnitManagerApp
+
+TUI
+
+.. code-block:: text
+
+    CUnit Manager
+    LCTRL+E Open CUnitDetailApp
+    LCTRL+O Options
+    LCTRL+G ReadStruct
+"""
 from eudplib import *
 
 from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
 from screpl.encoder.const import ArgEncNumber
+from screpl.main import is_bridge_mode
 
 from . import *
 from .detail import CUnitDetailApp
 from .option import CUnitOptionApp
+from .readstruct import ReadStructApp
 
 class CUnitManagerApp(Application):
     def loop(self):
@@ -22,6 +30,9 @@ class CUnitManagerApp(Application):
             app_manager.start_application(CUnitDetailApp)
         if EUDElseIf()(app_manager.key_press("O", hold=["LCTRL"])):
             app_manager.start_application(CUnitOptionApp)
+        if is_bridge_mode():
+            if EUDElseIf()(app_manager.key_press("G", hold=["LCTRL"])):
+                app_manager.start_application(ReadStructApp)
         EUDEndIf()
         app_manager.request_update()
 
@@ -29,4 +40,6 @@ class CUnitManagerApp(Application):
         writer.write_f("\x04CUnit Manager\n")
         writer.write_f("LCTRL+E Open CUnitDetailApp\n")
         writer.write_f("LCTRL+O Options\n")
+        if is_bridge_mode():
+            writer.write_f("LCTRL+G ReadStruct\n")
         writer.write(0)
