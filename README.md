@@ -92,7 +92,7 @@ You can make your customized application as a plugin of SC-REPL. Check it [here]
 
 You can check [doc](https://mighty1231.github.io/screpl/) to get information on functions.
 
-High-level documentation (application level) is provided with [Github wiki](https://github.com/mighty1231/screpl/wiki), but so far, they are almost written in Korean.
+High-level documentations (application level) are provided with [Github wiki](https://github.com/mighty1231/screpl/wiki), but so far, most of them are written in Korean.
 
 ## Contribution Guide
 
