@@ -1,8 +1,6 @@
 '''
 REPLStruct
-similar to EUDStruct, but specialized to REPL
-
-.. code-block:: python
+similar to EUDStruct, but specialized to REPL::
 
     class MyStruct(REPLStruct):
         fields = ['a']

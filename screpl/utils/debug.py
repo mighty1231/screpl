@@ -53,11 +53,9 @@ def f_printf(*args):
     _print_buf()
 
 class DisplayWriter:
-    """Helps to display text, preserving bottom part of chat
+    r"""Helps to display text, preserving bottom part of chat
 
-    Usage
-
-    .. code-block: python
+    Usage::
 
         with DisplayWriter() as writer:
             writer.write_f("Hello\n")

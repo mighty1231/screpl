@@ -21,9 +21,7 @@ class ChatReaderApp(application.Application):
 
         [ OK (CTRL+Y) ]    [ CANCEL (CTRL+N) ]
 
-    Application usage to store text from user
-
-    .. code-block:: python
+    Application usage to store text from user::
 
         my_database = Db(220)
         ChatReaderApp.set_return_epd(EPD(my_database))

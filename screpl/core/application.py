@@ -160,9 +160,7 @@ class ApplicationInstance:
     referenced relative to the foreground app and its original class type.
     Otherwise, using _cls attribute, their absolute functions are referenced.
 
-    It enables successful AppMethod overriding.
-
-    .. code-block:: python
+    It enables successful AppMethod overriding::
 
         # class definitions
         class MyApp1(Application):
@@ -203,7 +201,7 @@ class ApplicationInstance:
     def get_reference_epd(self, member):
         """Returns address for current foreground app instance member
 
-        .. code-block:: python
+        For example::
 
             class MyApp(Application):
                 fields = ['var']
@@ -292,9 +290,7 @@ class Application(metaclass=_ApplicationMetaclass):
     def get_super(cls):
         """Get superclass instance
 
-        May be used for overriding AppMethodN object. Usage:
-
-        .. code-block:: python
+        May be used for overriding AppMethodN object. Usage::
 
             def on_init(self):
                 self.my_var = 3

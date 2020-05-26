@@ -100,11 +100,9 @@ class Logger(scroll.ScrollApp):
 
     @staticmethod
     def get_multiline_writer(title):
-        """Supports to log several lines
+        r"""Supports to log several lines
 
-        Usage
-
-        .. code-block: python
+        Usage::
 
             with Logger.get_multiline_writer("log_title") as writer:
                 writer.write_f("Hello!\n")

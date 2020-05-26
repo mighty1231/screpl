@@ -296,7 +296,7 @@ class REPLArray(struct.REPLStruct):
     def values(self):
         """iterate over values in array
 
-        .. code-block:: python
+        Example::
 
             array = REPLArray.construct(5, [1, 2, 3, 2, 1])
             for v in array.values():

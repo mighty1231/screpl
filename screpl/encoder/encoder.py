@@ -54,9 +54,7 @@ def _read_until_delimiter(_b, delim):
 def read_number(offset, delim, ref_offset_epd, ref_retval_epd):
     """Reads string and extracts corresponding number.
 
-    It reads following regular expression
-
-    .. code-block:: python
+    It reads following regular expression::
 
         regex_decimal = r"[-]?[1-9][0-9]*"
         regex_hexadecimal = r"[-]?0x[0-9A-Fa-f]+"
@@ -166,7 +164,7 @@ def read_number(offset, delim, ref_offset_epd, ref_retval_epd):
 def read_name(offset, delim, ref_offset_epd, ref_retval_epd):
     """Reads string and extracts corresponding symbol
 
-    .. code-block:: python
+    It reads following regex::
 
         regex_symbol = r"[_a-zA-Z][_0-9a-zA-Z]*"
 
@@ -231,7 +229,7 @@ def read_name(offset, delim, ref_offset_epd, ref_retval_epd):
 def read_string(offset, delim, ref_offset_epd, ref_retval_epd):
     """Reads string wrapped with "
 
-    .. code-block:: python
+    It reads following regex::
 
         regex_string = r"[usual_character]*"
         regex_character = range(0x20, 0x7F) # except ord("\"") = 34

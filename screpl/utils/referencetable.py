@@ -12,9 +12,7 @@ class ReferenceTable(EUDObject):
 
     However, these key-value pair are lazily collected.
 
-    key_f transforms key before registered.
-
-    .. code-block:: python
+    key_f transforms key before registered::
 
         rt = ReferenceTable(key_transformer = EPDConstString)
         rt.add_pair("Hello", 3) # transforms "Hello" to EPD(Db())
