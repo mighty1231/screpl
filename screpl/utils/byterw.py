@@ -6,6 +6,16 @@ class REPLByteRW:
     def __init__(self):
         self.epd, self.off = EUDCreateVariables(2)
 
+    @classmethod
+    def add_method(cls, method):
+        """Dynamically add method on REPLByteRW"""
+        mtdname = method.__name__
+        if mtdname in dir(cls):
+            raise ValueError("class %r already has attribute %r" %
+                             (cls.__name__, mtdname))
+
+        setattr(cls, mtdname, method)
+
     @EUDMethod
     def getoffset(self):
         """Returns current offset"""
