@@ -87,6 +87,7 @@ def initialize_with_id(su_id):
     su_prefixlen = f_strlen(su_prefix)
 
     _manager = AppManager(su_id, su_prefix, su_prefixlen)
+    _initialize_rest()
 
 def initialize_with_name(su_name):
     """Initialize REPL with configurations, with name-certification.
@@ -131,6 +132,20 @@ def initialize_with_name(su_name):
     EUDEndIf()
 
     _manager = AppManager(su_id, su_prefix, su_prefixlen)
+    _initialize_rest()
+
+def _initialize_rest():
+    """Initialize SC-REPL after manager initialized"""
+    from screpl.writer import writer_init
+
+    writer_init()
+
+    # turbo mode
+    repl.REPL.add_command("timer", _cmd_trig_timer)
+    repl.REPL.add_command("timerOff", _cmd_trig_timer_off)
+    repl.REPL.add_command("turbo", _cmd_turbo)
+    repl.REPL.add_command("eudturbo", _cmd_eudturbo)
+
 
 def set_bridge_mode(bridge_mode):
     """Initialize bridge with specificed mode
@@ -211,12 +226,6 @@ def run():
     global _loop_count
 
     if EUDExecuteOnce()():
-        # turbo mode
-        repl.REPL.add_command("timer", _cmd_trig_timer)
-        repl.REPL.add_command("timerOff", _cmd_trig_timer_off)
-        repl.REPL.add_command("turbo", _cmd_turbo)
-        repl.REPL.add_command("eudturbo", _cmd_eudturbo)
-
         # REPL is the application on the base
         _manager.start_application(repl.REPL)
     EUDEndExecuteOnce()

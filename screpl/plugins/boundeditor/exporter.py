@@ -23,7 +23,6 @@ Expected TUI - Exporting
 from eudplib import *
 
 from screpl.core.application import Application
-from screpl.writer import write_unit
 
 from screpl.plugins.unit.manager import UnitManagerApp
 from . import (
@@ -37,7 +36,6 @@ from . import (
     g_runner_unit,
     g_start_location
 )
-from screpl.writer.scmd import write_scmd_trigger
 from screpl.main import get_main_writer
 
 MODE_CONFIG    = 0
@@ -61,7 +59,7 @@ def writeBoundTriggers():
     global writer
     writer.seekepd(EPD(storage))
 
-    write_scmd_trigger(
+    writer.write_scmd_trigger(
         g_runner_force,
         [Always()],
         ["Comment(\"Score\");\n",
@@ -70,12 +68,12 @@ def writeBoundTriggers():
          SetScore(g_runner_force, SetTo, 0, Custom)],
         preserved = False
     )
-    write_scmd_trigger(
+    writer.write_scmd_trigger(
         g_effectplayer,
         ["Command(\"Player 12\", \"Men\", At least, 1);\n"],
         ["Remove Unit(\"Player 12\", \"Men\");\n"]
     )
-    write_scmd_trigger(
+    writer.write_scmd_trigger(
         AllPlayers,
         [Always()],
         ["Set Alliance Status(\"All players\", Ally);\n"],
@@ -106,7 +104,7 @@ def writeBoundTriggers():
                 num_actions_to_send << rem_action_count
             EUDEndIf()
 
-            write_scmd_trigger(
+            writer.write_scmd_trigger(
                 g_effectplayer,
                 ["// EXTRA_CONDITION\n",
                  Deaths(g_effectplayer, Exactly, next_timer, v_death_unit)],
@@ -122,13 +120,13 @@ def writeBoundTriggers():
     EUDEndInfLoop()
 
     # making loop
-    write_scmd_trigger(
+    writer.write_scmd_trigger(
         g_effectplayer,
         ["// EXTRA_CONDITION\n",
          Always()],
         [SetDeaths(g_effectplayer, Add, 1, v_death_unit)]
     )
-    write_scmd_trigger(
+    writer.write_scmd_trigger(
         g_effectplayer,
         ["// EXTRA_CONDITION\n",
          Deaths(g_effectplayer, Exactly, next_timer, v_death_unit)],
@@ -136,7 +134,7 @@ def writeBoundTriggers():
     )
 
     # death condition
-    write_scmd_trigger(
+    writer.write_scmd_trigger(
         g_runner_force,
         ["// EXTRA_CONDITION\n",
          Command(CurrentPlayer, Exactly, 0, g_runner_unit)],
@@ -146,14 +144,14 @@ def writeBoundTriggers():
 
     # turbo, timer, ...
     if EUDIf()(v_turbo_mode.Exactly(TURBO_EUD)):
-        write_scmd_trigger(
+        writer.write_scmd_trigger(
             g_effectplayer,
             [Always()],
             ["MemoryAddr(0x6509A0, Set To, 0);\n"]
         )
     if EUDElseIf()(v_turbo_mode.Exactly(TURBO_NORMAL)):
         for i in range(3):
-            write_scmd_trigger(
+            writer.write_scmd_trigger(
                 g_effectplayer,
                 [Always()],
                 ["Wait(0);\n" * 63]
@@ -203,7 +201,7 @@ class ExporterApp(Application):
         writer.write_f("Bound Editor - Exporter (Bridge Client required)\n")
         if EUDIf()(mode == MODE_CONFIG):
             writer.write_f("Death Unit used as timer (U): ")
-            write_unit(v_death_unit)
+            writer.write_unit(v_death_unit)
             writer.write_f("\nTurbo mode (T) - ")
 
             if EUDIf()(v_turbo_mode == TURBO_EUD):

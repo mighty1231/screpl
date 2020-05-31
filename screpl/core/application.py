@@ -275,8 +275,8 @@ class Application(metaclass=_ApplicationMetaclass):
         self.run_command(address)
 
     def on_resume(self):
-        """Called exactly once after the application started other application
-        and reactivated"""
+        """Called exactly once after newly started app is destructed
+        and the app became to be foreground again"""
 
     def loop(self):
         """Called exactly once in every frame"""

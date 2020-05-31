@@ -8,11 +8,11 @@ similar to EUDStruct, but specialized to REPL::
     s1 = MyStruct(a=4)
     v = EUDVariable()
     v << s1
-    print(v) # has same value with s
+    print(v) # has same value with s1
 
     s2 = MyStruct.cast(v)
     s2.a += 5
-    print(s.a) # 5
+    print(s1.a) # 5
 '''
 from eudplib import *
 

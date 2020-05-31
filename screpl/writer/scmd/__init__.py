@@ -1,68 +1,67 @@
 from eudplib import *
-from screpl.main import get_main_writer
+from screpl.utils.referencetable import ReferenceTable
+from screpl.utils.conststring import EPDConstString
 
-def make_scmd_const_writer(encoder, kvmap):
-    @EUDFunc
-    def writeVar(var):
-        for i, (k, v) in enumerate(kvmap):
-            _br = EUDIf if i == 0 else EUDElseIf
-            _br()(var.Exactly(encoder(k)))
-            get_main_writer().write_f(v)
-        EUDElse()()
-        get_main_writer().write_decimal(var)
-        EUDEndIf()
+def writer_scmd_init():
+    from screpl.utils.byterw import REPLByteRW
 
-    def write(value):
-        if IsEUDVariable(value):
-            writeVar(value)
-        else:
-            for k, v in kvmap:
-                if encoder(k) == encoder(value):
-                    get_main_writer().write_f(v)
-                    return
-            get_main_writer().write_decimal(encoder(value))
+    from screpl.writer.scmd.action import write_scmd_action
+    from screpl.writer.scmd.action import write_scmd_action_epd
+    from screpl.writer.scmd.condition import write_scmd_condition
+    from screpl.writer.scmd.unit import write_scmd_unit
 
-    return write
+    REPLByteRW.add_method(write_scmd_unit)
+    REPLByteRW.add_method(write_scmd_const)
+    REPLByteRW.add_method(write_scmd_condition)
+    REPLByteRW.add_method(write_scmd_action)
+    REPLByteRW.add_method(write_scmd_action_epd)
+    REPLByteRW.add_method(write_scmd_trigger)
 
-def write_scmd_number(value):
+def write_scmd_const(self, table, value):
     if IsEUDVariable(value):
-        get_main_writer().write_decimal(value)
+        self.write_constant(EPD(table), value)
     else:
-        get_main_writer().write_f(str(value))
+        key_tr = table.find_key_by_value(value)
+        self.write_strepd(key_tr)
 
-def write_scmd_trigger(player, conditions, actions, preserved=True):
-    from .condition import write_scmd_condition
-    from .action import write_scmd_action, write_scmd_action_epd
-    '''
-    actions = [SetDeaths(~~), SetDeaths(~~), ...]
-    or
-    actions = (EUDVariable(2), action_array_epd)
-    '''
+def write_scmd_trigger(self, player, conditions, actions, preserved=True):
+    """write scmd trigger
 
-    get_main_writer().write_f("Trigger(")
-    write_scmd_player(player)
+    .. note::
+        This is minimalized function to utilize for boundeditor plugin.
+        So, there are many limitations, such as assigining trigger for
+        more than one player.
 
-    get_main_writer().write_f("){\nConditions:\n")
+    Args:
+        player(int, EUDVariable): trigger player
+        conditions(list): list of Condition
+        actions(list, tuple): list of Action, or
+            tuple of (# Actions, EUDArray of actions)
+    """
+    self.write_f("Trigger(")
+    self.write_scmd_const(tb_scmd_player, player)
+
+    self.write_f("){\nConditions:\n")
     for cond in conditions:
         if isinstance(cond, str):
-            get_main_writer().write_f(cond)
+            self.write_f(cond)
         elif isinstance(cond, tuple):
-            get_main_writer().write_f(*cond)
+            self.write_f(*cond)
         elif isinstance(cond, Condition):
-            write_scmd_condition(cond)
+            self.write_scmd_condition(cond)
         else:
             raise RuntimeError("Unknown type condition {}".format(cond))
 
-    get_main_writer().write_f("\nActions:\n")
+    self.write_f("\nActions:\n")
 
     if isinstance(actions, list):
         for act in actions:
             if isinstance(act, str):
-                get_main_writer().write_f(act)
+                self.write_f(act)
             elif isinstance(act, tuple):
-                get_main_writer().write_f(*act)
+                self.write_f(*act)
             elif isinstance(act, Action):
-                write_scmd_action(act)
+                self.write_scmd_action(act)
             else:
                 raise RuntimeError("Unknown type action {}".format(act))
     else:
@@ -74,58 +73,64 @@ def write_scmd_trigger(player, conditions, actions, preserved=True):
         if EUDInfLoop()():
             EUDBreakIf(cur_epd >= end_epd)
 
-            write_scmd_action_epd(cur_epd)
+            self.write_scmd_action_epd(cur_epd)
             cur_epd += (32//4)
         EUDEndInfLoop()
 
     if preserved:
-        get_main_writer().write_f("Preserve Trigger();\n")
-    get_main_writer().write_f("}\n\n")
+        self.write_f("Preserve Trigger();\n")
+    self.write_f("}\n\n")
 
+tb_scmd_player = ReferenceTable([
+    ('"Player 1"', Player1),
+    ('"Player 2"', Player2),
+    ('"Player 3"', Player3),
+    ('"Player 4"', Player4),
+    ('"Player 5"', Player5),
+    ('"Player 6"', Player6),
+    ('"Player 7"', Player7),
+    ('"Player 8"', Player8),
+    ('"Player 9"', Player9),
+    ('"Player 10"', Player10),
+    ('"Player 11"', Player11),
+    ('"Player 12"', Player12),
+    ('"Current Player"', CurrentPlayer),
+    ('"Foes"', Foes),
+    ('"Allies"', Allies),
+    ('"Neutral Players"', NeutralPlayers),
+    ('"All Players"', AllPlayers),
+    ('"Force 1"', Force1),
+    ('"Force 2"', Force2),
+    ('"Force 3"', Force3),
+    ('"Force 4"', Force4),
+    ('"Non Allied Victory Players"', NonAlliedVictoryPlayers),
+], key_f=EPDConstString, value_f=EncodePlayer, final=True)
 
-write_scmd_player = make_scmd_const_writer(EncodePlayer, [
-    (Player1, "\"Player 1\""),
-    (Player2, "\"Player 2\""),
-    (Player3, "\"Player 3\""),
-    (Player4, "\"Player 4\""),
-    (Player5, "\"Player 5\""),
-    (Player6, "\"Player 6\""),
-    (Player7, "\"Player 7\""),
-    (Player8, "\"Player 8\""),
-    (Player12, "\"Player 12\""),
-    (Force1, "\"Force 1\""),
-    (Force2, "\"Force 2\""),
-    (Force3, "\"Force 3\""),
-    (Force4, "\"Force 4\""),
-    (AllPlayers, "\"All Players\""),
-    (CurrentPlayer, "\"Current Player\""),
-])
+tb_scmd_modifier = ReferenceTable([
+    ("Set To", SetTo),
+    ("Add", Add),
+    ("Subtract", Subtract),
+], key_f=EPDConstString, value_f=EncodeModifier, final=True)
 
-write_scmd_modifier = make_scmd_const_writer(EncodeModifier, [
-    (SetTo, "Set To"),
-    (Add, "Add"),
-    (Subtract, "Subtract")
-])
+tb_scmd_comparison = ReferenceTable([
+    ("At least", AtLeast),
+    ("At most", AtMost),
+    ("Exactly", Exactly),
+], key_f=EPDConstString, value_f=EncodeComparison, final=True)
 
-write_scmd_comparison = make_scmd_const_writer(EncodeComparison, [
-    (AtLeast, "At least"),
-    (AtMost, "At most"),
-    (Exactly, "Exactly"),
-])
+tb_scmd_order = ReferenceTable([
+    ("move", Move),
+    ("patrol", Patrol),
+    ("attack", Attack),
+], key_f=EPDConstString, value_f=EncodeOrder, final=True)
 
-write_scmd_order = make_scmd_const_writer(EncodeOrder, [
-    (Move, "move"),
-    (Patrol, "patrol"),
-    (Attack, "attack"),
-])
-
-write_scmd_score = make_scmd_const_writer(EncodeScore, [
-    (Total, "Total"),
-    (Units, "Units"),
-    (Buildings, "Buildings"),
-    (UnitsAndBuildings, "Units and buildings"),
-    (Kills, "Kills"),
-    (Razings, "Razings"),
-    (KillsAndRazings, "Kills and razings"),
-    (Custom, "Custom"),
-])
+tb_scmd_score = ReferenceTable([
+    ("Total", Total),
+    ("Units", Units),
+    ("Buildings", Buildings),
+    ("Units and buildings", UnitsAndBuildings),
+    ("Kills", Kills),
+    ("Razings", Razings),
+    ("Kills and razings", KillsAndRazings),
+    ("Custom", Custom),
+], key_f=EPDConstString, value_f=EncodeScore, final=True)

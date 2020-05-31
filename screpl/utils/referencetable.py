@@ -24,7 +24,8 @@ class ReferenceTable(EUDObject):
                  ref_by=None,
                  key_f=lambda k: k,
                  value_f=lambda v: v,
-                 sortkey_f=lambda k, v: 0):
+                 sortkey_f=lambda k, v: 0,
+                 final=False):
         super().__init__()
 
         if not initdict:
@@ -47,11 +48,19 @@ class ReferenceTable(EUDObject):
         # Check the object called Evaluate() at least once
         self._addedToParents = False
 
+        self.final = False
+
         # list of tuples, [(k1, v1), (k2, v2), ... ]
         for k, v in initdict:
             self.add_pair(k, v)
 
+        # if final is true, add_pair is prevented
+        self.final = final
+
     def add_pair(self, key, value):
+        if self.final:
+            raise RuntimeError("Add pair on final ReferenceTable")
+
         # duplicate check
         for k, _ in self._dict:
             if k == key:
@@ -67,6 +76,28 @@ class ReferenceTable(EUDObject):
         self._keys.append(key_tr)
         self._values.append(value_tr)
         self._dict.append((key, value))
+
+    def find_value_by_key(self, key):
+        if not self.final:
+            raise RuntimeError("find method is available for final table")
+
+        target_key_tr = self.key_f(key)
+        for key_tr, value_tr in zip(self._keys, self._values):
+            if key_tr == target_key_tr:
+                return value_tr
+
+        raise KeyError(key)
+
+    def find_key_by_value(self, value):
+        if not self.final:
+            raise RuntimeError("find method is available for final table")
+
+        target_value_tr = self.value_f(value)
+        for key_tr, value_tr in zip(self._keys, self._values):
+            if value_tr == target_value_tr:
+                return key_tr
+
+        raise KeyError(value)
 
     def add_pair_lazily(self, key, value):
         from eudplib.core.allocator.payload import phase, PHASE_COLLECTING

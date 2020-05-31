@@ -56,10 +56,9 @@ p_actionArrayEPD = EUDArray([
     EPD(EUDArray(MAX_ACTION_COUNT * 32)) for _ in range(MAX_PATTERN_COUNT)
 ])
 
-def writePlayer(value):
-    from screpl.writer import write_constant
+def write_player(self, value):
     from screpl.resources.table.tables import Player
-    write_constant(EPD(Player), value)
+    self.write_constant(EPD(Player), value)
 
 # pattern, detail
 focused_pattern_id = EUDVariable(0)
