@@ -65,8 +65,9 @@ def write_string(self, val):
 
 def writer_init():
     from screpl.utils.byterw import REPLByteRW
-    from screpl.writer.condition import writer_condition_init
+
     from screpl.writer.action import writer_action_init
+    from screpl.writer.condition import writer_condition_init
     from screpl.writer.scmd import writer_scmd_init
 
     REPLByteRW.add_method(write_constant)

@@ -9,7 +9,7 @@ def writer_condition_init():
 
     REPLByteRW.add_method(write_condition_epd)
 
-_condmap = EPDOffsetMap((
+condition_epd_offset_map = EPDOffsetMap((
     ('locid', 0x00, 4),
     ('player', 0x04, 4),
     ('amount', 0x08, 4),
@@ -52,7 +52,7 @@ def write_condition_epd(self, epd):
         (22, _write__Always),
         (23, _write__Never)]
 
-    cond = _condmap(epd)
+    cond = condition_epd_offset_map(epd)
     condtype = cond.condtype
     for mtd_id, mtd in write_mtds:
         _br = EUDIf if mtd_id == 1 else EUDElseIf
@@ -85,7 +85,7 @@ def write_condition_epd(self, epd):
 
 @EUDMethod
 def _write__CountdownTimer(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("CountdownTimer(")
     self.write_constant(EPD(tb.Comparison), m.comparison)
     self.write_f(", ")
@@ -95,7 +95,7 @@ def _write__CountdownTimer(self, epd):
 
 @EUDMethod
 def _write__Command(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("Command(")
     self.write_constant(EPD(tb.Player), m.player)
     self.write_f(", ")
@@ -109,7 +109,7 @@ def _write__Command(self, epd):
 
 @EUDMethod
 def _write__Bring(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("Bring(")
     self.write_constant(EPD(tb.Player), m.player)
     self.write_f(", ")
@@ -125,7 +125,7 @@ def _write__Bring(self, epd):
 
 @EUDMethod
 def _write__Accumulate(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("Accumulate(")
     self.write_constant(EPD(tb.Player), m.player)
     self.write_f(", ")
@@ -139,7 +139,7 @@ def _write__Accumulate(self, epd):
 
 @EUDMethod
 def _write__Kills(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("Kills(")
     self.write_constant(EPD(tb.Player), m.player)
     self.write_f(", ")
@@ -153,7 +153,7 @@ def _write__Kills(self, epd):
 
 @EUDMethod
 def _write__CommandMost(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("CommandMost(")
     self.write_unit(m.unitid)
     self.write_f(")")
@@ -161,7 +161,7 @@ def _write__CommandMost(self, epd):
 
 @EUDMethod
 def _write__CommandMostAt(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("CommandMostAt(")
     self.write_unit(m.unitid)
     self.write_f(", ")
@@ -171,7 +171,7 @@ def _write__CommandMostAt(self, epd):
 
 @EUDMethod
 def _write__MostKills(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("MostKills(")
     self.write_unit(m.unitid)
     self.write_f(")")
@@ -179,7 +179,7 @@ def _write__MostKills(self, epd):
 
 @EUDMethod
 def _write__HighestScore(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("HighestScore(")
     self.write_constant(EPD(tb.Score), m.restype)
     self.write_f(")")
@@ -187,7 +187,7 @@ def _write__HighestScore(self, epd):
 
 @EUDMethod
 def _write__MostResources(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("MostResources(")
     self.write_constant(EPD(tb.Resource), m.restype)
     self.write_f(")")
@@ -195,7 +195,7 @@ def _write__MostResources(self, epd):
 
 @EUDMethod
 def _write__Switch(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("Switch(")
     self.write_switch(m.restype)
     self.write_f(", ")
@@ -205,7 +205,7 @@ def _write__Switch(self, epd):
 
 @EUDMethod
 def _write__ElapsedTime(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("ElapsedTime(")
     self.write_constant(EPD(tb.Comparison), m.comparison)
     self.write_f(", ")
@@ -215,7 +215,7 @@ def _write__ElapsedTime(self, epd):
 
 @EUDMethod
 def _write__Opponents(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("Opponents(")
     self.write_constant(EPD(tb.Player), m.player)
     self.write_f(", ")
@@ -227,7 +227,7 @@ def _write__Opponents(self, epd):
 
 @EUDMethod
 def _write__Deaths(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
 
     # consider EUD
     if EUDIf()(EUDOr([m.player >= 27, m.unitid < 228],
@@ -260,7 +260,7 @@ def _write__Deaths(self, epd):
 
 @EUDMethod
 def _write__CommandLeast(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("CommandLeast(")
     self.write_unit(m.unitid)
     self.write_f(")")
@@ -268,7 +268,7 @@ def _write__CommandLeast(self, epd):
 
 @EUDMethod
 def _write__CommandLeastAt(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("CommandLeastAt(")
     self.write_unit(m.unitid)
     self.write_f(", ")
@@ -278,7 +278,7 @@ def _write__CommandLeastAt(self, epd):
 
 @EUDMethod
 def _write__LeastKills(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("LeastKills(")
     self.write_unit(m.unitid)
     self.write_f(")")
@@ -286,7 +286,7 @@ def _write__LeastKills(self, epd):
 
 @EUDMethod
 def _write__LowestScore(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("LowestScore(")
     self.write_constant(EPD(tb.Score), m.restype)
     self.write_f(")")
@@ -294,7 +294,7 @@ def _write__LowestScore(self, epd):
 
 @EUDMethod
 def _write__LeastResources(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("LeastResources(")
     self.write_constant(EPD(tb.Resource), m.restype)
     self.write_f(")")
@@ -302,7 +302,7 @@ def _write__LeastResources(self, epd):
 
 @EUDMethod
 def _write__Score(self, epd):
-    m = _condmap(epd)
+    m = condition_epd_offset_map(epd)
     self.write_f("Score(")
     self.write_constant(EPD(tb.Player), m.player)
     self.write_f(", ")

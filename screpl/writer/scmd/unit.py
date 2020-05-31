@@ -1,25 +1,24 @@
 from eudplib import *
 
 from screpl.utils.conststring import EPDConstString
-from screpl.main import get_main_writer
 
-@EUDFunc
-def write_scmd_unit_var(unit):
+def write_scmd_unit(self, unit):
+    if IsEUDVariable(unit):
+        _write_scmd_unit_var(self, unit)
+    else:
+        self.write_f(scmd_default_units[unit])
+
+@EUDMethod
+def _write_scmd_unit_var(self, unit):
     if EUDIf()(unit >= 233):
-        get_main_writer().write_decimal(unit)
+        self.write_decimal(unit)
     if EUDElseIf()(unit == 228):
-        get_main_writer().write_decimal(unit)
+        self.write_decimal(unit)
     if EUDElse()():
-        get_main_writer().write_strepd(SCMDDefaultUnitArray[unit])
+        self.write_strepd(scmd_default_unit_array[unit])
     EUDEndIf()
 
-def write_scmd_unit(unit):
-    if IsEUDVariable(unit):
-        write_scmd_unit_var(unit)
-    else:
-        get_main_writer().write_f(SCMDDefaultUnits[unit])
-
-SCMDDefaultUnits = [
+scmd_default_units = [
     "\"Terran Marine\"",
     "\"Terran Ghost\"",
     "\"Terran Vulture\"",
@@ -254,4 +253,4 @@ SCMDDefaultUnits = [
     "\"Buildings\"",
     "\"Factories\"",
 ]
-SCMDDefaultUnitArray = EUDArray(list(map(EPDConstString, SCMDDefaultUnits)))
+scmd_default_unit_array = EUDArray(list(map(EPDConstString, scmd_default_units)))

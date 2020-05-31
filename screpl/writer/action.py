@@ -9,7 +9,7 @@ def writer_action_init():
 
     REPLByteRW.add_method(write_action_epd)
 
-_actmap = EPDOffsetMap((
+action_epd_offset_map = EPDOffsetMap((
     ('locid1', 0x00, 4),
     ('strid', 0x04, 4),
     ('wavid', 0x08, 4),
@@ -86,7 +86,7 @@ def write_action_epd(self, epd):
         (56, _write__Draw),
         (57, _write__SetAllianceStatus)]
 
-    act = _actmap(epd)
+    act = action_epd_offset_map(epd)
     acttype = act.acttype
     for mtd_id, mtd in write_mtds:
         _br = EUDIf if mtd_id == 1 else EUDElseIf
@@ -133,7 +133,7 @@ def _write__PreserveTrigger(self, epd):
 
 @EUDMethod
 def _write__Wait(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("Wait(")
     self.write_decimal(m.time)
     self.write_f(")")
@@ -148,7 +148,7 @@ def _write__UnpauseGame(self, epd):
 
 @EUDMethod
 def _write__Transmission(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("Transmission(")
     self.write_unit(m.unitid)
     self.write_f(", ")
@@ -166,7 +166,7 @@ def _write__Transmission(self, epd):
 
 @EUDMethod
 def _write__PlayWAV(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("PlayWAV(")
     self.write_string(m.wavid)
     self.write_f(")")
@@ -174,7 +174,7 @@ def _write__PlayWAV(self, epd):
 
 @EUDMethod
 def _write__DisplayText(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("DisplayText(")
     self.write_string(m.strid)
     self.write_f(")")
@@ -182,7 +182,7 @@ def _write__DisplayText(self, epd):
 
 @EUDMethod
 def _write__CenterView(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("CenterView(")
     self.write_location(m.locid1)
     self.write_f(")")
@@ -190,7 +190,7 @@ def _write__CenterView(self, epd):
 
 @EUDMethod
 def _write__CreateUnitWithProperties(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("CreateUnitWithProperties(")
     self.write_decimal(m.amount)
     self.write_f(", ")
@@ -206,7 +206,7 @@ def _write__CreateUnitWithProperties(self, epd):
 
 @EUDMethod
 def _write__SetMissionObjectives(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("SetMissionObjectives(")
     self.write_string(m.strid)
     self.write_f(")")
@@ -214,7 +214,7 @@ def _write__SetMissionObjectives(self, epd):
 
 @EUDMethod
 def _write__SetSwitch(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("SetSwitch(")
     self.write_switch(m.player2)
     self.write_f(", ")
@@ -224,7 +224,7 @@ def _write__SetSwitch(self, epd):
 
 @EUDMethod
 def _write__SetCountdownTimer(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("SetCountdownTimer(")
     self.write_constant(EPD(tb.Modifier), m.amount)
     self.write_f(", ")
@@ -234,7 +234,7 @@ def _write__SetCountdownTimer(self, epd):
 
 @EUDMethod
 def _write__RunAIScript(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("RunAIScript(")
     self.write_aiscript(m.player2)
     self.write_f(")")
@@ -242,7 +242,7 @@ def _write__RunAIScript(self, epd):
 
 @EUDMethod
 def _write__RunAIScriptAt(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("RunAIScriptAt(")
     self.write_aiscript(m.player2)
     self.write_f(", ")
@@ -252,7 +252,7 @@ def _write__RunAIScriptAt(self, epd):
 
 @EUDMethod
 def _write__LeaderBoardControl(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("LeaderBoardControl(")
     self.write_unit(m.unitid)
     self.write_f(", ")
@@ -262,7 +262,7 @@ def _write__LeaderBoardControl(self, epd):
 
 @EUDMethod
 def _write__LeaderBoardControlAt(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("LeaderBoardControlAt(")
     self.write_unit(m.unitid)
     self.write_f(", ")
@@ -274,7 +274,7 @@ def _write__LeaderBoardControlAt(self, epd):
 
 @EUDMethod
 def _write__LeaderBoardResources(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("LeaderBoardResources(")
     self.write_constant(EPD(tb.Resource), m.unitid)
     self.write_f(", ")
@@ -284,7 +284,7 @@ def _write__LeaderBoardResources(self, epd):
 
 @EUDMethod
 def _write__LeaderBoardKills(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("LeaderBoardKills(")
     self.write_unit(m.unitid)
     self.write_f(", ")
@@ -294,7 +294,7 @@ def _write__LeaderBoardKills(self, epd):
 
 @EUDMethod
 def _write__LeaderBoardScore(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("LeaderBoardScore(")
     self.write_constant(EPD(tb.Score), m.unitid)
     self.write_f(", ")
@@ -304,7 +304,7 @@ def _write__LeaderBoardScore(self, epd):
 
 @EUDMethod
 def _write__KillUnit(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("KillUnit(")
     self.write_unit(m.unitid)
     self.write_f(", ")
@@ -314,7 +314,7 @@ def _write__KillUnit(self, epd):
 
 @EUDMethod
 def _write__KillUnitAt(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("KillUnitAt(")
     if EUDIf()(m.amount == 0):
         self.write_f("All")
@@ -332,7 +332,7 @@ def _write__KillUnitAt(self, epd):
 
 @EUDMethod
 def _write__RemoveUnit(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("RemoveUnit(")
     self.write_unit(m.unitid)
     self.write_f(", ")
@@ -342,7 +342,7 @@ def _write__RemoveUnit(self, epd):
 
 @EUDMethod
 def _write__RemoveUnitAt(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("RemoveUnitAt(")
     if EUDIf()(m.amount == 0):
         self.write_f("All")
@@ -360,7 +360,7 @@ def _write__RemoveUnitAt(self, epd):
 
 @EUDMethod
 def _write__SetResources(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("SetResources(")
     self.write_constant(EPD(tb.Player), m.player1)
     self.write_f(", ")
@@ -374,7 +374,7 @@ def _write__SetResources(self, epd):
 
 @EUDMethod
 def _write__SetScore(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("SetScore(")
     self.write_constant(EPD(tb.Player), m.player1)
     self.write_f(", ")
@@ -388,7 +388,7 @@ def _write__SetScore(self, epd):
 
 @EUDMethod
 def _write__MinimapPing(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("MinimapPing(")
     self.write_location(m.locid1)
     self.write_f(")")
@@ -396,7 +396,7 @@ def _write__MinimapPing(self, epd):
 
 @EUDMethod
 def _write__TalkingPortrait(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("TalkingPortrait(")
     self.write_unit(m.unitid)
     self.write_f(", ")
@@ -414,7 +414,7 @@ def _write__UnMuteUnitSpeech(self, epd):
 
 @EUDMethod
 def _write__LeaderBoardComputerPlayers(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("LeaderBoardComputerPlayers(")
     self.write_constant(EPD(tb.PropState), m.amount)
     self.write_f(")")
@@ -422,7 +422,7 @@ def _write__LeaderBoardComputerPlayers(self, epd):
 
 @EUDMethod
 def _write__LeaderBoardGoalControl(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("LeaderBoardGoalControl(")
     self.write_decimal(m.player2)
     self.write_f(", ")
@@ -434,7 +434,7 @@ def _write__LeaderBoardGoalControl(self, epd):
 
 @EUDMethod
 def _write__LeaderBoardGoalControlAt(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("LeaderBoardGoalControlAt(")
     self.write_decimal(m.player2)
     self.write_f(", ")
@@ -448,7 +448,7 @@ def _write__LeaderBoardGoalControlAt(self, epd):
 
 @EUDMethod
 def _write__LeaderBoardGoalResources(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("LeaderBoardGoalResources(")
     self.write_decimal(m.player2)
     self.write_f(", ")
@@ -460,7 +460,7 @@ def _write__LeaderBoardGoalResources(self, epd):
 
 @EUDMethod
 def _write__LeaderBoardGoalKills(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("LeaderBoardGoalKills(")
     self.write_decimal(m.player2)
     self.write_f(", ")
@@ -472,7 +472,7 @@ def _write__LeaderBoardGoalKills(self, epd):
 
 @EUDMethod
 def _write__LeaderBoardGoalScore(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("LeaderBoardGoalScore(")
     self.write_decimal(m.player2)
     self.write_f(", ")
@@ -484,7 +484,7 @@ def _write__LeaderBoardGoalScore(self, epd):
 
 @EUDMethod
 def _write__MoveLocation(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("MoveLocation(")
     self.write_location(m.player2)
     self.write_f(", ")
@@ -498,7 +498,7 @@ def _write__MoveLocation(self, epd):
 
 @EUDMethod
 def _write__MoveUnit(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("MoveUnit(")
     if EUDIf()(m.amount == 0):
         self.write_f("All")
@@ -518,7 +518,7 @@ def _write__MoveUnit(self, epd):
 
 @EUDMethod
 def _write__LeaderBoardGreed(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("LeaderBoardGreed(")
     self.write_decimal(m.player2)
     self.write_f(")")
@@ -526,7 +526,7 @@ def _write__LeaderBoardGreed(self, epd):
 
 @EUDMethod
 def _write__SetNextScenario(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("SetNextScenario(")
     self.write_string(m.strid)
     self.write_f(")")
@@ -534,7 +534,7 @@ def _write__SetNextScenario(self, epd):
 
 @EUDMethod
 def _write__SetDoodadState(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("SetDoodadState(")
     self.write_constant(EPD(tb.PropState), m.amount)
     self.write_f(", ")
@@ -548,7 +548,7 @@ def _write__SetDoodadState(self, epd):
 
 @EUDMethod
 def _write__SetInvincibility(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("SetInvincibility(")
     self.write_constant(EPD(tb.PropState), m.amount)
     self.write_f(", ")
@@ -562,7 +562,7 @@ def _write__SetInvincibility(self, epd):
 
 @EUDMethod
 def _write__CreateUnit(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("CreateUnit(")
     self.write_decimal(m.amount)
     self.write_f(", ")
@@ -576,7 +576,7 @@ def _write__CreateUnit(self, epd):
 
 @EUDMethod
 def _write__SetDeaths(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
 
     # consider EUD
     if EUDIf()(EUDOr([m.player1 >= 27, m.unitid < 228],
@@ -608,7 +608,7 @@ def _write__SetDeaths(self, epd):
 
 @EUDMethod
 def _write__Order(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("Order(")
     self.write_unit(m.unitid)
     self.write_f(", ")
@@ -624,7 +624,7 @@ def _write__Order(self, epd):
 
 @EUDMethod
 def _write__Comment(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("Comment(")
     self.write_string(m.strid)
     self.write_f(")")
@@ -632,7 +632,7 @@ def _write__Comment(self, epd):
 
 @EUDMethod
 def _write__GiveUnits(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("GiveUnits(")
     if EUDIf()(m.amount == 0):
         self.write_f("All")
@@ -652,7 +652,7 @@ def _write__GiveUnits(self, epd):
 
 @EUDMethod
 def _write__ModifyUnitHitPoints(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("ModifyUnitHitPoints(")
     if EUDIf()(m.amount == 0):
         self.write_f("All")
@@ -672,7 +672,7 @@ def _write__ModifyUnitHitPoints(self, epd):
 
 @EUDMethod
 def _write__ModifyUnitEnergy(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("ModifyUnitEnergy(")
     if EUDIf()(m.amount == 0):
         self.write_f("All")
@@ -692,7 +692,7 @@ def _write__ModifyUnitEnergy(self, epd):
 
 @EUDMethod
 def _write__ModifyUnitShields(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("ModifyUnitShields(")
     if EUDIf()(m.amount == 0):
         self.write_f("All")
@@ -712,7 +712,7 @@ def _write__ModifyUnitShields(self, epd):
 
 @EUDMethod
 def _write__ModifyUnitResourceAmount(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("ModifyUnitResourceAmount(")
     if EUDIf()(m.amount == 0):
         self.write_f("All")
@@ -730,7 +730,7 @@ def _write__ModifyUnitResourceAmount(self, epd):
 
 @EUDMethod
 def _write__ModifyUnitHangarCount(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("ModifyUnitHangarCount(")
     self.write_decimal(m.player2)
     self.write_f(", ")
@@ -762,7 +762,7 @@ def _write__Draw(self, epd):
 
 @EUDMethod
 def _write__SetAllianceStatus(self, epd):
-    m = _actmap(epd)
+    m = action_epd_offset_map(epd)
     self.write_f("SetAllianceStatus(")
     self.write_constant(EPD(tb.Player), m.player1)
     self.write_f(", ")

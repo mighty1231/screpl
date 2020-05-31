@@ -4,7 +4,6 @@ from screpl.apps.scroll import ScrollApp
 from screpl.utils.referencetable import ReferenceTable
 from screpl.core.appcommand import AppCommand
 from screpl.core.appmethod import AppTypedMethod
-from screpl.writer import write_unit
 
 from . import death_units, watched_eud_vars, accessed_resources
 
@@ -56,7 +55,7 @@ class VariableApp(ScrollApp):
                     writer.write_f("\x1e # {} ".format(i+1))
 
                     # write unit name
-                    write_unit(unitID)
+                    writer.write_unit(unitID)
 
                     # write death values
                     self.write_pvar_from_epd(EPD(0x58A364 + 48*unitID))

@@ -19,7 +19,6 @@ Expected TUI
 from eudplib import *
 
 from screpl.core.application import Application
-from screpl.writer import write_location
 
 from . import (
     app_manager,
@@ -131,6 +130,6 @@ class TestPatternApp(Application):
         EUDEndIf()
 
         writer.write_f("\n\n\x02Start location: ")
-        write_location(g_start_location)
+        writer.write_location(g_start_location)
         writer.write(ord('\n'))
         writer.write(0)
