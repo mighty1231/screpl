@@ -3,7 +3,7 @@ from eudplib import *
 from . import conststring as cs
 from . import byterw as rw
 
-_buf = Db(2048)
+_buf = Db(4096)
 _writer = None
 
 def _get_writer():
@@ -62,6 +62,9 @@ class DisplayWriter:
             writer.write_f("Line number 2\n")
             writer.write(0)
     """
+    def __init__(self, preserve_chat=True):
+        self.preserve_chat = preserve_chat
+
     def __enter__(self):
         writer = _get_writer()
         writer.seekepd(EPD(_buf))
@@ -70,4 +73,6 @@ class DisplayWriter:
 
     def __exit__(self, ex_type, ex_val, tb):
         _print_buf()
-        SeqCompute([(EPD(0x640B58), SetTo, self.txt_ptr)])
+
+        if self.preserve_chat:
+            SeqCompute([(EPD(0x640B58), SetTo, self.txt_ptr)])
