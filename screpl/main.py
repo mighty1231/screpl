@@ -83,6 +83,7 @@ def initialize_with_id(su_id):
     if EUDElse()():
         writer.write(2)
     EUDEndIf()
+    writer.write(ord(' '))
     writer.write(0)
     su_prefixlen = f_strlen(su_prefix)
 
