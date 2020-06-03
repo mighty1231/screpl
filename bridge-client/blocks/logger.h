@@ -21,6 +21,7 @@ public:
     void afterProcess() override;
 
 private:
+    int last_log_index;
     int log_index;
     char logger_log[LOGGER_LINE_COUNT][LOGGER_LINE_SIZE];
 
