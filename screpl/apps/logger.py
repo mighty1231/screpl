@@ -25,7 +25,7 @@ mode = EUDVariable(MODE_REALTIME)
 
 writer = rw.REPLByteRW()
 
-multiline_buffer = Db(3000)
+multiline_buffer = Db(100000)
 
 class MultilineLogWriter:
     def __init__(self, title):
