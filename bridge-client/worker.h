@@ -46,6 +46,7 @@ private:
 
     // members
     QByteArray SIGNATURE;
+    int available_protocol;
     int status;
 
     int pageSize;

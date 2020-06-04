@@ -14,6 +14,9 @@ struct SharedRegionHeader {
     // Too much milk solution #3, busy-waiting by A
     int note_to_sc;
     int note_from_sc;
+
+    /* bridge protocol */
+    int bridge_protocol;
     unsigned int region_size;
 
     /* To SC */
