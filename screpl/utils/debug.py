@@ -33,9 +33,9 @@ def _print_buf():
     ])
     f_setcurpl(orig_cp)
 
-def f_raise_error(txt):
+def f_raise_error(*args):
     _get_writer().seekepd(EPD(_buf))
-    _get_writer().write_strepd(cs.EPDConstString(txt))
+    _get_writer().write_f(*args)
     _get_writer().write(0)
     _print_buf()
     DoActions(SetMemory(0xDEADBEEF ^ 0xFFFFFFFF, SetTo, 0))
