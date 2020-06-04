@@ -69,8 +69,10 @@ def MaximumCircularBuffer(elem_type):
             self.count = count + 1
             return content_epd + rem
 
-        @EUDTypedMethod([EUDFuncPtr(1, 0)])
+        # @EUDTypedMethod([EUDFuncPtr(1, 0)])
+        @EUDMethod
         def iter(self, iter_f):
+            iter_f = EUDFuncPtr(1, 0).cast(iter_f)
             count = self.count
             if EUDIf()(count == 0):
                 EUDReturn()

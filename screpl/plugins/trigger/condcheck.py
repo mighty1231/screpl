@@ -1,0 +1,81 @@
+from eudplib import *
+
+from screpl.core.appcommand import AppCommand
+from screpl.core.application import Application
+from screpl.core.appmethod import AppTypedMethod
+from screpl.encoder.const import ArgEncNumber
+from screpl.main import get_app_manager
+from screpl.main import get_main_writer
+
+from .entry import MaximumCircularBuffer, ResultEntry
+from . import cctm
+
+app_manager = get_app_manager()
+writer = get_main_writer()
+
+assert cctm.result_tables
+
+arr_trig_object = []
+arr_trigid = []
+arr_pid = []
+arr_mcb = []
+for trig_object, trigid, pid, mcb in cctm.result_tables:
+    arr_trig_object.append(trig_object)
+    arr_trigid.append(trigid)
+    arr_pid.append(pid)
+    arr_mcb.append(mcb)
+
+arr_length = len(cctm.result_tables)
+arr_trig_object = EUDArray(arr_trig_object)
+arr_trigid = EUDArray(arr_trigid)
+arr_pid = EUDArray(arr_pid)
+arr_mcb = EUDArray(arr_mcb)
+
+v_focus = EUDVariable(0)
+
+@EUDTypedFunc([ResultEntry])
+def write_entry(entry):
+    start_tick = entry.start_tick
+    end_tick = entry.end_tick
+    cond_count = entry.cond_count
+    cond_bools_epd = entry.cond_bools_epd
+    cond_values_epd = entry.cond_values_epd
+
+    writer.write_f("\x16%D-%D: ", start_tick, end_tick)
+    if EUDWhileNot()(cond_count == 0):
+        color = EUDTernary(MemoryEPD(cond_bools_epd, Exactly, 0))(6)(7)
+        writer.write_f("%C%D ", color, f_dwread_epd(cond_values_epd))
+
+        DoActions([
+            cond_count.SubtractNumber(1),
+            cond_bools_epd.AddNumber(1),
+            cond_values_epd.AddNumber(1),
+        ])
+    EUDEndWhile()
+    writer.write_f("\n")
+
+def _set_focus(new_focus):
+    global v_focus
+    if EUDIfNot()(new_focus >= arr_length):
+        v_focus << new_focus
+    EUDEndIf()
+
+class CondCheckApp(Application):
+    def loop(self):
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
+            EUDReturn()
+        if EUDElseIf()(app_manager.key_press("F7")):
+            _set_focus(v_focus-1)
+        if EUDElseIf()(app_manager.key_press("F8")):
+            _set_focus(v_focus+1)
+        EUDEndIf()
+        app_manager.request_update()
+
+    def print(self, writer):
+        trigid = arr_trigid[v_focus]
+        pid = arr_pid[v_focus]
+        mcb =  MaximumCircularBuffer(ResultEntry).cast(arr_mcb[v_focus])
+
+        mcb.iter(EUDFuncPtr(1, 0)(write_entry))
+        writer.write(0)
