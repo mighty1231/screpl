@@ -4,6 +4,7 @@ from eudplib import *
 from screpl.core.application import Application
 from screpl.main import get_app_manager
 from screpl.main import get_main_writer
+from screpl.resources.table.tables import Player
 
 from . import cctm
 from .entry import MaximumCircularBuffer, ResultEntry
@@ -71,10 +72,10 @@ class CondCheckApp(Application):
             _set_focus(v_focus-1)
         if EUDElseIf()(app_manager.key_press("F8")):
             _set_focus(v_focus+1)
-        if EUDElseIf()(app_manager.key_down("H")):
+        if EUDElseIf()(app_manager.key_down("F1")):
             v_mode << MODE_HELP
             app_manager.clean_text()
-        if EUDElseIf()(app_manager.key_up("H")):
+        if EUDElseIf()(app_manager.key_up("F1")):
             v_mode << MODE_MAIN
             app_manager.clean_text()
         if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
@@ -89,12 +90,14 @@ class CondCheckApp(Application):
             pid = arr_pid[v_focus]
             mcb = MaximumCircularBuffer(ResultEntry).cast(arr_mcb[v_focus])
 
-            writer.write_f("\x04Condition log - trigid=%D playerid=%D, "
-                           "press H to help\n", trigid, pid)
+            writer.write_f("\x04Condition check [%D/%D] - Trigger[%D] player=",
+                           v_focus + 1, arr_length, trigid)
+            writer.write_constant(EPD(Player), pid)
+            writer.write_f(", press F1 to help\n")
             mcb.iter(write_entry)
         if EUDElse()():
             writer.write_f(
-                "\x04Condition log - (Navigation: F7/F8, Trigger: CTRL+E)\n"
+                "\x04Condition log - (Navigation: F7/F8, Show trigger: CTRL+E)\n"
                 "\x17(start_tick)-(end_tick): \x0Fv0 v1 v2 ...\n"
                 "\x17tick\x04: the value of 0x57F23C (f_getgametick())\n"
                 "\x04During \x17start_tick \x04to \x17end_tick\x04, "
@@ -102,9 +105,9 @@ class CondCheckApp(Application):
                 "\x0Fcolor of v\x04: condition check result. "
                     "\x07pass \x06fail\n"
                 "\x0Fvalue of v\x04: The exact amount to satisfy "
-                    "the \x15comparison conditions\n"
+                    "the \x1Fcomparison conditions\n"
                 "\n"
-                "\x15[Comparison conditions]\n"
+                "\x1F[Comparison conditions]\n"
                 "\x02CountdownTimer, Command, Bring, Accumulate, "
                 "Kills, ElapsedTime, Opponents, Deaths, Score\n"
             )

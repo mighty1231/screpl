@@ -252,7 +252,7 @@ class TriggerEditorApp(Application):
             EUDEndIf()
             EUDBreak()
         if EUDSwitchCase()(TAB_ACTION):
-            writer.write_f(" Actions:  (Press CTRL+T to switch)\n")
+            writer.write_f(" Actions: (Press CTRL+T to switch)\n")
             text_table_epd << self.acttext_table_epd
             if EUDIf()(pageend <= act_count):
                 until << pageend

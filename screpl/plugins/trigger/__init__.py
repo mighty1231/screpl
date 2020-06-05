@@ -62,12 +62,12 @@ def f_get_exact_amount(cond_epd):
         EUDEndSwitch()
 
         DoActions(act0 << SetMemory(measure_condition + 0x8,
-                                  Add,
-                                  0)) # 2 ** (31-k)
+                                    Add,
+                                    0)) # 2 ** (31-k)
         if EUDIfNot()(measure_condition << Memory(0, 0, 0)):
             DoActions(act1 << SetMemory(measure_condition + 0x8,
-                                      Subtract,
-                                      0)) # 2 ** (31-k)
+                                        Subtract,
+                                        0)) # 2 ** (31-k)
         EUDEndIf()
         k += 1
     EUDEndWhile()
