@@ -301,11 +301,18 @@ def plugin_setup():
 
     @AppCommand([ArgEncNumber])
     def start_triggereditor(self, ptr):
-        """Start trigger editor with given ptr"""
-        TriggerEditorApp.set_trig_ptr(ptr, unlink=False)
+        """Start trigger editor with given ptr, link type"""
+        TriggerEditorApp.set_trig_ptr(ptr, nolink=False)
+        app_manager.start_application(TriggerEditorApp)
+
+    @AppCommand([ArgEncNumber])
+    def start_triggereditor_nolink(self, ptr):
+        """Start trigger editor with given ptr, nolink type"""
+        TriggerEditorApp.set_trig_ptr(ptr, nolink=True)
         app_manager.start_application(TriggerEditorApp)
 
     REPL.add_command('trigger', start_triggereditor)
+    REPL.add_command('trigger_nolink', start_triggereditor_nolink)
 
     if cctm.result_tables:
         from .condcheck import CondCheckApp

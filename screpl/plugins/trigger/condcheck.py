@@ -82,7 +82,7 @@ class CondCheckApp(Application):
             v_mode << MODE_MAIN
             app_manager.clean_text()
         if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
-            TriggerEditorApp.set_trig_ptr(arr_trig_object[v_focus], unlink=True)
+            TriggerEditorApp.set_trig_ptr(arr_trig_object[v_focus], nolink=True)
             app_manager.start_application(TriggerEditorApp)
         EUDEndIf()
         app_manager.request_update()

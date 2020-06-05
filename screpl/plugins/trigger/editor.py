@@ -3,6 +3,8 @@
 from eudplib import *
 
 from screpl.core.application import Application
+from screpl.core.appcommand import AppCommand
+from screpl.encoder.const import ArgEncNumber
 from screpl.utils.debug import f_raise_warning
 from screpl.utils.string import f_memcmp_epd
 
@@ -18,7 +20,7 @@ main_writer = get_main_writer()
 # trigger with link and without link
 # for each type, the trigger is 2408 bytes and 2400 bytes respectively
 TYPE_LINK = 0
-TYPE_UNLINK = 1
+TYPE_NOLINK = 1
 
 _trig_ptr = EUDVariable()
 _trig_epd = EUDVariable()
@@ -69,30 +71,30 @@ class TriggerEditorApp(Application):
     ]
 
     @staticmethod
-    def set_trig_ptr(trig_ptr, unlink=False):
+    def set_trig_ptr(trig_ptr, nolink=False):
         """Set initializing variable with pointer
 
         Args:
-            unlink(bool): set trigger type. True for 2400 byte trigger,
+            nolink(bool): set trigger type. True for 2400 byte trigger,
                 without trigger pointer links. False for 2408 byte trigger,
                 with trigger pointer links.
         """
         _trig_ptr << trig_ptr
         _trig_epd << EPD(trig_ptr)
-        _trig_type << TYPE_UNLINK if unlink else TYPE_LINK
+        _trig_type << TYPE_NOLINK if nolink else TYPE_LINK
 
     @staticmethod
-    def set_trig_epd(trig_epd, unlink=False):
+    def set_trig_epd(trig_epd, nolink=False):
         """Set initializing variable with epd
 
         Args:
-            unlink(bool): set trigger type. True for 2400 byte trigger,
+            nolink(bool): set trigger type. True for 2400 byte trigger,
                 without trigger pointer links. False for 2408 byte trigger,
                 with trigger pointer links.
         """
         _trig_ptr << 0x58A364 + 4*trig_epd
         _trig_epd << trig_epd
-        _trig_type << TYPE_UNLINK if unlink else TYPE_LINK
+        _trig_type << TYPE_NOLINK if nolink else TYPE_LINK
 
     def on_init(self):
         self.trig_ptr = _trig_ptr
@@ -194,6 +196,38 @@ class TriggerEditorApp(Application):
             EUDEndIf()
         EUDEndIf()
 
+    @AppCommand([ArgEncNumber])
+    def setp(self, ptr):
+        """Set trigger pointer of current app to given argument"""
+        trig_epd = EPD(ptr)
+        self.trig_ptr = ptr
+        self.trig_epd = trig_epd
+
+        if EUDIf()(self.trig_type == TYPE_LINK):
+            self.cond_epd = trig_epd + 8//4
+            self.act_epd = trig_epd + (8 + 16*20)//4
+        if EUDElse()():
+            self.cond_epd = trig_epd
+            self.act_epd = trig_epd + 16*20//4
+        EUDEndIf()
+
+        self.tab = TAB_CONDITION
+        self.index = 0
+
+        self.update_text()
+
+    @AppCommand([ArgEncNumber])
+    def new(self, ptr):
+        """Start a new app with given ptr, link type"""
+        TriggerEditorApp.set_trig_ptr(ptr, nolink=False)
+        app_manager.start_application(TriggerEditorApp)
+
+    @AppCommand([ArgEncNumber])
+    def new_nolink(self, ptr):
+        """Start a new app with given ptr, nolink type"""
+        TriggerEditorApp.set_trig_ptr(ptr, nolink=True)
+        app_manager.start_application(TriggerEditorApp)
+
     def loop(self):
         index = self.index
         cond_epd = self.cond_epd
@@ -253,9 +287,11 @@ class TriggerEditorApp(Application):
         if EUDElseIf()(app_manager.key_down("F1")):
             v_mode << MODE_HELP
             app_manager.clean_text()
+            app_manager.request_update()
         if EUDElseIf()(app_manager.key_up("F1")):
             v_mode << MODE_MAIN
             app_manager.clean_text()
+            app_manager.request_update()
         EUDEndIf()
         olddb_epd = self.olddb_epd
         trig_epd = self.trig_epd
@@ -281,9 +317,9 @@ class TriggerEditorApp(Application):
                     "Trigger ptr=%H, next=%H. (Press F1 to get help)\n",
                     trig_ptr, f_dwread_epd(trig_epd + 1))
                 EUDBreak()
-            if EUDSwitchCase()(TYPE_UNLINK):
+            if EUDSwitchCase()(TYPE_NOLINK):
                 writer.write_f(
-                    "Trigger ptr=%H, unlinked type. (Press F1 to get help)\n",
+                    "Trigger ptr=%H, nolink type. (Press F1 to get help)\n",
                     trig_ptr)
             EUDEndSwitch()
 
@@ -343,6 +379,9 @@ class TriggerEditorApp(Application):
                 "Press CTRL+E to edit focused trigger entry\n"
                 "Press CTRL+N to add a new trigger entry\n"
                 "Press R to update trigger text forcefully\n"
+                "Chat 'setp(##)' changes current trigger pointer\n"
+                "Chat 'new(##)' starts a new trigger editor with pointer\n"
+                "Chat 'new_nolink(##)' is same as 'new' but nolink type\n"
             )
         EUDEndIf()
         writer.write(0)

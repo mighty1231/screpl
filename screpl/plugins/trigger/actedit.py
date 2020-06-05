@@ -28,7 +28,6 @@ from .trigentry import TrigEntry
 
 app_manager = get_app_manager()
 
-
 entries = [
     # line 1
     TrigEntry.construct("locid1", 0, 4),
