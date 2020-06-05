@@ -4,7 +4,7 @@ Enables condition checking on TRIG triggers
 
 Log following TRIG triggers:
 
-1. The first action of trigger is 'Comment("screpl-condcheck")'
+1. It contains action: 'Comment("screpl-condcheck")'
 2. No Wait() action.
 
 For all trigger, it starts to log results of conditions for each players
@@ -171,7 +171,6 @@ def _condcheck_trigger(trigdb_epd, entry_table):
 
 class CondCheckTriggerManager:
     def __init__(self):
-        self.sigid = None
         self.trig_dbs = []
         self.trig_count = 0
 
@@ -262,7 +261,7 @@ class CondCheckTriggerManager:
     def find_signature_and_update(self):
         """Find trigger with debugging signature
 
-        Find a trigger with the first action, Comment("screpl-trigger")
+        Find a trigger with action Comment("screpl-trigger")
         """
         orig_triggers = GetChkTokenized().getsection(b'TRIG')
         assert len(orig_triggers) % 2400 == 0
@@ -271,23 +270,23 @@ class CondCheckTriggerManager:
         while offset < len(orig_triggers):
             trig = orig_triggers[offset:offset+2400]
 
-            # parse the first action
-            action0 = trig[16*20:16*20+32]
-            acttype = action0[26]
+            # parse actions
+            for i in range(64):
+                action = trig[16*20+32*i:16*20+32*(i+1)]
+                acttype = action[26]
+                if acttype == 0:
+                    break
 
-            if acttype == 47: # Comment
-                strid = b2i4(action0, 4)
-                string = get_string_from_id(strid)
-                if string == b'screpl-condcheck':
-                    assert self.sigid is None or self.sigid == strid, \
-                        "String table is screwed"
-                    self.sigid = strid
-
-                    # register trigger and update
-                    new_trig = self.register_trigger(trig)
-                    orig_triggers = (orig_triggers[:offset]
-                                     + new_trig
-                                     + orig_triggers[offset+2400:])
+                if acttype == 47: # Comment
+                    strid = b2i4(action, 4)
+                    string = get_string_from_id(strid)
+                    if string == b'screpl-condcheck':
+                        # register trigger and update
+                        new_trig = self.register_trigger(trig)
+                        orig_triggers = (orig_triggers[:offset]
+                                         + new_trig
+                                         + orig_triggers[offset+2400:])
+                        break
 
             offset += 2400
 
