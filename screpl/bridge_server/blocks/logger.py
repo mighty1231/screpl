@@ -15,6 +15,7 @@ class LoggerBlock(block.BridgeBlock):
     .. code-block:: C
 
         struct LoggerBlock {
+            int last_read_log_index; // client-side variable
             int log_index;
             char logger_log[LOGGER_LINE_COUNT][LOGGER_LINE_SIZE];
         };
@@ -22,7 +23,7 @@ class LoggerBlock(block.BridgeBlock):
     signature = b'LOGB'
 
     def get_buffer_size(self):
-        return 4 + LOGGER_LINE_COUNT * LOGGER_LINE_SIZE
+        return 8 + LOGGER_LINE_COUNT * LOGGER_LINE_SIZE
 
     def update_content(self):
         prev_log_index = EUDVariable(0)
@@ -32,7 +33,7 @@ class LoggerBlock(block.BridgeBlock):
             EUDBreakIf(prev_log_index == log_index)
 
             f_repmovsd_epd(
-                EPD(self + 4) + rel,
+                EPD(self+8) + rel,
                 buf_start_epd + rel,
                 LOGGER_LINE_SIZE // 4
             )
@@ -49,4 +50,4 @@ class LoggerBlock(block.BridgeBlock):
                 ]
             )
         EUDEndInfLoop()
-        SeqCompute([(EPD(self), SetTo, log_index)])
+        SeqCompute([(EPD(self+4), SetTo, log_index)])

@@ -16,6 +16,9 @@ Shared memory region has following structures
         /* Too much milk solution #3, busy-waiting by A */
         int note_to_bridge;
         int note_from_bridge;
+
+        /* bridge protocol */
+        int bridge_protocol;
         int region_size;
 
         /* To SC */
@@ -46,6 +49,9 @@ from .blocks import (
 from screpl.bridge_server.signature import dead_signature, restore_signature
 import screpl.main as main
 
+# protocol versions
+BRIDGE_PROTOCOL_VER_1 = 0x20200604
+
 class BridgeRegion(EUDObject):
     def __init__(self):
         super().__init__()
@@ -53,9 +59,10 @@ class BridgeRegion(EUDObject):
 
         self._note_to_bridge = self + 160
         self._note_from_bridge = self + 164
-        self._region_size = self + 168
-        self._command = self + 172
-        self._inversed_system_millis = self + 472
+        self._protocol = self + 168
+        self._region_size = self + 172
+        self._command = self + 176
+        self._inversed_system_millis = self + 476
 
         self.blocks.append(appoutput.AppOutputBlock(self))
         self.blocks.append(blindmode.BlindModeDisplayBlock(self))
@@ -73,7 +80,7 @@ class BridgeRegion(EUDObject):
         return ret
 
     def get_block_address(self, block):
-        offset = 160 + 4*3 + 300 + 4
+        offset = 160 + 4*4 + 300 + 4
         for b in self.blocks:
             if b is block:
                 return self.Evaluate() + offset
@@ -81,7 +88,7 @@ class BridgeRegion(EUDObject):
         raise RuntimeError
 
     def GetDataSize(self):
-        size = 160 + 4*3 + 300 + 4
+        size = 160 + 4*4 + 300 + 4
         for block in self.blocks:
             size += block.get_buffer_size() + 8
         return size
@@ -94,6 +101,7 @@ class BridgeRegion(EUDObject):
         emitbuffer.WriteBytes(dead_signature)
         emitbuffer.WriteDword(0)
         emitbuffer.WriteDword(0)
+        emitbuffer.WriteDword(BRIDGE_PROTOCOL_VER_1)
         emitbuffer.WriteDword(self.GetDataSize())
 
         emitbuffer.WriteBytes(bytes(300))
