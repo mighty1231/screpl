@@ -1,9 +1,6 @@
 from eudplib import *
 
-from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
-from screpl.core.appmethod import AppTypedMethod
-from screpl.encoder.const import ArgEncNumber
 from screpl.main import get_app_manager
 from screpl.main import get_main_writer
 
@@ -32,6 +29,10 @@ arr_pid = EUDArray(arr_pid)
 arr_mcb = EUDArray(arr_mcb)
 
 v_focus = EUDVariable(0)
+
+MODE_MAIN = 0
+MODE_HELP = 1
+v_mode = EUDVariable(0)
 
 @EUDTypedFunc([ResultEntry])
 def write_entry(entry):
@@ -69,13 +70,37 @@ class CondCheckApp(Application):
             _set_focus(v_focus-1)
         if EUDElseIf()(app_manager.key_press("F8")):
             _set_focus(v_focus+1)
+        if EUDElseIf()(app_manager.key_down("H")):
+            v_mode << MODE_HELP
+            app_manager.clean_text()
+        if EUDElseIf()(app_manager.key_up("H")):
+            v_mode << MODE_MAIN
+            app_manager.clean_text()
         EUDEndIf()
         app_manager.request_update()
 
     def print(self, writer):
-        trigid = arr_trigid[v_focus]
-        pid = arr_pid[v_focus]
-        mcb =  MaximumCircularBuffer(ResultEntry).cast(arr_mcb[v_focus])
+        if EUDIf()(v_mode == MODE_MAIN):
+            trigid = arr_trigid[v_focus]
+            pid = arr_pid[v_focus]
+            mcb =  MaximumCircularBuffer(ResultEntry).cast(arr_mcb[v_focus])
 
-        mcb.iter(EUDFuncPtr(1, 0)(write_entry))
+            writer.write_f("\x04Condition log - trigid=%D playerid=%D, "
+                           "press H to help\n", trigid, pid)
+            mcb.iter(write_entry)
+        if EUDElse()():
+            writer.write_f("\x04Condition log - (Navigation: F7/F8)\n"
+                           "\x17(start_tick)-(end_tick): \x0Fv0 v1 v2 ...\n"
+                           "\x17tick\x04: the value of 0x57F23C (f_getgametick())\n"
+                           "\x04During \x17start_tick \x04to \x17end_tick\x04, "
+                               "the condition behaves as all the same way\n"
+                           "\x0Fcolor of v\x04: condition check result. "
+                               "\x07pass \x06fail\n"
+                           "\x0Fvalue of v\x04: The exact amount to satisfy "
+                               "the comparison conditions\n"
+                           "\n"
+                           "\x11[Comparison conditions]\n"
+                           "\x02CountdownTimer, Command, Bring, Accumulate, "
+                           "Kills, ElapsedTime, Opponents, Deaths, Score\n")
+        EUDEndIf()
         writer.write(0)

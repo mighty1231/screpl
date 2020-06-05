@@ -15,6 +15,7 @@ from .intacttrigger import IntactTrigger
 app_manager = get_app_manager()
 STRSection = EUDVariable()
 STRSection_end = EUDVariable()
+ENTRY_SIZE = 8
 
 def get_string_from_id(sid):
     return strmap.GetString(sid)
@@ -22,6 +23,49 @@ def get_string_from_id(sid):
 @EUDFunc
 def f_epd2ptr(epd):
     return 0x58A364 + epd * 4
+
+@EUDFunc
+def f_get_exact_amount(cond_epd):
+    measure_condition = Forward()
+    SeqCompute([
+        (EPD(measure_condition) + k,
+         SetTo,
+         f_dwread_epd(cond_epd + k))
+        for k in range(20//4)])
+
+    # modify amount, comparison
+    DoActions([SetMemoryEPD(EPD(measure_condition + 0x8), SetTo, 0),
+               SetMemoryXEPD(EPD(measure_condition + 0xC),
+                            SetTo,
+                            EncodeComparison(AtLeast) * 0x10000,
+                            0xFF0000)])
+
+    # get maximum of x such that the condition with >= x holds
+    k = EUDVariable()
+    v0, v1 = Forward(), Forward()
+    k << 0
+    if EUDWhileNot()(k >= 32):
+        EUDSwitch(k)
+        for kval in range(32):
+            EUDSwitchCase()(kval)
+            SeqCompute([
+                (EPD(v0 + 20), SetTo, 2 ** (31-kval)),
+                (EPD(v1 + 20), SetTo, 2 ** (31-kval)),
+            ])
+            EUDBreak()
+        EUDEndSwitch()
+
+        DoActions(v0 << SetMemory(measure_condition + 0x8,
+                                  Add,
+                                  0)) # 2 ** (31-k)
+        if EUDIfNot()(measure_condition << Memory(0, 0, 0)):
+            DoActions(v1 << SetMemory(measure_condition + 0x8,
+                                      Subtract,
+                                      0)) # 2 ** (31-k)
+        EUDEndIf()
+        k += 1
+    EUDEndWhile()
+    return f_dwread_epd(EPD(measure_condition + 0x8))
 
 @EUDFunc
 def logger_log_trigger(epd):
@@ -141,45 +185,7 @@ def _condcheck_trigger(trig_epd, entry_table):
         is_comparison << 1
         EUDEndSwitch()
         if EUDIf()(is_comparison == 1): # cond check
-            SeqCompute([
-                (EPD(measure_conditions[i]) + k,
-                 SetTo,
-                 f_dwread_epd(EPD(trig_conditions[i]) + k))
-                for k in range(20//4)])
-
-            # modify amount, comparison
-            DoActions([SetMemoryEPD(EPD(measure_conditions[i] + 0x8), SetTo, 0),
-                       SetMemoryXEPD(EPD(measure_conditions[i] + 0xC),
-                                    SetTo,
-                                    EncodeComparison(AtLeast) * 0x10000,
-                                    0xFF0000)])
-
-            # get maximum of x such that the condition with >= x holds
-            k = EUDVariable()
-            v0, v1 = Forward(), Forward()
-            k << 0
-            if EUDWhileNot()(k >= 32):
-                EUDSwitch(k)
-                for kval in range(32):
-                    EUDSwitchCase()(kval)
-                    SeqCompute([
-                        (EPD(v0 + 8), SetTo, 2 ** (31-kval)),
-                        (EPD(v1 + 8), SetTo, 2 ** (31-kval)),
-                    ])
-                    EUDBreak()
-                EUDEndSwitch()
-
-                DoActions(v0 << SetMemory(measure_conditions[i] + 0x8,
-                                          Add,
-                                          0)) # 2 ** (31-k)
-                if EUDIfNot()(measure_conditions[i] << Memory(0, 0, 0)):
-                    DoActions(v1 << SetMemory(measure_conditions[i] + 0x8,
-                                              Subtract,
-                                              0)) # 2 ** (31-k)
-                EUDEndIf()
-                k += 1
-            EUDEndWhile()
-            cond_values[i] = f_dwread_epd(EPD(measure_conditions[i] + 0x8))
+            cond_values[i] = f_get_exact_amount(EPD(trig_conditions[i]))
         EUDEndIf()
         cond_count += 1
 
@@ -265,7 +271,7 @@ class CondCheckTriggerManager:
         result_entries = {}
         for pid in effplayers:
             mcb = MaximumCircularBuffer(ResultEntry).construct_w_empty([
-                ResultEntry.construct() for _ in range(10)
+                ResultEntry.construct() for _ in range(ENTRY_SIZE)
             ])
             result_entries[pid] = mcb
             self.result_tables.append((trig_object,
@@ -345,13 +351,13 @@ def plugin_setup():
     STRSection_end << STRSection + app_manager.get_strx_section_size()
 
     # make commands
-    from .manager import TriggerManagerApp
+    # from .manager import TriggerManagerApp
 
-    @AppCommand([])
-    def start_command(self):
-        app_manager.start_application(TriggerManagerApp)
+    # @AppCommand([])
+    # def start_command(self):
+    #     app_manager.start_application(TriggerManagerApp)
 
-    REPL.add_command('trigger', start_command)
+    # REPL.add_command('trigger', start_command)
 
     if cctm.trig_count:
         from .condcheck import CondCheckApp
