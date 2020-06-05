@@ -12,8 +12,6 @@ from .editor import TriggerEditorApp
 app_manager = get_app_manager()
 writer = get_main_writer()
 
-assert cctm.result_tables
-
 arr_trig_object = []
 arr_trigid = []
 arr_pid = []

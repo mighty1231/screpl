@@ -61,14 +61,26 @@ class TriggerEditorApp(Application):
 
     @staticmethod
     def set_trig_ptr(trig_ptr, unlink=False):
-        """Set initializing variable with pointer"""
+        """Set initializing variable with pointer
+
+        Args:
+            unlink(bool): set trigger type. True for 2400 byte trigger,
+                without trigger pointer links. False for 2408 byte trigger,
+                with trigger pointer links.
+        """
         _trig_ptr << trig_ptr
         _trig_epd << EPD(trig_ptr)
         _trig_type << TYPE_UNLINK if unlink else TYPE_LINK
 
     @staticmethod
     def set_trig_epd(trig_epd, unlink=False):
-        """Set initializing variable with epd"""
+        """Set initializing variable with epd
+
+        Args:
+            unlink(bool): set trigger type. True for 2400 byte trigger,
+                without trigger pointer links. False for 2408 byte trigger,
+                with trigger pointer links.
+        """
         _trig_ptr << 0x58A364 + 4*trig_epd
         _trig_epd << trig_epd
         _trig_type << TYPE_UNLINK if unlink else TYPE_LINK

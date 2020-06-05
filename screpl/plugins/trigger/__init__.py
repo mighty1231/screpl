@@ -7,8 +7,9 @@ Log following TRIG triggers:
 1. It contains action: 'Comment("screpl-condcheck")'
 2. No Wait() action.
 
-For all trigger, it starts to log results of conditions for each players
-P1 through P8. For comparison functions, it logs the exact value additionally.
+For all checked triggers, it logs results of conditions for each players
+P1 through P8. For comparison conditions in the trigger, it additionally logs
+the exact value for the condition.
 """
 from eudplib import *
 
@@ -261,7 +262,8 @@ class CondCheckTriggerManager:
     def find_signature_and_update(self):
         """Find trigger with debugging signature
 
-        Find a trigger with action Comment("screpl-trigger")
+        Iterate over TRIG triggers. find triggers with action
+        Comment("screpl-condcheck").
         """
         orig_triggers = GetChkTokenized().getsection(b'TRIG')
         assert len(orig_triggers) % 2400 == 0
