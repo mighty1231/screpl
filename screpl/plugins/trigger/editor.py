@@ -3,7 +3,9 @@
 from eudplib import *
 
 from screpl.core.application import Application
+from screpl.utils.debug import f_raise_warning
 from screpl.utils.string import f_memcmp_epd
+
 from screpl.main import get_app_manager
 from screpl.main import get_main_writer
 
@@ -28,6 +30,10 @@ TAB_END = 2
 
 ENTRY_LINE_LENGTH = 300
 ENTRY_COUNT_PER_PAGE = 8
+
+MODE_MAIN = 0
+MODE_HELP = 1
+v_mode = EUDVariable(MODE_MAIN)
 
 class TriggerEditorApp(Application):
     """Show trigger and modify trigger
@@ -113,6 +119,8 @@ class TriggerEditorApp(Application):
 
         self.update_text()
 
+        v_mode << MODE_MAIN
+
         _trig_ptr << 0
         _trig_epd << EPD(0)
         _trig_type << TYPE_LINK
@@ -188,6 +196,9 @@ class TriggerEditorApp(Application):
 
     def loop(self):
         index = self.index
+        cond_epd = self.cond_epd
+        act_epd = self.act_epd
+
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
             EUDReturn()
@@ -212,13 +223,39 @@ class TriggerEditorApp(Application):
         if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
             if EUDIf()(tab == TAB_CONDITION):
                 TrigConditionEditorApp.set_cond_epd(
-                    self.cond_epd + index*(20//4))
+                    cond_epd + index*(20//4))
                 app_manager.start_application(TrigConditionEditorApp)
             if EUDElse()():
                 TrigActionEditorApp.set_act_epd(
-                    self.act_epd + index*(32//4))
+                    act_epd + index*(32//4))
                 app_manager.start_application(TrigActionEditorApp)
             EUDEndIf()
+        if EUDElseIf()(app_manager.key_press("N", hold=["LCTRL"])):
+            if EUDIf()(tab == TAB_CONDITION):
+                cond_count = self.cond_count
+                if EUDIf()(cond_count == 16):
+                    f_raise_warning("16 conditions are maximum")
+                if EUDElse()():
+                    TrigConditionEditorApp.set_cond_epd(
+                        cond_epd + cond_count*(20//4))
+                    app_manager.start_application(TrigConditionEditorApp)
+                EUDEndIf()
+            if EUDElse()():
+                act_count = self.act_count
+                if EUDIf()(act_count == 64):
+                    f_raise_warning("64 actions are maximum")
+                if EUDElse()():
+                    TrigActionEditorApp.set_act_epd(
+                        act_epd + act_count*(32//4))
+                    app_manager.start_application(TrigActionEditorApp)
+                EUDEndIf()
+            EUDEndIf()
+        if EUDElseIf()(app_manager.key_down("F1")):
+            v_mode << MODE_HELP
+            app_manager.clean_text()
+        if EUDElseIf()(app_manager.key_up("F1")):
+            v_mode << MODE_MAIN
+            app_manager.clean_text()
         EUDEndIf()
         olddb_epd = self.olddb_epd
         trig_epd = self.trig_epd
@@ -228,71 +265,84 @@ class TriggerEditorApp(Application):
         EUDEndIf()
 
     def print(self, writer):
-        trig_ptr = self.trig_ptr
-        trig_epd = self.trig_epd
-        trig_type = self.trig_type
-        tab = self.tab
-        index = self.index
-        cond_count = self.cond_count
-        act_count = self.act_count
+        if EUDIf()(v_mode == MODE_MAIN):
+            trig_ptr = self.trig_ptr
+            trig_epd = self.trig_epd
+            trig_type = self.trig_type
+            tab = self.tab
+            index = self.index
+            cond_count = self.cond_count
+            act_count = self.act_count
 
-        # write header
-        EUDSwitch(trig_type)
-        if EUDSwitchCase()(TYPE_LINK):
-            writer.write_f("Trigger ptr=%H, next=%H\n",
-                           trig_ptr, f_dwread_epd(trig_epd + 1))
-            EUDBreak()
-        if EUDSwitchCase()(TYPE_UNLINK):
-            writer.write_f("Trigger ptr=%H, unlinked type\n",
-                           trig_ptr)
-        EUDEndSwitch()
+            # write header
+            EUDSwitch(trig_type)
+            if EUDSwitchCase()(TYPE_LINK):
+                writer.write_f(
+                    "Trigger ptr=%H, next=%H. (Press F1 to get help)\n",
+                    trig_ptr, f_dwread_epd(trig_epd + 1))
+                EUDBreak()
+            if EUDSwitchCase()(TYPE_UNLINK):
+                writer.write_f(
+                    "Trigger ptr=%H, unlinked type. (Press F1 to get help)\n",
+                    trig_ptr)
+            EUDEndSwitch()
 
-        # write content
-        quot, rem = f_div(index, ENTRY_COUNT_PER_PAGE)
-        cur = quot * ENTRY_COUNT_PER_PAGE
-        pageend = cur + ENTRY_COUNT_PER_PAGE
-        until = EUDVariable()
-        text_table_epd = EUDVariable()
+            # write content
+            quot, rem = f_div(index, ENTRY_COUNT_PER_PAGE)
+            cur = quot * ENTRY_COUNT_PER_PAGE
+            pageend = cur + ENTRY_COUNT_PER_PAGE
+            until = EUDVariable()
+            text_table_epd = EUDVariable()
 
-        EUDSwitch(tab)
-        if EUDSwitchCase()(TAB_CONDITION):
-            writer.write_f(" Conditions: (Press CTRL+T to switch, CTRL+E to edit)\n")
-            text_table_epd << self.condtext_table_epd
+            EUDSwitch(tab)
+            if EUDSwitchCase()(TAB_CONDITION):
+                writer.write_f(" Conditions:\n")
+                text_table_epd << self.condtext_table_epd
 
-            if EUDIf()(pageend <= cond_count):
-                until << pageend
-            if EUDElse()():
-                until << cond_count
-            EUDEndIf()
-            EUDBreak()
-        if EUDSwitchCase()(TAB_ACTION):
-            writer.write_f(" Actions: (Press CTRL+T to switch, CTRL+E to edit)\n")
-            text_table_epd << self.acttext_table_epd
-            if EUDIf()(pageend <= act_count):
-                until << pageend
-            if EUDElse()():
-                until << act_count
-            EUDEndIf()
-            EUDBreak()
-        EUDEndSwitch()
+                if EUDIf()(pageend <= cond_count):
+                    until << pageend
+                if EUDElse()():
+                    until << cond_count
+                EUDEndIf()
+                EUDBreak()
+            if EUDSwitchCase()(TAB_ACTION):
+                writer.write_f(" Actions:\n")
+                text_table_epd << self.acttext_table_epd
+                if EUDIf()(pageend <= act_count):
+                    until << pageend
+                if EUDElse()():
+                    until << act_count
+                EUDEndIf()
+                EUDBreak()
+            EUDEndSwitch()
 
-        text_table_epd += cur * (ENTRY_LINE_LENGTH // 4)
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= until)
+            text_table_epd += cur * (ENTRY_LINE_LENGTH // 4)
+            if EUDInfLoop()():
+                EUDBreakIf(cur >= until)
 
-            _emp = EUDTernary(cur == index)(0x11)(0x02)
-            writer.write_f("%C [%D] %E\n", _emp, cur, text_table_epd)
+                _emp = EUDTernary(cur == index)(0x11)(0x02)
+                writer.write_f("%C [%D] %E\n", _emp, cur, text_table_epd)
 
-            DoActions([
-                cur.AddNumber(1),
-                text_table_epd.AddNumber(ENTRY_LINE_LENGTH // 4),
-            ])
-        EUDEndInfLoop()
+                DoActions([
+                    cur.AddNumber(1),
+                    text_table_epd.AddNumber(ENTRY_LINE_LENGTH // 4),
+                ])
+            EUDEndInfLoop()
 
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= pageend)
-            writer.write(ord('\n'))
-            cur += 1
-        EUDEndInfLoop()
-
+            if EUDInfLoop()():
+                EUDBreakIf(cur >= pageend)
+                writer.write(ord('\n'))
+                cur += 1
+            EUDEndInfLoop()
+        if EUDElse()():
+            writer.write_f(
+                "\x04Trigger Editor Manual\n"
+                "Press CTRL+T to switch tab (Condition/Action)\n"
+                "Press F7, F8 to change focus on trigger entry\n"
+                "  - F7, F8 may be combined with CTRL key\n"
+                "Press CTRL+E to edit focused trigger entry\n"
+                "Press CTRL+N to add a new trigger entry\n"
+                "Press R to update trigger text forcefully\n"
+            )
+        EUDEndIf()
         writer.write(0)
