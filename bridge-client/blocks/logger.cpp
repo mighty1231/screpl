@@ -8,12 +8,14 @@ LoggerBlock::LoggerBlock()
 void LoggerBlock::immediateProcess(void *block, uint size)
 {
     Q_ASSERT(size + sizeof(QObject) == sizeof(LoggerBlock));
-    memcpy(&log_index, block, size);
+    memcpy(&last_log_index, block, size);
+
+    // update last read log index
+    *(int *) block = log_index;
 }
 
 void LoggerBlock::afterProcess()
 {
-    static int last_log_index = 0;
     QString string;
     for (int i=last_log_index; i<log_index; i++) {
         int line = i % LOGGER_LINE_COUNT;

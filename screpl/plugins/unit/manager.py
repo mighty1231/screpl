@@ -1,7 +1,6 @@
 from eudplib import *
 
 from screpl.core.application import Application
-from screpl.writer import write_unit
 
 from . import app_manager
 
@@ -108,7 +107,7 @@ class UnitManagerApp(Application):
             EUDEndIf()
 
             writer.write_f(" %D: ", cur)
-            write_unit(cur)
+            writer.write_unit(cur)
             writer.write(ord('\n'))
 
             DoActions(cur.AddNumber(1))

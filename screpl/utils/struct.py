@@ -8,11 +8,11 @@ similar to EUDStruct, but specialized to REPL::
     s1 = MyStruct(a=4)
     v = EUDVariable()
     v << s1
-    print(v) # has same value with s
+    print(v) # has same value with s1
 
     s2 = MyStruct.cast(v)
     s2.a += 5
-    print(s.a) # 5
+    print(s1.a) # 5
 '''
 from eudplib import *
 
@@ -97,6 +97,46 @@ class _REPLStructMetaclass(type):
                 a0 << SetDeaths(0, SetTo, 0, 0),
             ]
         )
+
+    def cpy(cls, dest, src):
+        """Copy field values, from dest to src"""
+        if not (type(src) is type(dest)):
+            raise ValueError("Type mismatch")
+
+        fieldn = len(type(src).fields)
+        attrid = EUDVariable()
+        vtproc = Forward()
+        nptr = Forward()
+        a0, a2 = Forward(), Forward()
+
+        attrid << 0
+        SeqCompute([
+            (EPD(vtproc + 4), SetTo, src),
+            (EPD(a0 + 16), SetTo, src._epd + 344 // 4),
+            (EPD(a2 + 16), SetTo, src._epd + 1),
+            (EPD(a0 + 20), SetTo, dest._epd + 348 // 4),
+        ])
+        if EUDInfLoop()():
+            EUDBreakIf(attrid >= fieldn)
+
+            vtproc << RawTrigger(
+                nextptr=0,
+                actions=[
+                    a0 << SetDeaths(0, SetTo, 0, 0),
+                    a2 << SetDeaths(0, SetTo, nptr, 0),
+                ]
+            )
+
+            nptr << NextTrigger()
+
+            DoActions([
+                attrid.AddNumber(1),
+                SetMemory(vtproc + 4, Add, 72),
+                SetMemory(a0 + 16, Add, 18),
+                SetMemory(a2 + 16, Add, 18),
+                SetMemory(a0 + 20, Add, 18),
+            ])
+        EUDEndInfLoop()
 
 class REPLStruct(ExprProxy, metaclass=_REPLStructMetaclass):
     fields = []

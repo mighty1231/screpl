@@ -6,6 +6,16 @@ class REPLByteRW:
     def __init__(self):
         self.epd, self.off = EUDCreateVariables(2)
 
+    @classmethod
+    def add_method(cls, method):
+        """Dynamically add method on REPLByteRW"""
+        mtdname = method.__name__
+        if mtdname in dir(cls):
+            raise ValueError("class %r already has attribute %r" %
+                             (cls.__name__, mtdname))
+
+        setattr(cls, mtdname, method)
+
     @EUDMethod
     def getoffset(self):
         """Returns current offset"""
@@ -185,8 +195,28 @@ class REPLByteRW:
         EUDEndWhile()
         EUDReturn(written)
 
-    @EUDMethod
     def write_decimal(self, number):
+        if IsEUDVariable(number):
+            self._write_decimal(number)
+        else:
+            self.write_strepd(cs.EPDConstString(str(number)))
+
+    def write_hex(self, number):
+        if IsEUDVariable(number):
+            self._write_hex(number)
+        else:
+            self.write_strepd(cs.EPDConstString("0x%08X" % number))
+
+    def write_binary(self, number):
+        if IsEUDVariable(number):
+            self._write_binary(number)
+        else:
+            chars = ['1' if (number & (1<<t)) else '0'
+                     for t in range(31, -1, -1)]
+            self.write_strepd(cs.EPDConstString("0b" + "".join(chars)))
+
+    @EUDMethod
+    def _write_decimal(self, number):
         skipper = [Forward() for _ in range(9)]
         ch = [0] * 10
 
@@ -203,7 +233,7 @@ class REPLByteRW:
             self.write(ch[i] + ord('0'))
 
     @EUDMethod
-    def write_hex(self, number):
+    def _write_hex(self, number):
         ch = [0] * 8
 
         self.write(ord('0'))
@@ -222,7 +252,7 @@ class REPLByteRW:
             EUDEndIf()
 
     @EUDMethod
-    def write_binary(self, number):
+    def _write_binary(self, number):
         self.write(ord('0'))
         self.write(ord('b'))
 

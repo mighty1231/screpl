@@ -19,7 +19,6 @@ from eudplib import *
 
 from screpl.core.application import Application
 from screpl.encoder.action import encode_action_epd
-from screpl.writer import write_location
 from screpl.utils.debug import f_raise_warning
 
 from screpl.plugins.location.rect import drawRectangle
@@ -46,7 +45,6 @@ from . import (
     OBSTACLE_DESTRUCTPATTERN_REMOVE,
     OBSTACLE_DESTRUCTPATTERN_END,
     g_obstacle_destructpattern,
-    writePlayer,
     p_count,
     p_waitValue,
     p_actionCount,
@@ -374,7 +372,7 @@ class PatternApp(Application):
             writer.write_f("No Location is chosen")
         if EUDElse()():
             writer.write_f("Chosen location: \x03")
-            write_location(chosen_location)
+            writer.write_location(chosen_location)
         EUDEndIf()
         writer.write_f("\n")
         writer.write(0)

@@ -10,17 +10,6 @@ import screpl.main as main
 _KEYPRESS_DELAY = 8
 _APP_MAX_COUNT = 30
 
-class PayloadSizeObj(EUDObject):
-    def GetDataSize(self):
-        return 4
-
-    def CollectDependency(self, pbuffer):
-        pass
-
-    def WritePayload(self, pbuffer):
-        from eudplib.core.allocator.payload import _payload_size
-        pbuffer.WriteDword(_payload_size)
-
 class AppManager:
     def __init__(self, su_id, su_prefix, su_prefixlen):
         from .application import ApplicationInstance
@@ -66,7 +55,6 @@ class AppManager:
         dim = GetChkTokenized().getsection(b'DIM ')
         self.map_width = b2i2(dim, 0)
         self.map_height = b2i2(dim, 2)
-        self.payload_size = f_dwread_epd(EPD(PayloadSizeObj()))
 
     def alloc_variable(self, count):
         return self.varpool.alloc(count)
@@ -409,10 +397,6 @@ class AppManager:
         EUDIfNot()(main.is_blind_mode())
         f_printf("\n" * 12)
         EUDEndIf()
-
-    @EUDMethod
-    def get_strx_section_size(self):
-        return self.payload_size
 
     def run(self, writer):
         # only super user may interact with apps

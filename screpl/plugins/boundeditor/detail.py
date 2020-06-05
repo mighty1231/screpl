@@ -12,7 +12,6 @@ Expected TUI
 from eudplib import *
 
 from screpl.core.application import Application
-from screpl.writer.action import write_action_epd
 
 from . import app_manager, focused_pattern_id, p_actionCount, p_actionArrayEPD
 from screpl.plugins.location.rect import drawRectangle
@@ -128,7 +127,7 @@ class DetailedActionApp(Application):
             EUDEndIf()
 
             writer.write_f(" %D: ", cur)
-            write_action_epd(action_epd)
+            writer.write_action_epd(action_epd)
             writer.write(ord('\n'))
 
             DoActions([cur.AddNumber(1), action_epd.AddNumber(32//4)])

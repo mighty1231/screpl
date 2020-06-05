@@ -17,7 +17,6 @@ from screpl.core.application import Application
 from screpl.core.appmethod import AppTypedMethod
 from screpl.encoder.const import ArgEncNumber
 from screpl.main import get_app_manager, get_main_writer
-from screpl.writer import write_unit, write_constant
 import screpl.resources.table.tables as tb
 
 STATE_CONFIG = 0
@@ -41,7 +40,7 @@ def get_unit_index_from_addr(addr):
     if EUDIf()(addr == 0x59CCA8):
         EUDReturn(0)
     if EUDElse()():
-        EUDReturn((0x6283E8 - addr) // 0x150)
+        EUDReturn((0x6283E8 - addr)//0x150)
     EUDEndIf()
 
 def _write_cunits():
@@ -66,7 +65,7 @@ def _write_cunits():
             writer.write_f("%H %D: ",
                 v_cunit,
                 get_unit_index_from_addr(v_cunit))
-            write_unit(f_wread_epd(v_cunit_epd + (0x64//4), 0))
+            writer.write_unit(f_wread_epd(v_cunit_epd + (0x64//4), 0))
             writer.write_f("\n")
 
             v_selected_epd += 1
@@ -82,10 +81,10 @@ def _write_cunits():
         # order check (0 for dead unit)
         if EUDIfNot()(MemoryX(0x59CCA8 + 0x4C, Exactly, 0, 0x0000FF00)):
             writer.write_f("0x0059CCA8 0: ")
-            write_constant(EPD(tb.Player),
-                           f_bread_epd(EPD(0x59CCA8 + 0x4C), 0))
+            writer.write_constant(EPD(tb.Player),
+                                  f_bread_epd(EPD(0x59CCA8 + 0x4C), 0))
             writer.write_f(" ")
-            write_unit(f_wread_epd(EPD(0x59CCA8 + 0x64), 0))
+            writer.write_unit(f_wread_epd(EPD(0x59CCA8 + 0x64), 0))
             writer.write_f("\n")
         EUDEndIf()
 
@@ -102,10 +101,10 @@ def _write_cunits():
             # order check (0 for dead unit)
             if EUDIfNot()(c_idcheck << MemoryXEPD(0, Exactly, 0, 0x0000FF00)):
                 writer.write_f("%H %D: ", v_cunit, v_idx)
-                write_constant(EPD(tb.Player),
-                               f_bread_epd(v_cunit_epd + (0x4C // 4), 0))
+                writer.write_constant(EPD(tb.Player),
+                                      f_bread_epd(v_cunit_epd + (0x4C//4), 0))
                 writer.write_f(" ")
-                write_unit(f_wread_epd(v_cunit_epd + (0x64 // 4), 0))
+                writer.write_unit(f_wread_epd(v_cunit_epd + (0x64//4), 0))
                 writer.write_f("\n")
             EUDEndIf()
 

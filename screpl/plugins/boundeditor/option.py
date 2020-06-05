@@ -22,8 +22,6 @@ from screpl.apps.selector import PlayerSelectorApp
 from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
 from screpl.encoder.const import ArgEncNumber
-from screpl.writer import write_unit
-from screpl.writer import write_location
 
 from screpl.plugins.location.manager import LocationManagerApp
 from screpl.plugins.unit.manager import UnitManagerApp
@@ -47,7 +45,7 @@ from . import (
     OBSTACLE_DESTRUCTPATTERN_REMOVE,
     OBSTACLE_DESTRUCTPATTERN_END,
     g_obstacle_destructpattern,
-    writePlayer
+    write_player,
 )
 
 FOCUS_EFFECTPLAYER      = 0
@@ -145,33 +143,33 @@ class OptionApp(Application):
         writer.write_f("Bound Editor Options - F7, F8 to navigate, INSERT to modify\n")
         writer.write_f("Effect player: ")
         _emphasize(FOCUS_EFFECTPLAYER)
-        writePlayer(g_effectplayer)
+        write_player(writer, g_effectplayer)
 
         writer.write_f("\x02\nEffect unit 1/2/3: ")
         _emphasize(FOCUS_EFFECTUNIT1)
-        write_unit(g_effectunit_1)
+        writer.write_unit(g_effectunit_1)
         writer.write_f("\x02, ")
         _emphasize(FOCUS_EFFECTUNIT2)
-        write_unit(g_effectunit_2)
+        writer.write_unit(g_effectunit_2)
         writer.write_f("\x02, ")
         _emphasize(FOCUS_EFFECTUNIT3)
-        write_unit(g_effectunit_3)
+        writer.write_unit(g_effectunit_3)
 
         writer.write_f("\x02\nobstacle unit: ")
         _emphasize(FOCUS_OBSTACLEUNIT)
-        write_unit(g_obstacle_unit)
+        writer.write_unit(g_obstacle_unit)
 
         writer.write_f("\x02\nRunner Force: ")
         _emphasize(FOCUS_RUNNER_FORCE)
-        writePlayer(g_runner_force)
+        write_player(writer, g_runner_force)
 
         writer.write_f("\x02\nRunner unit: ")
         _emphasize(FOCUS_RUNNER_UNIT)
-        write_unit(g_runner_unit)
+        writer.write_unit(g_runner_unit)
 
         writer.write_f("\x02\nStart location: ")
         _emphasize(FOCUS_START_LOCATION)
-        write_location(g_start_location)
+        writer.write_location(g_start_location)
 
         writer.write_f("\x02\nOn obstacle be created, runner be ")
         _emphasize(FOCUS_OBSCREATE_PATTERN)

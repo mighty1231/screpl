@@ -1,45 +1,44 @@
 from eudplib import *
-from screpl.main import get_main_writer
-from screpl.writer import write_location
-from screpl.writer.condition import _condmap
-from . import *
-from .unit import write_scmd_unit
+from . import (
+    tb_scmd_comparison,
+    tb_scmd_player,
+)
 
-def write_scmd_condition(cond):
+def write_scmd_condition(self, cond):
     assert isinstance(cond, Condition)
 
     condtype = cond.fields[5]
     assert not IsEUDVariable(condtype)
 
     if condtype == 2:
-        _writeCommand(cond)
+        _write_scmd__Command(self, cond)
     elif condtype == 15:
-        _writeDeaths(cond)
+        _write_scmd__Deaths(self, cond)
     elif condtype == 22:
-        get_main_writer().write_f("Always();\n")
+        self.write_f("Always();\n")
     else:
         raise RuntimeError("Unknown condition type %d" % condtype)
 
-def _writeDeaths(cond):
+def _write_scmd__Deaths(self, cond):
     assert cond.fields[8] == 0, "eudx is currently not supported"
 
-    get_main_writer().write_f("Deaths(")
-    write_scmd_player(cond.fields[1])
-    get_main_writer().write_f(", ")
-    write_scmd_unit(cond.fields[3])
-    get_main_writer().write_f(", ")
-    write_scmd_comparison(cond.fields[4])
-    get_main_writer().write_f(", ")
-    write_scmd_number(cond.fields[2])
-    get_main_writer().write_f(");\n")
+    self.write_f("Deaths(")
+    self.write_scmd_const(tb_scmd_player, cond.fields[1])
+    self.write_f(", ")
+    self.write_scmd_unit(cond.fields[3])
+    self.write_f(", ")
+    self.write_scmd_const(tb_scmd_comparison, cond.fields[4])
+    self.write_f(", ")
+    self.write_decimal(cond.fields[2])
+    self.write_f(");\n")
 
-def _writeCommand(cond):
-    get_main_writer().write_f("Command(")
-    write_scmd_player(cond.fields[1])
-    get_main_writer().write_f(", ")
-    write_scmd_unit(cond.fields[3])
-    get_main_writer().write_f(", ")
-    write_scmd_comparison(cond.fields[4])
-    get_main_writer().write_f(", ")
-    write_scmd_number(cond.fields[2])
-    get_main_writer().write_f(");\n")
+def _write_scmd__Command(self, cond):
+    self.write_f("Command(")
+    self.write_scmd_const(tb_scmd_player, cond.fields[1])
+    self.write_f(", ")
+    self.write_scmd_unit(cond.fields[3])
+    self.write_f(", ")
+    self.write_scmd_const(tb_scmd_comparison, cond.fields[4])
+    self.write_f(", ")
+    self.write_decimal(cond.fields[2])
+    self.write_f(");\n")
