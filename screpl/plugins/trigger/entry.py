@@ -71,26 +71,24 @@ def MaximumCircularBuffer(elem_type):
 
         def iter(self, iter_f):
             count = self.count
-            if EUDIf()(count == 0):
-                EUDReturn()
+            if EUDIfNot()(count == 0):
+                max_size = self.max_size
+                content_epd = self.content_epd
+                quot, rem = f_div(count, max_size)
+
+                # iteration
+                idx = EUDTernary(quot==0)(0)(rem)
+                if EUDInfLoop()():
+                    # read content_epd and apply iter_f
+                    iter_f(f_dwread_epd(content_epd + idx))
+
+                    idx += 1
+                    Trigger(
+                        conditions=(idx == max_size),
+                        actions=idx.SetNumber(0))
+                    EUDBreakIf(idx == rem)
+                EUDEndInfLoop()
             EUDEndIf()
-
-            max_size = self.max_size
-            content_epd = self.content_epd
-            quot, rem = f_div(count, max_size)
-
-            # iteration
-            idx = EUDTernary(quot==0)(0)(rem)
-            if EUDInfLoop()():
-                # read content_epd and apply iter_f
-                iter_f(f_dwread_epd(content_epd + idx))
-
-                idx += 1
-                Trigger(
-                    conditions=(idx == max_size),
-                    actions=idx.SetNumber(0))
-                EUDBreakIf(idx == rem)
-            EUDEndInfLoop()
 
     return _DataClass
 

@@ -26,9 +26,10 @@ _trig_type = EUDVariable()
 
 TAB_CONDITION = 0
 TAB_ACTION = 1
+TAB_END = 2
 
 ENTRY_LINE_LENGTH = 300
-ENTRY_COUNT_PER_PAGE = 7
+ENTRY_COUNT_PER_PAGE = 8
 
 class TriggerEditorApp(Application):
     fields = [
@@ -164,18 +165,22 @@ class TriggerEditorApp(Application):
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
             EUDReturn()
+        if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
+            self.update_index(self.index - ENTRY_COUNT_PER_PAGE)
         if EUDElseIf()(app_manager.key_press("F7")):
             self.update_index(self.index - 1)
+        if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
+            self.update_index(self.index + ENTRY_COUNT_PER_PAGE)
         if EUDElseIf()(app_manager.key_press("F8")):
             self.update_index(self.index + 1)
         if EUDElseIf()(app_manager.key_press("R")):
             self.update_text()
-        if EUDElseIf()(app_manager.key_press("C")):
-            self.tab = TAB_CONDITION
-            self.index = 0
-            app_manager.request_update()
-        if EUDElseIf()(app_manager.key_press("A")):
-            self.tab = TAB_ACTION
+        if EUDElseIf()(app_manager.key_press("T", hold=["LCTRL"])):
+            tab = self.tab + 1
+            if EUDIf()(tab == TAB_END):
+                tab << 0
+            EUDEndIf()
+            self.tab = tab
             self.index = 0
             app_manager.request_update()
         EUDEndIf()
@@ -210,13 +215,13 @@ class TriggerEditorApp(Application):
         # write content
         quot, rem = f_div(index, ENTRY_COUNT_PER_PAGE)
         cur = quot * ENTRY_COUNT_PER_PAGE
-        pageend = cur + 8
+        pageend = cur + ENTRY_COUNT_PER_PAGE
         until = EUDVariable()
         text_table_epd = EUDVariable()
 
         EUDSwitch(tab)
         if EUDSwitchCase()(TAB_CONDITION):
-            writer.write_f(" Conditions: \n")
+            writer.write_f(" Conditions: (Press CTRL+T to switch)\n")
             text_table_epd << self.condtext_table_epd
 
             if EUDIf()(pageend <= cond_count):
@@ -226,7 +231,7 @@ class TriggerEditorApp(Application):
             EUDEndIf()
             EUDBreak()
         if EUDSwitchCase()(TAB_ACTION):
-            writer.write_f(" Actions: \n")
+            writer.write_f(" Actions:  (Press CTRL+T to switch)\n")
             text_table_epd << self.acttext_table_epd
             if EUDIf()(pageend <= act_count):
                 until << pageend

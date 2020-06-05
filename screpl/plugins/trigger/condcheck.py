@@ -60,6 +60,7 @@ def _set_focus(new_focus):
     global v_focus
     if EUDIfNot()(new_focus >= arr_length):
         v_focus << new_focus
+        app_manager.clean_text()
     EUDEndIf()
 
 class CondCheckApp(Application):
@@ -94,7 +95,7 @@ class CondCheckApp(Application):
             mcb.iter(write_entry)
         if EUDElse()():
             writer.write_f(
-                "\x04Condition log - (Navigation: F7/F8)\n"
+                "\x04Condition log - (Navigation: F7/F8, Trigger: CTRL+E)\n"
                 "\x17(start_tick)-(end_tick): \x0Fv0 v1 v2 ...\n"
                 "\x17tick\x04: the value of 0x57F23C (f_getgametick())\n"
                 "\x04During \x17start_tick \x04to \x17end_tick\x04, "
@@ -102,9 +103,9 @@ class CondCheckApp(Application):
                 "\x0Fcolor of v\x04: condition check result. "
                     "\x07pass \x06fail\n"
                 "\x0Fvalue of v\x04: The exact amount to satisfy "
-                    "the comparison conditions\n"
+                    "the \x15comparison conditions\n"
                 "\n"
-                "\x11[Comparison conditions]\n"
+                "\x15[Comparison conditions]\n"
                 "\x02CountdownTimer, Command, Bring, Accumulate, "
                 "Kills, ElapsedTime, Opponents, Deaths, Score\n"
             )
