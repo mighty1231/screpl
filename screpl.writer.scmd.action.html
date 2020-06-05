@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.writer.scmd.action module — SC-REPL 1.1.1 documentation
+   screpl.writer.scmd.action module — SC-REPL 1.1.2 documentation
   </title>
   <link href="_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -85,7 +85,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.1 documentation">
+      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.2 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -163,7 +163,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="index.html">
-        SC-REPL 1.1.1 documentation
+        SC-REPL 1.1.2 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -191,10 +191,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.1 documentation">
+          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.2 documentation">
            <img alt=" logo" height="48" src="_static/" width="48"/>
           </a>
-          <a href="index.html" title="SC-REPL 1.1.1 documentation">
+          <a href="index.html" title="SC-REPL 1.1.2 documentation">
            SC-REPL
           </a>
          </label>
@@ -243,117 +243,40 @@
         </a>
        </h1>
        <dl class="py function">
-        <dt id="screpl.writer.scmd.action._writeCreateUnit_epd">
+        <dt id="screpl.writer.scmd.action.write_scmd_action">
          <code class="sig-prename descclassname">
           screpl.writer.scmd.action.
          </code>
          <code class="sig-name descname">
-          _writeCreateUnit_epd
+          write_scmd_action
          </code>
          <span class="sig-paren">
           (
          </span>
          <em class="sig-param">
           <span class="n">
-           epd
+           self
           </span>
          </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/scmd/action.html#_writeCreateUnit_epd">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.scmd.action._writeCreateUnit_epd" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.scmd.action._writeKillUnitAt_epd">
-         <code class="sig-prename descclassname">
-          screpl.writer.scmd.action.
-         </code>
-         <code class="sig-name descname">
-          _writeKillUnitAt_epd
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
+         ,
          <em class="sig-param">
           <span class="n">
-           epd
+           act
           </span>
          </em>
          <span class="sig-paren">
           )
          </span>
-         <a class="reference internal" href="_modules/screpl/writer/scmd/action.html#_writeKillUnitAt_epd">
+         <a class="reference internal" href="_modules/screpl/writer/scmd/action.html#write_scmd_action">
           <span class="viewcode-link">
            [source]
           </span>
          </a>
-         <a class="headerlink" href="#screpl.writer.scmd.action._writeKillUnitAt_epd" title="Permalink to this definition">
+         <a class="headerlink" href="#screpl.writer.scmd.action.write_scmd_action" title="Permalink to this definition">
           ¶
          </a>
         </dt>
         <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.scmd.action._writeRemoveUnitAt_epd">
-         <code class="sig-prename descclassname">
-          screpl.writer.scmd.action.
-         </code>
-         <code class="sig-name descname">
-          _writeRemoveUnitAt_epd
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/scmd/action.html#_writeRemoveUnitAt_epd">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.scmd.action._writeRemoveUnitAt_epd" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
         </dd>
        </dl>
        <dl class="py function">
@@ -369,6 +292,12 @@
          </span>
          <em class="sig-param">
           <span class="n">
+           self
+          </span>
+         </em>
+         ,
+         <em class="sig-param">
+          <span class="n">
            epd
           </span>
          </em>
@@ -381,44 +310,6 @@
           </span>
          </a>
          <a class="headerlink" href="#screpl.writer.scmd.action.write_scmd_action_epd" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.scmd.action.write_scmd_action">
-         <code class="sig-prename descclassname">
-          screpl.writer.scmd.action.
-         </code>
-         <code class="sig-name descname">
-          write_scmd_action
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           act
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/scmd/action.html#write_scmd_action">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.scmd.action.write_scmd_action" title="Permalink to this definition">
           ¶
          </a>
         </dt>

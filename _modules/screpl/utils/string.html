@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.utils.string — SC-REPL 1.1.1 documentation
+   screpl.utils.string — SC-REPL 1.1.2 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.1 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.1 documentation
+        SC-REPL 1.1.2 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.2 documentation">
            SC-REPL
           </a>
          </label>
@@ -223,14 +223,29 @@
        <div class="highlight">
         <pre>
 <span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Add</span><span class="p">,</span>
     <span class="n">DoActions</span><span class="p">,</span>
+    <span class="n">EPD</span><span class="p">,</span>
     <span class="n">EUDBreakIf</span><span class="p">,</span>
+    <span class="n">EUDEndIf</span><span class="p">,</span>
     <span class="n">EUDEndInfLoop</span><span class="p">,</span>
+    <span class="n">EUDEndWhile</span><span class="p">,</span>
     <span class="n">EUDFunc</span><span class="p">,</span>
+    <span class="n">EUDIfNot</span><span class="p">,</span>
     <span class="n">EUDInfLoop</span><span class="p">,</span>
     <span class="n">EUDReturn</span><span class="p">,</span>
+    <span class="n">EUDWhileNot</span><span class="p">,</span>
     <span class="n">EUDVariable</span><span class="p">,</span>
+    <span class="n">Exactly</span><span class="p">,</span>
+    <span class="n">Forward</span><span class="p">,</span>
+    <span class="n">f_dwread_cp</span><span class="p">,</span>
     <span class="n">f_strcmp</span><span class="p">,</span>
+    <span class="n">f_setcurpl2cpcache</span><span class="p">,</span>
+    <span class="n">Memory</span><span class="p">,</span>
+    <span class="n">SetTo</span><span class="p">,</span>
+    <span class="n">SetMemory</span><span class="p">,</span>
+    <span class="n">SeqCompute</span><span class="p">,</span>
+    <span class="n">VProc</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">byterw</span>
 
@@ -251,6 +266,36 @@
         <span class="n">DoActions</span><span class="p">(</span><span class="n">cnt</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
     <span class="n">EUDEndInfLoop</span><span class="p">()</span>
     <span class="n">EUDReturn</span><span class="p">(</span><span class="n">cnt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="f_memcmp_epd"><a class="viewcode-back" href="../../../screpl.utils.string.html#screpl.utils.string.f_memcmp_epd">[docs]</a><span class="nd">@EUDFunc</span>
+<span class="k">def</span> <span class="nf">f_memcmp_epd</span><span class="p">(</span><span class="n">epd1</span><span class="p">,</span> <span class="n">epd2</span><span class="p">,</span> <span class="n">cnt</span><span class="p">):</span>
+    <span class="sd">"""If same, return 0"""</span>
+    <span class="n">comp</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">()</span>
+
+    <span class="n">VProc</span><span class="p">([</span><span class="n">epd1</span><span class="p">,</span> <span class="n">epd2</span><span class="p">],</span> <span class="p">[</span>
+        <span class="n">epd1</span><span class="o">.</span><span class="n">SetDest</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">comp</span><span class="o">+</span><span class="mi">4</span><span class="p">)),</span>
+        <span class="n">epd2</span><span class="o">.</span><span class="n">SetDest</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x6509B0</span><span class="p">)),</span>
+    <span class="p">])</span>
+
+    <span class="k">if</span> <span class="n">EUDWhileNot</span><span class="p">()(</span><span class="n">cnt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">f_dwread_cp</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">SeqCompute</span><span class="p">([(</span><span class="n">EPD</span><span class="p">(</span><span class="n">comp</span><span class="o">+</span><span class="mi">8</span><span class="p">),</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">value</span><span class="p">)])</span>
+
+        <span class="c1"># *epd1 == *epd2</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">comp</span> <span class="o">&lt;&lt;</span> <span class="n">Memory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+            <span class="n">f_setcurpl2cpcache</span><span class="p">()</span>
+            <span class="n">EUDReturn</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="n">DoActions</span><span class="p">([</span>
+            <span class="n">SetMemory</span><span class="p">(</span><span class="n">comp</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">SetMemory</span><span class="p">(</span><span class="mh">0x6509B0</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="n">cnt</span><span class="o">.</span><span class="n">SubtractNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+        <span class="p">])</span>
+    <span class="n">EUDEndWhile</span><span class="p">()</span>
+
+    <span class="n">f_setcurpl2cpcache</span><span class="p">()</span>
+    <span class="n">EUDReturn</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 </pre>
        </div>
       </article>

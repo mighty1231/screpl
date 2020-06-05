@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.writer.scmd.action — SC-REPL 1.1.1 documentation
+   screpl.writer.scmd.action — SC-REPL 1.1.2 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.1 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.1 documentation
+        SC-REPL 1.1.2 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -189,10 +189,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
            SC-REPL
           </a>
          </label>
@@ -233,121 +233,122 @@
        <div class="highlight">
         <pre>
 <span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">screpl.main</span> <span class="kn">import</span> <span class="n">get_main_writer</span>
-<span class="kn">from</span> <span class="nn">screpl.writer</span> <span class="kn">import</span> <span class="n">write_location</span>
-<span class="kn">from</span> <span class="nn">screpl.writer.action</span> <span class="kn">import</span> <span class="n">_actmap</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">.unit</span> <span class="kn">import</span> <span class="n">write_scmd_unit</span>
+<span class="kn">from</span> <span class="nn">screpl.writer.action</span> <span class="kn">import</span> <span class="n">action_epd_offset_map</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">tb_scmd_player</span><span class="p">,</span>
+    <span class="n">tb_scmd_modifier</span><span class="p">,</span>
+    <span class="n">tb_scmd_score</span><span class="p">,</span>
+<span class="p">)</span>
 
-<div class="viewcode-block" id="write_scmd_action"><a class="viewcode-back" href="../../../../screpl.writer.scmd.action.html#screpl.writer.scmd.action.write_scmd_action">[docs]</a><span class="k">def</span> <span class="nf">write_scmd_action</span><span class="p">(</span><span class="n">act</span><span class="p">):</span>
+<div class="viewcode-block" id="write_scmd_action"><a class="viewcode-back" href="../../../../screpl.writer.scmd.action.html#screpl.utils.byterw.write_scmd_action">[docs]</a><span class="k">def</span> <span class="nf">write_scmd_action</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">act</span><span class="p">):</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">act</span><span class="p">,</span> <span class="n">Action</span><span class="p">)</span>
 
     <span class="n">acttype</span> <span class="o">=</span> <span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">7</span><span class="p">]</span>
     <span class="k">assert</span> <span class="ow">not</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">acttype</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">acttype</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Preserve Trigger();</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Preserve Trigger();</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">acttype</span> <span class="o">==</span> <span class="mi">44</span><span class="p">:</span>
-        <span class="n">_writeCreateUnit</span><span class="p">(</span><span class="n">act</span><span class="p">)</span>
+        <span class="n">_write_scmd__CreateUnit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">act</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">acttype</span> <span class="o">==</span> <span class="mi">45</span><span class="p">:</span>
-        <span class="n">_writeSetDeaths</span><span class="p">(</span><span class="n">act</span><span class="p">)</span>
+        <span class="n">_write_scmd__SetDeaths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">act</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">acttype</span> <span class="o">==</span> <span class="mi">27</span><span class="p">:</span>
-        <span class="n">_writeSetScore</span><span class="p">(</span><span class="n">act</span><span class="p">)</span>
+        <span class="n">_write_scmd__SetScore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">act</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Unknown action type </span><span class="si">%d</span><span class="s2">"</span> <span class="o">%</span> <span class="n">acttype</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="write_scmd_action_epd"><a class="viewcode-back" href="../../../../screpl.writer.scmd.action.html#screpl.writer.scmd.action.write_scmd_action_epd">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">write_scmd_action_epd</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">act</span> <span class="o">=</span> <span class="n">_actmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+<div class="viewcode-block" id="write_scmd_action_epd"><a class="viewcode-back" href="../../../../screpl.writer.scmd.action.html#screpl.utils.byterw.write_scmd_action_epd">[docs]</a><span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">write_scmd_action_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">act</span> <span class="o">=</span> <span class="n">action_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
     <span class="n">acttype</span> <span class="o">=</span> <span class="n">act</span><span class="o">.</span><span class="n">acttype</span>
     <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">acttype</span> <span class="o">==</span> <span class="mi">44</span><span class="p">):</span>
-        <span class="n">_writeCreateUnit_epd</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+        <span class="n">_write_scmd__CreateUnit_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">acttype</span> <span class="o">==</span> <span class="mi">23</span><span class="p">):</span>
-        <span class="n">_writeKillUnitAt_epd</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+        <span class="n">_write_scmd__KillUnitAt_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">acttype</span> <span class="o">==</span> <span class="mi">25</span><span class="p">):</span>
-        <span class="n">_writeRemoveUnitAt_epd</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+        <span class="n">_write_scmd__RemoveUnitAt_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"UNKNOWN_ACTION_TYPE_%D</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">acttype</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"UNKNOWN_ACTION_TYPE_%D</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">acttype</span><span class="p">)</span>
     <span class="n">EUDEndIf</span><span class="p">()</span></div>
 
-<span class="k">def</span> <span class="nf">_writeSetDeaths</span><span class="p">(</span><span class="n">act</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_write_scmd__SetDeaths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">act</span><span class="p">):</span>
     <span class="k">assert</span> <span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">11</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"eudx is currently not supported"</span>
 
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Set Deaths("</span><span class="p">)</span>
-    <span class="n">write_scmd_player</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_unit</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_modifier</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_number</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Set Deaths("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_const</span><span class="p">(</span><span class="n">tb_scmd_player</span><span class="p">,</span> <span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_unit</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_const</span><span class="p">(</span><span class="n">tb_scmd_modifier</span><span class="p">,</span> <span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">_writeSetScore</span><span class="p">(</span><span class="n">act</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_write_scmd__SetScore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">act</span><span class="p">):</span>
     <span class="c1"># Set Score("Force 1", Set To, 0, Custom);</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Set Score("</span><span class="p">)</span>
-    <span class="n">write_scmd_player</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_modifier</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_number</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_score</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Set Score("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_const</span><span class="p">(</span><span class="n">tb_scmd_player</span><span class="p">,</span> <span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_const</span><span class="p">(</span><span class="n">tb_scmd_modifier</span><span class="p">,</span> <span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_const</span><span class="p">(</span><span class="n">tb_scmd_score</span><span class="p">,</span> <span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">_writeCreateUnit</span><span class="p">(</span><span class="n">act</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_write_scmd__CreateUnit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">act</span><span class="p">):</span>
     <span class="c1"># Create Unit("Players", "Unit Name", Unit Amount(#), "Location");</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Create Unit("</span><span class="p">)</span>
-    <span class="n">write_scmd_player</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_unit</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_number</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_location</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Create Unit("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_const</span><span class="p">(</span><span class="n">tb_scmd_player</span><span class="p">,</span> <span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_unit</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">6</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">8</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_location</span><span class="p">(</span><span class="n">act</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
-<div class="viewcode-block" id="_writeCreateUnit_epd"><a class="viewcode-back" href="../../../../screpl.writer.scmd.action.html#screpl.writer.scmd.action._writeCreateUnit_epd">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeCreateUnit_epd</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write_scmd__CreateUnit_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
     <span class="c1"># Create Unit("Players", "Unit Name", Unit Amount(#), "Location");</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_actmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Create Unit("</span><span class="p">)</span>
-    <span class="n">write_scmd_player</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">player1</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_number</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_location</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">locid1</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span></div>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">action_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Create Unit("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_const</span><span class="p">(</span><span class="n">tb_scmd_player</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">player1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_location</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">locid1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
-<div class="viewcode-block" id="_writeKillUnitAt_epd"><a class="viewcode-back" href="../../../../screpl.writer.scmd.action.html#screpl.writer.scmd.action._writeKillUnitAt_epd">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeKillUnitAt_epd</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write_scmd__KillUnitAt_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
     <span class="c1"># Kill Unit At Location("Players", "Unit Name", Unit Amount(#), "Location");</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_actmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Kill Unit At Location("</span><span class="p">)</span>
-    <span class="n">write_scmd_player</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">player1</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_number</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_location</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">locid1</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span></div>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">action_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Kill Unit At Location("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_const</span><span class="p">(</span><span class="n">tb_scmd_player</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">player1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_location</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">locid1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
-<div class="viewcode-block" id="_writeRemoveUnitAt_epd"><a class="viewcode-back" href="../../../../screpl.writer.scmd.action.html#screpl.writer.scmd.action._writeRemoveUnitAt_epd">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeRemoveUnitAt_epd</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write_scmd__RemoveUnitAt_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
     <span class="c1"># Remove Unit At Location("Players", "Unit Name", Unit Amount(#), "Location");</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_actmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Remove Unit At Location("</span><span class="p">)</span>
-    <span class="n">write_scmd_player</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">player1</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_number</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_location</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">locid1</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span></div>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">action_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Remove Unit At Location("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_const</span><span class="p">(</span><span class="n">tb_scmd_player</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">player1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_location</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">locid1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 </pre>
        </div>
       </article>

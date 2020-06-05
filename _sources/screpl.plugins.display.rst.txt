@@ -1,0 +1,19 @@
+screpl.plugins.display package
+==============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.plugins.display.charreport
+   screpl.plugins.display.incremental
+
+Module contents
+---------------
+
+.. automodule:: screpl.plugins.display
+   :members:
+   :undoc-members:
+   :show-inheritance:

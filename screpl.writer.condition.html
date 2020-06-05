@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.writer.condition module — SC-REPL 1.1.1 documentation
+   screpl.writer.condition module — SC-REPL 1.1.2 documentation
   </title>
   <link href="_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -85,7 +85,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.1 documentation">
+      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.2 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -163,7 +163,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="index.html">
-        SC-REPL 1.1.1 documentation
+        SC-REPL 1.1.2 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -186,10 +186,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.1 documentation">
+          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.2 documentation">
            <img alt=" logo" height="48" src="_static/" width="48"/>
           </a>
-          <a href="index.html" title="SC-REPL 1.1.1 documentation">
+          <a href="index.html" title="SC-REPL 1.1.2 documentation">
            SC-REPL
           </a>
          </label>
@@ -238,19 +238,25 @@
         </a>
        </h1>
        <p>
-        Write trigger conditions to main writer
+        Add methods on REPLByteRW to write trigger conditions
        </p>
        <dl class="py function">
-        <dt id="screpl.writer.condition._writeAccumulate">
+        <dt id="screpl.writer.condition.write_condition_epd">
          <code class="sig-prename descclassname">
           screpl.writer.condition.
          </code>
          <code class="sig-name descname">
-          _writeAccumulate
+          write_condition_epd
          </code>
          <span class="sig-paren">
           (
          </span>
+         <em class="sig-param">
+          <span class="n">
+           self
+          </span>
+         </em>
+         ,
          <em class="sig-param">
           <span class="n">
            epd
@@ -259,858 +265,47 @@
          <span class="sig-paren">
           )
          </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeAccumulate">
+         <a class="reference internal" href="_modules/screpl/writer/condition.html#write_condition_epd">
           <span class="viewcode-link">
            [source]
           </span>
          </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeAccumulate" title="Permalink to this definition">
+         <a class="headerlink" href="#screpl.writer.condition.write_condition_epd" title="Permalink to this definition">
           ¶
          </a>
         </dt>
         <dd>
          <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
+          Write trigger condition with eudplib syntax
          </p>
         </dd>
        </dl>
        <dl class="py function">
-        <dt id="screpl.writer.condition._writeAlways">
+        <dt id="screpl.writer.condition.writer_condition_init">
          <code class="sig-prename descclassname">
           screpl.writer.condition.
          </code>
          <code class="sig-name descname">
-          _writeAlways
+          writer_condition_init
          </code>
          <span class="sig-paren">
           (
          </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
          <span class="sig-paren">
           )
          </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeAlways">
+         <a class="reference internal" href="_modules/screpl/writer/condition.html#writer_condition_init">
           <span class="viewcode-link">
            [source]
           </span>
          </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeAlways" title="Permalink to this definition">
+         <a class="headerlink" href="#screpl.writer.condition.writer_condition_init" title="Permalink to this definition">
           ¶
          </a>
         </dt>
         <dd>
          <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeBring">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeBring
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeBring">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeBring" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeCommand">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeCommand
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeCommand">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeCommand" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeCommandLeast">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeCommandLeast
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeCommandLeast">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeCommandLeast" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeCommandLeastAt">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeCommandLeastAt
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeCommandLeastAt">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeCommandLeastAt" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeCommandMost">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeCommandMost
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeCommandMost">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeCommandMost" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeCommandMostAt">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeCommandMostAt
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeCommandMostAt">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeCommandMostAt" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeCountdownTimer">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeCountdownTimer
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeCountdownTimer">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeCountdownTimer" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeDeaths">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeDeaths
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeDeaths">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeDeaths" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeElapsedTime">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeElapsedTime
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeElapsedTime">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeElapsedTime" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeHighestScore">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeHighestScore
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeHighestScore">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeHighestScore" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeKills">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeKills
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeKills">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeKills" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeLeastKills">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeLeastKills
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeLeastKills">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeLeastKills" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeLeastResources">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeLeastResources
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeLeastResources">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeLeastResources" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeLowestScore">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeLowestScore
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeLowestScore">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeLowestScore" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeMostKills">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeMostKills
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeMostKills">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeMostKills" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeMostResources">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeMostResources
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeMostResources">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeMostResources" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeNever">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeNever
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeNever">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeNever" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeOpponents">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeOpponents
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeOpponents">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeOpponents" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._writeScore">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _writeScore
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_writeScore">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._writeScore" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition._write_switch">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          _write_switch
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#_write_switch">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition._write_switch" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.writer.condition.writeCondition_epd">
-         <code class="sig-prename descclassname">
-          screpl.writer.condition.
-         </code>
-         <code class="sig-name descname">
-          writeCondition_epd
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           epd
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/writer/condition.html#writeCondition_epd">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.writer.condition.writeCondition_epd" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
+          Add a method on REPLByteRW
          </p>
         </dd>
        </dl>

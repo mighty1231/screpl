@@ -1,0 +1,7 @@
+screpl.plugins.trigger.editor module
+====================================
+
+.. automodule:: screpl.plugins.trigger.editor
+   :members:
+   :undoc-members:
+   :show-inheritance:

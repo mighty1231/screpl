@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.writer.condition — SC-REPL 1.1.1 documentation
+   screpl.writer.condition — SC-REPL 1.1.2 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.1 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.1 documentation
+        SC-REPL 1.1.2 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.2 documentation">
            SC-REPL
           </a>
          </label>
@@ -227,22 +227,18 @@
        </h1>
        <div class="highlight">
         <pre>
-<span></span><span class="sd">"""Write trigger conditions to main writer</span>
-<span class="sd">"""</span>
+<span></span><span class="sd">"""Add methods on REPLByteRW to write trigger conditions"""</span>
+
 <span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">screpl.resources.table</span> <span class="kn">import</span> <span class="n">tables</span> <span class="k">as</span> <span class="n">tb</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">get_main_writer</span><span class="p">,</span>
-    <span class="n">write_aiscript</span><span class="p">,</span>
-    <span class="n">write_constant</span><span class="p">,</span>
-    <span class="n">write_location</span><span class="p">,</span>
-    <span class="n">write_switch</span><span class="p">,</span>
-    <span class="n">write_string</span><span class="p">,</span>
-    <span class="n">write_unit</span><span class="p">,</span>
-<span class="p">)</span>
 
+<div class="viewcode-block" id="writer_condition_init"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.utils.byterw.writer_condition_init">[docs]</a><span class="k">def</span> <span class="nf">writer_condition_init</span><span class="p">():</span>
+    <span class="sd">"""Add a method on REPLByteRW"""</span>
+    <span class="kn">from</span> <span class="nn">screpl.utils.byterw</span> <span class="kn">import</span> <span class="n">REPLByteRW</span>
 
-<span class="n">_condmap</span> <span class="o">=</span> <span class="n">EPDOffsetMap</span><span class="p">((</span>
+    <span class="n">REPLByteRW</span><span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="n">write_condition_epd</span><span class="p">)</span></div>
+
+<span class="n">condition_epd_offset_map</span> <span class="o">=</span> <span class="n">EPDOffsetMap</span><span class="p">((</span>
     <span class="p">(</span><span class="s1">'locid'</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
     <span class="p">(</span><span class="s1">'player'</span><span class="p">,</span> <span class="mh">0x04</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
     <span class="p">(</span><span class="s1">'amount'</span><span class="p">,</span> <span class="mh">0x08</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
@@ -254,40 +250,46 @@
     <span class="p">(</span><span class="s1">'internal'</span><span class="p">,</span> <span class="mh">0x12</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
 <span class="p">))</span>
 
-<div class="viewcode-block" id="writeCondition_epd"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition.writeCondition_epd">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">writeCondition_epd</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">conditions</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">([</span>
-        <span class="mi">0</span><span class="p">,</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeCountdownTimer</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeCommand</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeBring</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeAccumulate</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeKills</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeCommandMost</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeCommandMostAt</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeMostKills</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeHighestScore</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeMostResources</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_write_switch</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeElapsedTime</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeAlways</span><span class="p">),</span> <span class="c1"># Actually this should be Briefing()</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeOpponents</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeDeaths</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeCommandLeast</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeCommandLeastAt</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeLeastKills</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeLowestScore</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeLeastResources</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeScore</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeAlways</span><span class="p">),</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">_writeNever</span><span class="p">),</span>
-    <span class="p">])</span>
-    <span class="n">cond</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+<div class="viewcode-block" id="write_condition_epd"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.utils.byterw.write_condition_epd">[docs]</a><span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">write_condition_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="sd">"""Write trigger condition with eudplib syntax"""</span>
+
+    <span class="c1"># condtype 13 should be Briefing() but it has same</span>
+    <span class="c1"># semantics with Always()</span>
+    <span class="n">write_mtds</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">_write__CountdownTimer</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">_write__Command</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="n">_write__Bring</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="n">_write__Accumulate</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">_write__Kills</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="n">_write__CommandMost</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="n">_write__CommandMostAt</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">_write__MostKills</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="n">_write__HighestScore</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="n">_write__MostResources</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">11</span><span class="p">,</span> <span class="n">_write__Switch</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="n">_write__ElapsedTime</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="n">_write__Always</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">14</span><span class="p">,</span> <span class="n">_write__Opponents</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="n">_write__Deaths</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="n">_write__CommandLeast</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">17</span><span class="p">,</span> <span class="n">_write__CommandLeastAt</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">18</span><span class="p">,</span> <span class="n">_write__LeastKills</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">19</span><span class="p">,</span> <span class="n">_write__LowestScore</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="n">_write__LeastResources</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">21</span><span class="p">,</span> <span class="n">_write__Score</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="n">_write__Always</span><span class="p">),</span>
+        <span class="p">(</span><span class="mi">23</span><span class="p">,</span> <span class="n">_write__Never</span><span class="p">)]</span>
+
+    <span class="n">cond</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
     <span class="n">condtype</span> <span class="o">=</span> <span class="n">cond</span><span class="o">.</span><span class="n">condtype</span>
-    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">condtype</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">condtype</span> <span class="o">&lt;</span> <span class="mi">24</span><span class="p">]):</span>
-        <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">conditions</span><span class="p">[</span><span class="n">condtype</span><span class="p">])(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span>
+    <span class="n">EUDSwitch</span><span class="p">(</span><span class="n">condtype</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">mtd_id</span><span class="p">,</span> <span class="n">mtd</span> <span class="ow">in</span> <span class="n">write_mtds</span><span class="p">:</span>
+        <span class="n">EUDSwitchCase</span><span class="p">()(</span><span class="n">mtd_id</span><span class="p">)</span>
+        <span class="n">mtd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">)</span>
+        <span class="n">EUDBreak</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">EUDSwitchDefault</span><span class="p">()():</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span>
             <span class="s2">"Condition(%D, %D, %D, %D, %D, %D, %D)"</span><span class="p">,</span>
             <span class="n">cond</span><span class="o">.</span><span class="n">locid</span><span class="p">,</span>
             <span class="n">cond</span><span class="o">.</span><span class="n">player</span><span class="p">,</span>
@@ -297,257 +299,258 @@
             <span class="n">condtype</span><span class="p">,</span>
             <span class="n">cond</span><span class="o">.</span><span class="n">restype</span><span class="p">,</span>
         <span class="p">)</span>
-    <span class="n">EUDEndIf</span><span class="p">()</span>
+    <span class="n">EUDEndSwitch</span><span class="p">()</span>
+
+    <span class="c1"># additional flags</span>
     <span class="n">flags</span> <span class="o">=</span> <span class="n">cond</span><span class="o">.</span><span class="n">flags</span>
     <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">flags</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)):</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s1">' WaitExecute'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s1">' WaitExecute'</span><span class="p">)</span>
     <span class="n">EUDEndIf</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">flags</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)):</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s1">' IgnoreExecution'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s1">' IgnoreExecution'</span><span class="p">)</span>
     <span class="n">EUDEndIf</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">flags</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">)):</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s1">' AlwaysDisplay'</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s1">' AlwaysDisplay'</span><span class="p">)</span>
     <span class="n">EUDEndIf</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="_writeCountdownTimer"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeCountdownTimer">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeCountdownTimer</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"CountdownTimer("</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__CountdownTimer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"CountdownTimer("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeCommand"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeCommand">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeCommand</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Command("</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__Command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Command("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeBring"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeBring">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeBring</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Bring("</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_location</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">locid</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__Bring</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Bring("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_location</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">locid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeAccumulate"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeAccumulate">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeAccumulate</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Accumulate("</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Resource</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">restype</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__Accumulate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Accumulate("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Resource</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">restype</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeKills"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeKills">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeKills</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Kills("</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__Kills</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Kills("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeCommandMost"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeCommandMost">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeCommandMost</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"CommandMost("</span><span class="p">)</span>
-    <span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__CommandMost</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"CommandMost("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeCommandMostAt"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeCommandMostAt">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeCommandMostAt</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"CommandMostAt("</span><span class="p">)</span>
-    <span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_location</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">locid</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__CommandMostAt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"CommandMostAt("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_location</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">locid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeMostKills"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeMostKills">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeMostKills</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"MostKills("</span><span class="p">)</span>
-    <span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__MostKills</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"MostKills("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeHighestScore"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeHighestScore">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeHighestScore</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"HighestScore("</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Score</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">restype</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__HighestScore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"HighestScore("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Score</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">restype</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeMostResources"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeMostResources">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeMostResources</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"MostResources("</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Resource</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">restype</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__MostResources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"MostResources("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Resource</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">restype</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_write_switch"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._write_switch">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_write_switch</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Switch("</span><span class="p">)</span>
-    <span class="n">write_switch</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">restype</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">SwitchState</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__Switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Switch("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_switch</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">restype</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">SwitchState</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeElapsedTime"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeElapsedTime">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeElapsedTime</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"ElapsedTime("</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__ElapsedTime</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"ElapsedTime("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeOpponents"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeOpponents">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeOpponents</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Opponents("</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__Opponents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Opponents("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeDeaths"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeDeaths">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeDeaths</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__Deaths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
 
     <span class="c1"># consider EUD</span>
-    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">EUDOr</span><span class="p">(</span>
-            <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">player</span> <span class="o">&gt;=</span> <span class="mi">27</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">unitid</span> <span class="o">&lt;</span> <span class="mi">228</span><span class="p">],</span>
-            <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">player</span> <span class="o">&lt;</span> <span class="mi">12</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">unitid</span> <span class="o">&gt;=</span> <span class="mi">228</span><span class="p">],</span>
-            <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">internal</span> <span class="o">==</span> <span class="mh">0x4353</span><span class="p">])):</span>
+    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">EUDOr</span><span class="p">([</span><span class="n">m</span><span class="o">.</span><span class="n">player</span> <span class="o">&gt;=</span> <span class="mi">27</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">unitid</span> <span class="o">&lt;</span> <span class="mi">228</span><span class="p">],</span>
+                     <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">player</span> <span class="o">&lt;</span> <span class="mi">12</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">unitid</span> <span class="o">&gt;=</span> <span class="mi">228</span><span class="p">],</span>
+                     <span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">internal</span> <span class="o">==</span> <span class="mh">0x4353</span><span class="p">])):</span>
         <span class="c1"># check EUDX</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">m</span><span class="o">.</span><span class="n">internal</span> <span class="o">==</span> <span class="mh">0x4353</span><span class="p">):</span> <span class="c1"># eudx</span>
-            <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"MemoryX(%H, "</span><span class="p">,</span>
-                                      <span class="mh">0x58A364</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">player</span> <span class="o">+</span> <span class="mi">48</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
-            <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
-            <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", %H(=%D), %H)"</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">locid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"MemoryX(%H, "</span><span class="p">,</span>
+                         <span class="mh">0x58A364</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">player</span> <span class="o">+</span> <span class="mi">48</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", %H(=%D), %H)"</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">locid</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-            <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Memory(%H, "</span><span class="p">,</span>
-                                      <span class="mh">0x58A364</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">player</span> <span class="o">+</span> <span class="mi">48</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
-            <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
-            <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", %H(=%D))"</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Memory(%H, "</span><span class="p">,</span>
+                         <span class="mh">0x58A364</span> <span class="o">+</span> <span class="mi">4</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">player</span> <span class="o">+</span> <span class="mi">48</span><span class="o">*</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", %H(=%D))"</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Deaths("</span><span class="p">)</span>
-        <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-        <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-        <span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
-    <span class="n">EUDEndIf</span><span class="p">()</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Deaths("</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
+    <span class="n">EUDEndIf</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="_writeCommandLeast"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeCommandLeast">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeCommandLeast</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"CommandLeast("</span><span class="p">)</span>
-    <span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__CommandLeast</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"CommandLeast("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeCommandLeastAt"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeCommandLeastAt">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeCommandLeastAt</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"CommandLeastAt("</span><span class="p">)</span>
-    <span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_location</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">locid</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__CommandLeastAt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"CommandLeastAt("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_location</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">locid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeLeastKills"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeLeastKills">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeLeastKills</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"LeastKills("</span><span class="p">)</span>
-    <span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__LeastKills</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"LeastKills("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeLowestScore"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeLowestScore">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeLowestScore</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"LowestScore("</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Score</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">restype</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__LowestScore</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"LowestScore("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Score</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">restype</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeLeastResources"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeLeastResources">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeLeastResources</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"LeastResources("</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Resource</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">restype</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__LeastResources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"LeastResources("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Resource</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">restype</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeScore"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeScore">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeScore</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">m</span> <span class="o">=</span> <span class="n">_condmap</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Score("</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Score</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">restype</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__Score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">condition_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Score("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">player</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Score</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">restype</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">comparison</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">")"</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="_writeAlways"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeAlways">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeAlways</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Always()"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__Always</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Always()"</span><span class="p">)</span>
 
-<div class="viewcode-block" id="_writeNever"><a class="viewcode-back" href="../../../screpl.writer.condition.html#screpl.writer.condition._writeNever">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">_writeNever</span><span class="p">(</span><span class="n">epd</span><span class="p">):</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Never()"</span><span class="p">)</span></div>
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write__Never</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Never()"</span><span class="p">)</span>
 </pre>
        </div>
       </article>

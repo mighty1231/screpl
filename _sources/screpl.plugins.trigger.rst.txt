@@ -1,0 +1,21 @@
+screpl.plugins.trigger package
+==============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.plugins.trigger.condcheck
+   screpl.plugins.trigger.editor
+   screpl.plugins.trigger.entry
+   screpl.plugins.trigger.intacttrigger
+
+Module contents
+---------------
+
+.. automodule:: screpl.plugins.trigger
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.boundeditor — SC-REPL 1.1.1 documentation
+   screpl.plugins.boundeditor — SC-REPL 1.1.2 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.1 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.1 documentation
+        SC-REPL 1.1.2 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.2 documentation">
            SC-REPL
           </a>
          </label>
@@ -280,10 +280,9 @@
     <span class="n">EPD</span><span class="p">(</span><span class="n">EUDArray</span><span class="p">(</span><span class="n">MAX_ACTION_COUNT</span> <span class="o">*</span> <span class="mi">32</span><span class="p">))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_PATTERN_COUNT</span><span class="p">)</span>
 <span class="p">])</span>
 
-<div class="viewcode-block" id="writePlayer"><a class="viewcode-back" href="../../../screpl.plugins.boundeditor.html#screpl.plugins.boundeditor.writePlayer">[docs]</a><span class="k">def</span> <span class="nf">writePlayer</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
-    <span class="kn">from</span> <span class="nn">screpl.writer</span> <span class="kn">import</span> <span class="n">write_constant</span>
+<div class="viewcode-block" id="write_player"><a class="viewcode-back" href="../../../screpl.plugins.boundeditor.html#screpl.plugins.boundeditor.write_player">[docs]</a><span class="k">def</span> <span class="nf">write_player</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
     <span class="kn">from</span> <span class="nn">screpl.resources.table.tables</span> <span class="kn">import</span> <span class="n">Player</span>
-    <span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">Player</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span></div>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_constant</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">Player</span><span class="p">),</span> <span class="n">value</span><span class="p">)</span></div>
 
 <span class="c1"># pattern, detail</span>
 <span class="n">focused_pattern_id</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>

@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.writer — SC-REPL 1.1.1 documentation
+   screpl.writer — SC-REPL 1.1.2 documentation
   </title>
   <link href="../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../index.html" title="SC-REPL 1.1.1 documentation">
+      <a class="md-header-nav__button md-logo" href="../../index.html" title="SC-REPL 1.1.2 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../index.html">
-        SC-REPL 1.1.1 documentation
+        SC-REPL 1.1.2 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a class="md-nav__button md-logo" href="../../index.html" title="SC-REPL 1.1.2 documentation">
            <img alt=" logo" height="48" src="../../_static/" width="48"/>
           </a>
-          <a href="../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a href="../../index.html" title="SC-REPL 1.1.2 documentation">
            SC-REPL
           </a>
          </label>
@@ -228,65 +228,82 @@
 <span class="kn">from</span> <span class="nn">screpl.resources.table</span> <span class="kn">import</span> <span class="n">tables</span> <span class="k">as</span> <span class="n">tb</span>
 <span class="kn">from</span> <span class="nn">screpl.resources</span> <span class="kn">import</span> <span class="n">offset</span>
 
-<span class="kn">import</span> <span class="nn">screpl.main</span> <span class="k">as</span> <span class="nn">main</span>
-
-<span class="n">_writer</span> <span class="o">=</span> <span class="kc">None</span>
-<div class="viewcode-block" id="get_main_writer"><a class="viewcode-back" href="../../screpl.writer.html#screpl.writer.get_main_writer">[docs]</a><span class="k">def</span> <span class="nf">get_main_writer</span><span class="p">():</span>
-    <span class="k">global</span> <span class="n">_writer</span>
-    <span class="k">if</span> <span class="n">_writer</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">_writer</span> <span class="o">=</span> <span class="n">main</span><span class="o">.</span><span class="n">get_main_writer</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">_writer</span></div>
-
-<div class="viewcode-block" id="write_constant"><a class="viewcode-back" href="../../screpl.writer.html#screpl.writer.write_constant">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">write_constant</span><span class="p">(</span><span class="n">table_epd</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+<div class="viewcode-block" id="write_constant"><a class="viewcode-back" href="../../screpl.writer.html#screpl.utils.byterw.write_constant">[docs]</a><span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">write_constant</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_epd</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
     <span class="n">name_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">search_table_inv</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">table_epd</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">name_epd</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">name_epd</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">search_table_inv</span><span class="p">(</span><span class="n">val</span><span class="p">,</span>
+                                <span class="n">table_epd</span><span class="p">,</span>
+                                <span class="n">EPD</span><span class="p">(</span><span class="n">name_epd</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">name_epd</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
     <span class="n">EUDEndIf</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="write_unit"><a class="viewcode-back" href="../../screpl.writer.html#screpl.writer.write_unit">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">write_unit</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+<div class="viewcode-block" id="write_unit"><a class="viewcode-back" href="../../screpl.writer.html#screpl.utils.byterw.write_unit">[docs]</a><span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">write_unit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">val</span> <span class="o">&lt;=</span> <span class="mi">227</span><span class="p">):</span>
         <span class="n">stringid</span> <span class="o">=</span> <span class="n">offset</span><span class="o">.</span><span class="n">unitsdat_UnitMapString</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">stringid</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'"'</span><span class="p">))</span>
-            <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_strx_string</span><span class="p">(</span><span class="n">stringid</span><span class="p">)</span>
-            <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'"'</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'"'</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_strx_string</span><span class="p">(</span><span class="n">stringid</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'"'</span><span class="p">))</span>
             <span class="n">EUDReturn</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
     <span class="n">EUDEndIf</span><span class="p">()</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\"</span><span class="si">%E</span><span class="se">\"</span><span class="s2">"</span><span class="p">,</span> <span class="n">tb</span><span class="o">.</span><span class="n">GetDefaultUnitNameEPDPointer</span><span class="p">(</span><span class="n">val</span><span class="p">))</span></div>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s1">'"</span><span class="si">%E</span><span class="s1">"'</span><span class="p">,</span> <span class="n">tb</span><span class="o">.</span><span class="n">GetDefaultUnitNameEPDPointer</span><span class="p">(</span><span class="n">val</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="write_location"><a class="viewcode-back" href="../../screpl.writer.html#screpl.writer.write_location">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">write_location</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\"</span><span class="si">%E</span><span class="se">\"</span><span class="s2">"</span><span class="p">,</span> <span class="n">tb</span><span class="o">.</span><span class="n">GetLocationNameEPDPointer</span><span class="p">(</span><span class="n">val</span><span class="p">))</span></div>
+<div class="viewcode-block" id="write_location"><a class="viewcode-back" href="../../screpl.writer.html#screpl.utils.byterw.write_location">[docs]</a><span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">write_location</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s1">'"</span><span class="si">%E</span><span class="s1">"'</span><span class="p">,</span> <span class="n">tb</span><span class="o">.</span><span class="n">GetLocationNameEPDPointer</span><span class="p">(</span><span class="n">val</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="write_aiscript"><a class="viewcode-back" href="../../screpl.writer.html#screpl.writer.write_aiscript">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">write_aiscript</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+<div class="viewcode-block" id="write_aiscript"><a class="viewcode-back" href="../../screpl.writer.html#screpl.utils.byterw.write_aiscript">[docs]</a><span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">write_aiscript</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
     <span class="n">name_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">search_table_inv</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">AIScript</span><span class="p">),</span> <span class="n">EPD</span><span class="p">(</span><span class="n">name_epd</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s1">'"</span><span class="si">%E</span><span class="s1">"'</span><span class="p">,</span> <span class="n">name_epd</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">search_table_inv</span><span class="p">(</span><span class="n">val</span><span class="p">,</span>
+                                <span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">AIScript</span><span class="p">),</span>
+                                <span class="n">EPD</span><span class="p">(</span><span class="n">name_epd</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s1">'"</span><span class="si">%E</span><span class="s1">"'</span><span class="p">,</span> <span class="n">name_epd</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
     <span class="n">EUDEndIf</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="write_switch"><a class="viewcode-back" href="../../screpl.writer.html#screpl.writer.write_switch">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">write_switch</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+<div class="viewcode-block" id="write_switch"><a class="viewcode-back" href="../../screpl.writer.html#screpl.utils.byterw.write_switch">[docs]</a><span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">write_switch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
     <span class="n">name_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">search_table_inv</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">swMap</span><span class="p">),</span> <span class="n">EPD</span><span class="p">(</span><span class="n">name_epd</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s1">'"</span><span class="si">%E</span><span class="s1">"'</span><span class="p">,</span> <span class="n">name_epd</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">search_table_inv</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">swSub</span><span class="p">),</span> <span class="n">EPD</span><span class="p">(</span><span class="n">name_epd</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s1">'"</span><span class="si">%E</span><span class="s1">"'</span><span class="p">,</span> <span class="n">name_epd</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">search_table_inv</span><span class="p">(</span><span class="n">val</span><span class="p">,</span>
+                                <span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">swMap</span><span class="p">),</span>
+                                <span class="n">EPD</span><span class="p">(</span><span class="n">name_epd</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s1">'"</span><span class="si">%E</span><span class="s1">"'</span><span class="p">,</span> <span class="n">name_epd</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">search_table_inv</span><span class="p">(</span><span class="n">val</span><span class="p">,</span>
+                                    <span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">swSub</span><span class="p">),</span>
+                                    <span class="n">EPD</span><span class="p">(</span><span class="n">name_epd</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s1">'"</span><span class="si">%E</span><span class="s1">"'</span><span class="p">,</span> <span class="n">name_epd</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
     <span class="n">EUDEndIf</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="write_string"><a class="viewcode-back" href="../../screpl.writer.html#screpl.writer.write_string">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">write_string</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+<div class="viewcode-block" id="write_string"><a class="viewcode-back" href="../../screpl.writer.html#screpl.utils.byterw.write_string">[docs]</a><span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">write_string</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="p">):</span>
     <span class="c1"># @TODO write partial string</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">val</span><span class="p">)</span></div>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">val</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="writer_init"><a class="viewcode-back" href="../../screpl.writer.html#screpl.utils.byterw.writer_init">[docs]</a><span class="k">def</span> <span class="nf">writer_init</span><span class="p">():</span>
+    <span class="kn">from</span> <span class="nn">screpl.utils.byterw</span> <span class="kn">import</span> <span class="n">REPLByteRW</span>
+
+    <span class="kn">from</span> <span class="nn">screpl.writer.action</span> <span class="kn">import</span> <span class="n">writer_action_init</span>
+    <span class="kn">from</span> <span class="nn">screpl.writer.condition</span> <span class="kn">import</span> <span class="n">writer_condition_init</span>
+    <span class="kn">from</span> <span class="nn">screpl.writer.scmd</span> <span class="kn">import</span> <span class="n">writer_scmd_init</span>
+
+    <span class="n">REPLByteRW</span><span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="n">write_constant</span><span class="p">)</span>
+    <span class="n">REPLByteRW</span><span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="n">write_unit</span><span class="p">)</span>
+    <span class="n">REPLByteRW</span><span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="n">write_location</span><span class="p">)</span>
+    <span class="n">REPLByteRW</span><span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="n">write_aiscript</span><span class="p">)</span>
+    <span class="n">REPLByteRW</span><span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="n">write_switch</span><span class="p">)</span>
+    <span class="n">REPLByteRW</span><span class="o">.</span><span class="n">add_method</span><span class="p">(</span><span class="n">write_string</span><span class="p">)</span>
+
+    <span class="n">writer_condition_init</span><span class="p">()</span>
+    <span class="n">writer_action_init</span><span class="p">()</span>
+    <span class="n">writer_scmd_init</span><span class="p">()</span></div>
 </pre>
        </div>
       </article>

@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.utils.byterw — SC-REPL 1.1.1 documentation
+   screpl.utils.byterw — SC-REPL 1.1.2 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.1 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.1 documentation
+        SC-REPL 1.1.2 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.2 documentation">
            SC-REPL
           </a>
          </label>
@@ -229,6 +229,16 @@
 <div class="viewcode-block" id="REPLByteRW"><a class="viewcode-back" href="../../../screpl.utils.byterw.html#screpl.utils.byterw.REPLByteRW">[docs]</a><span class="k">class</span> <span class="nc">REPLByteRW</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">epd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">off</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+<div class="viewcode-block" id="REPLByteRW.add_method"><a class="viewcode-back" href="../../../screpl.utils.byterw.html#screpl.utils.byterw.REPLByteRW.add_method">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">add_method</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="sd">"""Dynamically add method on REPLByteRW"""</span>
+        <span class="n">mtdname</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">if</span> <span class="n">mtdname</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"class </span><span class="si">%r</span><span class="s2"> already has attribute </span><span class="si">%r</span><span class="s2">"</span> <span class="o">%</span>
+                             <span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">mtdname</span><span class="p">))</span>
+
+        <span class="nb">setattr</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">mtdname</span><span class="p">,</span> <span class="n">method</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="REPLByteRW.getoffset"><a class="viewcode-back" href="../../../screpl.utils.byterw.html#screpl.utils.byterw.REPLByteRW.getoffset">[docs]</a>    <span class="nd">@EUDMethod</span>
     <span class="k">def</span> <span class="nf">getoffset</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -409,8 +419,28 @@
         <span class="n">EUDEndWhile</span><span class="p">()</span>
         <span class="n">EUDReturn</span><span class="p">(</span><span class="n">written</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="REPLByteRW.write_decimal"><a class="viewcode-back" href="../../../screpl.utils.byterw.html#screpl.utils.byterw.REPLByteRW.write_decimal">[docs]</a>    <span class="nd">@EUDMethod</span>
-    <span class="k">def</span> <span class="nf">write_decimal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+<div class="viewcode-block" id="REPLByteRW.write_decimal"><a class="viewcode-back" href="../../../screpl.utils.byterw.html#screpl.utils.byterw.REPLByteRW.write_decimal">[docs]</a>    <span class="k">def</span> <span class="nf">write_decimal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_decimal</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)))</span></div>
+
+<div class="viewcode-block" id="REPLByteRW.write_hex"><a class="viewcode-back" href="../../../screpl.utils.byterw.html#screpl.utils.byterw.REPLByteRW.write_hex">[docs]</a>    <span class="k">def</span> <span class="nf">write_hex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_hex</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"0x</span><span class="si">%08X</span><span class="s2">"</span> <span class="o">%</span> <span class="n">number</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="REPLByteRW.write_binary"><a class="viewcode-back" href="../../../screpl.utils.byterw.html#screpl.utils.byterw.REPLByteRW.write_binary">[docs]</a>    <span class="k">def</span> <span class="nf">write_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_binary</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'1'</span> <span class="k">if</span> <span class="p">(</span><span class="n">number</span> <span class="o">&amp;</span> <span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="n">t</span><span class="p">))</span> <span class="k">else</span> <span class="s1">'0'</span>
+                     <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">31</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"0b"</span> <span class="o">+</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chars</span><span class="p">)))</span></div>
+
+    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">_write_decimal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
         <span class="n">skipper</span> <span class="o">=</span> <span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">)]</span>
         <span class="n">ch</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">10</span>
 
@@ -424,10 +454,10 @@
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">9</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">!=</span> <span class="mi">9</span><span class="p">:</span>
                 <span class="n">skipper</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'0'</span><span class="p">))</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'0'</span><span class="p">))</span>
 
-<div class="viewcode-block" id="REPLByteRW.write_hex"><a class="viewcode-back" href="../../../screpl.utils.byterw.html#screpl.utils.byterw.REPLByteRW.write_hex">[docs]</a>    <span class="nd">@EUDMethod</span>
-    <span class="k">def</span> <span class="nf">write_hex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">_write_hex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
         <span class="n">ch</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">8</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'0'</span><span class="p">))</span>
@@ -443,10 +473,10 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'0'</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ch</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'A'</span><span class="p">)</span> <span class="o">-</span> <span class="mi">10</span><span class="p">))</span>
-            <span class="n">EUDEndIf</span><span class="p">()</span></div>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
 
-<div class="viewcode-block" id="REPLByteRW.write_binary"><a class="viewcode-back" href="../../../screpl.utils.byterw.html#screpl.utils.byterw.REPLByteRW.write_binary">[docs]</a>    <span class="nd">@EUDMethod</span>
-    <span class="k">def</span> <span class="nf">write_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
+    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">_write_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'0'</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'b'</span><span class="p">))</span>
 
@@ -457,7 +487,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'1'</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'0'</span><span class="p">))</span>
-            <span class="n">EUDEndIf</span><span class="p">()</span></div>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
 
 <div class="viewcode-block" id="REPLByteRW.write_bytehex"><a class="viewcode-back" href="../../../screpl.utils.byterw.html#screpl.utils.byterw.REPLByteRW.write_bytehex">[docs]</a>    <span class="nd">@EUDMethod</span>
     <span class="k">def</span> <span class="nf">write_bytehex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>

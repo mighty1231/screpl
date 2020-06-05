@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.core.appmanager — SC-REPL 1.1.1 documentation
+   screpl.core.appmanager — SC-REPL 1.1.2 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.1 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.1 documentation
+        SC-REPL 1.1.2 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.2 documentation">
            SC-REPL
           </a>
          </label>
@@ -234,17 +234,6 @@
 <span class="n">_KEYPRESS_DELAY</span> <span class="o">=</span> <span class="mi">8</span>
 <span class="n">_APP_MAX_COUNT</span> <span class="o">=</span> <span class="mi">30</span>
 
-<div class="viewcode-block" id="PayloadSizeObj"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.PayloadSizeObj">[docs]</a><span class="k">class</span> <span class="nc">PayloadSizeObj</span><span class="p">(</span><span class="n">EUDObject</span><span class="p">):</span>
-<div class="viewcode-block" id="PayloadSizeObj.GetDataSize"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.PayloadSizeObj.GetDataSize">[docs]</a>    <span class="k">def</span> <span class="nf">GetDataSize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="mi">4</span></div>
-
-<div class="viewcode-block" id="PayloadSizeObj.CollectDependency"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.PayloadSizeObj.CollectDependency">[docs]</a>    <span class="k">def</span> <span class="nf">CollectDependency</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pbuffer</span><span class="p">):</span>
-        <span class="k">pass</span></div>
-
-<div class="viewcode-block" id="PayloadSizeObj.WritePayload"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.PayloadSizeObj.WritePayload">[docs]</a>    <span class="k">def</span> <span class="nf">WritePayload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pbuffer</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">eudplib.core.allocator.payload</span> <span class="kn">import</span> <span class="n">_payload_size</span>
-        <span class="n">pbuffer</span><span class="o">.</span><span class="n">WriteDword</span><span class="p">(</span><span class="n">_payload_size</span><span class="p">)</span></div></div>
-
 <div class="viewcode-block" id="AppManager"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager">[docs]</a><span class="k">class</span> <span class="nc">AppManager</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">su_id</span><span class="p">,</span> <span class="n">su_prefix</span><span class="p">,</span> <span class="n">su_prefixlen</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">.application</span> <span class="kn">import</span> <span class="n">ApplicationInstance</span>
@@ -290,7 +279,6 @@
         <span class="n">dim</span> <span class="o">=</span> <span class="n">GetChkTokenized</span><span class="p">()</span><span class="o">.</span><span class="n">getsection</span><span class="p">(</span><span class="sa">b</span><span class="s1">'DIM '</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">map_width</span> <span class="o">=</span> <span class="n">b2i2</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">map_height</span> <span class="o">=</span> <span class="n">b2i2</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">payload_size</span> <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">PayloadSizeObj</span><span class="p">()))</span>
 
 <div class="viewcode-block" id="AppManager.alloc_variable"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.alloc_variable">[docs]</a>    <span class="k">def</span> <span class="nf">alloc_variable</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">varpool</span><span class="o">.</span><span class="n">alloc</span><span class="p">(</span><span class="n">count</span><span class="p">)</span></div>
@@ -633,10 +621,6 @@
         <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">main</span><span class="o">.</span><span class="n">is_blind_mode</span><span class="p">())</span>
         <span class="n">f_printf</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">*</span> <span class="mi">12</span><span class="p">)</span>
         <span class="n">EUDEndIf</span><span class="p">()</span></div>
-
-<div class="viewcode-block" id="AppManager.get_strx_section_size"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.get_strx_section_size">[docs]</a>    <span class="nd">@EUDMethod</span>
-    <span class="k">def</span> <span class="nf">get_strx_section_size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">payload_size</span></div>
 
 <div class="viewcode-block" id="AppManager.run"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
         <span class="c1"># only super user may interact with apps</span>

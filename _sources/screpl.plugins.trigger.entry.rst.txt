@@ -1,0 +1,7 @@
+screpl.plugins.trigger.entry module
+===================================
+
+.. automodule:: screpl.plugins.trigger.entry
+   :members:
+   :undoc-members:
+   :show-inheritance:

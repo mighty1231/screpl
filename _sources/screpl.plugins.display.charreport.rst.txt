@@ -1,0 +1,7 @@
+screpl.plugins.display.charreport module
+========================================
+
+.. automodule:: screpl.plugins.display.charreport
+   :members:
+   :undoc-members:
+   :show-inheritance:

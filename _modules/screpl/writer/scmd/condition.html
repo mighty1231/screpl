@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.writer.scmd.condition — SC-REPL 1.1.1 documentation
+   screpl.writer.scmd.condition — SC-REPL 1.1.2 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.1 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.1 documentation
+        SC-REPL 1.1.2 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -189,10 +189,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.1 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
            SC-REPL
           </a>
          </label>
@@ -233,50 +233,49 @@
        <div class="highlight">
         <pre>
 <span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">screpl.main</span> <span class="kn">import</span> <span class="n">get_main_writer</span>
-<span class="kn">from</span> <span class="nn">screpl.writer</span> <span class="kn">import</span> <span class="n">write_location</span>
-<span class="kn">from</span> <span class="nn">screpl.writer.condition</span> <span class="kn">import</span> <span class="n">_condmap</span>
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="kn">from</span> <span class="nn">.unit</span> <span class="kn">import</span> <span class="n">write_scmd_unit</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">tb_scmd_comparison</span><span class="p">,</span>
+    <span class="n">tb_scmd_player</span><span class="p">,</span>
+<span class="p">)</span>
 
-<div class="viewcode-block" id="write_scmd_condition"><a class="viewcode-back" href="../../../../screpl.writer.scmd.condition.html#screpl.writer.scmd.condition.write_scmd_condition">[docs]</a><span class="k">def</span> <span class="nf">write_scmd_condition</span><span class="p">(</span><span class="n">cond</span><span class="p">):</span>
+<div class="viewcode-block" id="write_scmd_condition"><a class="viewcode-back" href="../../../../screpl.writer.scmd.condition.html#screpl.utils.byterw.write_scmd_condition">[docs]</a><span class="k">def</span> <span class="nf">write_scmd_condition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cond</span><span class="p">):</span>
     <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cond</span><span class="p">,</span> <span class="n">Condition</span><span class="p">)</span>
 
     <span class="n">condtype</span> <span class="o">=</span> <span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
     <span class="k">assert</span> <span class="ow">not</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">condtype</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">condtype</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
-        <span class="n">_writeCommand</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span>
+        <span class="n">_write_scmd__Command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cond</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">condtype</span> <span class="o">==</span> <span class="mi">15</span><span class="p">:</span>
-        <span class="n">_writeDeaths</span><span class="p">(</span><span class="n">cond</span><span class="p">)</span>
+        <span class="n">_write_scmd__Deaths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cond</span><span class="p">)</span>
     <span class="k">elif</span> <span class="n">condtype</span> <span class="o">==</span> <span class="mi">22</span><span class="p">:</span>
-        <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Always();</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Always();</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Unknown condition type </span><span class="si">%d</span><span class="s2">"</span> <span class="o">%</span> <span class="n">condtype</span><span class="p">)</span></div>
 
-<span class="k">def</span> <span class="nf">_writeDeaths</span><span class="p">(</span><span class="n">cond</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_write_scmd__Deaths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cond</span><span class="p">):</span>
     <span class="k">assert</span> <span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">8</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">"eudx is currently not supported"</span>
 
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Deaths("</span><span class="p">)</span>
-    <span class="n">write_scmd_player</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_unit</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_comparison</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_number</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Deaths("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_const</span><span class="p">(</span><span class="n">tb_scmd_player</span><span class="p">,</span> <span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_unit</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_const</span><span class="p">(</span><span class="n">tb_scmd_comparison</span><span class="p">,</span> <span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
-<span class="k">def</span> <span class="nf">_writeCommand</span><span class="p">(</span><span class="n">cond</span><span class="p">):</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Command("</span><span class="p">)</span>
-    <span class="n">write_scmd_player</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_unit</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_comparison</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
-    <span class="n">write_scmd_number</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-    <span class="n">get_main_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_write_scmd__Command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cond</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Command("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_const</span><span class="p">(</span><span class="n">tb_scmd_player</span><span class="p">,</span> <span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_unit</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_const</span><span class="p">(</span><span class="n">tb_scmd_comparison</span><span class="p">,</span> <span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">cond</span><span class="o">.</span><span class="n">fields</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 </pre>
        </div>
       </article>
