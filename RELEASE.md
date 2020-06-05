@@ -14,7 +14,8 @@
   * `debug.f_raise_error` receives variable arguments
   * new function `string.f_memcmp_epd`
 * update `bridge`
-  * now shared memory region contains the version of protocol.
+  * now shared memory region contains the version of protocol
+  * now client properly shows `Logger` logs
 
 
 # Release 1.1.1
