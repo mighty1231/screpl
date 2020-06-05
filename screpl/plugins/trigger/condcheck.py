@@ -64,6 +64,9 @@ def _set_focus(new_focus):
     EUDEndIf()
 
 class CondCheckApp(Application):
+    def on_init(self):
+        v_mode << MODE_MAIN
+
     def loop(self):
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()

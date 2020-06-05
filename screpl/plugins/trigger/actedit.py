@@ -55,6 +55,10 @@ v_focused_entry = EUDVariable(0)
 
 db_storage = Db(32)
 
+MODE_MAIN = 0
+MODE_HELP = 1
+v_mode = EUDVariable(MODE_MAIN)
+
 @EUDFunc
 def set_focus(new_focus):
     if EUDIfNot()(new_focus >= entry_cnt):
@@ -70,7 +74,7 @@ class TrigActionEditorApp(Application):
 
     .. code-block:: text
 
-        Action editor on 0x13131312
+        Action editor on 0x13131312 (Press F1 to get help)
         SetSwitch("Switch 1", Set)
 
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -87,6 +91,7 @@ class TrigActionEditorApp(Application):
         f_repmovsd_epd(EPD(db_storage), _act_epd, 32//4)
         v_focus << 0
         v_focused_entry << entries[0]
+        v_mode << MODE_MAIN
 
     def on_destruct(self):
         _act_epd << EPD(0)
@@ -111,32 +116,49 @@ class TrigActionEditorApp(Application):
             set_focus(v_focus - 1)
         if EUDElseIf()(app_manager.key_press("F8")):
             set_focus(v_focus + 1)
+        if EUDElseIf()(app_manager.key_down("F1")):
+            v_mode << MODE_HELP
+            app_manager.clean_text()
+        if EUDElseIf()(app_manager.key_up("F1")):
+            v_mode << MODE_MAIN
+            app_manager.clean_text()
         EUDEndIf()
         app_manager.request_update()
 
     def print(self, writer):
-        writer.write_f("\x04Action on %H\n", 0x58A364 + 4*_act_epd)
-        writer.write_action_epd(EPD(db_storage))
-        writer.write_f("\n\n")
+        if EUDIf()(v_mode == MODE_MAIN):
+            writer.write_f("\x04Action on %H (Press F1 to get help)\n",
+                           0x58A364 + 4*_act_epd)
+            writer.write_action_epd(EPD(db_storage))
+            writer.write_f("\n\n")
 
-        i = EUDVariable()
-        i << 0
-        if EUDWhileNot()(i >= entry_cnt):
-            entry = TrigEntry.cast(entries[i])
-            color = EUDTernary(i == v_focus)(0x11)(0x2)
+            i = EUDVariable()
+            i << 0
+            if EUDWhileNot()(i >= entry_cnt):
+                entry = TrigEntry.cast(entries[i])
+                color = EUDTernary(i == v_focus)(0x11)(0x2)
 
-            # seperate line
-            if EUDIf()(i == 4):
-                writer.write(ord('\n'))
-            EUDEndIf()
+                # seperate line
+                if EUDIf()(i == 4):
+                    writer.write(ord('\n'))
+                EUDEndIf()
 
-            writer.write(color)
-            entry.write_bytes(writer, EPD(db_storage))
-            i += 1
-        EUDEndWhile()
+                writer.write(color)
+                entry.write_bytes(writer, EPD(db_storage))
+                i += 1
+            EUDEndWhile()
 
-        writer.write_f("\n\x04entry: \x11%E\n"
-                       "\n"
-                       "\x04[ Save (CTRL+Y) ] [ CANCEL (CTRL+N) ]\n",
-                       TrigEntry.cast(v_focused_entry).name_epd)
+            writer.write_f("\n\x04entry: \x11%E\n"
+                           "\n"
+                           "\x04[ Save (CTRL+Y) ] [ CANCEL (CTRL+N) ]\n",
+                           TrigEntry.cast(v_focused_entry).name_epd)
+        if EUDElse()():
+            writer.write_f("\x04Action Editor App\n"
+                           "Press F7, F8 to change focus\n"
+                           "Chat 'setn(##)' sets the value of focused entry\n"
+                           "For example,\n"
+                           "\x041. \x02%Ssetn(33)\n"
+                           "\x042. \x02%Ssetn(0xFFFFFFFF)\n",
+                           app_manager.su_prefix, app_manager.su_prefix)
+        EUDEndIf()
         writer.write(0)

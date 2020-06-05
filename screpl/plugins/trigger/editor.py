@@ -256,7 +256,7 @@ class TriggerEditorApp(Application):
 
         EUDSwitch(tab)
         if EUDSwitchCase()(TAB_CONDITION):
-            writer.write_f(" Conditions: (Press CTRL+T to switch)\n")
+            writer.write_f(" Conditions: (Press CTRL+T to switch, CTRL+E to edit)\n")
             text_table_epd << self.condtext_table_epd
 
             if EUDIf()(pageend <= cond_count):
@@ -266,7 +266,7 @@ class TriggerEditorApp(Application):
             EUDEndIf()
             EUDBreak()
         if EUDSwitchCase()(TAB_ACTION):
-            writer.write_f(" Actions: (Press CTRL+T to switch)\n")
+            writer.write_f(" Actions: (Press CTRL+T to switch, CTRL+E to edit)\n")
             text_table_epd << self.acttext_table_epd
             if EUDIf()(pageend <= act_count):
                 until << pageend

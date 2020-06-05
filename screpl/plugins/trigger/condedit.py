@@ -45,6 +45,10 @@ v_focused_entry = EUDVariable(0)
 
 db_storage = Db(20)
 
+MODE_MAIN = 0
+MODE_HELP = 1
+v_mode = EUDVariable(MODE_MAIN)
+
 @EUDFunc
 def set_focus(new_focus):
     if EUDIfNot()(new_focus >= entry_cnt):
@@ -60,7 +64,7 @@ class TrigConditionEditorApp(Application):
 
     .. code-block:: text
 
-        Condition editor on 0x13131312
+        Condition editor on 0x13131312 (Press F1 to get help)
         Switch("Switch 1", Set)
 
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
@@ -76,6 +80,7 @@ class TrigConditionEditorApp(Application):
         f_repmovsd_epd(EPD(db_storage), _cond_epd, 20//4)
         v_focus << 0
         v_focused_entry << entries[0]
+        v_mode << MODE_MAIN
 
     def on_destruct(self):
         _cond_epd << EPD(0)
@@ -100,27 +105,44 @@ class TrigConditionEditorApp(Application):
             set_focus(v_focus - 1)
         if EUDElseIf()(app_manager.key_press("F8")):
             set_focus(v_focus + 1)
+        if EUDElseIf()(app_manager.key_down("F1")):
+            v_mode << MODE_HELP
+            app_manager.clean_text()
+        if EUDElseIf()(app_manager.key_up("F1")):
+            v_mode << MODE_MAIN
+            app_manager.clean_text()
         EUDEndIf()
         app_manager.request_update()
 
     def print(self, writer):
-        writer.write_f("\x04Condition on %H\n", 0x58A364 + 4*_cond_epd)
-        writer.write_condition_epd(EPD(db_storage))
-        writer.write_f("\n\n")
+        if EUDIf()(v_mode == MODE_MAIN):
+            writer.write_f("\x04Condition on %H (Press F1 to get help)\n",
+                           0x58A364 + 4*_cond_epd)
+            writer.write_condition_epd(EPD(db_storage))
+            writer.write_f("\n\n")
 
-        i = EUDVariable()
-        i << 0
-        if EUDWhileNot()(i >= entry_cnt):
-            entry = TrigEntry.cast(entries[i])
-            color = EUDTernary(i == v_focus)(0x11)(0x2)
+            i = EUDVariable()
+            i << 0
+            if EUDWhileNot()(i >= entry_cnt):
+                entry = TrigEntry.cast(entries[i])
+                color = EUDTernary(i == v_focus)(0x11)(0x2)
 
-            writer.write(color)
-            entry.write_bytes(writer, EPD(db_storage))
-            i += 1
-        EUDEndWhile()
+                writer.write(color)
+                entry.write_bytes(writer, EPD(db_storage))
+                i += 1
+            EUDEndWhile()
 
-        writer.write_f("\n\x04entry: \x11%E\n"
-                       "\n"
-                       "\x04[ Save (CTRL+Y) ] [ CANCEL (CTRL+N) ]\n",
-                       TrigEntry.cast(v_focused_entry).name_epd)
+            writer.write_f("\n\x04entry: \x11%E\n"
+                           "\n"
+                           "\x04[ Save (CTRL+Y) ] [ CANCEL (CTRL+N) ]\n",
+                           TrigEntry.cast(v_focused_entry).name_epd)
+        if EUDElse()():
+            writer.write_f("\x04Condition Editor App\n"
+                           "Press F7, F8 to change focus\n"
+                           "Chat 'setn(##)' sets the value of focused entry\n"
+                           "For example,\n"
+                           "\x041. \x02%Ssetn(33)\n"
+                           "\x042. \x02%Ssetn(0xFFFFFFFF)\n",
+                           app_manager.su_prefix, app_manager.su_prefix)
+        EUDEndIf()
         writer.write(0)
