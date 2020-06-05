@@ -7,6 +7,8 @@ from screpl.utils.string import f_memcmp_epd
 from screpl.main import get_app_manager
 from screpl.main import get_main_writer
 
+from .condedit import TrigConditionEditorApp
+
 app_manager = get_app_manager()
 main_writer = get_main_writer()
 
@@ -184,17 +186,18 @@ class TriggerEditorApp(Application):
         EUDEndIf()
 
     def loop(self):
+        index = self.index
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
             EUDReturn()
         if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            self.update_index(self.index - ENTRY_COUNT_PER_PAGE)
+            self.update_index(index - ENTRY_COUNT_PER_PAGE)
         if EUDElseIf()(app_manager.key_press("F7")):
-            self.update_index(self.index - 1)
+            self.update_index(index - 1)
         if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            self.update_index(self.index + ENTRY_COUNT_PER_PAGE)
+            self.update_index(index + ENTRY_COUNT_PER_PAGE)
         if EUDElseIf()(app_manager.key_press("F8")):
-            self.update_index(self.index + 1)
+            self.update_index(index + 1)
         if EUDElseIf()(app_manager.key_press("R")):
             self.update_text()
         if EUDElseIf()(app_manager.key_press("T", hold=["LCTRL"])):
@@ -205,6 +208,9 @@ class TriggerEditorApp(Application):
             self.tab = tab
             self.index = 0
             app_manager.request_update()
+        if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
+            TrigConditionEditorApp.set_cond_epd(self.cond_epd + index*(20//4))
+            app_manager.start_application(TrigConditionEditorApp)
         EUDEndIf()
         olddb_epd = self.olddb_epd
         trig_epd = self.trig_epd
