@@ -15,6 +15,7 @@ from eudplib import *
 
 from screpl.apps.repl import REPL
 from screpl.core.appcommand import AppCommand
+from screpl.encoder.const import ArgEncNumber
 from screpl.main import get_app_manager
 from screpl.utils.debug import f_raise_error
 from eudplib.core.mapdata.stringmap import strmap
@@ -296,11 +297,22 @@ cctm = CondCheckTriggerManager()
 def plugin_setup():
     cctm.find_signature_and_update()
 
+    from .editor import TriggerEditorApp
+
+    @AppCommand([ArgEncNumber])
+    def start_triggereditor(self, ptr):
+        """Start trigger editor with given ptr"""
+        TriggerEditorApp.set_trig_ptr(ptr, unlink=False)
+        app_manager.start_application(TriggerEditorApp)
+
+    REPL.add_command('trigger', start_triggereditor)
+
     if cctm.result_tables:
         from .condcheck import CondCheckApp
 
         @AppCommand([])
         def start_condcheck(self):
+            """Start trigger condition checker"""
             app_manager.start_application(CondCheckApp)
 
         REPL.add_command('condcheck', start_condcheck)
