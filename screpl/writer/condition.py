@@ -54,11 +54,12 @@ def write_condition_epd(self, epd):
 
     cond = condition_epd_offset_map(epd)
     condtype = cond.condtype
+    EUDSwitch(condtype)
     for mtd_id, mtd in write_mtds:
-        _br = EUDIf if mtd_id == 1 else EUDElseIf
-        _br()(condtype == mtd_id)
+        EUDSwitchCase()(mtd_id)
         mtd(self, epd)
-    if EUDElse()():
+        EUDBreak()
+    if EUDSwitchDefault()():
         self.write_f(
             "Condition(%D, %D, %D, %D, %D, %D, %D)",
             cond.locid,
@@ -69,7 +70,7 @@ def write_condition_epd(self, epd):
             condtype,
             cond.restype,
         )
-    EUDEndIf()
+    EUDEndSwitch()
 
     # additional flags
     flags = cond.flags

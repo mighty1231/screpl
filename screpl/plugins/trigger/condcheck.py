@@ -4,8 +4,9 @@ from screpl.core.application import Application
 from screpl.main import get_app_manager
 from screpl.main import get_main_writer
 
-from .entry import MaximumCircularBuffer, ResultEntry
 from . import cctm
+from .entry import MaximumCircularBuffer, ResultEntry
+from .editor import TriggerEditorApp
 
 app_manager = get_app_manager()
 writer = get_main_writer()
@@ -76,6 +77,9 @@ class CondCheckApp(Application):
         if EUDElseIf()(app_manager.key_up("H")):
             v_mode << MODE_MAIN
             app_manager.clean_text()
+        if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
+            TriggerEditorApp.set_trig_ptr(arr_trig_object[v_focus], unlink=True)
+            app_manager.start_application(TriggerEditorApp)
         EUDEndIf()
         app_manager.request_update()
 
@@ -89,18 +93,20 @@ class CondCheckApp(Application):
                            "press H to help\n", trigid, pid)
             mcb.iter(write_entry)
         if EUDElse()():
-            writer.write_f("\x04Condition log - (Navigation: F7/F8)\n"
-                           "\x17(start_tick)-(end_tick): \x0Fv0 v1 v2 ...\n"
-                           "\x17tick\x04: the value of 0x57F23C (f_getgametick())\n"
-                           "\x04During \x17start_tick \x04to \x17end_tick\x04, "
-                               "the condition behaves as all the same way\n"
-                           "\x0Fcolor of v\x04: condition check result. "
-                               "\x07pass \x06fail\n"
-                           "\x0Fvalue of v\x04: The exact amount to satisfy "
-                               "the comparison conditions\n"
-                           "\n"
-                           "\x11[Comparison conditions]\n"
-                           "\x02CountdownTimer, Command, Bring, Accumulate, "
-                           "Kills, ElapsedTime, Opponents, Deaths, Score\n")
+            writer.write_f(
+                "\x04Condition log - (Navigation: F7/F8)\n"
+                "\x17(start_tick)-(end_tick): \x0Fv0 v1 v2 ...\n"
+                "\x17tick\x04: the value of 0x57F23C (f_getgametick())\n"
+                "\x04During \x17start_tick \x04to \x17end_tick\x04, "
+                    "the condition behaves as all the same way\n"
+                "\x0Fcolor of v\x04: condition check result. "
+                    "\x07pass \x06fail\n"
+                "\x0Fvalue of v\x04: The exact amount to satisfy "
+                    "the comparison conditions\n"
+                "\n"
+                "\x11[Comparison conditions]\n"
+                "\x02CountdownTimer, Command, Bring, Accumulate, "
+                "Kills, ElapsedTime, Opponents, Deaths, Score\n"
+            )
         EUDEndIf()
         writer.write(0)

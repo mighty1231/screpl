@@ -185,6 +185,9 @@ def _condcheck_trigger(trigdb_epd, entry_table):
     # call original trigger
     trig_copy << IntactTrigger()
 
+    # some flags may changed. update db
+    f_repmovsd_epd(trigdb_epd, EPD(trig_copy)+2, 2400//4)
+
     # update result entries
     trig_end = Forward()
     if EUDIfNot()(entry_table.empty()):

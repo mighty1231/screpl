@@ -88,11 +88,12 @@ def write_action_epd(self, epd):
 
     act = action_epd_offset_map(epd)
     acttype = act.acttype
+    EUDSwitch(acttype)
     for mtd_id, mtd in write_mtds:
-        _br = EUDIf if mtd_id == 1 else EUDElseIf
-        _br()(acttype == mtd_id)
+        EUDSwitchCase()(mtd_id)
         mtd(self, epd)
-    if EUDElse()():
+        EUDBreak()
+    if EUDSwitchDefault()():
         self.write_f(
             "Action(%D, %D, %D, %D, %D, %D, %D, %D, %D)",
             act.locid1,
@@ -105,7 +106,7 @@ def write_action_epd(self, epd):
             act.acttype,
             act.amount,
         )
-    EUDEndIf()
+    EUDEndSwitch()
 
     # additional flags
     flags = act.flags
