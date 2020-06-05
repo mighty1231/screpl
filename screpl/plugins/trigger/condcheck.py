@@ -1,3 +1,4 @@
+"""Defines CondCheckApp"""
 from eudplib import *
 
 from screpl.core.application import Application
@@ -17,11 +18,11 @@ arr_trig_object = []
 arr_trigid = []
 arr_pid = []
 arr_mcb = []
-for trig_object, trigid, pid, mcb in cctm.result_tables:
-    arr_trig_object.append(trig_object)
-    arr_trigid.append(trigid)
-    arr_pid.append(pid)
-    arr_mcb.append(mcb)
+for _trig_object, _trigid, _pid, _mcb in cctm.result_tables:
+    arr_trig_object.append(_trig_object)
+    arr_trigid.append(_trigid)
+    arr_pid.append(_pid)
+    arr_mcb.append(_mcb)
 
 arr_length = len(cctm.result_tables)
 arr_trig_object = EUDArray(arr_trig_object)
@@ -88,7 +89,7 @@ class CondCheckApp(Application):
         if EUDIf()(v_mode == MODE_MAIN):
             trigid = arr_trigid[v_focus]
             pid = arr_pid[v_focus]
-            mcb =  MaximumCircularBuffer(ResultEntry).cast(arr_mcb[v_focus])
+            mcb = MaximumCircularBuffer(ResultEntry).cast(arr_mcb[v_focus])
 
             writer.write_f("\x04Condition log - trigid=%D playerid=%D, "
                            "press H to help\n", trigid, pid)

@@ -1,3 +1,4 @@
+"""Data structures to log the result from condition check"""
 from eudplib import *
 
 from screpl.utils.debug import f_raise_error
@@ -6,34 +7,27 @@ from screpl.utils.struct import REPLStruct
 
 @cachedfunc
 def MaximumCircularBuffer(elem_type):
+    """Make circular buffer class with given element type"""
+
     class _DataClass(REPLStruct):
+        """MaximumCircularBuffer
+
+        It is a circular queue with some limitations. It does not have
+        dequeue. However, the number of items reaches the maximum of the
+        buffer, every enqueue causes dequeue.
+
+        It requires all the items initialized with empty values.
+        """
+
         fields = [
             "count",
             "max_size",
             "content_epd", # EPD of EUDArray
         ]
 
-        # @staticmethod
-        # def construct(max_size, ty_=None):
-        #     obj = MaximumCircularBuffer.initialize_with(0,
-        #                                                 max_size,
-        #                                                 EUDArray(max_size))
-        #     obj.type = ty_
-        #     return obj
-
-        # @EUDMethod
-        # def push(self, item):
-        #     count = self.count
-        #     max_size = self.max_size
-        #     content_epd = self.content_epd
-
-        #     quot, rem = f_div(count, max_size)
-        #     f_dwwrite_epd(content_epd + rem, item)
-
-        #     self.count = count + 1
-
         @classmethod
         def construct_w_empty(cls, values):
+            """Construct struct with given empty values"""
             assert isinstance(values, list)
             obj = cls.initialize_with(0,
                                       len(values),
@@ -44,7 +38,7 @@ def MaximumCircularBuffer(elem_type):
             return self.count == 0
 
         def last(self):
-            """returns the last element of the buffer"""
+            """Returns the last element of the buffer"""
             ret = self._last()
             return elem_type.cast(ret)
 
@@ -55,7 +49,7 @@ def MaximumCircularBuffer(elem_type):
                 f_raise_error("MaximumCircularBuffer.last(): buffer is empty")
             EUDEndIf()
 
-            quot, rem = f_div(count-1, self.max_size)
+            rem = f_div(count-1, self.max_size)[1]
             return f_dwread_epd(self.content_epd + rem)
 
         def push_and_get_reference(self):
@@ -64,12 +58,16 @@ def MaximumCircularBuffer(elem_type):
             max_size = self.max_size
             content_epd = self.content_epd
 
-            quot, rem = f_div(count, max_size)
+            rem = f_div(count, max_size)[1]
 
             self.count = count + 1
             return content_epd + rem
 
         def iter(self, iter_f):
+            """Iterate over items with given function
+
+            It iterates over items with order, from older to newer.
+            """
             count = self.count
             if EUDIfNot()(count == 0):
                 max_size = self.max_size
@@ -77,7 +75,7 @@ def MaximumCircularBuffer(elem_type):
                 quot, rem = f_div(count, max_size)
 
                 # iteration
-                idx = EUDTernary(quot==0)(0)(rem)
+                idx = EUDTernary(quot == 0)(0)(rem)
                 if EUDInfLoop()():
                     # read content_epd and apply iter_f
                     iter_f(f_dwread_epd(content_epd + idx))
@@ -93,6 +91,10 @@ def MaximumCircularBuffer(elem_type):
     return _DataClass
 
 class ResultEntry(REPLStruct):
+    """result entry class
+
+    Bind more than one results with same behavior for a trigger.
+    """
     fields = [
         "start_tick",
         "end_tick",

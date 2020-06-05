@@ -1,7 +1,18 @@
+"""Trigger plugin
+
+Enables condition checking on TRIG triggers
+
+Log following TRIG triggers:
+
+1. The first action of trigger is 'Comment("screpl-condcheck")'
+2. No Wait() action.
+
+For all trigger, it starts to log results of conditions for each players
+P1 through P8. For comparison functions, it logs the exact value additionally.
+"""
 from eudplib import *
 
 from screpl.apps.repl import REPL
-from screpl.apps.logger import Logger
 from screpl.core.appcommand import AppCommand
 from screpl.main import get_app_manager
 from screpl.utils.debug import f_raise_error
@@ -13,16 +24,10 @@ from .intacttrigger import IntactTrigger
 
 # initialize variables
 app_manager = get_app_manager()
-STRSection = EUDVariable()
-STRSection_end = EUDVariable()
 ENTRY_SIZE = 8
 
 def get_string_from_id(sid):
     return strmap.GetString(sid)
-
-@EUDFunc
-def f_epd2ptr(epd):
-    return 0x58A364 + epd * 4
 
 @EUDFunc
 def f_get_exact_amount(cond_epd):
@@ -36,86 +41,36 @@ def f_get_exact_amount(cond_epd):
     # modify amount, comparison
     DoActions([SetMemoryEPD(EPD(measure_condition + 0x8), SetTo, 0),
                SetMemoryXEPD(EPD(measure_condition + 0xC),
-                            SetTo,
-                            EncodeComparison(AtLeast) * 0x10000,
-                            0xFF0000)])
+                             SetTo,
+                             EncodeComparison(AtLeast) * 0x10000,
+                             0xFF0000)])
 
     # get maximum of x such that the condition with >= x holds
     k = EUDVariable()
-    v0, v1 = Forward(), Forward()
+    act0, act1 = Forward(), Forward()
     k << 0
     if EUDWhileNot()(k >= 32):
         EUDSwitch(k)
         for kval in range(32):
             EUDSwitchCase()(kval)
             SeqCompute([
-                (EPD(v0 + 20), SetTo, 2 ** (31-kval)),
-                (EPD(v1 + 20), SetTo, 2 ** (31-kval)),
+                (EPD(act0 + 20), SetTo, 2 ** (31-kval)),
+                (EPD(act1 + 20), SetTo, 2 ** (31-kval)),
             ])
             EUDBreak()
         EUDEndSwitch()
 
-        DoActions(v0 << SetMemory(measure_condition + 0x8,
+        DoActions(act0 << SetMemory(measure_condition + 0x8,
                                   Add,
                                   0)) # 2 ** (31-k)
         if EUDIfNot()(measure_condition << Memory(0, 0, 0)):
-            DoActions(v1 << SetMemory(measure_condition + 0x8,
+            DoActions(act1 << SetMemory(measure_condition + 0x8,
                                       Subtract,
                                       0)) # 2 ** (31-k)
         EUDEndIf()
         k += 1
     EUDEndWhile()
     return f_dwread_epd(EPD(measure_condition + 0x8))
-
-@EUDFunc
-def logger_log_trigger(epd):
-    ptr = f_epd2ptr(epd)
-    with Logger.get_multiline_writer("Trigger") as logwriter:
-        logwriter.write_f("Trigger %H next %H flag: ", ptr, f_dwread_epd(epd + 1))
-
-        flags = f_dwread_epd(epd + (8 + 16*20 + 64*32) // 4)
-        if EUDIf()(flags.ExactlyX(0x02, 0x02)):
-            logwriter.write_f("IgnoreDefeat ")
-        EUDEndIf()
-        if EUDIf()(flags.ExactlyX(0x04, 0x04)):
-            logwriter.write_f("PreserveTrigger ")
-        EUDEndIf()
-        if EUDIf()(flags.ExactlyX(0x08, 0x08)):
-            logwriter.write_f("IgnoreExecution ")
-        EUDEndIf()
-        if EUDIf()(flags.ExactlyX(0x10, 0x10)):
-            logwriter.write_f("SkipUIActions ")
-        EUDEndIf()
-        if EUDIf()(flags.ExactlyX(0x20, 0x20)):
-            logwriter.write_f("PausedGame ")
-        EUDEndIf()
-        if EUDIf()(flags.ExactlyX(0x40, 0x40)):
-            logwriter.write_f("DisableWaitSkip ")
-        EUDEndIf()
-        logwriter.write_f("\nCondition\n")
-        cur_epd = epd + 8 // 4
-        if EUDLoopN()(16):
-            # check condtype = 0
-            EUDBreakIf(MemoryXEPD(cur_epd + 3, Exactly, 0, 0xFF000000))
-            logwriter.write_f(" - ")
-            logwriter.write_condition_epd(cur_epd)
-            logwriter.write_f("\n")
-
-            cur_epd += 20 // 4
-        EUDEndLoopN()
-
-        logwriter.write_f("\nAction\n")
-        cur_epd << epd + (8 + 16*20) // 4
-        if EUDLoopN()(64):
-            # check acttype = 0
-            EUDBreakIf(MemoryXEPD(cur_epd + 6, Exactly, 0, 0xFF0000))
-            logwriter.write_f(" - ")
-            logwriter.write_action_epd(cur_epd)
-            logwriter.write_f("\n")
-
-            cur_epd += 32 // 4
-        EUDEndLoopN()
-        logwriter.write(0)
 
 @EUDTypedFunc([None, MaximumCircularBuffer(ResultEntry)])
 def _condcheck_trigger(trigdb_epd, entry_table):
@@ -294,8 +249,8 @@ class CondCheckTriggerManager:
         player_result_entry = self.player_result_entries[trig_id]
         EUDSwitch(player_id)
         result_entry = EUDVariable()
-        for ep, entry in player_result_entry.items():
-            EUDSwitchCase()(ep)
+        for entry_player_id, entry in player_result_entry.items():
+            EUDSwitchCase()(entry_player_id)
             result_entry << entry
             EUDBreak()
         if EUDSwitchDefault()():
@@ -342,15 +297,6 @@ cctm = CondCheckTriggerManager()
 
 def plugin_setup():
     cctm.find_signature_and_update()
-
-    # make commands
-    # from .manager import TriggerManagerApp
-
-    # @AppCommand([])
-    # def start_command(self):
-    #     app_manager.start_application(TriggerManagerApp)
-
-    # REPL.add_command('trigger', start_command)
 
     if cctm.trig_count:
         from .condcheck import CondCheckApp

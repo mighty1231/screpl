@@ -1,9 +1,4 @@
-"""Trigger Editor, ptr=%H, next=%H, type={STR/TRIG}, flag=%D
-Condition
- - (condition)
-Action
- - (action)
-"""
+"""Defines TriggerEditorApp"""
 
 from eudplib import *
 
@@ -32,6 +27,17 @@ ENTRY_LINE_LENGTH = 300
 ENTRY_COUNT_PER_PAGE = 8
 
 class TriggerEditorApp(Application):
+    """Show trigger and modify trigger
+
+    Expected TUI ::
+
+        TrigEditorApp ptr=%H, next=%H
+        Conditions:
+            ...
+        Actions:
+            ...
+    """
+
     fields = [
         # trigger related
         'trig_ptr',
@@ -55,12 +61,14 @@ class TriggerEditorApp(Application):
 
     @staticmethod
     def set_trig_ptr(trig_ptr, unlink=False):
+        """Set initializing variable with pointer"""
         _trig_ptr << trig_ptr
         _trig_epd << EPD(trig_ptr)
         _trig_type << TYPE_UNLINK if unlink else TYPE_LINK
 
     @staticmethod
     def set_trig_epd(trig_epd, unlink=False):
+        """Set initializing variable with epd"""
         _trig_ptr << 0x58A364 + 4*trig_epd
         _trig_epd << trig_epd
         _trig_type << TYPE_UNLINK if unlink else TYPE_LINK
@@ -100,6 +108,7 @@ class TriggerEditorApp(Application):
         app_manager.free_db_epd(self.olddb_epd)
 
     def update_text(self):
+        """Update cached text for TUI"""
         condtext_table_epd = self.condtext_table_epd
         acttext_table_epd = self.acttext_table_epd
         cond_epd = self.cond_epd
@@ -148,6 +157,7 @@ class TriggerEditorApp(Application):
         app_manager.request_update()
 
     def update_index(self, index):
+        """Update index with given valid index"""
         tab = self.tab
         if EUDIf()(tab == TAB_CONDITION):
             if EUDIfNot()(index >= self.cond_count):
@@ -186,7 +196,6 @@ class TriggerEditorApp(Application):
         EUDEndIf()
         olddb_epd = self.olddb_epd
         trig_epd = self.trig_epd
-        trig_type = self.trig_type
 
         if EUDIfNot()(f_memcmp_epd(olddb_epd, trig_epd, self.trig_epdsize) == 0):
             self.update_text()
@@ -204,11 +213,11 @@ class TriggerEditorApp(Application):
         # write header
         EUDSwitch(trig_type)
         if EUDSwitchCase()(TYPE_LINK):
-            writer.write_f("TriggerEditorApp. ptr=%H, next=%H\n",
+            writer.write_f("Trigger ptr=%H, next=%H\n",
                            trig_ptr, f_dwread_epd(trig_epd + 1))
             EUDBreak()
         if EUDSwitchCase()(TYPE_UNLINK):
-            writer.write_f("TriggerEditorApp. ptr=%H, unlinked type\n",
+            writer.write_f("Trigger ptr=%H, unlinked type\n",
                            trig_ptr)
         EUDEndSwitch()
 
@@ -246,8 +255,8 @@ class TriggerEditorApp(Application):
             EUDBreakIf(cur >= until)
 
             _emp = EUDTernary(cur == index)(0x11)(0x02)
-            writer.write_f("%C - [%D] %E\n", _emp, cur, text_table_epd)
-        
+            writer.write_f("%C [%D] %E\n", _emp, cur, text_table_epd)
+
             DoActions([
                 cur.AddNumber(1),
                 text_table_epd.AddNumber(ENTRY_LINE_LENGTH // 4),
