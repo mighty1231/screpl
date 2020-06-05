@@ -1,3 +1,22 @@
+# Release 1.1.2
+
+## Major Features and Improvements
+* new plugin `display`
+  * support debugging real-time UI related values
+* new plugin `trigger`
+  * log conditions of trigger that is commentized with `screpl-condcheck`
+
+## Bug Fixes and Other Changes
+* package `utils`
+  * `struct.REPLStruct` provides copying method `cpy`
+  * `byterw.REPLByteRW` now defines some writing methods dynamically
+    * `write_condition_epd`, `write_action_epd`, etc.
+  * `debug.f_raise_error` receives variable arguments
+  * new function `string.f_memcmp_epd`
+* update `bridge`
+  * now shared memory region contains the version of protocol.
+
+
 # Release 1.1.1
 
 ## Major Features and Improvements
@@ -17,6 +36,7 @@
   * syntax error for command is logged by `Logger` application
 * changed heartbeat signal between `bridge` to use inversed system time
 * `AppManager.getWriter()` was removed. Instead, use `main.get_main_writer()`
+
 
 # Release 1.1.0
 
