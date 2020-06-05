@@ -12,9 +12,15 @@ Expected TUI
 from eudplib import *
 
 from screpl.core.application import Application
-
-from . import app_manager, focused_pattern_id, p_actionCount, p_actionArrayEPD
 from screpl.plugins.location.rect import drawRectangle
+from screpl.plugins.trigger.actedit import TrigActionEditorApp
+
+from . import (
+    app_manager,
+    focused_pattern_id,
+    p_actionCount,
+    p_actionArrayEPD,
+)
 
 action_id = EUDVariable(0)
 actionCount = EUDVariable(0)
@@ -24,7 +30,7 @@ frame = EUDVariable(0)
 FRAME_PERIOD = 24
 
 @EUDFunc
-def focusActionID(new_actionid):
+def focus_action_id(new_actionid):
     if EUDIfNot()(new_actionid >= actionCount):
         if EUDIfNot()(new_actionid == action_id):
             action_id << new_actionid
@@ -32,7 +38,7 @@ def focusActionID(new_actionid):
         EUDEndIf()
     EUDEndIf()
 
-def deleteAction():
+def delete_action():
     global action_id
     if EUDIfNot()(actionCount == 0):
         cur_action_epd = actionArrayEPD + (32//4) * action_id
@@ -74,11 +80,15 @@ class DetailedActionApp(Application):
             app_manager.request_destruct()
             EUDReturn()
         if EUDElseIf()(app_manager.key_press('f7')):
-            focusActionID(action_id-1)
+            focus_action_id(action_id-1)
         if EUDElseIf()(app_manager.key_press('f8')):
-            focusActionID(action_id+1)
+            focus_action_id(action_id+1)
         if EUDElseIf()(app_manager.key_press('delete')):
-            deleteAction()
+            delete_action()
+        if EUDElseIf()(app_manager.key_press('E', hold=['LCTRL'])):
+            TrigActionEditorApp.set_act_epd(
+                actionArrayEPD + (32//4)*action_id)
+            app_manager.start_application(TrigActionEditorApp)
         EUDEndIf()
 
         if EUDIfNot()(action_id == -1):
