@@ -309,6 +309,7 @@ class Application(metaclass=_ApplicationMetaclass):
         Before the AppManager start the appliction, it should be called.
         """
         if not cls._allocated_:
+            cls._allocated_ = True
             cls.manager = manager
 
             if cls != Application:
@@ -331,7 +332,6 @@ class Application(metaclass=_ApplicationMetaclass):
                 cmdtable.add_pair(name, cmd.get_cmd_ptr())
 
             cls._cmdtable_ = cmdtable
-            cls._allocated_ = True
 
     @classmethod
     def add_command(cls, name, cmd):
