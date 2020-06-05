@@ -118,7 +118,7 @@ def logger_log_trigger(epd):
         logwriter.write(0)
 
 @EUDTypedFunc([None, MaximumCircularBuffer(ResultEntry)])
-def _condcheck_trigger(trig_epd, entry_table):
+def _condcheck_trigger(trigdb_epd, entry_table):
     trig_conditions = [Forward() for _ in range(16)]
     trig_copy = Forward()
     measure_conditions = [Forward() for _ in range(16)]
@@ -138,19 +138,12 @@ def _condcheck_trigger(trig_epd, entry_table):
     for i in range(16):
         f_repmovsd_epd(
             EPD(trig_conditions[i]),
-            trig_epd + (8 + i*20)//4,
+            trigdb_epd + i*20//4,
             20//4
         )
 
     # trigger
-    f_repmovsd_epd(EPD(trig_copy)+2, trig_epd+2, 2400//4)
-
-    if EUDExecuteOnce()():
-        logger_log_trigger(trig_epd)
-        logger_log_trigger(EPD(trig_conditions[0]-8))
-        logger_log_trigger(EPD(trig_conditions[1]-8))
-        logger_log_trigger(EPD(trig_copy))
-    EUDEndExecuteOnce()
+    f_repmovsd_epd(EPD(trig_copy)+2, trigdb_epd, 2400//4)
 
     for i in range(16):
         # check condtype == 0
@@ -221,7 +214,7 @@ def _condcheck_trigger(trig_epd, entry_table):
 class CondCheckTriggerManager:
     def __init__(self):
         self.sigid = None
-        self.triggers = []
+        self.trig_dbs = []
         self.trig_count = 0
 
         # called result entries
@@ -248,7 +241,7 @@ class CondCheckTriggerManager:
             if acttype == 4:
                 raise ValueError("Trigger with Wait() action cannot be inlined")
 
-        trig_object = IntactTrigger(trigSection=trigger)
+        trig_object = Db(trigger)
 
         # build inlining player code
         effplayers = set() # 0 ~ 8
@@ -275,7 +268,7 @@ class CondCheckTriggerManager:
             ])
             result_entries[pid] = mcb
             self.result_tables.append((trig_object,
-                                       len(self.triggers),
+                                       len(self.trig_dbs),
                                        pid,
                                        mcb))
 
@@ -288,13 +281,13 @@ class CondCheckTriggerManager:
         inline_trig += bytes(2400-len(inline_trig))
 
         self.trig_count += 1
-        self.triggers.append(trig_object)
+        self.trig_dbs.append(trig_object)
         self.player_result_entries.append(result_entries)
 
         return inline_trig
 
     def condcheck_inline(self, trig_id, player_id):
-        trigger = self.triggers[trig_id]
+        trig_db = self.trig_dbs[trig_id]
         player_result_entry = self.player_result_entries[trig_id]
         EUDSwitch(player_id)
         result_entry = EUDVariable()
@@ -306,7 +299,7 @@ class CondCheckTriggerManager:
             f_raise_error("screpl-condcheck trig id %D - player id %D unknown",
                           trig_id, player_id)
         EUDEndSwitch()
-        _condcheck_trigger(EPD(trigger), result_entry)
+        _condcheck_trigger(EPD(trig_db), result_entry)
 
     def find_signature_and_update(self):
         """Find trigger with debugging signature
@@ -346,9 +339,6 @@ cctm = CondCheckTriggerManager()
 
 def plugin_setup():
     cctm.find_signature_and_update()
-
-    STRSection << f_dwread_epd(EPD(0x5993D4))
-    STRSection_end << STRSection + app_manager.get_strx_section_size()
 
     # make commands
     # from .manager import TriggerManagerApp
