@@ -1,18 +1,21 @@
-"""TrigConditionEditorApp
+"""TrigActionEditorApp
 
- ======  =============  ========  ===========
- Offset  Field name     Position  EPD Player
- ======  =============  ========  ===========
-   +00   locid           dword0   EPD(cond)+0
-   +04   player          dword1   EPD(cond)+1
-   +08   amount          dword2   EPD(cond)+2
-   +0C   unitid          dword3   EPD(cond)+3
-   +0E   comparison
-   +0F   condtype
-   +10   restype         dword4   EPD(cond)+4
-   +11   flags
-   +12   internal[2]
- ======  =============  ========  ===========
+ ======  ============= ========  ==========
+ Offset  Field Name    Position  EPD Player
+ ======  ============= ========  ==========
+   +00   locid1         dword0   EPD(act)+0
+   +04   strid          dword1   EPD(act)+1
+   +08   wavid          dword2   EPD(act)+2
+   +0C   time           dword3   EPD(act)+3
+   +10   player1        dword4   EPD(act)+4
+   +14   player2        dword5   EPD(act)+5
+   +18   unitid         dword6   EPD(act)+6
+   +1A   acttype
+   +1B   amount
+   +1C   flags          dword7   EPD(act)+7
+   +1D   internal0
+   +1E   internal1
+ ======  ============= ========  ==========
 """
 from eudplib import *
 
@@ -25,25 +28,32 @@ from .trigentry import TrigEntry
 
 app_manager = get_app_manager()
 
+
 entries = [
-    TrigEntry.construct("locid", 0, 4),
-    TrigEntry.construct("player", 0x4, 4),
-    TrigEntry.construct("amount", 0x8, 4),
-    TrigEntry.construct("unitid", 0xC, 2),
-    TrigEntry.construct("comparison", 0xE, 1),
-    TrigEntry.construct("condtype", 0xF, 1),
-    TrigEntry.construct("restype", 0x10, 1),
-    TrigEntry.construct("flags", 0x11, 1),
-    TrigEntry.construct("internal", 0x12, 2),
+    # line 1
+    TrigEntry.construct("locid1", 0, 4),
+    TrigEntry.construct("strid", 0x4, 4),
+    TrigEntry.construct("wavid", 0x8, 4),
+    TrigEntry.construct("time", 0xC, 4),
+
+    # line 2
+    TrigEntry.construct("player1", 0x10, 4),
+    TrigEntry.construct("player2", 0x14, 4),
+    TrigEntry.construct("unitid", 0x18, 2),
+    TrigEntry.construct("acttype", 0x1A, 1),
+    TrigEntry.construct("amount", 0x1B, 1),
+    TrigEntry.construct("flags", 0x1C, 1),
+    TrigEntry.construct("internal1", 0x1D, 1),
+    TrigEntry.construct("internal2", 0x1E, 2),
 ]
 entry_cnt = len(entries)
 entries = EUDArray(entries)
 
-_cond_epd = EUDVariable(0)
+_act_epd = EUDVariable(0)
 v_focus = EUDVariable(0)
 v_focused_entry = EUDVariable(0)
 
-db_storage = Db(20)
+db_storage = Db(32)
 
 @EUDFunc
 def set_focus(new_focus):
@@ -53,32 +63,33 @@ def set_focus(new_focus):
         app_manager.request_update()
     EUDEndIf()
 
-class TrigConditionEditorApp(Application):
-    """Trigger condition editor
+class TrigActionEditorApp(Application):
+    """Trigger action editor
 
     Expected TUI:
 
     .. code-block:: text
 
-        Condition editor on 0x13131312
-        Switch("Switch 1", Set)
+        Action editor on 0x13131312
+        SetSwitch("Switch 1", Set)
 
+        00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         entry name: amount
 
         [ Save (CTRL+Y) ] [ CANCEL (CTRL+N) ]
     """
     @staticmethod
-    def set_cond_epd(cond_epd):
-        _cond_epd << cond_epd
+    def set_act_epd(act_epd):
+        _act_epd << act_epd
 
     def on_init(self):
-        f_repmovsd_epd(EPD(db_storage), _cond_epd, 20//4)
+        f_repmovsd_epd(EPD(db_storage), _act_epd, 32//4)
         v_focus << 0
         v_focused_entry << entries[0]
 
     def on_destruct(self):
-        _cond_epd << EPD(0)
+        _act_epd << EPD(0)
 
     @AppCommand([ArgEncNumber])
     def setn(self, value):
@@ -93,7 +104,7 @@ class TrigConditionEditorApp(Application):
             app_manager.request_destruct()
             EUDReturn()
         if EUDElseIf()(app_manager.key_press("Y", hold=["LCTRL"])):
-            f_repmovsd_epd(_cond_epd, EPD(db_storage), 20//4)
+            f_repmovsd_epd(_act_epd, EPD(db_storage), 32//4)
             app_manager.request_destruct()
             EUDReturn()
         if EUDElseIf()(app_manager.key_press("F7")):
@@ -104,8 +115,8 @@ class TrigConditionEditorApp(Application):
         app_manager.request_update()
 
     def print(self, writer):
-        writer.write_f("\x04Condition on %H\n", 0x58A364 + 4*_cond_epd)
-        writer.write_condition_epd(EPD(db_storage))
+        writer.write_f("\x04Action on %H\n", 0x58A364 + 4*_act_epd)
+        writer.write_action_epd(EPD(db_storage))
         writer.write_f("\n\n")
 
         i = EUDVariable()
@@ -113,6 +124,11 @@ class TrigConditionEditorApp(Application):
         if EUDWhileNot()(i >= entry_cnt):
             entry = TrigEntry.cast(entries[i])
             color = EUDTernary(i == v_focus)(0x11)(0x2)
+
+            # seperate line
+            if EUDIf()(i == 4):
+                writer.write(ord('\n'))
+            EUDEndIf()
 
             writer.write(color)
             entry.write_bytes(writer, EPD(db_storage))

@@ -8,6 +8,7 @@ from screpl.main import get_app_manager
 from screpl.main import get_main_writer
 
 from .condedit import TrigConditionEditorApp
+from .actedit import TrigActionEditorApp
 
 app_manager = get_app_manager()
 main_writer = get_main_writer()
@@ -209,8 +210,15 @@ class TriggerEditorApp(Application):
             self.index = 0
             app_manager.request_update()
         if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
-            TrigConditionEditorApp.set_cond_epd(self.cond_epd + index*(20//4))
-            app_manager.start_application(TrigConditionEditorApp)
+            if EUDIf()(tab == TAB_CONDITION):
+                TrigConditionEditorApp.set_cond_epd(
+                    self.cond_epd + index*(20//4))
+                app_manager.start_application(TrigConditionEditorApp)
+            if EUDElse()():
+                TrigActionEditorApp.set_act_epd(
+                    self.act_epd + index*(32//4))
+                app_manager.start_application(TrigActionEditorApp)
+            EUDEndIf()
         EUDEndIf()
         olddb_epd = self.olddb_epd
         trig_epd = self.trig_epd

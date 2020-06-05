@@ -97,11 +97,11 @@ class CondCheckApp(Application):
             mcb.iter(write_entry)
         if EUDElse()():
             writer.write_f(
-                "\x04Condition log - (Navigation: F7/F8, Show trigger: CTRL+E)\n"
+                "\x04Condition log - (Navigation: F7/F8, Edit trigger: CTRL+E)\n"
                 "\x17(start_tick)-(end_tick): \x0Fv0 v1 v2 ...\n"
                 "\x17tick\x04: the value of 0x57F23C (f_getgametick())\n"
                 "\x04During \x17start_tick \x04to \x17end_tick\x04, "
-                    "the condition behaves as all the same way\n"
+                    "all the conditions behaved as the same way\n"
                 "\x0Fcolor of v\x04: condition check result. "
                     "\x07pass \x06fail\n"
                 "\x0Fvalue of v\x04: The exact amount to satisfy "
