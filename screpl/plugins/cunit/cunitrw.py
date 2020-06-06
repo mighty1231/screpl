@@ -90,31 +90,32 @@ class CUnitMemberEntry(REPLStruct):
         'off_epd',
         'off',
         ('write_f', EUDFuncPtr(2, 0)),
-        'name',
-        'comments',
+        'name_epd',
+        'comment_epd',
         'activated'
     ]
 
     @staticmethod
-    def data(offset, write_f, name, comments = None):
+    def data(offset, write_f, name, comment = None):
         off_epd, off = divmod(offset, 4)
-        name = EPDConstString(name)
+        name_epd = EPDConstString(name)
         write_f = EUDFuncPtr(2, 0)(write_f)
-        if comments is None:
-            comments = EPD(0)
+        if comment is None:
+            comment_epd = EPD(0)
         else:
-            comments = EPDConstString(comments)
+            comment_epd = EPDConstString(comment)
 
         entry = CUnitMemberEntry.initialize_with(
             off_epd,
             off,
             write_f,
-            name,
-            comments,
+            name_epd,
+            comment_epd,
             1
         )
         return entry
 
+# https://github.com/bwapi/bwapi/blob/master/bwapi/BWAPI/Source/BW/CUnit.h
 cu_members = EUDArray([
     CUnitMemberEntry.data(0x000, cw_CUnit, "prev"),
     CUnitMemberEntry.data(0x004, cw_CUnit, "next"),
@@ -124,16 +125,16 @@ cu_members = EUDArray([
     CUnitMemberEntry.data(0x010, cw_Target, "moveTarget",
             "The position or unit to move to. It is NOT an order target."),
     CUnitMemberEntry.data(0x018, cw_Position, "nextMovementWaypoint",
-            "The next way point in the path the unit is following to get to its destination.\n"     + \
-            "Equal to moveToPos for air units since they don't need to navigate around buildings\n" + \
+            "The next way point in the path the unit is following to get to its destination.\n"
+            "Equal to moveToPos for air units since they don't need to navigate around buildings\n"
             "or other units."),
     CUnitMemberEntry.data(0x01C, cw_Position, "nextTargetWaypoint", "The desired position"),
     CUnitMemberEntry.data(0x020, cw_u8, "movementFlags", "Flags specifying movement type - defined in BW#MovementFlags."),
     CUnitMemberEntry.data(0x021, cw_u8, "currentDirection1", "The current direction the unit is facing"),
     CUnitMemberEntry.data(0x022, cw_u8, "flingyTurnRadius"),
     CUnitMemberEntry.data(0x023, cw_u8, "velocityDirection1",
-            "This usually only differs from the currentDirection field for units that can accelerate\n"    + \
-            "and travel in a different direction than they are facing. For example Mutalisks can change\n" + \
+            "This usually only differs from the currentDirection field for units that can accelerate\n"
+            "and travel in a different direction than they are facing. For example Mutalisks can change\n"
             "the direction they are facing faster than then can change the direction they are moving."),
     CUnitMemberEntry.data(0x024, cw_u16, "flingyID"),
     CUnitMemberEntry.data(0x027, cw_u8, "flingyMovementType"),
@@ -149,16 +150,16 @@ cu_members = EUDArray([
     CUnitMemberEntry.data(0x04C, cw_u8, "playerID", "Specification of owner of this unit."),
     CUnitMemberEntry.data(0x04D, cw_u8, "orderID", "Specification of type of order currently given."),
     CUnitMemberEntry.data(0x04E, cw_u8, "orderState",
-            "Additional order info (mostly unknown, wander property investigated so far)  // officially \"ubActionState\"\n" + \
-            "0x01  Moving/Following Order\n" + \
-            "0x02  No collide (Larva)?\n" + \
-            "0x04  Harvesting? Working?\n" + \
-            "0x08  Constructing Stationary\n" + \
+            "Additional order info (mostly unknown, wander property investigated so far)  // officially \"ubActionState\"\n"
+            "0x01  Moving/Following Order\n"
+            "0x02  No collide (Larva)?\n"
+            "0x04  Harvesting? Working?\n"
+            "0x08  Constructing Stationary\n"
             "Note: I don't actually think these are flags"),
     CUnitMemberEntry.data(0x04F, cw_u8, "orderSignal",
-            "0x01  Update building graphic/state\n" + \
-            "0x02  Casting spell\n" + \
-            "0x04  Reset collision? Always enabled for hallucination...\n" + \
+            "0x01  Update building graphic/state\n"
+            "0x02  Casting spell\n"
+            "0x04  Reset collision? Always enabled for hallucination...\n"
             "0x10  Lift/Land state"),
     CUnitMemberEntry.data(0x050, cw_u16, "orderUnitType", "officially \"uwFoggedTarget\""),
     CUnitMemberEntry.data(0x054, cw_u8, "mainOrderTimer", "A timer for orders, example: time left before minerals are harvested"),
@@ -189,50 +190,21 @@ cu_members = EUDArray([
     CUnitMemberEntry.data(0x091, cw_u8, "secondaryOrderTimer"),
     CUnitMemberEntry.data(0x092, cw_u8, "AIActionFlag", "Internal use by AI only"),
     CUnitMemberEntry.data(0x093, cw_u8, "userActionFlags",
-            "some flags that change when the user interacts with the unit\n" + \
+            "some flags that change when the user interacts with the unit\n"
             "2 = issued an order, 3 = interrupted an order, 4 = self destructing"),
 
     CUnitMemberEntry.data(0x094, cw_u16, "currentButtonSet", "The u16 is a guess, used to be u8"),
     CUnitMemberEntry.data(0x096, cw_bool, "isCloaked"),
     CUnitMemberEntry.data(0x097, cw_u8, "movementState",
-            "A value based on conditions related to pathing\n" + \
-            "0x00: UM_Init\n"          + \
-            "0x01: UM_InitSeq\n"       + \
-            "0x02: UM_Lump\n"          + \
-            "0x03: UM_Turret\n"        + \
-            "0x04: UM_Bunker\n"        + \
-            "0x05: UM_BldgTurret\n"    + \
-            "0x06: UM_Hidden\n"        + \
-            "0x07: UM_Flyer\n"         + \
-            "0x08: UM_FakeFlyer\n"     + \
-            "0x09: UM_AtRest\n"        + \
-            "0x0A: UM_Dormant\n"       + \
-            "0x0B: UM_AtMoveTarget\n"  + \
-            "0x0C: UM_CheckIllegal\n"  + \
-            "0x0D: UM_MoveToLegal\n"   + \
-            "0x0E: UM_LumpWannabe\n"   + \
-            "0x0F: UM_FailedPath\n"    + \
-            "0x10: UM_RetryPath\n"     + \
-            "0x11: UM_StartPath\n"     + \
-            "0x12: UM_UIOrderDelay\n"  + \
-            "0x13: UM_TurnAndStart\n"  + \
-            "0x14: UM_FaceTarget\n"    + \
-            "0x15: UM_NewMoveTarget\n" + \
-            "0x16: UM_AnotherPath\n"   + \
-            "0x17: UM_Repath\n"        + \
-            "0x18: UM_RepathMovers\n"  + \
-            "0x19: UM_FollowPath\n"    + \
-            "0x1A: UM_ScoutPath\n"     + \
-            "0x1B: UM_ScoutFree\n"     + \
-            "0x1C: UM_FixCollision\n"  + \
-            "0x1D: UM_WaitFree\n"      + \
-            "0x1E: UM_GetFree\n"       + \
-            "0x1F: UM_SlidePrep\n"     + \
-            "0x20: UM_SlideFree\n"     + \
-            "0x21: UM_ForceMoveFree\n" + \
-            "0x22: UM_FixTerrain\n"    + \
-            "0x23: UM_TerrainSlide\n"
-        ),
+            "A value based on conditions related to pathing\n"
+            "0x00: UM_Init 0x01: UM_InitSeq 0x02: UM_Lump 0x03: UM_Turret 0x04: UM_Bunker 0x05: UM_BldgTurret\n"
+            "0x06: UM_Hidden 0x07: UM_Flyer 0x08: UM_FakeFlyer 0x09: UM_AtRest 0x0A: UM_Dormant\n"
+            "0x0B: UM_AtMoveTarget 0x0C: UM_CheckIllegal 0x0D: UM_MoveToLegal 0x0E: UM_LumpWannabe\n"
+            "0x0F: UM_FailedPath 0x10: UM_RetryPath 0x11: UM_StartPath 0x12: UM_UIOrderDelay\n"
+            "0x13: UM_TurnAndStart 0x14: UM_FaceTarget 0x15: UM_NewMoveTarget 0x16: UM_AnotherPath\n"
+            "0x17: UM_Repath 0x18: UM_RepathMovers 0x19: UM_FollowPath 0x1A: UM_ScoutPath 0x1B: UM_ScoutFree\n"
+            "0x1C: UM_FixCollision 0x1D: UM_WaitFree 0x1E: UM_GetFree 0x1F: UM_SlidePrep 0x20: UM_SlideFree\n"
+            "0x21: UM_ForceMoveFree 0x22: UM_FixTerrain 0x23: UM_TerrainSlide"),
     CUnitMemberEntry.data(0x098, cw_u16, "buildQueue[0]", "Queue of units to build. Note that it doesn't begin with index 0, but with #buildQueueSlot index."),
     CUnitMemberEntry.data(0x09A, cw_u16, "buildQueue[1]", "Queue of units to build. Note that it doesn't begin with index 0, but with #buildQueueSlot index."),
     CUnitMemberEntry.data(0x09C, cw_u16, "buildQueue[2]", "Queue of units to build. Note that it doesn't begin with index 0, but with #buildQueueSlot index."),
@@ -297,7 +269,7 @@ cu_members = EUDArray([
     CUnitMemberEntry.data(0x0E1, cw_u8, "wireframeRandomizer"),
     CUnitMemberEntry.data(0x0E2, cw_u8, "secondaryOrderState"),
     CUnitMemberEntry.data(0x0E3, cw_u8, "recentOrderTimer",
-            "Counts down from 15 to 0 when most orders are given,\n" +  \
+            "Counts down from 15 to 0 when most orders are given,\n"
             "or when the unit moves after reaching a patrol location"),
     CUnitMemberEntry.data(0x0E4, cw_s32, "visibilityStatus", "Flags specifying which players can detect this unit (cloaked/burrowed)"),
     CUnitMemberEntry.data(0x0E8, cw_Position, "secondaryOrderPosition", "unused"),

@@ -9,8 +9,12 @@ from .cunitrw import cu_members, CUnitMemberEntry
 
 v_focused = EUDVariable()
 
+MODE_MAIN = 0
+MODE_HELP = 1
+v_mode = EUDVariable()
+
 @EUDFunc
-def setFocus(new_focus):
+def set_focus(new_focus):
     Trigger(
         conditions = new_focus.AtLeast(0x80000000),
         actions = new_focus.SetNumber(0)
@@ -25,18 +29,21 @@ def setFocus(new_focus):
     EUDEndIf()
 
 class CUnitOptionApp(Application):
+    def on_init(self):
+        v_mode << MODE_MAIN
+
     def loop(self):
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
             EUDReturn()
         if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            setFocus(v_focused - 8)
+            set_focus(v_focused - 8)
         if EUDElseIf()(app_manager.key_press("F7")):
-            setFocus(v_focused - 1)
+            set_focus(v_focused - 1)
         if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            setFocus(v_focused + 8)
+            set_focus(v_focused + 8)
         if EUDElseIf()(app_manager.key_press("F8")):
-            setFocus(v_focused + 1)
+            set_focus(v_focused + 1)
         if EUDElseIf()(app_manager.key_press("H")):
             member = CUnitMemberEntry.cast(cu_members[v_focused])
             if EUDIf()(member.activated == 1):
@@ -70,70 +77,88 @@ class CUnitOptionApp(Application):
                 cu_mem_activeids.insert(i, v_focused)
                 member.activated = 1
             EUDEndIf()
+        if EUDElseIf()(app_manager.key_down("F1")):
+            v_mode << MODE_HELP
+            app_manager.clean_text()
+            app_manager.request_update()
+        if EUDElseIf()(app_manager.key_up("F1")):
+            v_mode << MODE_MAIN
+            app_manager.clean_text()
+            app_manager.request_update()
         EUDEndIf()
 
     def print(self, writer):
-        writer.write_f("\x04CUnit Options, toggle with H (%D / %D)\n",
-            v_focused,
-            cu_members.length
-        )
-        quot, mod = f_div(v_focused, 8)
-        cur = quot * 8
-        pageend = cur + 8
-        until = EUDVariable()
-        if EUDIf()(pageend <= cu_members.length):
-            until << pageend
-        if EUDElse()():
-            until << cu_members.length
-        EUDEndIf()
-
-        # fill contents
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= until)
-
-            cur_entry = CUnitMemberEntry(cu_members[cur])
-
-            if EUDIf()(cur == v_focused):
-                writer.write(0x11) # orange
-            if EUDElseIf()(cur_entry.activated == 0):
-                writer.write(0x05) # grey
-            if EUDElse()():
-                writer.write(0x16) # white
-            EUDEndIf()
-
-            # 0x***
-            offset = cur_entry.off_epd * 4 + cur_entry.off
-            q, offd1 = f_div(offset, 16)
-            offd3, offd2 = f_div(q, 16)
-
-            for offd in [offd1, offd2, offd3]:
-                if EUDIf()(offd <= 9):
-                    offd += ord('0')
-                if EUDElse()():
-                    offd += ord('A') - 10
-                EUDEndIf()
-
-            writer.write_f(" +0x%C%C%C %E ",
-                offd3,
-                offd2,
-                offd1,
-                cur_entry.name
+        if EUDIf()(v_mode == MODE_MAIN):
+            writer.write_f("\x04CUnit Options. press H to toggle entry, press F1 to get its comment (%D / %D)\n",
+                v_focused,
+                cu_members.length
             )
-            comments = cur_entry.comments
-            if EUDIfNot()(comments == EPD(0)):
-                written = writer.write_strnepd(comments, 10)
-                if EUDIf()(written == 10):
-                    writer.write_f("...")
-                EUDEndIf()
+            quot, mod = f_div(v_focused, 8)
+            cur = quot * 8
+            pageend = cur + 8
+            until = EUDVariable()
+            if EUDIf()(pageend <= cu_members.length):
+                until << pageend
+            if EUDElse()():
+                until << cu_members.length
             EUDEndIf()
-            writer.write(ord('\n'))
 
-            DoActions([cur.AddNumber(1)])
-        EUDEndInfLoop()
+            # fill contents
+            if EUDInfLoop()():
+                EUDBreakIf(cur >= until)
 
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= pageend)
-            writer.write(ord('\n'))
-            cur += 1
-        EUDEndInfLoop()
+                cur_entry = CUnitMemberEntry(cu_members[cur])
+
+                if EUDIf()(cur == v_focused):
+                    writer.write(0x11) # orange
+                if EUDElseIf()(cur_entry.activated == 0):
+                    writer.write(0x05) # grey
+                if EUDElse()():
+                    writer.write(0x16) # white
+                EUDEndIf()
+
+                # 0x***
+                offset = cur_entry.off_epd * 4 + cur_entry.off
+                q, offd1 = f_div(offset, 16)
+                offd3, offd2 = f_div(q, 16)
+
+                for offd in [offd1, offd2, offd3]:
+                    if EUDIf()(offd <= 9):
+                        offd += ord('0')
+                    if EUDElse()():
+                        offd += ord('A') - 10
+                    EUDEndIf()
+
+                writer.write_f(" +0x%C%C%C %E ",
+                    offd3,
+                    offd2,
+                    offd1,
+                    cur_entry.name_epd,
+                )
+                comment_epd = cur_entry.comment_epd
+                if EUDIfNot()(comment_epd == EPD(0)):
+                    written = writer.write_strnepd(comment_epd, 10)
+                    if EUDIf()(written == 10):
+                        writer.write_f("...")
+                    EUDEndIf()
+                EUDEndIf()
+                writer.write(ord('\n'))
+
+                DoActions([cur.AddNumber(1)])
+            EUDEndInfLoop()
+
+            if EUDInfLoop()():
+                EUDBreakIf(cur >= pageend)
+                writer.write(ord('\n'))
+                cur += 1
+            EUDEndInfLoop()
+        if EUDElse()():
+            focused_entry = CUnitMemberEntry(cu_members[v_focused])
+            writer.write_f("\x04CUnitMemberEntry \x11%E\x04\n", focused_entry.name_epd)
+            focused_comment_epd = focused_entry.comment_epd
+            if EUDIfNot()(focused_comment_epd == EPD(0)):
+                writer.write_strepd(focused_comment_epd)
+            EUDEndIf()
+            writer.write(ord("\n"))
+        EUDEndIf()
         writer.write(0)
