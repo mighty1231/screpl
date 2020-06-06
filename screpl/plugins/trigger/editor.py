@@ -57,6 +57,7 @@ class TriggerEditorApp(Application):
         'trig_epdsize',
         'cond_epd',
         'act_epd',
+        'flag_epd',
 
         # cache for writing trigger
         'olddb_epd',
@@ -105,10 +106,12 @@ class TriggerEditorApp(Application):
         if EUDIf()(_trig_type == TYPE_LINK):
             self.cond_epd = _trig_epd + 8//4
             self.act_epd = _trig_epd + (8 + 16*20)//4
+            self.flag_epd = _trig_epd + (8 + 16*20 + 32*64)//4
             self.olddb_epd = app_manager.alloc_db_epd(2408//4)
         if EUDElse()():
             self.cond_epd = _trig_epd
             self.act_epd = _trig_epd + 16*20//4
+            self.flag_epd = _trig_epd + (16*20 + 32*64)//4
             self.olddb_epd = app_manager.alloc_db_epd(2400//4)
         EUDEndIf()
         self.cond_count = 0
@@ -206,15 +209,22 @@ class TriggerEditorApp(Application):
         if EUDIf()(self.trig_type == TYPE_LINK):
             self.cond_epd = trig_epd + 8//4
             self.act_epd = trig_epd + (8 + 16*20)//4
+            self.flag_epd = trig_epd + (8 + 16*20 + 32*64)//4
         if EUDElse()():
             self.cond_epd = trig_epd
             self.act_epd = trig_epd + 16*20//4
+            self.flag_epd = trig_epd + (16*20 + 32*64)//4
         EUDEndIf()
 
         self.tab = TAB_CONDITION
         self.index = 0
 
         self.update_text()
+
+    @AppCommand([ArgEncNumber])
+    def setflag(self, value):
+        """Update flag of current trigger with given value"""
+        f_bwrite_epd(self.flag_epd, 0, value)
 
     @AppCommand([])
     def next(self):
@@ -229,6 +239,7 @@ class TriggerEditorApp(Application):
         self.trig_epd = trig_epd
         self.cond_epd = trig_epd + 8//4
         self.act_epd = trig_epd + (8 + 16*20)//4
+        self.flag_epd = trig_epd + (8 + 16*20 + 32*64)//4
 
         self.tab = TAB_CONDITION
         self.index = 0
@@ -328,19 +339,47 @@ class TriggerEditorApp(Application):
             index = self.index
             cond_count = self.cond_count
             act_count = self.act_count
+            flag_epd = self.flag_epd
+            flags = f_bread_epd(flag_epd, 0)
 
             # write header
             EUDSwitch(trig_type)
             if EUDSwitchCase()(TYPE_LINK):
                 writer.write_f(
-                    "Trigger ptr=%H, next=%H. (Press F1 to get help)\n",
+                    "\x04Trigger ptr=%H, next=%H. (Press F1)",
                     trig_ptr, f_dwread_epd(trig_epd + 1))
                 EUDBreak()
             if EUDSwitchCase()(TYPE_NOLINK):
                 writer.write_f(
-                    "Trigger ptr=%H, nolink type. (Press F1 to get help)\n",
+                    "\x04Trigger ptr=%H, nolink type. (Press F1)",
                     trig_ptr)
             EUDEndSwitch()
+
+            # write flags
+            writer.write(0x17) # yellow
+            if EUDIf()(flags.ExactlyX(0x01, 0x01)):
+                writer.write_f(" ExecuteActions(actindex=%D)",
+                    f_bread_epd(flag_epd + (4+27)//4, 3))
+            EUDEndIf()
+            if EUDIf()(flags.ExactlyX(0x02, 0x02)):
+                writer.write_f(" IgnoreDefeat")
+            EUDEndIf()
+            if EUDIf()(flags.ExactlyX(0x04, 0x04)):
+                writer.write_f(" PreserveTrigger")
+            EUDEndIf()
+            if EUDIf()(flags.ExactlyX(0x08, 0x08)):
+                writer.write_f(" IgnoreExecution")
+            EUDEndIf()
+            if EUDIf()(flags.ExactlyX(0x10, 0x10)):
+                writer.write_f(" SkipUIActions")
+            EUDEndIf()
+            if EUDIf()(flags.ExactlyX(0x20, 0x20)):
+                writer.write_f(" PausedGame")
+            EUDEndIf()
+            if EUDIf()(flags.ExactlyX(0x40, 0x40)):
+                writer.write_f(" DisableWaitSkip")
+            EUDEndIf()
+            writer.write(ord('\n'))
 
             # write content
             quot, rem = f_div(index, ENTRY_COUNT_PER_PAGE)
@@ -351,7 +390,7 @@ class TriggerEditorApp(Application):
 
             EUDSwitch(tab)
             if EUDSwitchCase()(TAB_CONDITION):
-                writer.write_f(" Conditions:\n")
+                writer.write_f("\x04 Conditions:\n")
                 text_table_epd << self.condtext_table_epd
 
                 if EUDIf()(pageend <= cond_count):
@@ -361,7 +400,7 @@ class TriggerEditorApp(Application):
                 EUDEndIf()
                 EUDBreak()
             if EUDSwitchCase()(TAB_ACTION):
-                writer.write_f(" Actions:\n")
+                writer.write_f("\x04 Actions:\n")
                 text_table_epd << self.acttext_table_epd
                 if EUDIf()(pageend <= act_count):
                     until << pageend
@@ -398,7 +437,8 @@ class TriggerEditorApp(Application):
                 "Press CTRL+E to edit focused trigger entry\n"
                 "Press CTRL+N to add a new trigger entry\n"
                 "Press R to update trigger text forcefully\n"
-                "Chat 'setp(##)' updates current trigger pointer\n"
+                "Chat 'setp(##)' updates current trigger pointer, "
+                "'setflag(##) updates current trigger flag'\n"
                 "Chat 'next()' updates current trigger pointer to next trigger\n"
                 "Chat 'new(##)' starts a new trigger editor with pointer\n"
                 "Chat 'new_nolink(##)' is same as 'new' but nolink type\n"
