@@ -40,6 +40,20 @@ class TrigEntry(REPLStruct):
         EUDEndIf()
 
     @EUDMethod
+    def get_value(self, obj_epd):
+        offset_epd = obj_epd + self.offset_epd
+        offset_rem = self.offset_rem
+        size = self.size
+
+        if EUDIf()(size == 1):
+            EUDReturn(f_bread_epd(offset_epd, offset_rem))
+        if EUDElseIf()(size == 2):
+            EUDReturn(f_wread_epd(offset_epd, offset_rem))
+        if EUDElse()():
+            EUDReturn(f_dwread_epd(offset_epd))
+        EUDEndIf()
+
+    @EUDMethod
     def set_value(self, obj_epd, value):
         offset_epd = obj_epd + self.offset_epd
         offset_rem = self.offset_rem

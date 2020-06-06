@@ -8,6 +8,8 @@ from screpl.main import is_bridge_mode, get_main_writer
 
 from . import *
 
+v_result_epd = EUDVariable(EPD(0))
+
 def _write_first_line(string):
     '''
     write the first line of string, excluding empty line
@@ -41,6 +43,18 @@ def _set_string_id(new_string_id):
     EUDEndIf()
 
 class StringManagerApp(Application):
+    @staticmethod
+    def set_return(result_var):
+        assert IsEUDVariable(result_var)
+        v_result_epd << EPD(result_var.getValueAddr())
+        _set_string_id(result_var)
+
+    def on_destruct(self):
+        if EUDIfNot()(v_result_epd == EPD(0)):
+            f_dwwrite_epd(v_result_epd, cur_string_id)
+        EUDEndIf()
+        v_result_epd << EPD(0)
+
     def loop(self):
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()

@@ -17,8 +17,13 @@
 from eudplib import *
 
 from screpl.core.appcommand import AppCommand
+from screpl.core.appmethod import AppTypedMethod
 from screpl.core.application import Application
 from screpl.encoder.const import ArgEncNumber
+
+from screpl.plugins.unit.manager import UnitManagerApp
+from screpl.plugins.location.manager import LocationManagerApp
+
 from screpl.main import get_app_manager
 
 from .trigentry import TrigEntry
@@ -48,6 +53,9 @@ db_storage = Db(20)
 MODE_MAIN = 0
 MODE_HELP = 1
 v_mode = EUDVariable(MODE_MAIN)
+
+# call value selector apps, and get value from them
+v_value_to_set = EUDVariable()
 
 @EUDFunc
 def set_focus(new_focus):
@@ -85,8 +93,65 @@ class TrigConditionEditorApp(Application):
     def on_destruct(self):
         _cond_epd << EPD(0)
 
+    def on_resume(self):
+        self.set_focused_value(v_value_to_set)
+
     @AppCommand([ArgEncNumber])
     def setn(self, value):
+        self.set_focused_value(value)
+
+    @AppCommand([])
+    def Type(self):
+        pass
+
+    @AppCommand([])
+    def Comparison(self):
+        pass
+
+    @AppCommand([])
+    def Player(self):
+        pass
+
+    @AppCommand([])
+    def Resource(self):
+        pass
+
+    @AppCommand([])
+    def Score(self):
+        pass
+
+    @AppCommand([])
+    def SwitchState(self):
+        pass
+
+    @AppCommand([])
+    def Location(self):
+        v_value_to_set << self.get_focused_value()
+        LocationManagerApp.set_content(
+            v_value_to_set,
+            EPD(v_value_to_set.getValueAddr()),
+        )
+        app_manager.start_application(LocationManagerApp)
+
+    @AppCommand([])
+    def Switch(self):
+        pass
+
+    @AppCommand([])
+    def Unit(self):
+        v_value_to_set << self.get_focused_value()
+        UnitManagerApp.set_content(
+            v_value_to_set,
+            EPD(v_value_to_set.getValueAddr()),
+        )
+        app_manager.start_application(UnitManagerApp)
+
+    @AppTypedMethod([], [None])
+    def get_focused_value(self):
+        focused_entry = TrigEntry.cast(v_focused_entry)
+        EUDReturn(focused_entry.get_value(EPD(db_storage)))
+
+    def set_focused_value(self, value):
         focused_entry = TrigEntry.cast(v_focused_entry)
         focused_entry.set_value(EPD(db_storage), value)
 
