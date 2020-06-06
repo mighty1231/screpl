@@ -216,6 +216,25 @@ class TriggerEditorApp(Application):
 
         self.update_text()
 
+    @AppCommand([])
+    def next(self):
+        """Set trigger pointer of current app to next trigger pointer"""
+        if EUDIf()(self.trig_type == TYPE_NOLINK):
+            f_raise_warning("Trigger with nolink type does not support next()")
+            EUDReturn()
+        EUDEndIf()
+
+        trig_ptr, trig_epd = f_dwepdread_epd(self.trig_epd + 1)
+        self.trig_ptr = trig_ptr
+        self.trig_epd = trig_epd
+        self.cond_epd = trig_epd + 8//4
+        self.act_epd = trig_epd + (8 + 16*20)//4
+
+        self.tab = TAB_CONDITION
+        self.index = 0
+
+        self.update_text()
+
     @AppCommand([ArgEncNumber])
     def new(self, ptr):
         """Start a new app with given ptr, link type"""
@@ -379,7 +398,8 @@ class TriggerEditorApp(Application):
                 "Press CTRL+E to edit focused trigger entry\n"
                 "Press CTRL+N to add a new trigger entry\n"
                 "Press R to update trigger text forcefully\n"
-                "Chat 'setp(##)' changes current trigger pointer\n"
+                "Chat 'setp(##)' updates current trigger pointer\n"
+                "Chat 'next()' updates current trigger pointer to next trigger\n"
                 "Chat 'new(##)' starts a new trigger editor with pointer\n"
                 "Chat 'new_nolink(##)' is same as 'new' but nolink type\n"
             )
