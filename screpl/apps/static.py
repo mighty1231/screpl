@@ -20,7 +20,7 @@ class StaticApp(application.Application):
     ]
 
     @staticmethod
-    def setContent(title, content):
+    def set_content(title, content):
         _title_epd << cs.EPDConstString(title)
         epdarray, linecount = cs.EPDConstStringArray(content)
         _epdarray << EPD(epdarray)

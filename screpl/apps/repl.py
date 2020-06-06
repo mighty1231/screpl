@@ -129,7 +129,7 @@ class REPL(application.Application):
     @appcommand.AppCommand([])
     def help(self):
         """Show manual of REPL"""
-        static.StaticApp.setContent(
+        static.StaticApp.set_content(
             "SC-REPL manual",
             "\x13SC-REPL\n"
             "\x13Made by sixthMeat (mighty1231@gmail.com)\n"
@@ -170,7 +170,7 @@ class REPL(application.Application):
         if content[-1] == '\n':
             content = content[:-1]
 
-        static.StaticApp.setContent("\x16SC-REPL commands", content)
+        static.StaticApp.set_content("\x16SC-REPL commands", content)
         main.get_app_manager().start_application(static.StaticApp)
 
     @appcommand.AppCommand([])

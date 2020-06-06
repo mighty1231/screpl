@@ -26,7 +26,7 @@ for (ch1, ch2), tab in cp949_table:
 cvtb = EUDArray(cvtb)
 
 @EUDFunc
-def allocateForBuffer(string_id):
+def allocate_for_buffer(string_id):
     global new_alloc_epd
     '''
     input: string id
@@ -212,7 +212,8 @@ def plugin_setup():
     from .manager import StringManagerApp
 
     @AppCommand([])
-    def startCommand(self):
+    def start_command(self):
+        """Start StringManagerApp"""
         app_manager.start_application(StringManagerApp)
 
-    REPL.add_command('string', startCommand)
+    REPL.add_command('string', start_command)

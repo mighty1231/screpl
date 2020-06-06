@@ -301,13 +301,13 @@ def plugin_setup():
 
     @AppCommand([ArgEncNumber])
     def start_triggereditor(self, ptr):
-        """Start trigger editor with given ptr, link type"""
+        """Start TriggerEditorApp with given ptr, link type"""
         TriggerEditorApp.set_trig_ptr(ptr, nolink=False)
         app_manager.start_application(TriggerEditorApp)
 
     @AppCommand([ArgEncNumber])
     def start_triggereditor_nolink(self, ptr):
-        """Start trigger editor with given ptr, nolink type"""
+        """Start TriggerEditorApp with given ptr, nolink type"""
         TriggerEditorApp.set_trig_ptr(ptr, nolink=True)
         app_manager.start_application(TriggerEditorApp)
 

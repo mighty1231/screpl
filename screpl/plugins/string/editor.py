@@ -36,7 +36,7 @@ class StringEditorApp(Application):
         if EUDElse()():
             v_changed << 0
             v_previous_alloc_epd << new_alloc_epd
-            v_string_epd << allocateForBuffer(cur_string_id)
+            v_string_epd << allocate_for_buffer(cur_string_id)
         EUDEndIf()
         v_cursor_epd << v_string_epd
 

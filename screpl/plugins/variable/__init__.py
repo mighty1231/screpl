@@ -12,7 +12,7 @@ accessed_resources = set()
 death_units = []
 watched_eud_vars = ReferenceTable(key_f=EPDConstString)
 
-def exploreTriggers():
+def explore_triggers():
     orig_triggers = GetChkTokenized().getsection(b'TRIG')
     assert len(orig_triggers) % 2400 == 0
 
@@ -69,9 +69,9 @@ def exploreTriggers():
 
         offset += 2400
 
-exploreTriggers()
+explore_triggers()
 
-def watchVariable(name, var):
+def watch_variable(name, var):
     assert IsEUDVariable(var)
     watched_eud_vars.add_pair(name, EPD(var.getValueAddr()))
 
@@ -80,7 +80,8 @@ def plugin_setup():
     from .varapp import VariableApp
 
     @AppCommand([])
-    def startCommand(self):
+    def start_command(self):
+        """Start VariableApp"""
         manager.start_application(VariableApp)
 
-    REPL.add_command('var', startCommand)
+    REPL.add_command('var', start_command)

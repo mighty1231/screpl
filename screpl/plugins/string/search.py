@@ -36,7 +36,7 @@ code:
         char *ptr = get_string_ptr(string_id)
         while (*ptr != 0){
             // make utf-8, remove color code
-            length, is_null_end = strcpy_until_newline(line_buffer, ptr)
+            length, is_null_end = _strcpy_until_newline(line_buffer, ptr)
 
             // use KMP search
             // https://www.geeksforgeeks.org/kmp-algorithm-for-pattern-searching/
@@ -87,7 +87,7 @@ v_return_epd = EUDVariable(0)
 
 v_is_utf8 = EUDVariable()
 
-def strcpy_until_newline(v_ptr):
+def _strcpy_until_newline(v_ptr):
     reader, writer = REPLByteRW(), REPLByteRW()
     reader.seekoffset(v_ptr)
     writer.seekepd(EPD(db_line_buffer))
@@ -193,7 +193,7 @@ def strcpy_until_newline(v_ptr):
     writer.write(0)
     return reader.getoffset() - v_ptr - 1, is_null_end
 
-def computeLPSArray(pattern):
+def _compute_lps_array(pattern):
     '''
     KMP Search preprocessing - evaluate LPS array
     '''
@@ -273,7 +273,7 @@ def KMPSearch(pattern):
     EUDReturn(0)
 
 @EUDFunc
-def focusResult(new_focus):
+def _focus_result(new_focus):
     if EUDIfNot()(new_focus >= v_search_cnt):
         if EUDIfNot()(new_focus == v_focused):
             v_focused << new_focus
@@ -283,7 +283,7 @@ def focusResult(new_focus):
 
 class StringSearchApp(Application):
     @staticmethod
-    def setReturn_epd(return_epd):
+    def set_return_epd(return_epd):
         v_return_epd << return_epd
 
     def on_destruct(self):
@@ -300,7 +300,7 @@ class StringSearchApp(Application):
 
         # evaluate LPS array
         # https://www.geeksforgeeks.org/kmp-algorithm-for-pattern-searching/
-        computeLPSArray(pattern)
+        _compute_lps_array(pattern)
 
         v_search_cnt << 0
         v_string_id << 1
@@ -319,7 +319,7 @@ class StringSearchApp(Application):
                 ch = f_bread(v_textptr)
                 EUDBreakIf(ch == 0)
 
-                length, is_null_end = strcpy_until_newline(v_textptr)
+                length, is_null_end = _strcpy_until_newline(v_textptr)
                 found = KMPSearch(pattern)
                 if EUDIf()(found == 1):
                     DoActions([
@@ -357,9 +357,9 @@ class StringSearchApp(Application):
             app_manager.request_destruct()
             EUDReturn()
         if EUDElseIf()(app_manager.key_press('F7')):
-            focusResult(v_focused-1)
+            _focus_result(v_focused-1)
         if EUDElseIf()(app_manager.key_press('F8')):
-            focusResult(v_focused+1)
+            _focus_result(v_focused+1)
         EUDEndIf()
         app_manager.request_update()
 

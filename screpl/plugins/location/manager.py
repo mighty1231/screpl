@@ -5,7 +5,7 @@ from screpl.core.application import Application
 from screpl.resources.table.tables import GetLocationNameEPDPointer
 
 from . import app_manager, keymap, FRAME_PERIOD
-from .rect import drawRectangle
+from .rect import draw_rectangle
 from .editor import LocationEditorApp
 
 # app-specific initializing arguments
@@ -19,11 +19,11 @@ class LocationManagerApp(Application):
 
         "frame", # parameter used on draw rectangle as animation
 
-        "centerview", # do centerview on every setLocation() calles if 1
+        "centerview", # do centerview on every set_location() calles if 1
     ]
 
     @staticmethod
-    def setContent(location, resultref_location_epd = None):
+    def set_content(location, resultref_location_epd = None):
         # set initializing arguments
         _location << EncodeLocation(location)
         if resultref_location_epd:
@@ -35,13 +35,13 @@ class LocationManagerApp(Application):
         self.frame = 0
         self.resultref_location_epd = _resultref_location_epd
 
-        self.setLocation(_location)
+        self.set_location(_location)
 
         # restore initializing arguments
         _location << 1
         _resultref_location_epd << 0
 
-    def setLocation(self, new_location):
+    def set_location(self, new_location):
         Trigger(
             conditions = new_location.AtLeast(0x80000000),
             actions = new_location.SetNumber(1)
@@ -81,21 +81,21 @@ class LocationManagerApp(Application):
             app_manager.request_destruct()
             EUDReturn()
         if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            self.setLocation(location - 8)
+            self.set_location(location - 8)
         if EUDElseIf()(app_manager.key_press("F7")):
-            self.setLocation(location - 1)
+            self.set_location(location - 1)
         if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            self.setLocation(location + 8)
+            self.set_location(location + 8)
         if EUDElseIf()(app_manager.key_press("F8")):
-            self.setLocation(location + 1)
+            self.set_location(location + 1)
         if EUDElseIf()(app_manager.key_press(keymap["manager"]["open_editor"])):
-            LocationEditorApp.setTarget(location)
+            LocationEditorApp.set_target(location)
             app_manager.start_application(LocationEditorApp)
             EUDReturn()
         EUDEndIf()
 
         # draw location with "Scanner Sweep"
-        drawRectangle(self.location, self.frame, FRAME_PERIOD)
+        draw_rectangle(self.location, self.frame, FRAME_PERIOD)
 
         frame = self.frame + 1
         Trigger(

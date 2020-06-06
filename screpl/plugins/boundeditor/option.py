@@ -93,28 +93,28 @@ class OptionApp(Application):
             )
         if EUDElseIf()(app_manager.key_press("insert")):
             if EUDIf()(focus.Exactly(FOCUS_EFFECTPLAYER)):
-                PlayerSelectorApp.setContent(g_effectplayer, EPD(g_effectplayer.getValueAddr()))
+                PlayerSelectorApp.set_content(g_effectplayer, EPD(g_effectplayer.getValueAddr()))
                 app_manager.start_application(PlayerSelectorApp)
             if EUDElseIf()(focus.Exactly(FOCUS_EFFECTUNIT1)):
-                UnitManagerApp.setContent(g_effectunit_1, EPD(g_effectunit_1.getValueAddr()))
+                UnitManagerApp.set_content(g_effectunit_1, EPD(g_effectunit_1.getValueAddr()))
                 app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_EFFECTUNIT2)):
-                UnitManagerApp.setContent(g_effectunit_2, EPD(g_effectunit_2.getValueAddr()))
+                UnitManagerApp.set_content(g_effectunit_2, EPD(g_effectunit_2.getValueAddr()))
                 app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_EFFECTUNIT3)):
-                UnitManagerApp.setContent(g_effectunit_3, EPD(g_effectunit_3.getValueAddr()))
+                UnitManagerApp.set_content(g_effectunit_3, EPD(g_effectunit_3.getValueAddr()))
                 app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_OBSTACLEUNIT)):
-                UnitManagerApp.setContent(g_obstacle_unit, EPD(g_obstacle_unit.getValueAddr()))
+                UnitManagerApp.set_content(g_obstacle_unit, EPD(g_obstacle_unit.getValueAddr()))
                 app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_RUNNER_FORCE)):
-                PlayerSelectorApp.setContent(g_runner_force, EPD(g_runner_force.getValueAddr()))
+                PlayerSelectorApp.set_content(g_runner_force, EPD(g_runner_force.getValueAddr()))
                 app_manager.start_application(PlayerSelectorApp)
             if EUDElseIf()(focus.Exactly(FOCUS_RUNNER_UNIT)):
-                UnitManagerApp.setContent(g_runner_unit, EPD(g_runner_unit.getValueAddr()))
+                UnitManagerApp.set_content(g_runner_unit, EPD(g_runner_unit.getValueAddr()))
                 app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_START_LOCATION)):
-                LocationManagerApp.setContent(g_start_location, EPD(g_start_location.getValueAddr()))
+                LocationManagerApp.set_content(g_start_location, EPD(g_start_location.getValueAddr()))
                 app_manager.start_application(LocationManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_OBSCREATE_PATTERN)):
                 DoActions(g_obstacle_createpattern.AddNumber(1))

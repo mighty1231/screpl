@@ -15,7 +15,7 @@ writer = get_main_writer()
 _ptr = EUDVariable()
 _size = EUDVariable()
 
-def dumpToStorage():
+def dump_to_storage():
     global writer
     writer.seekepd(EPD(storage))
     reader = REPLByteRW()
@@ -37,12 +37,12 @@ def dumpToStorage():
 
 class DumpApp(Application):
     @staticmethod
-    def setTarget(ptr, size):
+    def set_target(ptr, size):
         _ptr << ptr
         _size << size
 
     def on_init(self):
-        dumpToStorage()
+        dump_to_storage()
 
     def loop(self):
         global written, remaining_bytes

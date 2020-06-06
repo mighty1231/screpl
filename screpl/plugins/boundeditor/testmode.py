@@ -25,8 +25,8 @@ from . import (
     su_id,
     g_runner_unit,
     g_start_location,
-    executePattern,
-    p_waitValue,
+    execute_pattern,
+    p_wait_value,
     p_count
 )
 
@@ -76,7 +76,7 @@ class TestPatternApp(Application):
 
         # Timer
         if EUDIf()(timer == next_timer):
-            executePattern(pattern_id)
+            execute_pattern(pattern_id)
 
             # timer reset
             if EUDIf()(pattern_id == 0):
@@ -85,7 +85,7 @@ class TestPatternApp(Application):
             EUDEndIf()
 
             # set next timer
-            next_timer += p_waitValue[pattern_id]
+            next_timer += p_wait_value[pattern_id]
             pattern_id += 1
             if EUDIf()(pattern_id == p_count):
                 pattern_id << 0

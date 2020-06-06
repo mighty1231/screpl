@@ -12,26 +12,26 @@ Expected TUI
 from eudplib import *
 
 from screpl.core.application import Application
-from screpl.plugins.location.rect import drawRectangle
+from screpl.plugins.location.rect import draw_rectangle
 from screpl.plugins.trigger.actedit import TrigActionEditorApp
 
 from . import (
     app_manager,
     focused_pattern_id,
-    p_actionCount,
-    p_actionArrayEPD,
+    p_action_count,
+    p_action_array_epd,
 )
 
 action_id = EUDVariable(0)
-actionCount = EUDVariable(0)
-actionArrayEPD = EUDVariable(0)
+action_count = EUDVariable(0)
+action_array_epd = EUDVariable(0)
 frame = EUDVariable(0)
 
 FRAME_PERIOD = 24
 
 @EUDFunc
 def focus_action_id(new_actionid):
-    if EUDIfNot()(new_actionid >= actionCount):
+    if EUDIfNot()(new_actionid >= action_count):
         if EUDIfNot()(new_actionid == action_id):
             action_id << new_actionid
             app_manager.request_update()
@@ -40,10 +40,10 @@ def focus_action_id(new_actionid):
 
 def delete_action():
     global action_id
-    if EUDIfNot()(actionCount == 0):
-        cur_action_epd = actionArrayEPD + (32//4) * action_id
+    if EUDIfNot()(action_count == 0):
+        cur_action_epd = action_array_epd + (32//4) * action_id
         next_action_epd = cur_action_epd + (32//4)
-        _until_epd = actionArrayEPD + (32//4) * actionCount
+        _until_epd = action_array_epd + (32//4) * action_count
 
         # overwrite
         if EUDInfLoop()():
@@ -58,11 +58,11 @@ def delete_action():
         EUDEndInfLoop()
 
         DoActions([
-            actionCount.SubtractNumber(1),
-            SetMemoryEPD(EPD(p_actionCount) + focused_pattern_id, Subtract, 1)
+            action_count.SubtractNumber(1),
+            SetMemoryEPD(EPD(p_action_count) + focused_pattern_id, Subtract, 1)
         ])
 
-        if EUDIf()(action_id == actionCount):
+        if EUDIf()(action_id == action_count):
             action_id -= 1
         EUDEndIf()
         app_manager.request_update()
@@ -71,9 +71,9 @@ def delete_action():
 
 class DetailedActionApp(Application):
     def on_init(self):
-        actionCount << p_actionCount[focused_pattern_id]
-        action_id << actionCount - 1
-        actionArrayEPD << p_actionArrayEPD[focused_pattern_id]
+        action_count << p_action_count[focused_pattern_id]
+        action_id << action_count - 1
+        action_array_epd << p_action_array_epd[focused_pattern_id]
 
     def loop(self):
         if EUDIf()(app_manager.key_press('ESC')):
@@ -87,16 +87,16 @@ class DetailedActionApp(Application):
             delete_action()
         if EUDElseIf()(app_manager.key_press('E', hold=['LCTRL'])):
             TrigActionEditorApp.set_act_epd(
-                actionArrayEPD + (32//4)*action_id)
+                action_array_epd + (32//4)*action_id)
             app_manager.start_application(TrigActionEditorApp)
         EUDEndIf()
 
         if EUDIfNot()(action_id == -1):
-            action_epd = actionArrayEPD + (32//4) * action_id
+            action_epd = action_array_epd + (32//4) * action_id
 
             locid1 = f_dwread_epd(action_epd)
             if EUDIfNot()(locid1 == 0):
-                drawRectangle(locid1, frame, FRAME_PERIOD)
+                draw_rectangle(locid1, frame, FRAME_PERIOD)
             EUDEndIf()
 
             # graphical set
@@ -119,14 +119,14 @@ class DetailedActionApp(Application):
         cur = quot * 8
         pageend = cur + 8
         until = EUDVariable()
-        if EUDIf()(pageend <= actionCount):
+        if EUDIf()(pageend <= action_count):
             until << pageend
         if EUDElse()():
-            until << actionCount
+            until << action_count
         EUDEndIf()
 
         # fill contents
-        action_epd = actionArrayEPD + (32//4) * cur
+        action_epd = action_array_epd + (32//4) * cur
         if EUDInfLoop()():
             EUDBreakIf(cur >= until)
 

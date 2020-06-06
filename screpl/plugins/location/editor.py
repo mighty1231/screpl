@@ -8,7 +8,7 @@ from screpl.encoder.const import ArgEncNumber
 from screpl.resources.table.tables import GetLocationNameEPDPointer
 
 from . import app_manager, keymap, FRAME_PERIOD
-from .rect import drawRectangle
+from .rect import draw_rectangle
 
 '''
 Option:
@@ -67,12 +67,15 @@ le, te, re, be = EUDCreateVariables(4)
 prev_lv, prev_tv, prev_rv, prev_bv = EUDCreateVariables(4)
 cur_lv, cur_tv, cur_rv, cur_bv = EUDCreateVariables(4)
 
+DISPMODE_MAIN = 0
+DISPMODE_MANUAL = 1
+v_dispmode = EUDVariable()
 
 class LocationEditorApp(Application):
     fields = []
 
     @staticmethod
-    def setTarget(location):
+    def set_target(location):
         target << location
         cur_epd << EPD(0x58DC60 - 0x14) + (0x14 // 4) * location
         le << cur_epd
@@ -81,13 +84,14 @@ class LocationEditorApp(Application):
         be << cur_epd + 3
 
     def on_init(self):
+        v_dispmode << DISPMODE_MAIN
         frame << 0
         for i in range(len(py_modes)):
             prev_available_modes[i] = 0
         cur_mode << -1
         is_holding << 0
 
-    def evaluateAvailableModes(self):
+    def evaluate_available_modes(self):
         '''
         _POINT_LT
         _POINT_RT
@@ -171,6 +175,12 @@ class LocationEditorApp(Application):
                 conditions=[cur_grid_mode == len(py_grid_modes)],
                 actions=[cur_grid_mode.SetNumber(0)]
             )
+        if EUDElseIf()(app_manager.key_down("F1")):
+            v_dispmode << DISPMODE_MANUAL
+            app_manager.clean_text()
+        if EUDElseIf()(app_manager.key_up("F1")):
+            v_dispmode << DISPMODE_MAIN
+            app_manager.clean_text()
         EUDEndIf()
 
         # new mouse values and location
@@ -191,7 +201,7 @@ class LocationEditorApp(Application):
             else:
                 set next mode, find available starts from mode = 0
             '''
-            self.evaluateAvailableModes()
+            self.evaluate_available_modes()
 
             if EUDIf()(f_memcmp(prev_available_modes, cur_available_modes, 4*len(py_modes)) == 0):
                 cur_mode += 1
@@ -323,7 +333,7 @@ class LocationEditorApp(Application):
         #####################
 
         # draw location with "Scanner Sweep"
-        drawRectangle(target, frame, FRAME_PERIOD)
+        draw_rectangle(target, frame, FRAME_PERIOD)
 
         # graphical set
         DoActions(frame.AddNumber(1))
@@ -334,76 +344,86 @@ class LocationEditorApp(Application):
         app_manager.request_update()
 
     def print(self, writer):
-        # Title, tells its editing mode
-        writer.write_f("Location Editor #%D ", target)
+        if EUDIf()(v_dispmode == DISPMODE_MAIN):
+            # Title, tells its editing mode
+            writer.write_f("Location Editor #%D ", target)
 
-        writer.write_f("'%E' ", GetLocationNameEPDPointer(target))
+            writer.write_f("'%E' ", GetLocationNameEPDPointer(target))
 
-        writer.write_f("Mode: ")
-        to_pass = Forward()
-        if EUDIf()(cur_mode == -1):
-            writer.write_f("--")
-            EUDJump(to_pass)
-        EUDEndIf()
-        for i in range(len(py_modes)):
-            if EUDIf()(cur_mode == i):
-                writer.write_f(py_modes_string[i])
+            writer.write_f("Mode: ")
+            to_pass = Forward()
+            if EUDIf()(cur_mode == -1):
+                writer.write_f("--")
+                EUDJump(to_pass)
             EUDEndIf()
-        if EUDIf()(is_holding == 1):
-            writer.write_f(" Holding...")
+            for i in range(len(py_modes)):
+                if EUDIf()(cur_mode == i):
+                    writer.write_f(py_modes_string[i])
+                EUDEndIf()
+            if EUDIf()(is_holding == 1):
+                writer.write_f(" Holding...")
+            if EUDElse()():
+                writer.write_f(" Press '%s' to hold" % keymap["editor"]["hold"])
+            EUDEndIf()
+
+            to_pass << NextTrigger()
+
+            for gi in range(len(py_grid_modes)):
+                if EUDIf()(cur_grid_mode == gi):
+                    writer.write_f("\nGrid (Press '{}' to change): %D" \
+                        .format(keymap["editor"]["change_grid_mode"])
+                        , py_grid_values[gi])
+                EUDEndIf()
+
+            writer.write_f("\nAvailable modes (LClick with mouse on the map to change): ")
+            for i in range(len(py_modes)):
+                if EUDIf()(cur_available_modes[i]):
+                    writer.write_f(py_modes_string[i] + " ")
+                EUDEndIf()
+            writer.write_f("\n")
+
+            writer.write_f("Left %D\n", cur_lv)
+            writer.write_f("Right %D\n", cur_rv)
+            writer.write_f("Top %D\n", cur_tv)
+            writer.write_f("Bottom %D\n", cur_bv)
+
+            if EUDIf()([cur_lv <= 0x80000000, cur_rv <= 0x80000000]):
+                if EUDIfNot()(cur_lv <= cur_rv):
+                    writer.write_f("\x06X-FLIPPED\n")
+                EUDEndIf()
+                if EUDIfNot()(cur_tv <= cur_bv):
+                    writer.write_f("\x06Y-FLIPPED\n")
+                EUDEndIf()
+            EUDEndIf()
         if EUDElse()():
-            writer.write_f(" Press '%s' to hold" % keymap["editor"]["hold"])
-        EUDEndIf()
-
-        to_pass << NextTrigger()
-
-        for gi in range(len(py_grid_modes)):
-            if EUDIf()(cur_grid_mode == gi):
-                writer.write_f("\nGrid (Press '{}' to change): %D" \
-                    .format(keymap["editor"]["change_grid_mode"])
-                    , py_grid_values[gi])
-            EUDEndIf()
-
-        writer.write_f("\nAvailable modes (LClick with mouse on the map to change): ")
-        for i in range(len(py_modes)):
-            if EUDIf()(cur_available_modes[i]):
-                writer.write_f(py_modes_string[i] + " ")
-            EUDEndIf()
-        writer.write_f("\n")
-
-        writer.write_f("Left %D\n", cur_lv)
-        writer.write_f("Right %D\n", cur_rv)
-        writer.write_f("Top %D\n", cur_tv)
-        writer.write_f("Bottom %D\n", cur_bv)
-
-        if EUDIf()([cur_lv <= 0x80000000, cur_rv <= 0x80000000]):
-            if EUDIfNot()(cur_lv <= cur_rv):
-                writer.write_f("\x06X-FLIPPED\n")
-            EUDEndIf()
-            if EUDIfNot()(cur_tv <= cur_bv):
-                writer.write_f("\x06Y-FLIPPED\n")
-            EUDEndIf()
+            writer.write_f(
+                "Location Editor Manual\n"
+                "Chat sw(##) to set width with given number\n"
+                "Chat sh(##) to set height with given number\n"
+                "Chat sf(##) to set flag with given number\n"
+                "Chat cn() to update the name\n"
+            )
         EUDEndIf()
 
         writer.write(0)
 
     @AppCommand([ArgEncNumber])
-    def setSizeX(self, value):
+    def sw(self, value):
         lv, rv = f_dwread_epd(le), f_dwread_epd(re)
         sz = rv - lv
         f_dwadd_epd(re, value-sz)
 
     @AppCommand([ArgEncNumber])
-    def setSizeY(self, value):
+    def sh(self, value):
         tv, bv = f_dwread_epd(te), f_dwread_epd(be)
         sz = bv - tv
         f_dwadd_epd(be, value-sz)
 
     @AppCommand([ArgEncNumber])
-    def setFlag(self, flag):
+    def sf(self, flag):
         f_wwrite_epd(cur_epd+4, 2, flag)
 
     @AppCommand([])
-    def changeName(self):
+    def cn(self):
         ChatReaderApp.set_return_epd(GetLocationNameEPDPointer(target))
         app_manager.start_application(ChatReaderApp)

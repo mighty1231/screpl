@@ -4,7 +4,7 @@ from . import app_manager, mapw, maph
 from screpl.resources import offset
 
 @EUDFunc
-def drawRectangle(location, frame, frame_period):
+def draw_rectangle(location, frame, frame_period):
     su_id = app_manager.get_superuser_id()
 
     cur_epd = EPD(0x58DC60 - 0x14) + (0x14 // 4) * location

@@ -46,13 +46,13 @@ g_turbo_mode = EUDVariable(TMODE_EUDTURBO)
 
 trigvalues = [0 for _ in range(2408)]
 trigvalues[8+320+2048] = 4 # preserved trigger
-g_emptyTrigger = Db(trigvalues)
+g_empty_trigger = Db(trigvalues)
 
 # pattern variables
 p_count = EUDVariable(1)
-p_waitValue = EUDArray([1] * MAX_PATTERN_COUNT)
-p_actionCount = EUDArray(MAX_PATTERN_COUNT)
-p_actionArrayEPD = EUDArray([
+p_wait_value = EUDArray([1] * MAX_PATTERN_COUNT)
+p_action_count = EUDArray(MAX_PATTERN_COUNT)
+p_action_array_epd = EUDArray([
     EPD(EUDArray(MAX_ACTION_COUNT * 32)) for _ in range(MAX_PATTERN_COUNT)
 ])
 
@@ -64,8 +64,8 @@ def write_player(self, value):
 focused_pattern_id = EUDVariable(0)
 
 @EUDFunc
-def executePattern(pattern_id):
-    cnt, action_epd = p_actionCount[pattern_id], p_actionArrayEPD[pattern_id]
+def execute_pattern(pattern_id):
+    cnt, action_epd = p_action_count[pattern_id], p_action_array_epd[pattern_id]
     i = EUDVariable(0)
     i << 0
     if EUDInfLoop()():
@@ -74,11 +74,11 @@ def executePattern(pattern_id):
         _nxttrig = Forward()
 
         # fill trigger
-        DoActions(SetNextPtr(g_emptyTrigger, _nxttrig))
-        f_repmovsd_epd(EPD(g_emptyTrigger + 8 + 320), action_epd, 32 // 4)
+        DoActions(SetNextPtr(g_empty_trigger, _nxttrig))
+        f_repmovsd_epd(EPD(g_empty_trigger + 8 + 320), action_epd, 32 // 4)
 
         # jump to trigger
-        EUDJump(g_emptyTrigger)
+        EUDJump(g_empty_trigger)
         _nxttrig << NextTrigger()
         DoActions([
             i.AddNumber(1),
@@ -95,7 +95,8 @@ def plugin_setup():
     from .manager import BoundManagerApp
 
     @AppCommand([])
-    def startCommand(self):
+    def start_command(self):
+        """Start BoundManagerApp"""
         app_manager.start_application(BoundManagerApp)
 
-    REPL.add_command('bound', startCommand)
+    REPL.add_command('bound', start_command)

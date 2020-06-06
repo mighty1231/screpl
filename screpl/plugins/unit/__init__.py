@@ -12,7 +12,8 @@ def plugin_setup():
     from .manager import UnitManagerApp
 
     @AppCommand([])
-    def startCommand(self):
+    def start_command(self):
+        """Start UnitManagerApp"""
         app_manager.start_application(UnitManagerApp)
 
-    REPL.add_command('unit', startCommand)
+    REPL.add_command('unit', start_command)

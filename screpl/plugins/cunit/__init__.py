@@ -21,7 +21,8 @@ def plugin_setup():
     from .manager import CUnitManagerApp
 
     @AppCommand([])
-    def startCommand(self):
+    def start_command(self):
+        """Start CUnitManagerApp"""
         app_manager.start_application(CUnitManagerApp)
 
-    REPL.add_command('cunit', startCommand)
+    REPL.add_command('cunit', start_command)

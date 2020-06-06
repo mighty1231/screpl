@@ -107,7 +107,7 @@ def GetLocationNameEPDPointer(location_idx):
 @EUDFunc
 def SetLocationName(location_idx, new_string_offset):
     if EUDIfNot()([location_idx.AtLeast(1), location_idx.AtMost(255)]):
-        f_raise_error("SC-REPL indexError on SetLocationName")
+        f_raise_error("SC-REPL index error on SetLocationName")
     EUDEndIf()
     writer = REPLByteRW()
     writer.seekepd(GetLocationNameEPDPointer(location_idx))

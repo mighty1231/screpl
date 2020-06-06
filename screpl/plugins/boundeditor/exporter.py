@@ -29,9 +29,9 @@ from . import (
     app_manager,
     g_effectplayer,
     p_count,
-    p_actionCount,
-    p_actionArrayEPD,
-    p_waitValue,
+    p_action_count,
+    p_action_array_epd,
+    p_wait_value,
     g_runner_force,
     g_runner_unit,
     g_start_location
@@ -55,7 +55,7 @@ written = EUDVariable(0)
 
 writer = get_main_writer()
 
-def writeBoundTriggers():
+def write_bound_triggers():
     global writer
     writer.seekepd(EPD(storage))
 
@@ -88,7 +88,7 @@ def writeBoundTriggers():
         # for each pattern...
         EUDBreakIf(pattern_id >= p_count)
 
-        cnt, action_epd = p_actionCount[pattern_id], p_actionArrayEPD[pattern_id]
+        cnt, action_epd = p_action_count[pattern_id], p_action_array_epd[pattern_id]
         rem_action_count = EUDVariable()
         rem_action_count << cnt
 
@@ -115,7 +115,7 @@ def writeBoundTriggers():
             action_epd += num_actions_to_send * (32//4)
         EUDEndInfLoop()
 
-        next_timer += p_waitValue[pattern_id]
+        next_timer += p_wait_value[pattern_id]
         pattern_id += 1
     EUDEndInfLoop()
 
@@ -175,9 +175,9 @@ class ExporterApp(Application):
         if EUDIf()(mode == MODE_CONFIG):
             if EUDIf()(app_manager.key_press("Y", hold = ["LCTRL"])):
                 mode << MODE_EXPORTING
-                writeBoundTriggers()
+                write_bound_triggers()
             if EUDElseIf()(app_manager.key_press("U")):
-                UnitManagerApp.setContent(v_death_unit, EPD(v_death_unit.getValueAddr()))
+                UnitManagerApp.set_content(v_death_unit, EPD(v_death_unit.getValueAddr()))
                 app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(app_manager.key_press("T")):
                 v_turbo_mode += 1

@@ -18,7 +18,6 @@ FRAME_PERIOD = 24
 
 # initialize variables
 app_manager = get_app_manager()
-dim = GetChkTokenized().getsection(b'DIM ')
 mapw = app_manager.get_map_width()
 maph = app_manager.get_map_height()
 
@@ -36,7 +35,8 @@ def plugin_setup():
     from .manager import LocationManagerApp
 
     @AppCommand([])
-    def startCommand(self):
+    def start_command(self):
+        """Start LocationManagerApp"""
         app_manager.start_application(LocationManagerApp)
 
-    REPL.add_command('location', startCommand)
+    REPL.add_command('location', start_command)

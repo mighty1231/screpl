@@ -19,13 +19,13 @@ class MemoryApp(Application):
     ]
 
     @staticmethod
-    def setContent_ptr(ptr, size):
+    def set_content_ptr(ptr, size):
         _ptr << ptr
         _epd << EPD(ptr)
         _size << size
 
     @staticmethod
-    def setContent_epd(epd, size):
+    def set_content_epd(epd, size):
         _ptr << ((epd * 4) + 0x58A364)
         _epd << epd
         _size << size

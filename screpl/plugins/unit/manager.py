@@ -25,7 +25,7 @@ class UnitManagerApp(Application):
     ]
 
     @staticmethod
-    def setContent(unitid, resultref_unitid_epd = None):
+    def set_content(unitid, resultref_unitid_epd = None):
         # set initializing arguments
         _unitid << unitid
         if resultref_unitid_epd:
@@ -35,7 +35,7 @@ class UnitManagerApp(Application):
         self.unitid = 0
         self.resultref_unitid_epd = _resultref_unitid_epd
 
-        self.focusUnitID(_unitid)
+        self.focus_unit_id(_unitid)
 
         # restore initializing arguments
         _resultref_unitid_epd << 0
@@ -48,7 +48,7 @@ class UnitManagerApp(Application):
         EUDEndIf()
         _unitid << unitid
 
-    def focusUnitID(self, new_unitid):
+    def focus_unit_id(self, new_unitid):
         Trigger(
             conditions = new_unitid.AtLeast(0x80000000),
             actions = new_unitid.SetNumber(0)
@@ -68,13 +68,13 @@ class UnitManagerApp(Application):
             app_manager.request_destruct()
             EUDReturn()
         if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            self.focusUnitID(unitid - 8)
+            self.focus_unit_id(unitid - 8)
         if EUDElseIf()(app_manager.key_press("F7")):
-            self.focusUnitID(unitid - 1)
+            self.focus_unit_id(unitid - 1)
         if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            self.focusUnitID(unitid + 8)
+            self.focus_unit_id(unitid + 8)
         if EUDElseIf()(app_manager.key_press("F8")):
-            self.focusUnitID(unitid + 1)
+            self.focus_unit_id(unitid + 1)
         EUDEndIf()
 
     def print(self, writer):

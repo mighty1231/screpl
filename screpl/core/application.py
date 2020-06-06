@@ -206,7 +206,7 @@ class ApplicationInstance:
             class MyApp(Application):
                 fields = ['var']
 
-                def someMethod(self):
+                def some_method(self):
                     self.var = 1
 
                     # get reference for self.var

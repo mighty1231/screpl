@@ -9,14 +9,16 @@ def plugin_setup():
     manager = get_app_manager()
 
     @AppCommand([ArgEncNumber, ArgEncNumber])
-    def startWithPtr(self, ptr, size):
-        MemoryApp.setContent_ptr(ptr, size)
+    def start_with_ptr(self, ptr, size):
+        """Start memory viewer on ptr, with given size"""
+        MemoryApp.set_content_ptr(ptr, size)
         manager.start_application(MemoryApp)
 
     @AppCommand([ArgEncNumber, ArgEncNumber])
-    def startWithEpd(self, epd, size):
-        MemoryApp.setContent_epd(epd, size)
+    def start_with_epd(self, epd, size):
+        """Start memory viewer on epd, with given size"""
+        MemoryApp.set_content_epd(epd, size)
         manager.start_application(MemoryApp)
 
-    REPL.add_command('memptr', startWithPtr)
-    REPL.add_command('memepd', startWithEpd)
+    REPL.add_command('memptr', start_with_ptr)
+    REPL.add_command('memepd', start_with_epd)

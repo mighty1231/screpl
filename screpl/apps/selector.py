@@ -33,7 +33,7 @@ def _createapp(domainname, reftable):
 
     class _SelectorApp(application.Application):
         @staticmethod
-        def setContent(default, result_epd=None):
+        def set_content(default, result_epd=None):
             _value << default
             if result_epd:
                 _result_epd << result_epd

@@ -165,7 +165,7 @@ class AppMethodN:
         assert self.status in ['initialized', 'allocated'], self
         return self.funcptr_cls.cast(manager.cur_methods[self.index])
 
-    def applyAbsolute(self):
+    def apply_absolute(self):
         return self.funcn
 
     def __call__(self, instance, *args, **kwargs):
