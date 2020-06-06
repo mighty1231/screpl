@@ -11,12 +11,6 @@ from screpl.utils.debug import f_raise_error
 from screpl.utils.byterw import REPLByteRW
 from screpl.utils.referencetable import ReferenceTable
 
-swSub = ReferenceTable(
-    DefSwitchDict.items(),
-    key_f=EPDConstString, sortkey_f=lambda k, v: k)
-swMap = ReferenceTable(
-    swmap._s2id.items(),
-    key_f=EPDConstString, sortkey_f=lambda k, v: k)
 AIScript = ReferenceTable(
     list(map(lambda a: (a[0], b2i4(a[1])), DefAIScriptDict.items())),
     key_f=EPDConstString, sortkey_f=lambda k, v: k)
@@ -95,26 +89,35 @@ SwitchState = ReferenceTable([
     ("Cleared", EncodeSwitchState(Cleared)),
 ], key_f=EPDConstString)
 
-_locstrings = [bytes(100) for _ in range(255)]
+# location and switch
+NAME_SIZE = 100
+_locationnames = bytearray(NAME_SIZE*255)
 for k, v in locmap._s2id.items():
-    _locstrings[v] = k + bytes(100-len(k))
-Location = ReferenceTable(
-    list(map(lambda i: (EPD(Db(_locstrings[i])), i+1), range(255))))
+    length = len(k)
+    _locationnames[NAME_SIZE*v:NAME_SIZE*v+length] = k
+_locationname_db_epd = EPD(Db(_locationnames))
 
-def GetLocationNameEPDPointer(location_idx):
-    return f_dwread_epd((EPD(Location) - 1) + location_idx * 2)
-
-@EUDFunc
-def SetLocationName(location_idx, new_string_offset):
-    if EUDIfNot()([location_idx.AtLeast(1), location_idx.AtMost(255)]):
-        f_raise_error("SC-REPL index error on SetLocationName")
+def get_locationname_epd(location_idx):
+    if EUDIfNot()([1 <= location_idx, location_idx <= 255]):
+        f_raise_error("get_locationname_epd: IndexError")
     EUDEndIf()
-    writer = REPLByteRW()
-    writer.seekepd(GetLocationNameEPDPointer(location_idx))
-    writer.write_str(new_string_offset)
-    writer.write(0)
+    return (_locationname_db_epd - (NAME_SIZE//4)
+            + location_idx * (NAME_SIZE//4))
 
-arr_DefaultUnit = EUDArray(list(map(EPDConstString, [
+_switchnames = bytearray(NAME_SIZE*256)
+for k, v in swmap._s2id.items():
+    length = len(k)
+    _switchnames[NAME_SIZE*v:NAME_SIZE*v+length] = k
+_switchname_db_epd = EPD(Db(_switchnames))
+
+def get_switchname_epd(switch_idx):
+    if EUDIfNot()(switch_idx <= 255):
+        f_raise_error("get_switchname_epd: IndexError")
+    EUDEndIf()
+    return (_switchname_db_epd - (NAME_SIZE//4)
+            + switch_idx * (NAME_SIZE//4))
+
+_arr_defaultunitnames = EUDArray(list(map(EPDConstString, [
     "Terran Marine",
     "Terran Ghost",
     "Terran Vulture",
@@ -350,5 +353,5 @@ arr_DefaultUnit = EUDArray(list(map(EPDConstString, [
     "(factories)"
 ])))
 
-def GetDefaultUnitNameEPDPointer(unitid):
-    return arr_DefaultUnit[unitid]
+def get_default_unitname_epd(unitid):
+    return _arr_defaultunitnames[unitid]

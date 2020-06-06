@@ -2,7 +2,7 @@ from eudplib import *
 
 from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
-from screpl.resources.table.tables import GetLocationNameEPDPointer
+from screpl.resources.table.tables import get_locationname_epd
 
 from . import app_manager, keymap, FRAME_PERIOD
 from .rect import draw_rectangle
@@ -161,7 +161,7 @@ class LocationManagerApp(Application):
                 writer.write(0x02) # pale blue
             EUDEndIf()
 
-            str_epd = GetLocationNameEPDPointer(cur)
+            str_epd = get_locationname_epd(cur)
             writer.write_f(" %D %E: %D x %D // ", cur, str_epd, right-left, bottom-top)
 
             layers = ['Low Ground', 'Med Ground', 'High Ground',

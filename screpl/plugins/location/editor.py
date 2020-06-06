@@ -5,7 +5,7 @@ from screpl.apps.repl import REPL
 from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
 from screpl.encoder.const import ArgEncNumber
-from screpl.resources.table.tables import GetLocationNameEPDPointer
+from screpl.resources.table.tables import get_locationname_epd
 
 from . import app_manager, keymap, FRAME_PERIOD
 from .rect import draw_rectangle
@@ -348,7 +348,7 @@ class LocationEditorApp(Application):
             # Title, tells its editing mode
             writer.write_f("Location Editor #%D ", target)
 
-            writer.write_f("'%E' ", GetLocationNameEPDPointer(target))
+            writer.write_f("'%E' ", get_locationname_epd(target))
 
             writer.write_f("Mode: ")
             to_pass = Forward()
@@ -425,5 +425,5 @@ class LocationEditorApp(Application):
 
     @AppCommand([])
     def cn(self):
-        ChatReaderApp.set_return_epd(GetLocationNameEPDPointer(target))
+        ChatReaderApp.set_return_epd(get_locationname_epd(target))
         app_manager.start_application(ChatReaderApp)

@@ -26,11 +26,15 @@ def write_unit(self, val):
             EUDReturn()
         EUDEndIf()
     EUDEndIf()
-    self.write_f('"%E"', tb.GetDefaultUnitNameEPDPointer(val))
+    self.write_f('"%E"', tb.get_default_unitname_epd(val))
 
 @EUDMethod
 def write_location(self, val):
-    self.write_f('"%E"', tb.GetLocationNameEPDPointer(val))
+    if EUDIf()([val >= 1, val <= 255]):
+        self.write_f('"%E"', tb.get_locationname_epd(val))
+    if EUDElse()():
+        self.write_decimal(val)
+    EUDEndIf()
 
 @EUDMethod
 def write_aiscript(self, val):
@@ -45,15 +49,8 @@ def write_aiscript(self, val):
 
 @EUDMethod
 def write_switch(self, val):
-    name_epd = EUDVariable()
-    if EUDIf()(search_table_inv(val,
-                                EPD(tb.swMap),
-                                EPD(name_epd.getValueAddr())) == 1):
-        self.write_f('"%E"', name_epd)
-    if EUDElseIf()(search_table_inv(val,
-                                    EPD(tb.swSub),
-                                    EPD(name_epd.getValueAddr())) == 1):
-        self.write_f('"%E"', name_epd)
+    if EUDIf()(val <= 256):
+        self.write_f('"%E"', tb.get_switchname_epd(val))
     if EUDElse()():
         self.write_decimal(val)
     EUDEndIf()
