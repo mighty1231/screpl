@@ -1,3 +1,43 @@
+# Release 1.1.3
+
+## Major Features and Improvements
+* new plugin `switch` supports to show switch status
+* new paradigm *manual* mode
+  * pressing key F1 shows the manual text of the app
+* plugin `boundeditor`
+  * `DetailedActionApp` links to `TrigActionEditorApp` to modify action
+* plugin `cunit`
+  * `CUnitOptionApp` provides bwapi comments for each members
+* plugin `location`
+  * `LocationEditorApp` provides *manual* mode
+* plugin `string`
+  * `StringEditorApp` provides *manual* mode
+  * supports to input unicode character
+* plugin `trigger`
+  * provides *manual* mode
+  * shows value of trigger flag
+  * new commands
+    * to edit a trigger entry
+    * to add a new trigger entry
+    * to set flag value
+    * to set trigger pointer to arbitrary trigger
+    * to set trigger pointer to next trigger
+  * new application `TrigConditionEditorApp` and `TrigActionEditorApp`
+    * provides *manual* mode
+    * supports to edit each entry with value
+    * supports to edit each entry with helper apps
+
+## Bug Fixes and Other Changes
+* `ReadNumber` properly reads hexadecimal number
+* plugin `trigger`
+  * bug fix: provides trigger blocks for each player
+  * improved UI
+* increased code readability
+* `resources`
+  * new resource tables - `Property`, `ConditionType`, and `ActionType`
+  * provides default names for location and switch
+* fixed a crash on `LocationManagerApp`
+
 # Release 1.1.2
 
 ## Major Features and Improvements
@@ -16,7 +56,6 @@
 * update `bridge`
   * now shared memory region contains the version of protocol
   * now client properly shows `Logger` logs
-
 
 # Release 1.1.1
 
