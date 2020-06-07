@@ -1,93 +1,94 @@
 from eudplib import *
 
-from eudplib.core.rawtrigger.strdict import (
-    DefAIScriptDict,
-    DefSwitchDict,
-)
 from eudplib.core.mapdata.stringmap import swmap, locmap
+from eudplib.core.rawtrigger.strdict import DefAIScriptDict
 
+from screpl.utils.byterw import REPLByteRW
 from screpl.utils.conststring import EPDConstString
 from screpl.utils.debug import f_raise_error
-from screpl.utils.byterw import REPLByteRW
 from screpl.utils.referencetable import ReferenceTable
 
 AIScript = ReferenceTable(
     list(map(lambda a: (a[0], b2i4(a[1])), DefAIScriptDict.items())),
-    key_f=EPDConstString, sortkey_f=lambda k, v: k)
+    key_f=EPDConstString, sortkey_f=lambda k, v: k, final=True)
 Modifier = ReferenceTable([
-    ("SetTo", EncodeModifier(SetTo)),
-    ("Add", EncodeModifier(Add)),
-    ("Subtract", EncodeModifier(Subtract)),
-], key_f=EPDConstString)
+    ("SetTo", SetTo),
+    ("Add", Add),
+    ("Subtract", Subtract),
+], key_f=EPDConstString, value_f=EncodeModifier, final=True)
 AllyStatus = ReferenceTable([
-    ("Enemy", EncodeAllyStatus(Enemy)),
-    ("Ally", EncodeAllyStatus(Ally)),
-    ("AlliedVictory", EncodeAllyStatus(AlliedVictory)),
-], key_f=EPDConstString)
+    ("Enemy", Enemy),
+    ("Ally", Ally),
+    ("AlliedVictory", AlliedVictory),
+], key_f=EPDConstString, value_f=EncodeAllyStatus, final=True)
 Comparison = ReferenceTable([
-    ("AtLeast", EncodeComparison(AtLeast)),
-    ("AtMost", EncodeComparison(AtMost)),
-    ("Exactly", EncodeComparison(Exactly)),
-], key_f=EPDConstString)
+    ("AtLeast", AtLeast),
+    ("AtMost", AtMost),
+    ("Exactly", Exactly),
+], key_f=EPDConstString, value_f=EncodeComparison, final=True)
 Order = ReferenceTable([
-    ("Move", EncodeOrder(Move)),
-    ("Patrol", EncodeOrder(Patrol)),
-    ("Attack", EncodeOrder(Attack)),
-], key_f=EPDConstString)
+    ("Move", Move),
+    ("Patrol", Patrol),
+    ("Attack", Attack),
+], key_f=EPDConstString, value_f=EncodeOrder, final=True)
 Player = ReferenceTable([
-    ("Player1", EncodePlayer(Player1)),
-    ("Player2", EncodePlayer(Player2)),
-    ("Player3", EncodePlayer(Player3)),
-    ("Player4", EncodePlayer(Player4)),
-    ("Player5", EncodePlayer(Player5)),
-    ("Player6", EncodePlayer(Player6)),
-    ("Player7", EncodePlayer(Player7)),
-    ("Player8", EncodePlayer(Player8)),
-    ("Player9", EncodePlayer(Player9)),
-    ("Player10", EncodePlayer(Player10)),
-    ("Player11", EncodePlayer(Player11)),
-    ("Player12", EncodePlayer(Player12)),
-    ("CurrentPlayer", EncodePlayer(CurrentPlayer)),
-    ("Foes", EncodePlayer(Foes)),
-    ("Allies", EncodePlayer(Allies)),
-    ("NeutralPlayers", EncodePlayer(NeutralPlayers)),
-    ("AllPlayers", EncodePlayer(AllPlayers)),
-    ("Force1", EncodePlayer(Force1)),
-    ("Force2", EncodePlayer(Force2)),
-    ("Force3", EncodePlayer(Force3)),
-    ("Force4", EncodePlayer(Force4)),
-    ("NonAlliedVictoryPlayers", EncodePlayer(NonAlliedVictoryPlayers)),
-], key_f=EPDConstString)
+    ("Player1", Player1),
+    ("Player2", Player2),
+    ("Player3", Player3),
+    ("Player4", Player4),
+    ("Player5", Player5),
+    ("Player6", Player6),
+    ("Player7", Player7),
+    ("Player8", Player8),
+    ("Player9", Player9),
+    ("Player10", Player10),
+    ("Player11", Player11),
+    ("Player12", Player12),
+    ("CurrentPlayer", CurrentPlayer),
+    ("Foes", Foes),
+    ("Allies", Allies),
+    ("NeutralPlayers", NeutralPlayers),
+    ("AllPlayers", AllPlayers),
+    ("Force1", Force1),
+    ("Force2", Force2),
+    ("Force3", Force3),
+    ("Force4", Force4),
+    ("NonAlliedVictoryPlayers", NonAlliedVictoryPlayers),
+], key_f=EPDConstString, value_f=EncodePlayer, final=True)
 PropState = ReferenceTable([
-    ("Enable", EncodePropState(Enable)),
-    ("Disable", EncodePropState(Disable)),
-    ("Toggle", EncodePropState(Toggle)),
-], key_f=EPDConstString)
+    ("Enable", Enable),
+    ("Disable", Disable),
+    ("Toggle", Toggle),
+], key_f=EPDConstString, value_f=EncodePropState, final=True)
 Resource = ReferenceTable([
-    ("Ore", EncodeResource(Ore)),
-    ("Gas", EncodeResource(Gas)),
-    ("OreAndGas", EncodeResource(OreAndGas)),
-], key_f=EPDConstString)
+    ("Ore", Ore),
+    ("Gas", Gas),
+    ("OreAndGas", OreAndGas),
+], key_f=EPDConstString, value_f=EncodeResource, final=True)
 Score = ReferenceTable([
-    ("Total", EncodeScore(Total)),
-    ("Units", EncodeScore(Units)),
-    ("Buildings", EncodeScore(Buildings)),
-    ("UnitsAndBuildings", EncodeScore(UnitsAndBuildings)),
-    ("Kills", EncodeScore(Kills)),
-    ("Razings", EncodeScore(Razings)),
-    ("KillsAndRazings", EncodeScore(KillsAndRazings)),
-    ("Custom", EncodeScore(Custom)),
-], key_f=EPDConstString)
+    ("Total", Total),
+    ("Units", Units),
+    ("Buildings", Buildings),
+    ("UnitsAndBuildings", UnitsAndBuildings),
+    ("Kills", Kills),
+    ("Razings", Razings),
+    ("KillsAndRazings", KillsAndRazings),
+    ("Custom", Custom),
+], key_f=EPDConstString, value_f=EncodeScore, final=True)
 SwitchAction = ReferenceTable([
-    ("Set", EncodeSwitchAction(Set)),
-    ("Clear", EncodeSwitchAction(Clear)),
-    ("Toggle", EncodeSwitchAction(Toggle)),
-    ("Random", EncodeSwitchAction(Random)),
-], key_f=EPDConstString)
+    ("Set", Set),
+    ("Clear", Clear),
+    ("Toggle", Toggle),
+    ("Random", Random),
+], key_f=EPDConstString, value_f=EncodeSwitchAction, final=True)
 SwitchState = ReferenceTable([
-    ("Set", EncodeSwitchState(Set)),
-    ("Cleared", EncodeSwitchState(Cleared)),
-], key_f=EPDConstString)
+    ("Set", Set),
+    ("Cleared", Cleared),
+], key_f=EPDConstString, value_f=EncodeSwitchState, final=True)
+Count = ReferenceTable(
+    [("All", All)]
+    + [(str(d), d) for d in range(1, 256)]
+, key_f=EPDConstString, value_f=EncodeCount, final=True)
 
 # location and switch
 NAME_SIZE = 100

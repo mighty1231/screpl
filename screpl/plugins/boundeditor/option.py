@@ -18,10 +18,11 @@ Expected TUI:
 
 from eudplib import *
 
-from screpl.apps.selector import PlayerSelectorApp
+from screpl.apps.selector import SelectorApp
 from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
 from screpl.encoder.const import ArgEncNumber
+import screpl.resources.table.tables as tb
 
 from screpl.plugins.location.manager import LocationManagerApp
 from screpl.plugins.unit.manager import UnitManagerApp
@@ -93,8 +94,8 @@ class OptionApp(Application):
             )
         if EUDElseIf()(app_manager.key_press("insert")):
             if EUDIf()(focus.Exactly(FOCUS_EFFECTPLAYER)):
-                PlayerSelectorApp.set_content(g_effectplayer, EPD(g_effectplayer.getValueAddr()))
-                app_manager.start_application(PlayerSelectorApp)
+                SelectorApp.set_content(tb.Player, g_effectplayer)
+                app_manager.start_application(SelectorApp)
             if EUDElseIf()(focus.Exactly(FOCUS_EFFECTUNIT1)):
                 UnitManagerApp.set_content(g_effectunit_1, EPD(g_effectunit_1.getValueAddr()))
                 app_manager.start_application(UnitManagerApp)
@@ -108,8 +109,8 @@ class OptionApp(Application):
                 UnitManagerApp.set_content(g_obstacle_unit, EPD(g_obstacle_unit.getValueAddr()))
                 app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_RUNNER_FORCE)):
-                PlayerSelectorApp.set_content(g_runner_force, EPD(g_runner_force.getValueAddr()))
-                app_manager.start_application(PlayerSelectorApp)
+                SelectorApp.set_content(tb.Player, g_runner_force)
+                app_manager.start_application(SelectorApp)
             if EUDElseIf()(focus.Exactly(FOCUS_RUNNER_UNIT)):
                 UnitManagerApp.set_content(g_runner_unit, EPD(g_runner_unit.getValueAddr()))
                 app_manager.start_application(UnitManagerApp)

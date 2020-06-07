@@ -21,6 +21,9 @@ from screpl.core.appmethod import AppTypedMethod
 from screpl.core.application import Application
 from screpl.encoder.const import ArgEncNumber
 
+import screpl.resources.table.tables as tb
+
+from screpl.apps.selector import SelectorApp
 from screpl.plugins.unit.manager import UnitManagerApp
 from screpl.plugins.location.manager import LocationManagerApp
 
@@ -101,28 +104,38 @@ class TrigConditionEditorApp(Application):
         self.set_focused_value(value)
 
     @AppCommand([])
-    def Type(self):
+    def ConditionType(self):
         pass
 
     @AppCommand([])
     def Comparison(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.Comparison, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def Player(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.Player, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def Resource(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.Resource, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def Score(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.Score, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def SwitchState(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.SwitchState, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def Location(self):

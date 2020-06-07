@@ -24,6 +24,9 @@ from screpl.core.appmethod import AppTypedMethod
 from screpl.core.application import Application
 from screpl.encoder.const import ArgEncNumber
 
+import screpl.resources.table.tables as tb
+
+from screpl.apps.selector import SelectorApp
 from screpl.plugins.location.manager import LocationManagerApp
 from screpl.plugins.string.manager import StringManagerApp
 from screpl.plugins.unit.manager import UnitManagerApp
@@ -112,24 +115,38 @@ class TrigActionEditorApp(Application):
         self.set_focused_value(value)
 
     @AppCommand([])
-    def AllyStatus(self):
+    def ActionType(self):
         pass
+
+    @AppCommand([])
+    def AllyStatus(self):
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.AllyStatus, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def Count(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.Count, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def Modifier(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.Modifier, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def Order(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.Order, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def Player(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.Player, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def Property(self):
@@ -137,23 +154,33 @@ class TrigActionEditorApp(Application):
 
     @AppCommand([])
     def PropState(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.PropState, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def Resource(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.Resource, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def Score(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.Score, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def SwitchAction(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.SwitchAction, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def AIScript(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.AIScript, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def Location(self):
