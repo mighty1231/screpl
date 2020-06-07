@@ -14,6 +14,10 @@ app_manager = get_app_manager()
 cu_mem_activeids = REPLArray.construct(cu_members.length, list(range(cu_members.length)))
 cu_mem_activeid_contents = EUDVariable()
 
+def plugin_get_dependency():
+    """Returns list of required plugins"""
+    return []
+
 def plugin_setup():
     global cu_mem_activeids, cu_mem_activeid_contents
 

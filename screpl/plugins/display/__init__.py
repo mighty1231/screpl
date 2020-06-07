@@ -8,6 +8,10 @@ from screpl.main import is_bridge_mode
 # initialize variables
 app_manager = get_app_manager()
 
+def plugin_get_dependency():
+    """Returns list of required plugins"""
+    return []
+
 @EUDFunc
 def eval_screen_size():
     """evaluate screen size

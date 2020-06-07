@@ -9,6 +9,10 @@ from screpl.main import get_app_manager
 from screpl.utils.byterw import REPLByteRW
 from .myapp import MyApp
 
+def plugin_get_dependency():
+    """Returns list of required plugins"""
+    return []
+
 def plugin_setup():
     """setups plugin.
 

@@ -86,7 +86,7 @@ def execute_pattern(pattern_id):
         ])
     EUDEndInfLoop()
 
-def plugin_get_dependencies():
+def plugin_get_dependency():
     # plugin dependencies
     return ['screpl.plugins.location', 'screpl.plugins.unit']
 

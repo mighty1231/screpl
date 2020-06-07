@@ -75,6 +75,10 @@ def watch_variable(name, var):
     assert IsEUDVariable(var)
     watched_eud_vars.add_pair(name, EPD(var.getValueAddr()))
 
+def plugin_get_dependency():
+    """Returns list of required plugins"""
+    return []
+
 def plugin_setup():
     # make commands
     from .varapp import VariableApp

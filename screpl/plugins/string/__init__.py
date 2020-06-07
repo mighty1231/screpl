@@ -201,6 +201,10 @@ def f_strcpy_epd(dstepdp, srcepdp):
 
     # EUDReturn(f_dwread_epd(EPD(cpmoda)))
 
+def plugin_get_dependency():
+    """Returns list of required plugins"""
+    return []
+
 def plugin_setup():
     global STRSection, STRSection_epd, string_count
     sect, sect_epd = f_dwepdread_epd(EPD(0x5993D4))

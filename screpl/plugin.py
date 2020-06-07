@@ -87,14 +87,21 @@ class PluginManager:
         plugin_get_dependency = getattr(mod,
                                         'plugin_get_dependency',
                                         None)
-        if plugin_get_dependency:
-            for dep_plname in plugin_get_dependency():
-                self.load_plugin(dep_plname)
+
+        if not plugin_get_dependency:
+            raise PluginError(
+                "Plugin %s has no plugin_get_dependency() function; "
+                "is it really a SC-REPL plugin module?"
+                % plname)
+
+        for dep_plname in plugin_get_dependency():
+            self.load_plugin(dep_plname)
 
         plugin_setup = getattr(mod, 'plugin_setup', None)
-        if plugin_setup is None:
-            raise PluginError("Plugin %s has no plugin_setup() function; "
-                              "is it really a SC-REPL plugin module?"
-                              % plname)
+        if not plugin_setup:
+            raise PluginError(
+                "Plugin %s has no plugin_setup() function; "
+                "is it really a SC-REPL plugin module?"
+                % plname)
 
         plugin_setup()
