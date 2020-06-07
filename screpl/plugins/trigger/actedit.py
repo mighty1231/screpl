@@ -116,7 +116,9 @@ class TrigActionEditorApp(Application):
 
     @AppCommand([])
     def ActionType(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.ActionType, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def AllyStatus(self):
@@ -150,7 +152,9 @@ class TrigActionEditorApp(Application):
 
     @AppCommand([])
     def Property(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.Property, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def PropState(self):

@@ -442,3 +442,101 @@ ActionType = ReferenceTable([
     ("Draw", 56),
     ("SetAllianceStatus", 57),
 ], key_f=EPDConstString, final=True)
+
+class _PropertyObject(ReferenceTable):
+    """Property reference table
+
+    Property Structure
+
+     ======  ============= ========  ===========
+     Offset  Field Name    Position  EPD Player
+     ======  ============= ========  ===========
+       +00   sprpvalid     dword0    EPD(prop)+0
+       +02   prpvalid
+       +04   player        dword1    EPD(prop)+1
+       +05   hitpoint
+       +06   shield
+       +07   energy
+       +08   resource      dword2    EPD(prop)+2
+       +0C   hanger        dword3    EPD(prop)+3
+       +0E   sprpflag
+       +10   unused        dword4    EPD(prop)+4
+     ======  ============= ========  ===========
+
+    - hitpoint : 0~100(%)
+    - shield   : 0~100(%)
+    - energy   : 0~100(%)
+    - resource : 0~4294967295
+    - hanger   : 0~65536
+
+    Special properties : True(Enabled)/False(Disabled)/None(Don't care)
+
+    - clocked      : Unit is clocked.
+    - burrowed     : Unit is burrowed.
+    - intransit    : Unit is lifted. (In transit)
+    - hallucinated : Unit is hallucination.
+    - invincible   : Unit is invincible.
+
+    maximum length (173 bytes)::
+
+        UnitProperty(hitpoints=100, shield=100, energy=100, resource=4294967295,
+            hanger=65535, cloacked=False, burrowed=False, intransit=False,
+            hallucinated=False, invincible=False)
+
+    """
+    @staticmethod
+    def decode_property(property_):
+        assert isinstance(property_, bytes) and len(property_) == 20
+
+        sprpvalid = b2i2(property_, 0x00)
+        prpvalid = b2i2(property_, 0x02)
+        hitpoint = b2i1(property_, 0x05)
+        shield = b2i1(property_, 0x06)
+        energy = b2i1(property_, 0x07)
+        resource = b2i4(property_, 0x08)
+        hanger = b2i2(property_, 0x0C)
+        sprpflag = b2i2(property_, 0x0E)
+
+        tuple_ = []
+        for bit, name, value in [(1 << 1, 'hitpoint', hitpoint),
+                                 (1 << 2, 'shield', shield),
+                                 (1 << 3, 'energy', energy),
+                                 (1 << 4, 'resource', resource),
+                                 (1 << 5, 'hanger', hanger)]:
+            if prpvalid & bit:
+                tuple_.append((name, value))
+
+        for bit, name in [(1 << 0, 'cloaked'),
+                          (1 << 1, 'burrowed'),
+                          (1 << 2, 'intransit'),
+                          (1 << 3, 'hallucinated'),
+                          (1 << 4, 'invincible')]:
+            if sprpvalid & bit:
+                tuple_.append((name, bool(sprpflag & bit)))
+
+        kwargs = ', '.join(['{}={}'.format(k, v) for k, v in tuple_])
+        return "UnitProperty({})".format(kwargs)
+
+    def __init__(self):
+        super().__init__()
+        self.evaluated = False
+
+    def construct_db(self):
+        if not self.evaluated:
+            chkt = GetChkTokenized()
+            uprp = chkt.getsection('UPRP')
+            upus = chkt.getsection('UPUS') or bytes([1] * 64)
+
+            for i in range(64):
+                if upus[i]:
+                    uprpdata = uprp[20*i:20*i+20]
+                    string = _PropertyObject.decode_property(uprpdata)
+                    self.add_pair(EPDConstString(string), i+1)
+
+            self.evaluated = True
+
+    def Evaluate(self):
+        self.construct_db()
+        return super().Evaluate()
+
+Property = _PropertyObject()
