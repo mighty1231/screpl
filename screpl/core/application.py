@@ -272,7 +272,7 @@ class Application(metaclass=_ApplicationMetaclass):
         Arguments:
             address (EUDVariable): address of chat from super user.
         """
-        self.run_command(address)
+        self.run_command(address) # pylint: disable=no-member
 
     def on_resume(self):
         """Called exactly once after newly started app is destructed

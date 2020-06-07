@@ -9,9 +9,9 @@ app_manager = get_app_manager()
 su_id = app_manager.get_superuser_id()
 
 computer_player_initvar = -1
-for i in range(7, -1, -1):
-    if GetPlayerInfo(i).typestr in ["Neutral", "Computer"]:
-        computer_player_initvar = i
+for player_id in range(7, -1, -1):
+    if GetPlayerInfo(player_id).typestr in ["Neutral", "Computer"]:
+        computer_player_initvar = player_id
         break
 if computer_player_initvar == -1:
     raise RuntimeError("Set 1 or more 'Computer' or 'Neutral' player")

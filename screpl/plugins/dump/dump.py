@@ -1,10 +1,11 @@
 from eudplib import *
 
 from screpl.core.application import Application
-from screpl.main import get_main_writer
 from screpl.utils.byterw import REPLByteRW
 
-from . import app_manager
+from screpl.main import get_app_manager, get_main_writer
+
+app_manager = get_app_manager()
 
 storage = Db(200000)
 remaining_bytes = EUDVariable(0)

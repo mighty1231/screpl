@@ -5,11 +5,12 @@ from screpl.core.appcommand import AppCommand
 from screpl.main import get_app_manager
 from screpl.utils.array import REPLArray
 
+from .cunitrw import cu_members
+
 # initialize variables
 app_manager = get_app_manager()
 
 # members
-from .cunitrw import cu_members
 cu_mem_activeids = REPLArray.construct(cu_members.length, list(range(cu_members.length)))
 cu_mem_activeid_contents = EUDVariable()
 

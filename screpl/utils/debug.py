@@ -1,6 +1,5 @@
 from eudplib import *
 
-from . import conststring as cs
 from . import byterw as rw
 
 _buf = Db(4096)

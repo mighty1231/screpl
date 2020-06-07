@@ -51,7 +51,7 @@ class MemoryApp(Application):
         ptr, epd, size = self.ptr, self.epd, self.size
 
         writer.write_f("Memory (ptr = %H, epd = %D, size = %D)\n",
-            ptr, epd, size)
+                       ptr, epd, size)
 
         cur_ptr, endp = EUDCreateVariables(2)
         cur_ptr << ptr

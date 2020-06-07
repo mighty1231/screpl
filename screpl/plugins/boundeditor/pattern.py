@@ -105,8 +105,8 @@ def evaluate_locations():
             SetMemoryEPD(EPD(ba) + 1, Add, 0x14 // 4),
         ])
         Trigger(
-            conditions = cur.Exactly(256),
-            actions = [
+            conditions=cur.Exactly(256),
+            actions=[
                 cur.SetNumber(1),
                 SetMemoryEPD(EPD(la) + 1, SetTo, EPD(0x58DC60)),
                 SetMemoryEPD(EPD(ta) + 1, SetTo, EPD(0x58DC60) + 1),
@@ -208,14 +208,14 @@ def appendPattern():
     p_count += 1
 
 def append_action(action):
-    actionArray_epd = p_action_array_epd[focused_pattern_id]
-    actionCount = p_action_count[focused_pattern_id]
-    if EUDIf()(actionCount == MAX_ACTION_COUNT - 1):
+    action_array_epd = p_action_array_epd[focused_pattern_id]
+    action_count = p_action_count[focused_pattern_id]
+    if EUDIf()(action_count == MAX_ACTION_COUNT - 1):
         f_raise_warning("Cannot create more action")
         EUDReturn()
     EUDEndIf()
 
-    encode_action_epd(actionArray_epd + (actionCount * (32 // 4)), action)
+    encode_action_epd(action_array_epd + (action_count * (32 // 4)), action)
     DoActions(SetMemoryEPD(EPD(p_action_count) + focused_pattern_id, Add, 1))
 
 class PatternApp(Application):

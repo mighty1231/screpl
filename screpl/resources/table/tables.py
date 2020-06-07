@@ -3,7 +3,6 @@ from eudplib import *
 from eudplib.core.mapdata.stringmap import swmap, locmap
 from eudplib.core.rawtrigger.strdict import DefAIScriptDict
 
-from screpl.utils.byterw import REPLByteRW
 from screpl.utils.conststring import EPDConstString
 from screpl.utils.debug import f_raise_error
 from screpl.utils.referencetable import ReferenceTable
@@ -87,8 +86,8 @@ SwitchState = ReferenceTable([
 ], key_f=EPDConstString, value_f=EncodeSwitchState, final=True)
 Count = ReferenceTable(
     [("All", All)]
-    + [(str(d), d) for d in range(1, 256)]
-, key_f=EPDConstString, value_f=EncodeCount, final=True)
+    + [(str(d), d) for d in range(1, 256)],
+    key_f=EPDConstString, value_f=EncodeCount, final=True)
 
 # location and switch
 NAME_SIZE = 100
@@ -128,7 +127,7 @@ def get_switchname_epd(switch_idx):
     if EUDIfNot()(switch_idx <= 255):
         f_raise_error("get_switchname_epd: IndexError")
     EUDEndIf()
-    return (_switchname_db_epd + switch_idx * (NAME_SIZE//4))
+    return _switchname_db_epd + switch_idx * (NAME_SIZE//4)
 
 _arr_defaultunitnames = EUDArray(list(map(EPDConstString, [
     "Terran Marine",

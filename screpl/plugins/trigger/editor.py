@@ -359,7 +359,7 @@ class TriggerEditorApp(Application):
             writer.write(0x17) # yellow
             if EUDIf()(flags.ExactlyX(0x01, 0x01)):
                 writer.write_f(" ExecuteActions(actindex=%D)",
-                    f_bread_epd(flag_epd + (4+27)//4, 3))
+                               f_bread_epd(flag_epd + (4+27)//4, 3))
             EUDEndIf()
             if EUDIf()(flags.ExactlyX(0x02, 0x02)):
                 writer.write_f(" IgnoreDefeat")

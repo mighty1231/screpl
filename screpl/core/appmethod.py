@@ -58,7 +58,7 @@ class AppMethodN:
         assert self.funcn_callback is None
         self.funcn_callback = funcn_callback
 
-    def initialize(self, cls, index, parent = None):
+    def initialize(self, cls, index, parent=None):
         # initializing from its Application class
         assert self.status == 'not initialized'
 
@@ -179,13 +179,13 @@ class AppMethodN:
 
 ''' Decorator to make AppMethodN '''
 def AppTypedMethod(argtypes,
-                   rettypes = [],
+                   rettypes=[],
                    *,
                    with_main_writer=False,
                    traced=False):
     def ret(method):
         return AppMethodN(argtypes, rettypes, method,
-                with_main_writer=with_main_writer, traced=traced)
+                          with_main_writer=with_main_writer, traced=traced)
     return ret
 
 def AppMethod(method):

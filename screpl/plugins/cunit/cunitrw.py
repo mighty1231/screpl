@@ -1,8 +1,9 @@
 from eudplib import *
-from screpl.main import get_main_writer
+from screpl.main import get_app_manager, get_main_writer
 from screpl.utils.conststring import EPDConstString
 from screpl.utils.struct import REPLStruct
-from . import app_manager
+
+app_manager = get_app_manager()
 
 """
 type
@@ -96,7 +97,7 @@ class CUnitMemberEntry(REPLStruct):
     ]
 
     @staticmethod
-    def data(offset, write_f, name, comment = None):
+    def data(offset, write_f, name, comment=None):
         off_epd, off = divmod(offset, 4)
         name_epd = EPDConstString(name)
         write_f = EUDFuncPtr(2, 0)(write_f)

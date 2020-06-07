@@ -181,54 +181,54 @@ class AppManager:
             for i, pos in enumerate([1, 0x100, 0x10000, 0x1000000]):
                 # 0->0: set 0
                 Trigger(
-                    conditions = [
+                    conditions=[
                         prevs[4*i] << MemoryX(0, Exactly, 0, 0xFF * pos),
                         curs[4*i] << MemoryX(0, Exactly, 0, 0xFF * pos)
                     ],
-                    actions = [
+                    actions=[
                         states[4*i] << SetMemory(0x58A364, SetTo, 0)
                     ]
                 )
                 # 0->1: set 1
                 Trigger(
-                    conditions = [
+                    conditions=[
                         prevs[4*i+1] << MemoryX(0, Exactly, 0, 0xFF * pos),
                         curs[4*i+1] << MemoryX(0, Exactly, pos, 0xFF * pos)
                     ],
-                    actions = [
+                    actions=[
                         states[4*i+1] << SetMemory(0, SetTo, 1),
                         subs[4*i] << SetMemory(0, SetTo, 1),
                     ]
                 )
                 # 1->0: set -1
                 Trigger(
-                    conditions = [
+                    conditions=[
                         prevs[4*i+2] << MemoryX(0, Exactly, pos, 0xFF * pos),
                         curs[4*i+2] << MemoryX(0, Exactly, 0, 0xFF * pos)
                     ],
-                    actions = [
+                    actions=[
                         states[4*i+2] << SetMemory(0, SetTo, 2**32-1),
                         subs[4*i+1] << SetMemory(0, SetTo, 0),
                     ]
                 )
                 # 1->1: +1
                 Trigger(
-                    conditions = [
+                    conditions=[
                         prevs[4*i+3] << MemoryX(0, Exactly, pos, 0xFF * pos),
                         curs[4*i+3] << MemoryX(0, Exactly, pos, 0xFF * pos)
                     ],
-                    actions = [
+                    actions=[
                         states[4*i+3] << SetMemory(0, Add, 1),
                         subs[4*i+2] << SetMemory(0, SetTo, 0),
                     ]
                 )
                 # subs (consecutive keydown)
                 Trigger(
-                    conditions = [
+                    conditions=[
                         states_cond[2*i] << Memory(0, AtLeast, _KEYPRESS_DELAY),
                         states_cond[2*i+1] << Memory(0, AtMost, 2**31-1)
                     ],
-                    actions = [
+                    actions=[
                         subs[4*i+3] << SetMemory(0, SetTo, 1)
                     ]
                 )
@@ -286,10 +286,10 @@ class AppManager:
                                        (1, 0, 0),
                                        (1, 1, 3)]:
                 Trigger(
-                    conditions = [
+                    conditions=[
                         self.mouse_prev_state.ExactlyX(c*_bef, c),
                         MemoryX(0x6CDDC0, Exactly, c*_cur, c)
-                    ], actions = SetMemoryEPD(EPD(self.mouse_state) + i,
+                    ], actions=SetMemoryEPD(EPD(self.mouse_state) + i,
                                               SetTo,
                                               _state)
                 )

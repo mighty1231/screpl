@@ -79,12 +79,11 @@ class VariableApp(ScrollApp):
         var_value = f_dwread_epd((EPD(watched_eud_vars)+2) + tmp)
 
         writer.write_f("\x1e * %E: %H = %D",
-            varaddr_epd,
-            f_dwread_epd(var_value),
-            f_dwread_epd(var_value)
-        )
+                       varaddr_epd,
+                       f_dwread_epd(var_value),
+                       f_dwread_epd(var_value))
 
-    @AppTypedMethod([None], [], with_main_writer = True)
+    @AppTypedMethod([None], [], with_main_writer=True)
     def write_pvar_from_epd(self, writer, epd):
         writer.write_f(" : \x08%D", f_dwread_epd(epd))
         writer.write_f("\x1e / \x0e%D", f_dwread_epd(epd + 1))

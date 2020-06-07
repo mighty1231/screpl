@@ -63,15 +63,15 @@ class TestPatternApp(Application):
         if EUDElseIf()(app_manager.key_press('T')):
             v_turbomode += 1
             Trigger(
-                conditions = [v_turbomode.Exactly(TURBOMODE_END)],
+                conditions=[v_turbomode.Exactly(TURBOMODE_END)],
                 actions = [v_turbomode.SetNumber(0)]
             )
         EUDEndIf()
 
         # Create Tester Unit for every death
         Trigger(
-            conditions = [Bring(su_id, Exactly, 0, g_runner_unit, g_start_location)],
-            actions = [CreateUnit(1, g_runner_unit, g_start_location, su_id)]
+            conditions=[Bring(su_id, Exactly, 0, g_runner_unit, g_start_location)],
+            actions=[CreateUnit(1, g_runner_unit, g_start_location, su_id)]
         )
 
         # Timer

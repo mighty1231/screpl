@@ -100,7 +100,7 @@ class _REPLStructMetaclass(type):
 
     def cpy(cls, dest, src):
         """Copy field values, from dest to src"""
-        if not (type(src) is type(dest)):
+        if type(src) is not type(dest):
             raise ValueError("Type mismatch")
 
         fieldn = len(type(src).fields)

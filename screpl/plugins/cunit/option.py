@@ -1,8 +1,6 @@
 from eudplib import *
 
-from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
-from screpl.encoder.const import ArgEncNumber
 
 from . import *
 from .cunitrw import cu_members, CUnitMemberEntry
@@ -16,12 +14,12 @@ v_mode = EUDVariable()
 @EUDFunc
 def set_focus(new_focus):
     Trigger(
-        conditions = new_focus.AtLeast(0x80000000),
-        actions = new_focus.SetNumber(0)
+        conditions=new_focus.AtLeast(0x80000000),
+        actions=new_focus.SetNumber(0)
     )
     Trigger(
-        conditions = new_focus.AtLeast(cu_members.length),
-        actions = new_focus.SetNumber(cu_members.length - 1)
+        conditions=new_focus.AtLeast(cu_members.length),
+        actions=new_focus.SetNumber(cu_members.length - 1)
     )
     if EUDIfNot()(v_focused >= cu_members.length):
         v_focused << new_focus
@@ -89,11 +87,13 @@ class CUnitOptionApp(Application):
 
     def print(self, writer):
         if EUDIf()(v_mode == MODE_MAIN):
-            writer.write_f("\x04CUnit Options. press H to toggle entry, press F1 to get its comment (%D / %D)\n",
+            writer.write_f(
+                "\x04CUnit Options. press H to toggle entry, "
+                "press F1 to get its comment (%D / %D)\n",
                 v_focused,
                 cu_members.length
             )
-            quot, mod = f_div(v_focused, 8)
+            quot = f_div(v_focused, 8)[0]
             cur = quot * 8
             pageend = cur + 8
             until = EUDVariable()
@@ -129,12 +129,7 @@ class CUnitOptionApp(Application):
                         offd += ord('A') - 10
                     EUDEndIf()
 
-                writer.write_f(" +0x%C%C%C %E ",
-                    offd3,
-                    offd2,
-                    offd1,
-                    cur_entry.name_epd,
-                )
+                writer.write_f(" +0x%C%C%C %E ", offd3, offd2, offd1, cur_entry.name_epd)
                 comment_epd = cur_entry.comment_epd
                 if EUDIfNot()(comment_epd == EPD(0)):
                     written = writer.write_strnepd(comment_epd, 10)

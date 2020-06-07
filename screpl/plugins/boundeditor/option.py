@@ -82,15 +82,15 @@ class OptionApp(Application):
             app_manager.request_destruct()
         if EUDElseIf()(app_manager.key_press("F7")):
             Trigger(
-                conditions = focus.Exactly(0),
-                actions = focus.SetNumber(FOCUS_END)
+                conditions=focus.Exactly(0),
+                actions=focus.SetNumber(FOCUS_END)
             )
             DoActions(focus.SubtractNumber(1))
         if EUDElseIf()(app_manager.key_press("F8")):
             DoActions(focus.AddNumber(1))
             Trigger(
-                conditions = focus.Exactly(FOCUS_END),
-                actions = focus.SetNumber(0)
+                conditions=focus.Exactly(FOCUS_END),
+                actions=focus.SetNumber(0)
             )
         if EUDElseIf()(app_manager.key_press("insert")):
             if EUDIf()(focus.Exactly(FOCUS_EFFECTPLAYER)):
@@ -120,14 +120,14 @@ class OptionApp(Application):
             if EUDElseIf()(focus.Exactly(FOCUS_OBSCREATE_PATTERN)):
                 DoActions(g_obstacle_createpattern.AddNumber(1))
                 Trigger(
-                    conditions = g_obstacle_createpattern.Exactly(OBSTACLE_CREATEPATTERN_END),
-                    actions = g_obstacle_createpattern.SetNumber(0)
+                    conditions=g_obstacle_createpattern.Exactly(OBSTACLE_CREATEPATTERN_END),
+                    actions=g_obstacle_createpattern.SetNumber(0)
                 )
             if EUDElseIf()(focus.Exactly(FOCUS_OBSDESTRUCT_PATTERN)):
                 DoActions(g_obstacle_destructpattern.AddNumber(1))
                 Trigger(
-                    conditions = g_obstacle_destructpattern.Exactly(OBSTACLE_DESTRUCTPATTERN_END),
-                    actions = g_obstacle_destructpattern.SetNumber(0)
+                    conditions=g_obstacle_destructpattern.Exactly(OBSTACLE_DESTRUCTPATTERN_END),
+                    actions=g_obstacle_destructpattern.SetNumber(0)
                 )
             EUDEndIf()
         EUDEndIf()

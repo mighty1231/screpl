@@ -64,9 +64,8 @@ def repl_monitor_pop():
     if log:
         if profile:
             Logger.format("<{}> exited, %D ms (Expected %D)".format(name),
-                v_start_millis,
-                v_additional_expected
-            )
+                          v_start_millis,
+                          v_additional_expected)
             return v_start_millis, v_additional_expected
         else:
             Logger.format("<{}> exited".format(name))

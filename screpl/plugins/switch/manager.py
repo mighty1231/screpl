@@ -62,7 +62,7 @@ class SwitchManagerApp(Application):
     def print(self, writer):
         writer.write_f("\x16Switch Manager\n")
 
-        quot, rem = f_div(_index, ENTRY_COUNT_PER_PAGE)
+        quot = _index // ENTRY_COUNT_PER_PAGE
         cur = quot * ENTRY_COUNT_PER_PAGE
         pageend = cur + ENTRY_COUNT_PER_PAGE
         until = EUDVariable()

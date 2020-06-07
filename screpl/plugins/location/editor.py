@@ -6,9 +6,14 @@ from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
 from screpl.encoder.const import ArgEncNumber
 from screpl.resources.table.tables import get_locationname_epd
+from screpl.main import get_app_manager
 
-from . import app_manager, keymap, FRAME_PERIOD
+from . import keymap, FRAME_PERIOD
 from .rect import draw_rectangle
+
+app_manager = get_app_manager()
+
+
 
 '''
 Option:
@@ -338,8 +343,8 @@ class LocationEditorApp(Application):
         # graphical set
         DoActions(frame.AddNumber(1))
         Trigger(
-            conditions = frame.Exactly(FRAME_PERIOD),
-            actions = frame.SetNumber(0)
+            conditions=frame.Exactly(FRAME_PERIOD),
+            actions=frame.SetNumber(0)
         )
         app_manager.request_update()
 
