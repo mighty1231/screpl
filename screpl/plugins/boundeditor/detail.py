@@ -115,7 +115,7 @@ class DetailedActionApp(Application):
             EUDReturn()
         EUDEndIf()
 
-        quot, mod = f_div(action_id, 8)
+        quot = f_div(action_id, 8)[0]
         cur = quot * 8
         pageend = cur + 8
         until = EUDVariable()

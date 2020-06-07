@@ -18,8 +18,6 @@ FRAME_PERIOD = 24
 
 # initialize variables
 app_manager = get_app_manager()
-mapw = app_manager.get_map_width()
-maph = app_manager.get_map_height()
 
 def plugin_setup():
     DoActions([

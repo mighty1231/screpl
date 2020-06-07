@@ -131,8 +131,8 @@ class ReferenceTable(EUDObject):
     def WritePayload(self, pbuffer):
         pbuffer.WriteDword(len(self._dict))
         tuples = sorted(zip(self._keys, self._values, self._dict),
-            key=lambda kvd:self.sortkey_f(kvd[2][0], kvd[2][1]))
-        for key, value, item in tuples:
+                        key=lambda kvd: self.sortkey_f(kvd[2][0], kvd[2][1]))
+        for key, value, _ in tuples:
             pbuffer.WriteDword(key)
             pbuffer.WriteDword(value)
 

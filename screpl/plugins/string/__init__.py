@@ -1,4 +1,5 @@
 from eudplib import *
+from eudplib.eudlib.stringf.cputf8 import cp949_table
 
 from screpl.apps.repl import REPL
 from screpl.core.appcommand import AppCommand
@@ -19,7 +20,6 @@ string_count = EUDVariable()
 
 cur_string_id = EUDVariable(1)
 
-from eudplib.eudlib.stringf.cputf8 import cp949_table
 cvtb = [0] * 65536
 for (ch1, ch2), tab in cp949_table:
     cvtb[ch1 + ch2 * 256] = tab
@@ -48,7 +48,7 @@ def allocate_for_buffer(string_id):
 
     # for each character, allocate 4byte containing prefix 0xD
     cur_epd << new_alloc_epd
-    is_utf8 = UTF8Check(string_ptr)
+    is_utf8 = f_check_utf8(string_ptr)
     if EUDIf()(is_utf8 == 1):
         if EUDInfLoop()():
             # buffer check
@@ -98,8 +98,8 @@ def allocate_for_buffer(string_id):
                     for i in range(5+6):
                         j = i + 24 if i < 6 else i + 10
                         Trigger(
-                            conditions = ucode.ExactlyX(1 << i, 1 << i),
-                            actions = value.SetNumberX(1 << j, 1 << j)
+                            conditions=ucode.ExactlyX(1 << i, 1 << i),
+                            actions=value.SetNumberX(1 << j, 1 << j)
                         )
                     f_dwwrite_epd(cur_epd, value)
                 if EUDElse()():
@@ -112,8 +112,8 @@ def allocate_for_buffer(string_id):
                     for i in range(4+6+6):
                         j = i + 24 if i < 6 else (i + 10 if i < 12 else i - 4)
                         Trigger(
-                            conditions = ucode.ExactlyX(1 << i, 1 << i),
-                            actions = value.SetNumberX(1 << j, 1 << j)
+                            conditions=ucode.ExactlyX(1 << i, 1 << i),
+                            actions=value.SetNumberX(1 << j, 1 << j)
                         )
                     f_dwwrite_epd(cur_epd, value)
                 EUDEndIf()
@@ -134,7 +134,7 @@ def allocate_for_buffer(string_id):
     EUDReturn(ret_epd)
 
 @EUDFunc
-def UTF8Check(offset):
+def f_check_utf8(offset):
     '''
     if string starts with OFFSET is utf-8 decodable, return 1
     otherwise 0

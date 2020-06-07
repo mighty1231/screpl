@@ -36,12 +36,12 @@ class REPL(application.Application):
         REPL._output_writer.seekepd(_repl_output_epd_ptr)
         return REPL._output_writer
 
-    def on_chat(self, offset):
+    def on_chat(self, address):
         REPL._output_writer.seekepd(_repl_input_epd_ptr)
-        REPL._output_writer.write_str(offset)
+        REPL._output_writer.write_str(address)
         REPL._output_writer.write(0)
 
-        application.Application.on_chat(self, offset)
+        application.Application.on_chat(self, address)
 
         quot, mod = f_div(_repl_index, _PAGE_NUMLINES // 2)
         _repl_top_index << _repl_index - mod

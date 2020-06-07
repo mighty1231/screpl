@@ -150,7 +150,7 @@ def write_bound_triggers():
             ["MemoryAddr(0x6509A0, Set To, 0);\n"]
         )
     if EUDElseIf()(v_turbo_mode.Exactly(TURBO_NORMAL)):
-        for i in range(3):
+        for _ in range(3):
             writer.write_scmd_trigger(
                 g_effectplayer,
                 [Always()],
@@ -173,7 +173,7 @@ class ExporterApp(Application):
         EUDEndIf()
 
         if EUDIf()(mode == MODE_CONFIG):
-            if EUDIf()(app_manager.key_press("Y", hold = ["LCTRL"])):
+            if EUDIf()(app_manager.key_press("Y", hold=["LCTRL"])):
                 mode << MODE_EXPORTING
                 write_bound_triggers()
             if EUDElseIf()(app_manager.key_press("U")):
@@ -182,8 +182,8 @@ class ExporterApp(Application):
             if EUDElseIf()(app_manager.key_press("T")):
                 v_turbo_mode += 1
                 Trigger(
-                    conditions = v_turbo_mode.Exactly(TURBO_END),
-                    actions = v_turbo_mode.SetNumber(0)
+                    conditions=v_turbo_mode.Exactly(TURBO_END),
+                    actions=v_turbo_mode.SetNumber(0)
                 )
             EUDEndIf()
         if EUDElse()(): # MODE_EXPORTING

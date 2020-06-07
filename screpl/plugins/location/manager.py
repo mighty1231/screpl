@@ -5,8 +5,8 @@ from screpl.core.application import Application
 from screpl.resources.table.tables import get_locationname_epd
 
 from . import app_manager, keymap, FRAME_PERIOD
-from .rect import draw_rectangle
 from .editor import LocationEditorApp
+from .rect import draw_rectangle
 
 # app-specific initializing arguments
 _location = EUDVariable(1)
@@ -43,16 +43,16 @@ class LocationManagerApp(Application):
 
     def set_location(self, new_location):
         Trigger(
-            conditions = new_location.AtLeast(0x80000000),
-            actions = new_location.SetNumber(1)
+            conditions=new_location.AtLeast(0x80000000),
+            actions=new_location.SetNumber(1)
         )
         Trigger(
-            conditions = new_location.Exactly(0),
-            actions = new_location.SetNumber(1)
+            conditions=new_location.Exactly(0),
+            actions=new_location.SetNumber(1)
         )
         Trigger(
-            conditions = new_location.AtLeast(256),
-            actions = new_location.SetNumber(255)
+            conditions=new_location.AtLeast(256),
+            actions=new_location.SetNumber(255)
         )
         if EUDIfNot()(new_location == self.location):
             self.frame = 0
@@ -99,8 +99,8 @@ class LocationManagerApp(Application):
 
         frame = self.frame + 1
         Trigger(
-            conditions = frame.Exactly(FRAME_PERIOD),
-            actions = frame.SetNumber(0)
+            conditions=frame.Exactly(FRAME_PERIOD),
+            actions=frame.SetNumber(0)
         )
         self.frame = frame
         app_manager.request_update()
@@ -149,10 +149,10 @@ class LocationManagerApp(Application):
             #   0x08: Low Air
             #   0x10: Med Air
             #   0x20: High Air
-            left  = f_dwread_epd(cur_epd)
-            top   = f_dwread_epd(cur_epd + 1)
+            left = f_dwread_epd(cur_epd)
+            top = f_dwread_epd(cur_epd + 1)
             right = f_dwread_epd(cur_epd + 2)
-            bottom  = f_dwread_epd(cur_epd + 3)
+            bottom = f_dwread_epd(cur_epd + 3)
             flag = f_wread_epd(cur_epd + 4, 2)
 
             if EUDIf()(cur == target_location):
@@ -165,7 +165,7 @@ class LocationManagerApp(Application):
             writer.write_f(" %D %E: %D x %D // ", cur, str_epd, right-left, bottom-top)
 
             layers = ['Low Ground', 'Med Ground', 'High Ground',
-                    'Low Air', 'Med Air', 'High Air']
+                      'Low Air', 'Med Air', 'High Air']
             if EUDIf()(flag.Exactly(0)):
                 writer.write_f("All")
             if EUDElse()():

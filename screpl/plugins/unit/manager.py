@@ -25,7 +25,7 @@ class UnitManagerApp(Application):
     ]
 
     @staticmethod
-    def set_content(unitid, resultref_unitid_epd = None):
+    def set_content(unitid, resultref_unitid_epd=None):
         # set initializing arguments
         _unitid << unitid
         if resultref_unitid_epd:
@@ -50,12 +50,12 @@ class UnitManagerApp(Application):
 
     def focus_unit_id(self, new_unitid):
         Trigger(
-            conditions = new_unitid.AtLeast(0x80000000),
-            actions = new_unitid.SetNumber(0)
+            conditions=new_unitid.AtLeast(0x80000000),
+            actions=new_unitid.SetNumber(0)
         )
         Trigger(
-            conditions = new_unitid.AtLeast(233),
-            actions = new_unitid.SetNumber(232)
+            conditions=new_unitid.AtLeast(233),
+            actions=new_unitid.SetNumber(232)
         )
         if EUDIfNot()(new_unitid == self.unitid):
             self.unitid = new_unitid
@@ -119,4 +119,3 @@ class UnitManagerApp(Application):
 
         branch_common << NextTrigger()
         writer.write(0)
-

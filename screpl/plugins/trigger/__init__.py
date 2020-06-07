@@ -76,9 +76,9 @@ def f_get_exact_amount(cond_epd):
 
 @EUDTypedFunc([None, MaximumCircularBuffer(ResultEntry)])
 def _condcheck_trigger(trigdb_epd, entry_table):
-    trig_conditions = [Forward() for _ in range(16)]
+    trig_conditions=[Forward() for _ in range(16)]
     trig_copy = Forward()
-    measure_conditions = [Forward() for _ in range(16)]
+    measure_conditions=[Forward() for _ in range(16)]
 
     cond_count = EUDVariable(0)
     cond_bools = EUDArray(16)

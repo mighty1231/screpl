@@ -73,13 +73,13 @@ class StringEditorApp(Application):
             new_alloc_epd << v_previous_alloc_epd
         EUDEndIf()
 
-    def on_chat(self, offset):
+    def on_chat(self, address):
         global v_cursor_epd
 
         v_changed << 1
 
         reader = REPLByteRW()
-        reader.seekoffset(offset)
+        reader.seekoffset(address)
         clear_overwrite, clear_insert = Forward(), Forward()
         continue_overwrite, continue_insert = Forward(), Forward()
         if EUDIf()(v_mode == MODE_OVERWRITE):
@@ -150,8 +150,8 @@ class StringEditorApp(Application):
                                 for i in range(5+6):
                                     j = i + 24 if i < 6 else i + 10
                                     Trigger(
-                                        conditions = b1.ExactlyX(1 << i, 1 << i),
-                                        actions = value.SetNumberX(1 << j, 1 << j)
+                                        conditions=b1.ExactlyX(1 << i, 1 << i),
+                                        actions=value.SetNumberX(1 << j, 1 << j)
                                     )
                                 f_dwwrite_epd(v_cursor_epd, value)
                             if EUDElse()():
@@ -164,8 +164,8 @@ class StringEditorApp(Application):
                                 for i in range(4+6+6):
                                     j = i + 24 if i < 6 else (i + 10 if i < 12 else i - 4)
                                     Trigger(
-                                        conditions = b1.ExactlyX(1 << i, 1 << i),
-                                        actions = value.SetNumberX(1 << j, 1 << j)
+                                        conditions=b1.ExactlyX(1 << i, 1 << i),
+                                        actions=value.SetNumberX(1 << j, 1 << j)
                                     )
                                 f_dwwrite_epd(v_cursor_epd, value)
                             EUDEndIf()
@@ -258,8 +258,8 @@ class StringEditorApp(Application):
                                 for i in range(5+6):
                                     j = i + 24 if i < 6 else i + 10
                                     Trigger(
-                                        conditions = b1.ExactlyX(1 << i, 1 << i),
-                                        actions = value.SetNumberX(1 << j, 1 << j)
+                                        conditions=b1.ExactlyX(1 << i, 1 << i),
+                                        actions=value.SetNumberX(1 << j, 1 << j)
                                     )
                                 f_dwwrite_epd(v_cursor_epd, value)
                             if EUDElse()():
@@ -272,8 +272,8 @@ class StringEditorApp(Application):
                                 for i in range(4+6+6):
                                     j = i + 24 if i < 6 else (i + 10 if i < 12 else i - 4)
                                     Trigger(
-                                        conditions = b1.ExactlyX(1 << i, 1 << i),
-                                        actions = value.SetNumberX(1 << j, 1 << j)
+                                        conditions=b1.ExactlyX(1 << i, 1 << i),
+                                        actions=value.SetNumberX(1 << j, 1 << j)
                                     )
                                 f_dwwrite_epd(v_cursor_epd, value)
                             EUDEndIf()
@@ -358,8 +358,8 @@ class StringEditorApp(Application):
 
         v_frame += 1
         Trigger(
-            conditions = v_frame.Exactly(BLINK_PERIOD * 2),
-            actions = v_frame.SetNumber(0)
+            conditions=v_frame.Exactly(BLINK_PERIOD * 2),
+            actions=v_frame.SetNumber(0)
         )
 
     def print(self, writer):
