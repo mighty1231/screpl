@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.string.editor — SC-REPL 1.1.2 documentation
+   screpl.plugins.string.editor — SC-REPL 1.1.3 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.2 documentation
+        SC-REPL 1.1.3 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
            SC-REPL
           </a>
          </label>
@@ -227,7 +227,8 @@
        </h1>
        <div class="highlight">
         <pre>
-<span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+<span></span>
+<span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="kn">from</span> <span class="nn">screpl.core.application</span> <span class="kn">import</span> <span class="n">Application</span>
 <span class="kn">from</span> <span class="nn">screpl.utils.debug</span> <span class="kn">import</span> <span class="n">f_raise_warning</span>
@@ -252,6 +253,10 @@
 <span class="n">tmp_storage</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span>
 <span class="n">tmp_storage_epd</span> <span class="o">=</span> <span class="n">EPD</span><span class="p">(</span><span class="n">tmp_storage</span><span class="p">)</span>
 
+<span class="n">DISPMODE_MAIN</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">DISPMODE_MANUAL</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">v_dispmode</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+
 <div class="viewcode-block" id="StringEditorApp"><a class="viewcode-back" href="../../../../screpl.plugins.string.editor.html#screpl.plugins.string.editor.StringEditorApp">[docs]</a><span class="k">class</span> <span class="nc">StringEditorApp</span><span class="p">(</span><span class="n">Application</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">on_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">v_mode</span> <span class="o">&lt;&lt;</span> <span class="n">MODE_INSERT</span>
@@ -265,9 +270,10 @@
         <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
             <span class="n">v_changed</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
             <span class="n">v_previous_alloc_epd</span> <span class="o">&lt;&lt;</span> <span class="n">new_alloc_epd</span>
-            <span class="n">v_string_epd</span> <span class="o">&lt;&lt;</span> <span class="n">allocateForBuffer</span><span class="p">(</span><span class="n">cur_string_id</span><span class="p">)</span>
+            <span class="n">v_string_epd</span> <span class="o">&lt;&lt;</span> <span class="n">allocate_for_buffer</span><span class="p">(</span><span class="n">cur_string_id</span><span class="p">)</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">v_cursor_epd</span> <span class="o">&lt;&lt;</span> <span class="n">v_string_epd</span>
+        <span class="n">v_dispmode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MAIN</span>
 
     <span class="k">def</span> <span class="nf">on_destruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_changed</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
@@ -296,14 +302,15 @@
             <span class="n">new_alloc_epd</span> <span class="o">&lt;&lt;</span> <span class="n">v_previous_alloc_epd</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">on_chat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_chat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
         <span class="k">global</span> <span class="n">v_cursor_epd</span>
 
         <span class="n">v_changed</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
 
         <span class="n">reader</span> <span class="o">=</span> <span class="n">REPLByteRW</span><span class="p">()</span>
-        <span class="n">reader</span><span class="o">.</span><span class="n">seekoffset</span><span class="p">(</span><span class="n">offset</span><span class="p">)</span>
+        <span class="n">reader</span><span class="o">.</span><span class="n">seekoffset</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
         <span class="n">clear_overwrite</span><span class="p">,</span> <span class="n">clear_insert</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(),</span> <span class="n">Forward</span><span class="p">()</span>
+        <span class="n">continue_overwrite</span><span class="p">,</span> <span class="n">continue_insert</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(),</span> <span class="n">Forward</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_mode</span> <span class="o">==</span> <span class="n">MODE_OVERWRITE</span><span class="p">):</span>
             <span class="n">null_met</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
             <span class="n">null_met</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
@@ -336,13 +343,65 @@
                             <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()([</span><span class="n">hexb</span> <span class="o">&gt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'A'</span><span class="p">),</span> <span class="n">hexb</span> <span class="o">&lt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'F'</span><span class="p">)]):</span>
                                 <span class="n">b1</span> <span class="o">+=</span> <span class="p">(</span><span class="n">hexb</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'A'</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
                             <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                                <span class="n">f_raise_warning</span><span class="p">(</span><span class="s2">"String escape character '</span><span class="se">\\</span><span class="s2">' usage-&gt; '</span><span class="se">\\\\</span><span class="s2">', '</span><span class="se">\\</span><span class="s2">n', '</span><span class="se">\\</span><span class="s2">t' or '</span><span class="se">\\</span><span class="s2">x##'"</span><span class="p">)</span>
+                                <span class="n">f_raise_warning</span><span class="p">(</span><span class="s2">"Wrong usage on string escape. Press F1."</span><span class="p">)</span>
                                 <span class="n">EUDJump</span><span class="p">(</span><span class="n">clear_overwrite</span><span class="p">)</span>
                             <span class="n">EUDEndIf</span><span class="p">()</span>
                             <span class="k">if</span> <span class="n">nnn</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                                 <span class="n">b1</span> <span class="o">*=</span> <span class="mi">16</span>
+                        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">b1</span> <span class="o">&gt;=</span> <span class="mh">0x80</span><span class="p">):</span>
+                            <span class="n">f_raise_warning</span><span class="p">(</span><span class="s2">"Writing </span><span class="se">\\</span><span class="s2">x80~</span><span class="se">\\</span><span class="s2">xFF is prohibited. Instead, use </span><span class="se">\\</span><span class="s2">u####"</span><span class="p">)</span>
+                            <span class="n">EUDJump</span><span class="p">(</span><span class="n">clear_overwrite</span><span class="p">)</span>
+                        <span class="n">EUDEndIf</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">eb2</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'u'</span><span class="p">)):</span>
+                        <span class="n">b1</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+                        <span class="k">for</span> <span class="n">nnn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+                            <span class="n">hexb</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">hexb</span> <span class="o">&gt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'0'</span><span class="p">),</span> <span class="n">hexb</span> <span class="o">&lt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'9'</span><span class="p">)]):</span>
+                                <span class="n">b1</span> <span class="o">+=</span> <span class="p">(</span><span class="n">hexb</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'0'</span><span class="p">))</span>
+                            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()([</span><span class="n">hexb</span> <span class="o">&gt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'a'</span><span class="p">),</span> <span class="n">hexb</span> <span class="o">&lt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'f'</span><span class="p">)]):</span>
+                                <span class="n">b1</span> <span class="o">+=</span> <span class="p">(</span><span class="n">hexb</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'a'</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()([</span><span class="n">hexb</span> <span class="o">&gt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'A'</span><span class="p">),</span> <span class="n">hexb</span> <span class="o">&lt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'F'</span><span class="p">)]):</span>
+                                <span class="n">b1</span> <span class="o">+=</span> <span class="p">(</span><span class="n">hexb</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'A'</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                                <span class="n">f_raise_warning</span><span class="p">(</span><span class="s2">"Wrong usage on string escape. Press F1."</span><span class="p">)</span>
+                                <span class="n">EUDJump</span><span class="p">(</span><span class="n">clear_overwrite</span><span class="p">)</span>
+                            <span class="n">EUDEndIf</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">nnn</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                                <span class="n">b1</span> <span class="o">*=</span> <span class="mi">16</span>
+                        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">b1</span> <span class="o">&lt;=</span> <span class="mh">0x7F</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">b1</span> <span class="o">&lt;=</span> <span class="mh">0x7FF</span><span class="p">):</span>
+                                <span class="sd">'''</span>
+<span class="sd">                                b1  : 0bxxxxxyyyyyy</span>
+<span class="sd">                                result : 0x0D 0x0D 0b110xxxxx 0b10yyyyyy</span>
+<span class="sd">                                '''</span>
+                                <span class="n">value</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+                                <span class="n">value</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mb">0b10000000110000000000000000000000</span> <span class="o">+</span> <span class="mh">0x0D0D</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="o">+</span><span class="mi">6</span><span class="p">):</span>
+                                    <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">24</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">6</span> <span class="k">else</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">10</span>
+                                    <span class="n">Trigger</span><span class="p">(</span>
+                                        <span class="n">conditions</span><span class="o">=</span><span class="n">b1</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">),</span>
+                                        <span class="n">actions</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">)</span>
+                                    <span class="p">)</span>
+                                <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                                <span class="sd">'''</span>
+<span class="sd">                                b1  : 0bxxxxyyyyyyzzzzzz</span>
+<span class="sd">                                result : 0x0D 0x1110xxxx 0b10yyyyyy 0b10zzzzzz</span>
+<span class="sd">                                '''</span>
+                                <span class="n">value</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+                                <span class="n">value</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mb">0b10000000100000001110000000000000</span> <span class="o">+</span> <span class="mh">0x0D</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="o">+</span><span class="mi">6</span><span class="o">+</span><span class="mi">6</span><span class="p">):</span>
+                                    <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">24</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">6</span> <span class="k">else</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">10</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">4</span><span class="p">)</span>
+                                    <span class="n">Trigger</span><span class="p">(</span>
+                                        <span class="n">conditions</span><span class="o">=</span><span class="n">b1</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">),</span>
+                                        <span class="n">actions</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">)</span>
+                                    <span class="p">)</span>
+                                <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                            <span class="n">EUDEndIf</span><span class="p">()</span>
+                            <span class="n">EUDJump</span><span class="p">(</span><span class="n">continue_overwrite</span><span class="p">)</span>
+                        <span class="n">EUDEndIf</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                        <span class="n">f_raise_warning</span><span class="p">(</span><span class="s2">"String escape character '</span><span class="se">\\</span><span class="s2">' usage-&gt; '</span><span class="se">\\\\</span><span class="s2">', '</span><span class="se">\\</span><span class="s2">n', '</span><span class="se">\\</span><span class="s2">t' or '</span><span class="se">\\</span><span class="s2">x##'"</span><span class="p">)</span>
+                        <span class="n">f_raise_warning</span><span class="p">(</span><span class="s2">"Wrong usage on string escape. Press F1."</span><span class="p">)</span>
                         <span class="n">EUDJump</span><span class="p">(</span><span class="n">clear_overwrite</span><span class="p">)</span>
                     <span class="n">EUDEndIf</span><span class="p">()</span>
                 <span class="n">EUDEndIf</span><span class="p">()</span>
@@ -357,6 +416,8 @@
                     <span class="n">b3</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                     <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="mh">0x0D</span> <span class="o">+</span> <span class="n">b1</span><span class="o">*</span><span class="mh">0x100</span> <span class="o">+</span> <span class="n">b2</span><span class="o">*</span><span class="mh">0x10000</span> <span class="o">+</span> <span class="n">b3</span><span class="o">*</span><span class="mh">0x1000000</span><span class="p">)</span>
                 <span class="n">EUDEndIf</span><span class="p">()</span>
+
+                <span class="n">continue_overwrite</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
                 <span class="n">v_cursor_epd</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">EUDEndInfLoop</span><span class="p">()</span>
 
@@ -390,13 +451,65 @@
                             <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()([</span><span class="n">hexb</span> <span class="o">&gt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'A'</span><span class="p">),</span> <span class="n">hexb</span> <span class="o">&lt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'F'</span><span class="p">)]):</span>
                                 <span class="n">b1</span> <span class="o">+=</span> <span class="p">(</span><span class="n">hexb</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'A'</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
                             <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                                <span class="n">f_raise_warning</span><span class="p">(</span><span class="s2">"String escape character '</span><span class="se">\\</span><span class="s2">' usage-&gt; '</span><span class="se">\\\\</span><span class="s2">', '</span><span class="se">\\</span><span class="s2">n', '</span><span class="se">\\</span><span class="s2">t' or '</span><span class="se">\\</span><span class="s2">x##'"</span><span class="p">)</span>
+                                <span class="n">f_raise_warning</span><span class="p">(</span><span class="s2">"Wrong usage on string escape. Press F1."</span><span class="p">)</span>
                                 <span class="n">EUDJump</span><span class="p">(</span><span class="n">clear_insert</span><span class="p">)</span>
                             <span class="n">EUDEndIf</span><span class="p">()</span>
                             <span class="k">if</span> <span class="n">nnn</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
                                 <span class="n">b1</span> <span class="o">*=</span> <span class="mi">16</span>
+                        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">b1</span> <span class="o">&gt;=</span> <span class="mh">0x80</span><span class="p">):</span>
+                            <span class="n">f_raise_warning</span><span class="p">(</span><span class="s2">"Writing </span><span class="se">\\</span><span class="s2">x80~</span><span class="se">\\</span><span class="s2">xFF is prohibited. Instead, use </span><span class="se">\\</span><span class="s2">u####"</span><span class="p">)</span>
+                            <span class="n">EUDJump</span><span class="p">(</span><span class="n">clear_insert</span><span class="p">)</span>
+                        <span class="n">EUDEndIf</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">eb2</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'u'</span><span class="p">)):</span>
+                        <span class="n">b1</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+                        <span class="k">for</span> <span class="n">nnn</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">):</span>
+                            <span class="n">hexb</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">hexb</span> <span class="o">&gt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'0'</span><span class="p">),</span> <span class="n">hexb</span> <span class="o">&lt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'9'</span><span class="p">)]):</span>
+                                <span class="n">b1</span> <span class="o">+=</span> <span class="p">(</span><span class="n">hexb</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'0'</span><span class="p">))</span>
+                            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()([</span><span class="n">hexb</span> <span class="o">&gt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'a'</span><span class="p">),</span> <span class="n">hexb</span> <span class="o">&lt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'f'</span><span class="p">)]):</span>
+                                <span class="n">b1</span> <span class="o">+=</span> <span class="p">(</span><span class="n">hexb</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'a'</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()([</span><span class="n">hexb</span> <span class="o">&gt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'A'</span><span class="p">),</span> <span class="n">hexb</span> <span class="o">&lt;=</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'F'</span><span class="p">)]):</span>
+                                <span class="n">b1</span> <span class="o">+=</span> <span class="p">(</span><span class="n">hexb</span> <span class="o">-</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'A'</span><span class="p">)</span> <span class="o">+</span> <span class="mi">10</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                                <span class="n">f_raise_warning</span><span class="p">(</span><span class="s2">"Wrong usage on string escape. Press F1."</span><span class="p">)</span>
+                                <span class="n">EUDJump</span><span class="p">(</span><span class="n">clear_insert</span><span class="p">)</span>
+                            <span class="n">EUDEndIf</span><span class="p">()</span>
+                            <span class="k">if</span> <span class="n">nnn</span> <span class="o">!=</span> <span class="mi">3</span><span class="p">:</span>
+                                <span class="n">b1</span> <span class="o">*=</span> <span class="mi">16</span>
+                        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">b1</span> <span class="o">&lt;=</span> <span class="mh">0x7F</span><span class="p">):</span>
+                            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">b1</span> <span class="o">&lt;=</span> <span class="mh">0x7FF</span><span class="p">):</span>
+                                <span class="sd">'''</span>
+<span class="sd">                                b1  : 0bxxxxxyyyyyy</span>
+<span class="sd">                                result : 0x0D 0x0D 0b110xxxxx 0b10yyyyyy</span>
+<span class="sd">                                '''</span>
+                                <span class="n">value</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+                                <span class="n">value</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mb">0b10000000110000000000000000000000</span> <span class="o">+</span> <span class="mh">0x0D0D</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="o">+</span><span class="mi">6</span><span class="p">):</span>
+                                    <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">24</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">6</span> <span class="k">else</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">10</span>
+                                    <span class="n">Trigger</span><span class="p">(</span>
+                                        <span class="n">conditions</span><span class="o">=</span><span class="n">b1</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">),</span>
+                                        <span class="n">actions</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">)</span>
+                                    <span class="p">)</span>
+                                <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                                <span class="sd">'''</span>
+<span class="sd">                                b1  : 0bxxxxyyyyyyzzzzzz</span>
+<span class="sd">                                result : 0x0D 0x1110xxxx 0b10yyyyyy 0b10zzzzzz</span>
+<span class="sd">                                '''</span>
+                                <span class="n">value</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+                                <span class="n">value</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="mb">0b10000000100000001110000000000000</span> <span class="o">+</span> <span class="mh">0x0D</span><span class="p">)</span>
+                                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="o">+</span><span class="mi">6</span><span class="o">+</span><span class="mi">6</span><span class="p">):</span>
+                                    <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">24</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">6</span> <span class="k">else</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">10</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">4</span><span class="p">)</span>
+                                    <span class="n">Trigger</span><span class="p">(</span>
+                                        <span class="n">conditions</span><span class="o">=</span><span class="n">b1</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">),</span>
+                                        <span class="n">actions</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">)</span>
+                                    <span class="p">)</span>
+                                <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+                            <span class="n">EUDEndIf</span><span class="p">()</span>
+                            <span class="n">EUDJump</span><span class="p">(</span><span class="n">continue_insert</span><span class="p">)</span>
+                        <span class="n">EUDEndIf</span><span class="p">()</span>
                     <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                        <span class="n">f_raise_warning</span><span class="p">(</span><span class="s2">"String escape character '</span><span class="se">\\</span><span class="s2">' usage-&gt; '</span><span class="se">\\\\</span><span class="s2">', '</span><span class="se">\\</span><span class="s2">n', '</span><span class="se">\\</span><span class="s2">t' or '</span><span class="se">\\</span><span class="s2">x##'"</span><span class="p">)</span>
+                        <span class="n">f_raise_warning</span><span class="p">(</span><span class="s2">"Wrong usage on string escape. Press F1."</span><span class="p">)</span>
                         <span class="n">EUDJump</span><span class="p">(</span><span class="n">clear_insert</span><span class="p">)</span>
                     <span class="n">EUDEndIf</span><span class="p">()</span>
                 <span class="n">EUDEndIf</span><span class="p">()</span>
@@ -411,6 +524,8 @@
                     <span class="n">b3</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
                     <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="mh">0x0D</span> <span class="o">+</span> <span class="n">b1</span><span class="o">*</span><span class="mh">0x100</span> <span class="o">+</span> <span class="n">b2</span><span class="o">*</span><span class="mh">0x10000</span> <span class="o">+</span> <span class="n">b3</span><span class="o">*</span><span class="mh">0x1000000</span><span class="p">)</span>
                 <span class="n">EUDEndIf</span><span class="p">()</span>
+
+                <span class="n">continue_insert</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
                 <span class="n">v_cursor_epd</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">EUDEndInfLoop</span><span class="p">()</span>
 
@@ -423,10 +538,17 @@
 
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"ESC"</span><span class="p">)):</span>
             <span class="n">app_manager</span><span class="o">.</span><span class="n">request_destruct</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"insert"</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"INSERT"</span><span class="p">)):</span>
             <span class="n">v_mode</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">v_mode</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"delete"</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"DELETE"</span><span class="p">)):</span>
             <span class="n">f_strcpy_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="n">v_cursor_epd</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">app_manager</span><span class="o">.</span><span class="n">clean_text</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"BACK"</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">v_cursor_epd</span> <span class="o">==</span> <span class="n">v_string_epd</span><span class="p">):</span>
+                <span class="n">v_cursor_epd</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">f_strcpy_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="n">v_cursor_epd</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+            <span class="n">app_manager</span><span class="o">.</span><span class="n">clean_text</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">v_cursor_epd</span> <span class="o">==</span> <span class="n">v_string_epd</span><span class="p">):</span>
                 <span class="n">v_cursor_epd</span> <span class="o">-=</span> <span class="mi">1</span>
@@ -454,13 +576,19 @@
                 <span class="n">v_cursor_epd</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="n">EUDEndInfLoop</span><span class="p">()</span>
             <span class="n">v_frame</span> <span class="o">&lt;&lt;</span> <span class="n">BLINK_PERIOD</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_down</span><span class="p">(</span><span class="s2">"F1"</span><span class="p">)):</span>
+            <span class="n">v_dispmode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MANUAL</span>
+            <span class="n">app_manager</span><span class="o">.</span><span class="n">clean_text</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_up</span><span class="p">(</span><span class="s2">"F1"</span><span class="p">)):</span>
+            <span class="n">v_dispmode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MAIN</span>
+            <span class="n">app_manager</span><span class="o">.</span><span class="n">clean_text</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">app_manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
 
         <span class="n">v_frame</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">Trigger</span><span class="p">(</span>
-            <span class="n">conditions</span> <span class="o">=</span> <span class="n">v_frame</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">BLINK_PERIOD</span> <span class="o">*</span> <span class="mi">2</span><span class="p">),</span>
-            <span class="n">actions</span> <span class="o">=</span> <span class="n">v_frame</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">conditions</span><span class="o">=</span><span class="n">v_frame</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">BLINK_PERIOD</span> <span class="o">*</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="n">actions</span><span class="o">=</span><span class="n">v_frame</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
@@ -468,53 +596,68 @@
 <span class="sd">        color_code : 0x01 - 0x1F</span>
 <span class="sd">        except for 0x09 - 0x0D, 0x12, 0x13</span>
 <span class="sd">        '''</span>
-        <span class="k">global</span> <span class="n">v_cursor_epd</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_dispmode</span> <span class="o">==</span> <span class="n">DISPMODE_MAIN</span><span class="p">):</span>
+            <span class="k">global</span> <span class="n">v_cursor_epd</span>
 
-        <span class="n">v_cursor_val</span><span class="p">,</span> <span class="n">v_cursor_val2</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">v_cursor_val</span>  <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">)</span>
-        <span class="n">v_cursor_val2</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_frame</span> <span class="o">&lt;</span> <span class="n">BLINK_PERIOD</span><span class="p">):</span>
-            <span class="sd">'''</span>
-<span class="sd">            the way to show cursor</span>
-<span class="sd">            cursor_epd     : 0D xx xx xx (0D -&gt; '|' or color code)</span>
-<span class="sd">            cursor_epd + 1 : 0D xx xx xx (0D -&gt; restored color code )</span>
-<span class="sd">            '''</span>
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_mode</span> <span class="o">==</span> <span class="n">MODE_OVERWRITE</span><span class="p">):</span>
-                <span class="n">v_color</span><span class="p">,</span> <span class="n">v_tmp_epd</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">v_cursor_val</span><span class="p">,</span> <span class="n">v_cursor_val2</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">v_cursor_val</span>  <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">)</span>
+            <span class="n">v_cursor_val2</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_frame</span> <span class="o">&lt;</span> <span class="n">BLINK_PERIOD</span><span class="p">):</span>
+                <span class="sd">'''</span>
+<span class="sd">                the way to show cursor</span>
+<span class="sd">                cursor_epd     : 0D xx xx xx (0D -&gt; '|' or color code)</span>
+<span class="sd">                cursor_epd + 1 : 0D xx xx xx (0D -&gt; restored color code )</span>
+<span class="sd">                '''</span>
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_mode</span> <span class="o">==</span> <span class="n">MODE_OVERWRITE</span><span class="p">):</span>
+                    <span class="n">v_color</span><span class="p">,</span> <span class="n">v_tmp_epd</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
 
-                <span class="n">v_color</span> <span class="o">&lt;&lt;</span> <span class="mh">0x01</span> <span class="c1"># default color code</span>
-                <span class="n">v_tmp_epd</span> <span class="o">&lt;&lt;</span> <span class="n">v_string_epd</span>
-                <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
-                    <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">v_cursor_epd</span> <span class="o">&lt;=</span> <span class="n">v_tmp_epd</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">MemoryXEPD</span><span class="p">(</span><span class="n">v_tmp_epd</span><span class="p">,</span> <span class="n">AtMost</span><span class="p">,</span> <span class="mh">0x1F000000</span><span class="p">,</span> <span class="mh">0xFF000000</span><span class="p">)):</span>
-                        <span class="n">code</span> <span class="o">=</span> <span class="n">f_bread_epd</span><span class="p">(</span><span class="n">v_tmp_epd</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()([</span><span class="n">code</span> <span class="o">&gt;=</span> <span class="mh">0x09</span><span class="p">,</span> <span class="n">code</span> <span class="o">&lt;=</span> <span class="mh">0x0D</span><span class="p">]):</span>
-                            <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()([</span><span class="n">code</span> <span class="o">&gt;=</span> <span class="mh">0x12</span><span class="p">,</span> <span class="n">code</span> <span class="o">&lt;=</span> <span class="mh">0x13</span><span class="p">]):</span>
-                                <span class="n">v_color</span> <span class="o">&lt;&lt;</span> <span class="n">code</span>
+                    <span class="n">v_color</span> <span class="o">&lt;&lt;</span> <span class="mh">0x01</span> <span class="c1"># default color code</span>
+                    <span class="n">v_tmp_epd</span> <span class="o">&lt;&lt;</span> <span class="n">v_string_epd</span>
+                    <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+                        <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">v_cursor_epd</span> <span class="o">&lt;=</span> <span class="n">v_tmp_epd</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">MemoryXEPD</span><span class="p">(</span><span class="n">v_tmp_epd</span><span class="p">,</span> <span class="n">AtMost</span><span class="p">,</span> <span class="mh">0x1F000000</span><span class="p">,</span> <span class="mh">0xFF000000</span><span class="p">)):</span>
+                            <span class="n">code</span> <span class="o">=</span> <span class="n">f_bread_epd</span><span class="p">(</span><span class="n">v_tmp_epd</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+                            <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()([</span><span class="n">code</span> <span class="o">&gt;=</span> <span class="mh">0x09</span><span class="p">,</span> <span class="n">code</span> <span class="o">&lt;=</span> <span class="mh">0x0D</span><span class="p">]):</span>
+                                <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()([</span><span class="n">code</span> <span class="o">&gt;=</span> <span class="mh">0x12</span><span class="p">,</span> <span class="n">code</span> <span class="o">&lt;=</span> <span class="mh">0x13</span><span class="p">]):</span>
+                                    <span class="n">v_color</span> <span class="o">&lt;&lt;</span> <span class="n">code</span>
+                                <span class="n">EUDEndIf</span><span class="p">()</span>
                             <span class="n">EUDEndIf</span><span class="p">()</span>
                         <span class="n">EUDEndIf</span><span class="p">()</span>
+                        <span class="n">v_tmp_epd</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">EUDEndInfLoop</span><span class="p">()</span>
+
+                    <span class="c1"># write color code</span>
+                    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_color</span> <span class="o">==</span> <span class="mh">0x11</span><span class="p">):</span>
+                        <span class="n">f_bwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0x0E</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                        <span class="n">f_bwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0x11</span><span class="p">)</span>
                     <span class="n">EUDEndIf</span><span class="p">()</span>
-                    <span class="n">v_tmp_epd</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">EUDEndInfLoop</span><span class="p">()</span>
+                    <span class="n">f_bwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">v_color</span><span class="p">)</span> <span class="c1"># restoring color</span>
 
-                <span class="c1"># write color code</span>
-                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_color</span> <span class="o">==</span> <span class="mh">0x11</span><span class="p">):</span>
-                    <span class="n">f_bwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0x0E</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                    <span class="n">f_bwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0x11</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span> <span class="c1"># insert</span>
+                    <span class="n">f_bwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'|'</span><span class="p">))</span>
                 <span class="n">EUDEndIf</span><span class="p">()</span>
-                <span class="n">f_bwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">v_color</span><span class="p">)</span> <span class="c1"># restoring color</span>
-
-            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span> <span class="c1"># insert</span>
-                <span class="n">f_bwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'|'</span><span class="p">))</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">v_string_epd</span><span class="p">)</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">v_string_epd</span><span class="p">)</span>
 
-        <span class="c1"># restore string near cursor</span>
-        <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="n">v_cursor_val</span><span class="p">)</span>
-        <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">v_cursor_val2</span><span class="p">)</span></div>
+            <span class="c1"># restore string near cursor</span>
+            <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="n">v_cursor_val</span><span class="p">)</span>
+            <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">v_cursor_val2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span>
+                <span class="s2">"String Editor</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Chat any string to insert/overwrite on the cursor. "</span>
+                <span class="s2">"Press BACKSPACE/DELETE to remove a character on the cursor.</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Press F7, F8, HOME, or END to move the cursor. "</span>
+                <span class="s2">"Press INSERT to toggle insert/overwrite mode.</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Chat </span><span class="se">\\</span><span class="s2">n (newline) </span><span class="se">\\</span><span class="s2">t (tab) </span><span class="se">\\</span><span class="s2">x## (bytecode) </span><span class="se">\\</span><span class="s2">u#### (unicode) to insert special characters</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"</span><span class="se">\\</span><span class="s2">x12 Right Align </span><span class="se">\\</span><span class="s2">x13 Center Align </span><span class="se">\\</span><span class="s2">x0B </span><span class="se">\\</span><span class="s2">x14 Invisible </span><span class="se">\\</span><span class="s2">x0C Remove Beyond</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"</span><span class="se">\x01\\</span><span class="s2">x01 </span><span class="se">\x02\\</span><span class="s2">x02 </span><span class="se">\x03\\</span><span class="s2">x03 </span><span class="se">\x04\\</span><span class="s2">x04 </span><span class="se">\x06\\</span><span class="s2">x06 </span><span class="se">\x07\\</span><span class="s2">x07 </span><span class="se">\x08\\</span><span class="s2">x08 </span><span class="se">\x0E\\</span><span class="s2">x0E </span><span class="se">\x0F\\</span><span class="s2">x0F </span><span class="se">\x10\\</span><span class="s2">x10 </span><span class="se">\x11\\</span><span class="s2">x11</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"</span><span class="se">\x15\\</span><span class="s2">x15 </span><span class="se">\x16\\</span><span class="s2">x16 </span><span class="se">\x17\\</span><span class="s2">x17 </span><span class="se">\x18\\</span><span class="s2">x18 </span><span class="se">\x19\\</span><span class="s2">x19 </span><span class="se">\x1A\\</span><span class="s2">x1A </span><span class="se">\x1B\\</span><span class="s2">x1B </span><span class="se">\x1C\\</span><span class="s2">x1C </span><span class="se">\x1D\\</span><span class="s2">x1D </span><span class="se">\x1E\\</span><span class="s2">x1E </span><span class="se">\x1F\\</span><span class="s2">x1F</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"</span><span class="se">\x02\\</span><span class="s2">uac00 </span><span class="se">\uac00</span><span class="s2"> </span><span class="se">\\</span><span class="s2">u2606 </span><span class="se">\u2606</span><span class="s2"> </span><span class="se">\x05\\</span><span class="s2">x05 Grey</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 </pre>
        </div>
       </article>

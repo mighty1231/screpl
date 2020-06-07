@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.boundeditor — SC-REPL 1.1.2 documentation
+   screpl.plugins.boundeditor — SC-REPL 1.1.3 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.3 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.2 documentation
+        SC-REPL 1.1.3 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.3 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.3 documentation">
            SC-REPL
           </a>
          </label>
@@ -233,9 +233,9 @@
 <span class="n">su_id</span> <span class="o">=</span> <span class="n">app_manager</span><span class="o">.</span><span class="n">get_superuser_id</span><span class="p">()</span>
 
 <span class="n">computer_player_initvar</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
-<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">GetPlayerInfo</span><span class="p">(</span><span class="n">i</span><span class="p">)</span><span class="o">.</span><span class="n">typestr</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"Neutral"</span><span class="p">,</span> <span class="s2">"Computer"</span><span class="p">]:</span>
-        <span class="n">computer_player_initvar</span> <span class="o">=</span> <span class="n">i</span>
+<span class="k">for</span> <span class="n">player_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">GetPlayerInfo</span><span class="p">(</span><span class="n">player_id</span><span class="p">)</span><span class="o">.</span><span class="n">typestr</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"Neutral"</span><span class="p">,</span> <span class="s2">"Computer"</span><span class="p">]:</span>
+        <span class="n">computer_player_initvar</span> <span class="o">=</span> <span class="n">player_id</span>
         <span class="k">break</span>
 <span class="k">if</span> <span class="n">computer_player_initvar</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
     <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Set 1 or more 'Computer' or 'Neutral' player"</span><span class="p">)</span>
@@ -270,13 +270,13 @@
 
 <span class="n">trigvalues</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2408</span><span class="p">)]</span>
 <span class="n">trigvalues</span><span class="p">[</span><span class="mi">8</span><span class="o">+</span><span class="mi">320</span><span class="o">+</span><span class="mi">2048</span><span class="p">]</span> <span class="o">=</span> <span class="mi">4</span> <span class="c1"># preserved trigger</span>
-<span class="n">g_emptyTrigger</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="n">trigvalues</span><span class="p">)</span>
+<span class="n">g_empty_trigger</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="n">trigvalues</span><span class="p">)</span>
 
 <span class="c1"># pattern variables</span>
 <span class="n">p_count</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">p_waitValue</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">MAX_PATTERN_COUNT</span><span class="p">)</span>
-<span class="n">p_actionCount</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="n">MAX_PATTERN_COUNT</span><span class="p">)</span>
-<span class="n">p_actionArrayEPD</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">([</span>
+<span class="n">p_wait_value</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">MAX_PATTERN_COUNT</span><span class="p">)</span>
+<span class="n">p_action_count</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="n">MAX_PATTERN_COUNT</span><span class="p">)</span>
+<span class="n">p_action_array_epd</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">([</span>
     <span class="n">EPD</span><span class="p">(</span><span class="n">EUDArray</span><span class="p">(</span><span class="n">MAX_ACTION_COUNT</span> <span class="o">*</span> <span class="mi">32</span><span class="p">))</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">MAX_PATTERN_COUNT</span><span class="p">)</span>
 <span class="p">])</span>
 
@@ -287,9 +287,9 @@
 <span class="c1"># pattern, detail</span>
 <span class="n">focused_pattern_id</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-<div class="viewcode-block" id="executePattern"><a class="viewcode-back" href="../../../screpl.plugins.boundeditor.html#screpl.plugins.boundeditor.executePattern">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">executePattern</span><span class="p">(</span><span class="n">pattern_id</span><span class="p">):</span>
-    <span class="n">cnt</span><span class="p">,</span> <span class="n">action_epd</span> <span class="o">=</span> <span class="n">p_actionCount</span><span class="p">[</span><span class="n">pattern_id</span><span class="p">],</span> <span class="n">p_actionArrayEPD</span><span class="p">[</span><span class="n">pattern_id</span><span class="p">]</span>
+<div class="viewcode-block" id="execute_pattern"><a class="viewcode-back" href="../../../screpl.plugins.boundeditor.html#screpl.plugins.boundeditor.execute_pattern">[docs]</a><span class="nd">@EUDFunc</span>
+<span class="k">def</span> <span class="nf">execute_pattern</span><span class="p">(</span><span class="n">pattern_id</span><span class="p">):</span>
+    <span class="n">cnt</span><span class="p">,</span> <span class="n">action_epd</span> <span class="o">=</span> <span class="n">p_action_count</span><span class="p">[</span><span class="n">pattern_id</span><span class="p">],</span> <span class="n">p_action_array_epd</span><span class="p">[</span><span class="n">pattern_id</span><span class="p">]</span>
     <span class="n">i</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
     <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
@@ -298,11 +298,11 @@
         <span class="n">_nxttrig</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">()</span>
 
         <span class="c1"># fill trigger</span>
-        <span class="n">DoActions</span><span class="p">(</span><span class="n">SetNextPtr</span><span class="p">(</span><span class="n">g_emptyTrigger</span><span class="p">,</span> <span class="n">_nxttrig</span><span class="p">))</span>
-        <span class="n">f_repmovsd_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">g_emptyTrigger</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">320</span><span class="p">),</span> <span class="n">action_epd</span><span class="p">,</span> <span class="mi">32</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">DoActions</span><span class="p">(</span><span class="n">SetNextPtr</span><span class="p">(</span><span class="n">g_empty_trigger</span><span class="p">,</span> <span class="n">_nxttrig</span><span class="p">))</span>
+        <span class="n">f_repmovsd_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">g_empty_trigger</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">+</span> <span class="mi">320</span><span class="p">),</span> <span class="n">action_epd</span><span class="p">,</span> <span class="mi">32</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)</span>
 
         <span class="c1"># jump to trigger</span>
-        <span class="n">EUDJump</span><span class="p">(</span><span class="n">g_emptyTrigger</span><span class="p">)</span>
+        <span class="n">EUDJump</span><span class="p">(</span><span class="n">g_empty_trigger</span><span class="p">)</span>
         <span class="n">_nxttrig</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
         <span class="n">DoActions</span><span class="p">([</span>
             <span class="n">i</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
@@ -319,10 +319,11 @@
     <span class="kn">from</span> <span class="nn">.manager</span> <span class="kn">import</span> <span class="n">BoundManagerApp</span>
 
     <span class="nd">@AppCommand</span><span class="p">([])</span>
-    <span class="k">def</span> <span class="nf">startCommand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">start_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""Start BoundManagerApp"""</span>
         <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">BoundManagerApp</span><span class="p">)</span>
 
-    <span class="n">REPL</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="s1">'bound'</span><span class="p">,</span> <span class="n">startCommand</span><span class="p">)</span></div>
+    <span class="n">REPL</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="s1">'bound'</span><span class="p">,</span> <span class="n">start_command</span><span class="p">)</span></div>
 </pre>
        </div>
       </article>

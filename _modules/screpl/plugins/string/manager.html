@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.string.manager — SC-REPL 1.1.2 documentation
+   screpl.plugins.string.manager — SC-REPL 1.1.3 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.2 documentation
+        SC-REPL 1.1.3 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
            SC-REPL
           </a>
          </label>
@@ -237,7 +237,9 @@
 
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="o">*</span>
 
-<div class="viewcode-block" id="writeFirstLine"><a class="viewcode-back" href="../../../../screpl.plugins.string.manager.html#screpl.plugins.string.manager.writeFirstLine">[docs]</a><span class="k">def</span> <span class="nf">writeFirstLine</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
+<span class="n">v_result_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+<span class="k">def</span> <span class="nf">_write_first_line</span><span class="p">(</span><span class="n">string</span><span class="p">):</span>
     <span class="sd">'''</span>
 <span class="sd">    write the first line of string, excluding empty line</span>
 <span class="sd">    '''</span>
@@ -246,38 +248,50 @@
 
     <span class="n">writer</span> <span class="o">=</span> <span class="n">get_main_writer</span><span class="p">()</span>
 
-    <span class="n">writingLine</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
-    <span class="n">writingLine</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+    <span class="n">writing_line</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+    <span class="n">writing_line</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
     <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
         <span class="n">b</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
         <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">b</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">writingLine</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)]):</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">writing_line</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="n">b</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)]):</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"..."</span><span class="p">)</span>
             <span class="n">EUDBreak</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">b</span> <span class="o">==</span> <span class="mh">0xD</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">b</span> <span class="o">==</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">)):</span>
-                <span class="n">writingLine</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
+                <span class="n">writing_line</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
                 <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
-    <span class="n">EUDEndInfLoop</span><span class="p">()</span></div>
+    <span class="n">EUDEndInfLoop</span><span class="p">()</span>
 
-<div class="viewcode-block" id="setStringID"><a class="viewcode-back" href="../../../../screpl.plugins.string.manager.html#screpl.plugins.string.manager.setStringID">[docs]</a><span class="k">def</span> <span class="nf">setStringID</span><span class="p">(</span><span class="n">new_string_id</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_set_string_id</span><span class="p">(</span><span class="n">new_string_id</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">new_string_id</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">new_string_id</span> <span class="o">&lt;=</span> <span class="n">string_count</span><span class="p">]):</span>
         <span class="n">cur_string_id</span> <span class="o">&lt;&lt;</span> <span class="n">new_string_id</span>
-    <span class="n">EUDEndIf</span><span class="p">()</span></div>
+    <span class="n">EUDEndIf</span><span class="p">()</span>
 
 <div class="viewcode-block" id="StringManagerApp"><a class="viewcode-back" href="../../../../screpl.plugins.string.manager.html#screpl.plugins.string.manager.StringManagerApp">[docs]</a><span class="k">class</span> <span class="nc">StringManagerApp</span><span class="p">(</span><span class="n">Application</span><span class="p">):</span>
+<div class="viewcode-block" id="StringManagerApp.set_return"><a class="viewcode-back" href="../../../../screpl.plugins.string.manager.html#screpl.plugins.string.manager.StringManagerApp.set_return">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">set_return</span><span class="p">(</span><span class="n">result_var</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">result_var</span><span class="p">)</span>
+        <span class="n">v_result_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="n">result_var</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">())</span>
+        <span class="n">_set_string_id</span><span class="p">(</span><span class="n">result_var</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">on_destruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">v_result_epd</span> <span class="o">==</span> <span class="n">EPD</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
+            <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">v_result_epd</span><span class="p">,</span> <span class="n">cur_string_id</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="n">v_result_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
     <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"ESC"</span><span class="p">)):</span>
             <span class="n">app_manager</span><span class="o">.</span><span class="n">request_destruct</span><span class="p">()</span>
             <span class="n">EUDReturn</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">)):</span>
-            <span class="n">setStringID</span><span class="p">(</span><span class="n">cur_string_id</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">_set_string_id</span><span class="p">(</span><span class="n">cur_string_id</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">)):</span>
-            <span class="n">setStringID</span><span class="p">(</span><span class="n">cur_string_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">_set_string_id</span><span class="p">(</span><span class="n">cur_string_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"E"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
             <span class="kn">from</span> <span class="nn">.editor</span> <span class="kn">import</span> <span class="n">StringEditorApp</span>
             <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">StringEditorApp</span><span class="p">)</span>
@@ -287,14 +301,14 @@
                 <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">StringExporterApp</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
             <span class="kn">from</span> <span class="nn">.search</span> <span class="kn">import</span> <span class="n">StringSearchApp</span>
-            <span class="n">StringSearchApp</span><span class="o">.</span><span class="n">setReturn_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_string_id</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span>
+            <span class="n">StringSearchApp</span><span class="o">.</span><span class="n">set_return_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_string_id</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span>
             <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">StringSearchApp</span><span class="p">)</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">app_manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x04</span><span class="s2">StringManager id=%D / total %D strings</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">cur_string_id</span><span class="p">,</span> <span class="n">string_count</span><span class="p">)</span>
-        <span class="n">writeFirstLine</span><span class="p">(</span><span class="n">STRSection</span> <span class="o">+</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">STRSection_epd</span> <span class="o">+</span> <span class="n">cur_string_id</span><span class="p">))</span>
+        <span class="n">_write_first_line</span><span class="p">(</span><span class="n">STRSection</span> <span class="o">+</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">STRSection_epd</span> <span class="o">+</span> <span class="n">cur_string_id</span><span class="p">))</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\n\n\x04</span><span class="s2">LCTRL+E Edit string...</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"LCTRL+F Search strings...</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">is_bridge_mode</span><span class="p">():</span>
@@ -306,7 +320,7 @@
 
     <span class="nd">@AppCommand</span><span class="p">([</span><span class="n">ArgEncNumber</span><span class="p">])</span>
     <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_string_id</span><span class="p">):</span>
-        <span class="n">setStringID</span><span class="p">(</span><span class="n">new_string_id</span><span class="p">)</span></div>
+        <span class="n">_set_string_id</span><span class="p">(</span><span class="n">new_string_id</span><span class="p">)</span></div>
 </pre>
        </div>
       </article>

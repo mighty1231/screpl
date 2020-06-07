@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.unit.manager — SC-REPL 1.1.2 documentation
+   screpl.plugins.unit.manager — SC-REPL 1.1.3 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.2 documentation
+        SC-REPL 1.1.3 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
            SC-REPL
           </a>
          </label>
@@ -235,7 +235,7 @@
 
 <span class="c1"># app-specific initializing arguments</span>
 <span class="n">_unitid</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">_resultref_unitid_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">_resultref_unitid_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 
 <span class="sd">'''</span>
 <span class="sd">unitid</span>
@@ -253,8 +253,8 @@
         <span class="s2">"resultref_unitid_epd"</span><span class="p">,</span> <span class="c1"># unitid of chosen unit</span>
     <span class="p">]</span>
 
-<div class="viewcode-block" id="UnitManagerApp.setContent"><a class="viewcode-back" href="../../../../screpl.plugins.unit.manager.html#screpl.plugins.unit.manager.UnitManagerApp.setContent">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">setContent</span><span class="p">(</span><span class="n">unitid</span><span class="p">,</span> <span class="n">resultref_unitid_epd</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="UnitManagerApp.set_content"><a class="viewcode-back" href="../../../../screpl.plugins.unit.manager.html#screpl.plugins.unit.manager.UnitManagerApp.set_content">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">set_content</span><span class="p">(</span><span class="n">unitid</span><span class="p">,</span> <span class="n">resultref_unitid_epd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="c1"># set initializing arguments</span>
         <span class="n">_unitid</span> <span class="o">&lt;&lt;</span> <span class="n">unitid</span>
         <span class="k">if</span> <span class="n">resultref_unitid_epd</span><span class="p">:</span>
@@ -264,27 +264,27 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">unitid</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resultref_unitid_epd</span> <span class="o">=</span> <span class="n">_resultref_unitid_epd</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">focusUnitID</span><span class="p">(</span><span class="n">_unitid</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">focus_unit_id</span><span class="p">(</span><span class="n">_unitid</span><span class="p">)</span>
 
         <span class="c1"># restore initializing arguments</span>
-        <span class="n">_resultref_unitid_epd</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+        <span class="n">_resultref_unitid_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">on_destruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">unitid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unitid</span>
         <span class="n">resultref_unitid_epd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resultref_unitid_epd</span>
-        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">resultref_unitid_epd</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">resultref_unitid_epd</span> <span class="o">==</span> <span class="n">EPD</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
             <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">resultref_unitid_epd</span><span class="p">,</span> <span class="n">unitid</span><span class="p">)</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">_unitid</span> <span class="o">&lt;&lt;</span> <span class="n">unitid</span>
 
-    <span class="k">def</span> <span class="nf">focusUnitID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_unitid</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">focus_unit_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_unitid</span><span class="p">):</span>
         <span class="n">Trigger</span><span class="p">(</span>
-            <span class="n">conditions</span> <span class="o">=</span> <span class="n">new_unitid</span><span class="o">.</span><span class="n">AtLeast</span><span class="p">(</span><span class="mh">0x80000000</span><span class="p">),</span>
-            <span class="n">actions</span> <span class="o">=</span> <span class="n">new_unitid</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">conditions</span><span class="o">=</span><span class="n">new_unitid</span><span class="o">.</span><span class="n">AtLeast</span><span class="p">(</span><span class="mh">0x80000000</span><span class="p">),</span>
+            <span class="n">actions</span><span class="o">=</span><span class="n">new_unitid</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">Trigger</span><span class="p">(</span>
-            <span class="n">conditions</span> <span class="o">=</span> <span class="n">new_unitid</span><span class="o">.</span><span class="n">AtLeast</span><span class="p">(</span><span class="mi">233</span><span class="p">),</span>
-            <span class="n">actions</span> <span class="o">=</span> <span class="n">new_unitid</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">232</span><span class="p">)</span>
+            <span class="n">conditions</span><span class="o">=</span><span class="n">new_unitid</span><span class="o">.</span><span class="n">AtLeast</span><span class="p">(</span><span class="mi">233</span><span class="p">),</span>
+            <span class="n">actions</span><span class="o">=</span><span class="n">new_unitid</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">232</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">new_unitid</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">unitid</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">unitid</span> <span class="o">=</span> <span class="n">new_unitid</span>
@@ -297,13 +297,13 @@
             <span class="n">app_manager</span><span class="o">.</span><span class="n">request_destruct</span><span class="p">()</span>
             <span class="n">EUDReturn</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">focusUnitID</span><span class="p">(</span><span class="n">unitid</span> <span class="o">-</span> <span class="mi">8</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">focus_unit_id</span><span class="p">(</span><span class="n">unitid</span> <span class="o">-</span> <span class="mi">8</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">)):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">focusUnitID</span><span class="p">(</span><span class="n">unitid</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">focus_unit_id</span><span class="p">(</span><span class="n">unitid</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">focusUnitID</span><span class="p">(</span><span class="n">unitid</span> <span class="o">+</span> <span class="mi">8</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">focus_unit_id</span><span class="p">(</span><span class="n">unitid</span> <span class="o">+</span> <span class="mi">8</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">)):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">focusUnitID</span><span class="p">(</span><span class="n">unitid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">focus_unit_id</span><span class="p">(</span><span class="n">unitid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
@@ -348,7 +348,6 @@
 
         <span class="n">branch_common</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
-
 </pre>
        </div>
       </article>

@@ -1,0 +1,7 @@
+screpl.plugins.trigger.trigentry module
+=======================================
+
+.. automodule:: screpl.plugins.trigger.trigentry
+   :members:
+   :undoc-members:
+   :show-inheritance:

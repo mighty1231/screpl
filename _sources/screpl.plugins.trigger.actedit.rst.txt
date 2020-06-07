@@ -1,0 +1,7 @@
+screpl.plugins.trigger.actedit module
+=====================================
+
+.. automodule:: screpl.plugins.trigger.actedit
+   :members:
+   :undoc-members:
+   :show-inheritance:

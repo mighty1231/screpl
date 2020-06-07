@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.string.search — SC-REPL 1.1.2 documentation
+   screpl.plugins.string.search — SC-REPL 1.1.3 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.2 documentation
+        SC-REPL 1.1.3 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
            SC-REPL
           </a>
          </label>
@@ -265,7 +265,7 @@
 <span class="sd">        char *ptr = get_string_ptr(string_id)</span>
 <span class="sd">        while (*ptr != 0){</span>
 <span class="sd">            // make utf-8, remove color code</span>
-<span class="sd">            length, is_null_end = strcpy_until_newline(line_buffer, ptr)</span>
+<span class="sd">            length, is_null_end = _strcpy_until_newline(line_buffer, ptr)</span>
 
 <span class="sd">            // use KMP search</span>
 <span class="sd">            // https://www.geeksforgeeks.org/kmp-algorithm-for-pattern-searching/</span>
@@ -316,7 +316,7 @@
 
 <span class="n">v_is_utf8</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
 
-<div class="viewcode-block" id="strcpy_until_newline"><a class="viewcode-back" href="../../../../screpl.plugins.string.search.html#screpl.plugins.string.search.strcpy_until_newline">[docs]</a><span class="k">def</span> <span class="nf">strcpy_until_newline</span><span class="p">(</span><span class="n">v_ptr</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_strcpy_until_newline</span><span class="p">(</span><span class="n">v_ptr</span><span class="p">):</span>
     <span class="n">reader</span><span class="p">,</span> <span class="n">writer</span> <span class="o">=</span> <span class="n">REPLByteRW</span><span class="p">(),</span> <span class="n">REPLByteRW</span><span class="p">()</span>
     <span class="n">reader</span><span class="o">.</span><span class="n">seekoffset</span><span class="p">(</span><span class="n">v_ptr</span><span class="p">)</span>
     <span class="n">writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">db_line_buffer</span><span class="p">))</span>
@@ -384,8 +384,8 @@
                             <span class="n">ch</span> <span class="o">=</span> <span class="n">ch1</span>
                             <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">6</span>
                         <span class="n">Trigger</span><span class="p">(</span>
-                            <span class="n">conditions</span> <span class="o">=</span> <span class="n">ucode</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">),</span>
-                            <span class="n">actions</span> <span class="o">=</span> <span class="n">ch</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">)</span>
+                            <span class="n">conditions</span><span class="o">=</span><span class="n">ucode</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">),</span>
+                            <span class="n">actions</span><span class="o">=</span><span class="n">ch</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">)</span>
                         <span class="p">)</span>
                     <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ch1</span><span class="p">)</span>
                     <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ch2</span><span class="p">)</span>
@@ -409,8 +409,8 @@
                             <span class="n">ch</span> <span class="o">=</span> <span class="n">ch1</span>
                             <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">12</span>
                         <span class="n">Trigger</span><span class="p">(</span>
-                            <span class="n">conditions</span> <span class="o">=</span> <span class="n">ucode</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">),</span>
-                            <span class="n">actions</span> <span class="o">=</span> <span class="n">ch</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">)</span>
+                            <span class="n">conditions</span><span class="o">=</span><span class="n">ucode</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">),</span>
+                            <span class="n">actions</span><span class="o">=</span><span class="n">ch</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">)</span>
                         <span class="p">)</span>
                     <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ch1</span><span class="p">)</span>
                     <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">ch2</span><span class="p">)</span>
@@ -420,9 +420,9 @@
         <span class="n">EUDEndInfLoop</span><span class="p">()</span>
     <span class="n">EUDEndIf</span><span class="p">()</span>
     <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">reader</span><span class="o">.</span><span class="n">getoffset</span><span class="p">()</span> <span class="o">-</span> <span class="n">v_ptr</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">is_null_end</span></div>
+    <span class="k">return</span> <span class="n">reader</span><span class="o">.</span><span class="n">getoffset</span><span class="p">()</span> <span class="o">-</span> <span class="n">v_ptr</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">is_null_end</span>
 
-<div class="viewcode-block" id="computeLPSArray"><a class="viewcode-back" href="../../../../screpl.plugins.string.search.html#screpl.plugins.string.search.computeLPSArray">[docs]</a><span class="k">def</span> <span class="nf">computeLPSArray</span><span class="p">(</span><span class="n">pattern</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_compute_lps_array</span><span class="p">(</span><span class="n">pattern</span><span class="p">):</span>
     <span class="sd">'''</span>
 <span class="sd">    KMP Search preprocessing - evaluate LPS array</span>
 <span class="sd">    '''</span>
@@ -456,7 +456,7 @@
                 <span class="p">])</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
-    <span class="n">EUDEndInfLoop</span><span class="p">()</span></div>
+    <span class="n">EUDEndInfLoop</span><span class="p">()</span>
 
 <div class="viewcode-block" id="KMPSearch"><a class="viewcode-back" href="../../../../screpl.plugins.string.search.html#screpl.plugins.string.search.KMPSearch">[docs]</a><span class="nd">@EUDFunc</span>
 <span class="k">def</span> <span class="nf">KMPSearch</span><span class="p">(</span><span class="n">pattern</span><span class="p">):</span>
@@ -501,8 +501,8 @@
     <span class="n">EUDEndInfLoop</span><span class="p">()</span>
     <span class="n">EUDReturn</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="focusResult"><a class="viewcode-back" href="../../../../screpl.plugins.string.search.html#screpl.plugins.string.search.focusResult">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">focusResult</span><span class="p">(</span><span class="n">new_focus</span><span class="p">):</span>
+<div class="viewcode-block" id="_focus_result"><a class="viewcode-back" href="../../../../screpl.plugins.string.search.html#screpl.plugins.string.search._focus_result">[docs]</a><span class="nd">@EUDFunc</span>
+<span class="k">def</span> <span class="nf">_focus_result</span><span class="p">(</span><span class="n">new_focus</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">new_focus</span> <span class="o">&gt;=</span> <span class="n">v_search_cnt</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">new_focus</span> <span class="o">==</span> <span class="n">v_focused</span><span class="p">):</span>
             <span class="n">v_focused</span> <span class="o">&lt;&lt;</span> <span class="n">new_focus</span>
@@ -511,8 +511,8 @@
     <span class="n">EUDEndIf</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="StringSearchApp"><a class="viewcode-back" href="../../../../screpl.plugins.string.search.html#screpl.plugins.string.search.StringSearchApp">[docs]</a><span class="k">class</span> <span class="nc">StringSearchApp</span><span class="p">(</span><span class="n">Application</span><span class="p">):</span>
-<div class="viewcode-block" id="StringSearchApp.setReturn_epd"><a class="viewcode-back" href="../../../../screpl.plugins.string.search.html#screpl.plugins.string.search.StringSearchApp.setReturn_epd">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">setReturn_epd</span><span class="p">(</span><span class="n">return_epd</span><span class="p">):</span>
+<div class="viewcode-block" id="StringSearchApp.set_return_epd"><a class="viewcode-back" href="../../../../screpl.plugins.string.search.html#screpl.plugins.string.search.StringSearchApp.set_return_epd">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">set_return_epd</span><span class="p">(</span><span class="n">return_epd</span><span class="p">):</span>
         <span class="n">v_return_epd</span> <span class="o">&lt;&lt;</span> <span class="n">return_epd</span></div>
 
     <span class="k">def</span> <span class="nf">on_destruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -521,7 +521,7 @@
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">v_return_epd</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">on_chat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pattern</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">on_chat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
         <span class="n">v_string_id</span><span class="p">,</span> <span class="n">v_result_line_ptr</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
         <span class="n">c_dupcheck</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">()</span>
         <span class="n">trig_cpoint</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">()</span> <span class="c1"># continue point</span>
@@ -529,7 +529,7 @@
 
         <span class="c1"># evaluate LPS array</span>
         <span class="c1"># https://www.geeksforgeeks.org/kmp-algorithm-for-pattern-searching/</span>
-        <span class="n">computeLPSArray</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+        <span class="n">_compute_lps_array</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
 
         <span class="n">v_search_cnt</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
         <span class="n">v_string_id</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
@@ -543,13 +543,13 @@
             <span class="n">SeqCompute</span><span class="p">([(</span><span class="n">EPD</span><span class="p">(</span><span class="n">c_dupcheck</span> <span class="o">+</span> <span class="mi">8</span><span class="p">),</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">offset</span><span class="p">)])</span>
 
             <span class="n">v_textptr</span> <span class="o">=</span> <span class="n">STRSection</span> <span class="o">+</span> <span class="n">offset</span>
-            <span class="n">v_is_utf8</span> <span class="o">&lt;&lt;</span> <span class="n">UTF8Check</span><span class="p">(</span><span class="n">v_textptr</span><span class="p">)</span>
+            <span class="n">v_is_utf8</span> <span class="o">&lt;&lt;</span> <span class="n">f_check_utf8</span><span class="p">(</span><span class="n">v_textptr</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
                 <span class="n">ch</span> <span class="o">=</span> <span class="n">f_bread</span><span class="p">(</span><span class="n">v_textptr</span><span class="p">)</span>
                 <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">ch</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
 
-                <span class="n">length</span><span class="p">,</span> <span class="n">is_null_end</span> <span class="o">=</span> <span class="n">strcpy_until_newline</span><span class="p">(</span><span class="n">v_textptr</span><span class="p">)</span>
-                <span class="n">found</span> <span class="o">=</span> <span class="n">KMPSearch</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+                <span class="n">length</span><span class="p">,</span> <span class="n">is_null_end</span> <span class="o">=</span> <span class="n">_strcpy_until_newline</span><span class="p">(</span><span class="n">v_textptr</span><span class="p">)</span>
+                <span class="n">found</span> <span class="o">=</span> <span class="n">KMPSearch</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">found</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
                     <span class="n">DoActions</span><span class="p">([</span>
                         <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">v_search_ids</span><span class="p">)</span> <span class="o">+</span> <span class="n">v_search_cnt</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">v_string_id</span><span class="p">),</span>
@@ -577,7 +577,7 @@
 
         <span class="n">writer</span> <span class="o">=</span> <span class="n">REPLByteRW</span><span class="p">()</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">db_target</span><span class="p">))</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_str</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write_str</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">v_focused</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
 
@@ -586,21 +586,21 @@
             <span class="n">app_manager</span><span class="o">.</span><span class="n">request_destruct</span><span class="p">()</span>
             <span class="n">EUDReturn</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'F7'</span><span class="p">)):</span>
-            <span class="n">focusResult</span><span class="p">(</span><span class="n">v_focused</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">_focus_result</span><span class="p">(</span><span class="n">v_focused</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'F8'</span><span class="p">)):</span>
-            <span class="n">focusResult</span><span class="p">(</span><span class="n">v_focused</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">_focus_result</span><span class="p">(</span><span class="n">v_focused</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">app_manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_search_cnt</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Search results </span><span class="se">\"</span><span class="si">%E</span><span class="se">\"</span><span class="s2"> - not found</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">*</span> <span class="mi">8</span><span class="p">,</span>
-                <span class="n">EPD</span><span class="p">(</span><span class="n">db_target</span><span class="p">))</span>
+                           <span class="n">EPD</span><span class="p">(</span><span class="n">db_target</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Search results </span><span class="se">\"</span><span class="si">%E</span><span class="se">\"</span><span class="s2"> - %D / total %D found</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
-                <span class="n">EPD</span><span class="p">(</span><span class="n">db_target</span><span class="p">),</span>
-                <span class="n">v_focused</span><span class="p">,</span>
-                <span class="n">v_search_cnt</span><span class="p">)</span>
+                           <span class="n">EPD</span><span class="p">(</span><span class="n">db_target</span><span class="p">),</span>
+                           <span class="n">v_focused</span><span class="p">,</span>
+                           <span class="n">v_search_cnt</span><span class="p">)</span>
 
             <span class="n">quot</span><span class="p">,</span> <span class="n">mod</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">v_focused</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
             <span class="n">cur</span> <span class="o">=</span> <span class="n">quot</span> <span class="o">*</span> <span class="mi">8</span>
@@ -623,8 +623,8 @@
                 <span class="n">EUDEndIf</span><span class="p">()</span>
 
                 <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">" %D: %S</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
-                    <span class="n">v_search_ids</span><span class="p">[</span><span class="n">cur</span><span class="p">],</span>
-                    <span class="n">v_search_strings</span><span class="p">[</span><span class="n">cur</span><span class="p">])</span>
+                               <span class="n">v_search_ids</span><span class="p">[</span><span class="n">cur</span><span class="p">],</span>
+                               <span class="n">v_search_strings</span><span class="p">[</span><span class="n">cur</span><span class="p">])</span>
 
                 <span class="n">DoActions</span><span class="p">([</span><span class="n">cur</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">)])</span>
             <span class="n">EUDEndInfLoop</span><span class="p">()</span>

@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.resources.table.tables — SC-REPL 1.1.2 documentation
+   screpl.resources.table.tables — SC-REPL 1.1.3 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.2 documentation
+        SC-REPL 1.1.3 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
            SC-REPL
           </a>
          </label>
@@ -224,121 +224,136 @@
         <pre>
 <span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 
-<span class="kn">from</span> <span class="nn">eudplib.core.rawtrigger.strdict</span> <span class="kn">import</span> <span class="p">(</span>
-    <span class="n">DefAIScriptDict</span><span class="p">,</span>
-    <span class="n">DefSwitchDict</span><span class="p">,</span>
-<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">eudplib.core.mapdata.stringmap</span> <span class="kn">import</span> <span class="n">swmap</span><span class="p">,</span> <span class="n">locmap</span>
+<span class="kn">from</span> <span class="nn">eudplib.core.rawtrigger.strdict</span> <span class="kn">import</span> <span class="n">DefAIScriptDict</span>
 
 <span class="kn">from</span> <span class="nn">screpl.utils.conststring</span> <span class="kn">import</span> <span class="n">EPDConstString</span>
 <span class="kn">from</span> <span class="nn">screpl.utils.debug</span> <span class="kn">import</span> <span class="n">f_raise_error</span>
-<span class="kn">from</span> <span class="nn">screpl.utils.byterw</span> <span class="kn">import</span> <span class="n">REPLByteRW</span>
 <span class="kn">from</span> <span class="nn">screpl.utils.referencetable</span> <span class="kn">import</span> <span class="n">ReferenceTable</span>
 
-<span class="n">swSub</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">(</span>
-    <span class="n">DefSwitchDict</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
-    <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">sortkey_f</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">k</span><span class="p">)</span>
-<span class="n">swMap</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">(</span>
-    <span class="n">swmap</span><span class="o">.</span><span class="n">_s2id</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span>
-    <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">sortkey_f</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">k</span><span class="p">)</span>
 <span class="n">AIScript</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">(</span>
     <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">a</span><span class="p">:</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">b2i4</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="mi">1</span><span class="p">])),</span> <span class="n">DefAIScriptDict</span><span class="o">.</span><span class="n">items</span><span class="p">())),</span>
-    <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">sortkey_f</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">k</span><span class="p">)</span>
+    <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">sortkey_f</span><span class="o">=</span><span class="k">lambda</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">k</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">Modifier</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">([</span>
-    <span class="p">(</span><span class="s2">"SetTo"</span><span class="p">,</span> <span class="n">EncodeModifier</span><span class="p">(</span><span class="n">SetTo</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Add"</span><span class="p">,</span> <span class="n">EncodeModifier</span><span class="p">(</span><span class="n">Add</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Subtract"</span><span class="p">,</span> <span class="n">EncodeModifier</span><span class="p">(</span><span class="n">Subtract</span><span class="p">)),</span>
-<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">)</span>
+    <span class="p">(</span><span class="s2">"SetTo"</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Add"</span><span class="p">,</span> <span class="n">Add</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Subtract"</span><span class="p">,</span> <span class="n">Subtract</span><span class="p">),</span>
+<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">value_f</span><span class="o">=</span><span class="n">EncodeModifier</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">AllyStatus</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">([</span>
-    <span class="p">(</span><span class="s2">"Enemy"</span><span class="p">,</span> <span class="n">EncodeAllyStatus</span><span class="p">(</span><span class="n">Enemy</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Ally"</span><span class="p">,</span> <span class="n">EncodeAllyStatus</span><span class="p">(</span><span class="n">Ally</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"AlliedVictory"</span><span class="p">,</span> <span class="n">EncodeAllyStatus</span><span class="p">(</span><span class="n">AlliedVictory</span><span class="p">)),</span>
-<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">)</span>
+    <span class="p">(</span><span class="s2">"Enemy"</span><span class="p">,</span> <span class="n">Enemy</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Ally"</span><span class="p">,</span> <span class="n">Ally</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"AlliedVictory"</span><span class="p">,</span> <span class="n">AlliedVictory</span><span class="p">),</span>
+<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">value_f</span><span class="o">=</span><span class="n">EncodeAllyStatus</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">Comparison</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">([</span>
-    <span class="p">(</span><span class="s2">"AtLeast"</span><span class="p">,</span> <span class="n">EncodeComparison</span><span class="p">(</span><span class="n">AtLeast</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"AtMost"</span><span class="p">,</span> <span class="n">EncodeComparison</span><span class="p">(</span><span class="n">AtMost</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Exactly"</span><span class="p">,</span> <span class="n">EncodeComparison</span><span class="p">(</span><span class="n">Exactly</span><span class="p">)),</span>
-<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">)</span>
+    <span class="p">(</span><span class="s2">"AtLeast"</span><span class="p">,</span> <span class="n">AtLeast</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"AtMost"</span><span class="p">,</span> <span class="n">AtMost</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Exactly"</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">),</span>
+<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">value_f</span><span class="o">=</span><span class="n">EncodeComparison</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">Order</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">([</span>
-    <span class="p">(</span><span class="s2">"Move"</span><span class="p">,</span> <span class="n">EncodeOrder</span><span class="p">(</span><span class="n">Move</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Patrol"</span><span class="p">,</span> <span class="n">EncodeOrder</span><span class="p">(</span><span class="n">Patrol</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Attack"</span><span class="p">,</span> <span class="n">EncodeOrder</span><span class="p">(</span><span class="n">Attack</span><span class="p">)),</span>
-<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">)</span>
+    <span class="p">(</span><span class="s2">"Move"</span><span class="p">,</span> <span class="n">Move</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Patrol"</span><span class="p">,</span> <span class="n">Patrol</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Attack"</span><span class="p">,</span> <span class="n">Attack</span><span class="p">),</span>
+<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">value_f</span><span class="o">=</span><span class="n">EncodeOrder</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">Player</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">([</span>
-    <span class="p">(</span><span class="s2">"Player1"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Player1</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Player2"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Player2</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Player3"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Player3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Player4"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Player4</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Player5"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Player5</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Player6"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Player6</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Player7"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Player7</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Player8"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Player8</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Player9"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Player9</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Player10"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Player10</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Player11"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Player11</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Player12"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Player12</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"CurrentPlayer"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">CurrentPlayer</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Foes"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Foes</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Allies"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Allies</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"NeutralPlayers"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">NeutralPlayers</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"AllPlayers"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">AllPlayers</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Force1"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Force1</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Force2"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Force2</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Force3"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Force3</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Force4"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">Force4</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"NonAlliedVictoryPlayers"</span><span class="p">,</span> <span class="n">EncodePlayer</span><span class="p">(</span><span class="n">NonAlliedVictoryPlayers</span><span class="p">)),</span>
-<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">)</span>
+    <span class="p">(</span><span class="s2">"Player1"</span><span class="p">,</span> <span class="n">Player1</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Player2"</span><span class="p">,</span> <span class="n">Player2</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Player3"</span><span class="p">,</span> <span class="n">Player3</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Player4"</span><span class="p">,</span> <span class="n">Player4</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Player5"</span><span class="p">,</span> <span class="n">Player5</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Player6"</span><span class="p">,</span> <span class="n">Player6</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Player7"</span><span class="p">,</span> <span class="n">Player7</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Player8"</span><span class="p">,</span> <span class="n">Player8</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Player9"</span><span class="p">,</span> <span class="n">Player9</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Player10"</span><span class="p">,</span> <span class="n">Player10</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Player11"</span><span class="p">,</span> <span class="n">Player11</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Player12"</span><span class="p">,</span> <span class="n">Player12</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"CurrentPlayer"</span><span class="p">,</span> <span class="n">CurrentPlayer</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Foes"</span><span class="p">,</span> <span class="n">Foes</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Allies"</span><span class="p">,</span> <span class="n">Allies</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"NeutralPlayers"</span><span class="p">,</span> <span class="n">NeutralPlayers</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"AllPlayers"</span><span class="p">,</span> <span class="n">AllPlayers</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Force1"</span><span class="p">,</span> <span class="n">Force1</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Force2"</span><span class="p">,</span> <span class="n">Force2</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Force3"</span><span class="p">,</span> <span class="n">Force3</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Force4"</span><span class="p">,</span> <span class="n">Force4</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"NonAlliedVictoryPlayers"</span><span class="p">,</span> <span class="n">NonAlliedVictoryPlayers</span><span class="p">),</span>
+<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">value_f</span><span class="o">=</span><span class="n">EncodePlayer</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">PropState</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">([</span>
-    <span class="p">(</span><span class="s2">"Enable"</span><span class="p">,</span> <span class="n">EncodePropState</span><span class="p">(</span><span class="n">Enable</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Disable"</span><span class="p">,</span> <span class="n">EncodePropState</span><span class="p">(</span><span class="n">Disable</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Toggle"</span><span class="p">,</span> <span class="n">EncodePropState</span><span class="p">(</span><span class="n">Toggle</span><span class="p">)),</span>
-<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">)</span>
+    <span class="p">(</span><span class="s2">"Enable"</span><span class="p">,</span> <span class="n">Enable</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Disable"</span><span class="p">,</span> <span class="n">Disable</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Toggle"</span><span class="p">,</span> <span class="n">Toggle</span><span class="p">),</span>
+<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">value_f</span><span class="o">=</span><span class="n">EncodePropState</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">Resource</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">([</span>
-    <span class="p">(</span><span class="s2">"Ore"</span><span class="p">,</span> <span class="n">EncodeResource</span><span class="p">(</span><span class="n">Ore</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Gas"</span><span class="p">,</span> <span class="n">EncodeResource</span><span class="p">(</span><span class="n">Gas</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"OreAndGas"</span><span class="p">,</span> <span class="n">EncodeResource</span><span class="p">(</span><span class="n">OreAndGas</span><span class="p">)),</span>
-<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">)</span>
+    <span class="p">(</span><span class="s2">"Ore"</span><span class="p">,</span> <span class="n">Ore</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Gas"</span><span class="p">,</span> <span class="n">Gas</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"OreAndGas"</span><span class="p">,</span> <span class="n">OreAndGas</span><span class="p">),</span>
+<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">value_f</span><span class="o">=</span><span class="n">EncodeResource</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">Score</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">([</span>
-    <span class="p">(</span><span class="s2">"Total"</span><span class="p">,</span> <span class="n">EncodeScore</span><span class="p">(</span><span class="n">Total</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Units"</span><span class="p">,</span> <span class="n">EncodeScore</span><span class="p">(</span><span class="n">Units</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Buildings"</span><span class="p">,</span> <span class="n">EncodeScore</span><span class="p">(</span><span class="n">Buildings</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"UnitsAndBuildings"</span><span class="p">,</span> <span class="n">EncodeScore</span><span class="p">(</span><span class="n">UnitsAndBuildings</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Kills"</span><span class="p">,</span> <span class="n">EncodeScore</span><span class="p">(</span><span class="n">Kills</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Razings"</span><span class="p">,</span> <span class="n">EncodeScore</span><span class="p">(</span><span class="n">Razings</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"KillsAndRazings"</span><span class="p">,</span> <span class="n">EncodeScore</span><span class="p">(</span><span class="n">KillsAndRazings</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Custom"</span><span class="p">,</span> <span class="n">EncodeScore</span><span class="p">(</span><span class="n">Custom</span><span class="p">)),</span>
-<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">)</span>
+    <span class="p">(</span><span class="s2">"Total"</span><span class="p">,</span> <span class="n">Total</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Units"</span><span class="p">,</span> <span class="n">Units</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Buildings"</span><span class="p">,</span> <span class="n">Buildings</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"UnitsAndBuildings"</span><span class="p">,</span> <span class="n">UnitsAndBuildings</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Kills"</span><span class="p">,</span> <span class="n">Kills</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Razings"</span><span class="p">,</span> <span class="n">Razings</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"KillsAndRazings"</span><span class="p">,</span> <span class="n">KillsAndRazings</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Custom"</span><span class="p">,</span> <span class="n">Custom</span><span class="p">),</span>
+<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">value_f</span><span class="o">=</span><span class="n">EncodeScore</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">SwitchAction</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">([</span>
-    <span class="p">(</span><span class="s2">"Set"</span><span class="p">,</span> <span class="n">EncodeSwitchAction</span><span class="p">(</span><span class="n">Set</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Clear"</span><span class="p">,</span> <span class="n">EncodeSwitchAction</span><span class="p">(</span><span class="n">Clear</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Toggle"</span><span class="p">,</span> <span class="n">EncodeSwitchAction</span><span class="p">(</span><span class="n">Toggle</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Random"</span><span class="p">,</span> <span class="n">EncodeSwitchAction</span><span class="p">(</span><span class="n">Random</span><span class="p">)),</span>
-<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">)</span>
+    <span class="p">(</span><span class="s2">"Set"</span><span class="p">,</span> <span class="n">Set</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Clear"</span><span class="p">,</span> <span class="n">Clear</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Toggle"</span><span class="p">,</span> <span class="n">Toggle</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Random"</span><span class="p">,</span> <span class="n">Random</span><span class="p">),</span>
+<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">value_f</span><span class="o">=</span><span class="n">EncodeSwitchAction</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">SwitchState</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">([</span>
-    <span class="p">(</span><span class="s2">"Set"</span><span class="p">,</span> <span class="n">EncodeSwitchState</span><span class="p">(</span><span class="n">Set</span><span class="p">)),</span>
-    <span class="p">(</span><span class="s2">"Cleared"</span><span class="p">,</span> <span class="n">EncodeSwitchState</span><span class="p">(</span><span class="n">Cleared</span><span class="p">)),</span>
-<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">)</span>
+    <span class="p">(</span><span class="s2">"Set"</span><span class="p">,</span> <span class="n">Set</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Cleared"</span><span class="p">,</span> <span class="n">Cleared</span><span class="p">),</span>
+<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">value_f</span><span class="o">=</span><span class="n">EncodeSwitchState</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">Count</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">(</span>
+    <span class="p">[(</span><span class="s2">"All"</span><span class="p">,</span> <span class="n">All</span><span class="p">)]</span>
+    <span class="o">+</span> <span class="p">[(</span><span class="nb">str</span><span class="p">(</span><span class="n">d</span><span class="p">),</span> <span class="n">d</span><span class="p">)</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">256</span><span class="p">)],</span>
+    <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">value_f</span><span class="o">=</span><span class="n">EncodeCount</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="n">_locstrings</span> <span class="o">=</span> <span class="p">[</span><span class="nb">bytes</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">255</span><span class="p">)]</span>
+<span class="c1"># location and switch</span>
+<span class="n">NAME_SIZE</span> <span class="o">=</span> <span class="mi">100</span>
+<span class="n">_locationnames</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">NAME_SIZE</span><span class="o">*</span><span class="mi">255</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">locmap</span><span class="o">.</span><span class="n">_s2id</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="n">_locstrings</span><span class="p">[</span><span class="n">v</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span> <span class="o">+</span> <span class="nb">bytes</span><span class="p">(</span><span class="mi">100</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
-<span class="n">Location</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">(</span>
-    <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">i</span><span class="p">:</span> <span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">Db</span><span class="p">(</span><span class="n">_locstrings</span><span class="p">[</span><span class="n">i</span><span class="p">])),</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="nb">range</span><span class="p">(</span><span class="mi">255</span><span class="p">))))</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="n">_locationnames</span><span class="p">[</span><span class="n">NAME_SIZE</span><span class="o">*</span><span class="n">v</span><span class="p">:</span><span class="n">NAME_SIZE</span><span class="o">*</span><span class="n">v</span><span class="o">+</span><span class="n">length</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span>
+<span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">255</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">_locationnames</span><span class="p">[</span><span class="n">NAME_SIZE</span><span class="o">*</span><span class="n">idx</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># SCMD-syntax</span>
+        <span class="n">default_name</span> <span class="o">=</span> <span class="s2">"Location </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">default_name</span><span class="p">)</span>
+        <span class="n">_locationnames</span><span class="p">[</span><span class="n">NAME_SIZE</span><span class="o">*</span><span class="n">idx</span><span class="p">:</span><span class="n">NAME_SIZE</span><span class="o">*</span><span class="n">idx</span><span class="o">+</span><span class="n">length</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_name</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
 
-<div class="viewcode-block" id="GetLocationNameEPDPointer"><a class="viewcode-back" href="../../../../screpl.resources.table.tables.html#screpl.resources.table.tables.GetLocationNameEPDPointer">[docs]</a><span class="k">def</span> <span class="nf">GetLocationNameEPDPointer</span><span class="p">(</span><span class="n">location_idx</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">f_dwread_epd</span><span class="p">((</span><span class="n">EPD</span><span class="p">(</span><span class="n">Location</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">location_idx</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span></div>
+<span class="n">_locationname_db_epd</span> <span class="o">=</span> <span class="n">EPD</span><span class="p">(</span><span class="n">Db</span><span class="p">(</span><span class="n">_locationnames</span><span class="p">))</span>
 
-<div class="viewcode-block" id="SetLocationName"><a class="viewcode-back" href="../../../../screpl.resources.table.tables.html#screpl.resources.table.tables.SetLocationName">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">SetLocationName</span><span class="p">(</span><span class="n">location_idx</span><span class="p">,</span> <span class="n">new_string_offset</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()([</span><span class="n">location_idx</span><span class="o">.</span><span class="n">AtLeast</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">location_idx</span><span class="o">.</span><span class="n">AtMost</span><span class="p">(</span><span class="mi">255</span><span class="p">)]):</span>
-        <span class="n">f_raise_error</span><span class="p">(</span><span class="s2">"SC-REPL indexError on SetLocationName"</span><span class="p">)</span>
+<div class="viewcode-block" id="get_locationname_epd"><a class="viewcode-back" href="../../../../screpl.resources.table.tables.html#screpl.resources.table.tables.get_locationname_epd">[docs]</a><span class="k">def</span> <span class="nf">get_locationname_epd</span><span class="p">(</span><span class="n">location_idx</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()([</span><span class="mi">1</span> <span class="o">&lt;=</span> <span class="n">location_idx</span><span class="p">,</span> <span class="n">location_idx</span> <span class="o">&lt;=</span> <span class="mi">255</span><span class="p">]):</span>
+        <span class="n">f_raise_error</span><span class="p">(</span><span class="s2">"get_locationname_epd: IndexError"</span><span class="p">)</span>
     <span class="n">EUDEndIf</span><span class="p">()</span>
-    <span class="n">writer</span> <span class="o">=</span> <span class="n">REPLByteRW</span><span class="p">()</span>
-    <span class="n">writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">GetLocationNameEPDPointer</span><span class="p">(</span><span class="n">location_idx</span><span class="p">))</span>
-    <span class="n">writer</span><span class="o">.</span><span class="n">write_str</span><span class="p">(</span><span class="n">new_string_offset</span><span class="p">)</span>
-    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="p">(</span><span class="n">_locationname_db_epd</span> <span class="o">-</span> <span class="p">(</span><span class="n">NAME_SIZE</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">location_idx</span> <span class="o">*</span> <span class="p">(</span><span class="n">NAME_SIZE</span><span class="o">//</span><span class="mi">4</span><span class="p">))</span></div>
 
-<span class="n">arr_DefaultUnit</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="p">[</span>
+<span class="n">_switchnames</span> <span class="o">=</span> <span class="nb">bytearray</span><span class="p">(</span><span class="n">NAME_SIZE</span><span class="o">*</span><span class="mi">256</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">swmap</span><span class="o">.</span><span class="n">_s2id</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="n">_switchnames</span><span class="p">[</span><span class="n">NAME_SIZE</span><span class="o">*</span><span class="n">v</span><span class="p">:</span><span class="n">NAME_SIZE</span><span class="o">*</span><span class="n">v</span><span class="o">+</span><span class="n">length</span><span class="p">]</span> <span class="o">=</span> <span class="n">k</span>
+<span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">256</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">_switchnames</span><span class="p">[</span><span class="n">NAME_SIZE</span><span class="o">*</span><span class="n">idx</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># SCMD-syntax</span>
+        <span class="n">default_name</span> <span class="o">=</span> <span class="s2">"Switch</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">length</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">default_name</span><span class="p">)</span>
+        <span class="n">_switchnames</span><span class="p">[</span><span class="n">NAME_SIZE</span><span class="o">*</span><span class="n">idx</span><span class="p">:</span><span class="n">NAME_SIZE</span><span class="o">*</span><span class="n">idx</span><span class="o">+</span><span class="n">length</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_name</span><span class="o">.</span><span class="n">encode</span><span class="p">()</span>
+<span class="n">_switchname_db_epd</span> <span class="o">=</span> <span class="n">EPD</span><span class="p">(</span><span class="n">Db</span><span class="p">(</span><span class="n">_switchnames</span><span class="p">))</span>
+
+<div class="viewcode-block" id="get_switchname_epd"><a class="viewcode-back" href="../../../../screpl.resources.table.tables.html#screpl.resources.table.tables.get_switchname_epd">[docs]</a><span class="k">def</span> <span class="nf">get_switchname_epd</span><span class="p">(</span><span class="n">switch_idx</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">switch_idx</span> <span class="o">&lt;=</span> <span class="mi">255</span><span class="p">):</span>
+        <span class="n">f_raise_error</span><span class="p">(</span><span class="s2">"get_switchname_epd: IndexError"</span><span class="p">)</span>
+    <span class="n">EUDEndIf</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">_switchname_db_epd</span> <span class="o">+</span> <span class="n">switch_idx</span> <span class="o">*</span> <span class="p">(</span><span class="n">NAME_SIZE</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span></div>
+
+<span class="n">_arr_defaultunitnames</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="p">[</span>
     <span class="s2">"Terran Marine"</span><span class="p">,</span>
     <span class="s2">"Terran Ghost"</span><span class="p">,</span>
     <span class="s2">"Terran Vulture"</span><span class="p">,</span>
@@ -574,8 +589,207 @@
     <span class="s2">"(factories)"</span>
 <span class="p">])))</span>
 
-<div class="viewcode-block" id="GetDefaultUnitNameEPDPointer"><a class="viewcode-back" href="../../../../screpl.resources.table.tables.html#screpl.resources.table.tables.GetDefaultUnitNameEPDPointer">[docs]</a><span class="k">def</span> <span class="nf">GetDefaultUnitNameEPDPointer</span><span class="p">(</span><span class="n">unitid</span><span class="p">):</span>
-    <span class="k">return</span> <span class="n">arr_DefaultUnit</span><span class="p">[</span><span class="n">unitid</span><span class="p">]</span></div>
+<div class="viewcode-block" id="get_default_unitname_epd"><a class="viewcode-back" href="../../../../screpl.resources.table.tables.html#screpl.resources.table.tables.get_default_unitname_epd">[docs]</a><span class="k">def</span> <span class="nf">get_default_unitname_epd</span><span class="p">(</span><span class="n">unitid</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">_arr_defaultunitnames</span><span class="p">[</span><span class="n">unitid</span><span class="p">]</span></div>
+
+<span class="n">ConditionType</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">([</span>
+    <span class="p">(</span><span class="s2">"CountdownTimer"</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Command"</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Bring"</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Accumulate"</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Kills"</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"CommandMost"</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"CommandMostAt"</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"MostKills"</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"HighestScore"</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"MostResources"</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Switch"</span><span class="p">,</span> <span class="mi">11</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"ElapsedTime"</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>
+    <span class="c1"># ("Briefing", 13),</span>
+    <span class="p">(</span><span class="s2">"Opponents"</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Deaths"</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"CommandLeast"</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"CommandLeastAt"</span><span class="p">,</span> <span class="mi">17</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"LeastKills"</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"LowestScore"</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"LeastResources"</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Score"</span><span class="p">,</span> <span class="mi">21</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Always"</span><span class="p">,</span> <span class="mi">22</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Never"</span><span class="p">,</span> <span class="mi">23</span><span class="p">),</span>
+<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">ActionType</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">([</span>
+    <span class="p">(</span><span class="s2">"Victory"</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Defeat"</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"PreserveTrigger"</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Wait"</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"PauseGame"</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"UnpauseGame"</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Transmission"</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"PlayWAV"</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"DisplayText"</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"CenterView"</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"CreateUnitWithProperties"</span><span class="p">,</span> <span class="mi">11</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"SetMissionObjectives"</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"SetSwitch"</span><span class="p">,</span> <span class="mi">13</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"SetCountdownTimer"</span><span class="p">,</span> <span class="mi">14</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"RunAIScript"</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"RunAIScriptAt"</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"LeaderBoardControl"</span><span class="p">,</span> <span class="mi">17</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"LeaderBoardControlAt"</span><span class="p">,</span> <span class="mi">18</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"LeaderBoardResources"</span><span class="p">,</span> <span class="mi">19</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"LeaderBoardKills"</span><span class="p">,</span> <span class="mi">20</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"LeaderBoardScore"</span><span class="p">,</span> <span class="mi">21</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"KillUnit"</span><span class="p">,</span> <span class="mi">22</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"KillUnitAt"</span><span class="p">,</span> <span class="mi">23</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"RemoveUnit"</span><span class="p">,</span> <span class="mi">24</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"RemoveUnitAt"</span><span class="p">,</span> <span class="mi">25</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"SetResources"</span><span class="p">,</span> <span class="mi">26</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"SetScore"</span><span class="p">,</span> <span class="mi">27</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"MinimapPing"</span><span class="p">,</span> <span class="mi">28</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"TalkingPortrait"</span><span class="p">,</span> <span class="mi">29</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"MuteUnitSpeech"</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"UnMuteUnitSpeech"</span><span class="p">,</span> <span class="mi">31</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"LeaderBoardComputerPlayers"</span><span class="p">,</span> <span class="mi">32</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"LeaderBoardGoalControl"</span><span class="p">,</span> <span class="mi">33</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"LeaderBoardGoalControlAt"</span><span class="p">,</span> <span class="mi">34</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"LeaderBoardGoalResources"</span><span class="p">,</span> <span class="mi">35</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"LeaderBoardGoalKills"</span><span class="p">,</span> <span class="mi">36</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"LeaderBoardGoalScore"</span><span class="p">,</span> <span class="mi">37</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"MoveLocation"</span><span class="p">,</span> <span class="mi">38</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"MoveUnit"</span><span class="p">,</span> <span class="mi">39</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"LeaderBoardGreed"</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"SetNextScenario"</span><span class="p">,</span> <span class="mi">41</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"SetDoodadState"</span><span class="p">,</span> <span class="mi">42</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"SetInvincibility"</span><span class="p">,</span> <span class="mi">43</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"CreateUnit"</span><span class="p">,</span> <span class="mi">44</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"SetDeaths"</span><span class="p">,</span> <span class="mi">45</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Order"</span><span class="p">,</span> <span class="mi">46</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Comment"</span><span class="p">,</span> <span class="mi">47</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"GiveUnits"</span><span class="p">,</span> <span class="mi">48</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"ModifyUnitHitPoints"</span><span class="p">,</span> <span class="mi">49</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"ModifyUnitEnergy"</span><span class="p">,</span> <span class="mi">50</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"ModifyUnitShields"</span><span class="p">,</span> <span class="mi">51</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"ModifyUnitResourceAmount"</span><span class="p">,</span> <span class="mi">52</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"ModifyUnitHangarCount"</span><span class="p">,</span> <span class="mi">53</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"PauseTimer"</span><span class="p">,</span> <span class="mi">54</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"UnpauseTimer"</span><span class="p">,</span> <span class="mi">55</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"Draw"</span><span class="p">,</span> <span class="mi">56</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">"SetAllianceStatus"</span><span class="p">,</span> <span class="mi">57</span><span class="p">),</span>
+<span class="p">],</span> <span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">,</span> <span class="n">final</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">_PropTable</span><span class="p">(</span><span class="n">ReferenceTable</span><span class="p">):</span>
+    <span class="sd">"""Property reference table</span>
+
+<span class="sd">    Property Structure</span>
+
+<span class="sd">     ======  ============= ========  ===========</span>
+<span class="sd">     Offset  Field Name    Position  EPD Player</span>
+<span class="sd">     ======  ============= ========  ===========</span>
+<span class="sd">       +00   sprpvalid     dword0    EPD(prop)+0</span>
+<span class="sd">       +02   prpvalid</span>
+<span class="sd">       +04   player        dword1    EPD(prop)+1</span>
+<span class="sd">       +05   hitpoint</span>
+<span class="sd">       +06   shield</span>
+<span class="sd">       +07   energy</span>
+<span class="sd">       +08   resource      dword2    EPD(prop)+2</span>
+<span class="sd">       +0C   hanger        dword3    EPD(prop)+3</span>
+<span class="sd">       +0E   sprpflag</span>
+<span class="sd">       +10   unused        dword4    EPD(prop)+4</span>
+<span class="sd">     ======  ============= ========  ===========</span>
+
+<span class="sd">    - hitpoint : 0~100(%)</span>
+<span class="sd">    - shield   : 0~100(%)</span>
+<span class="sd">    - energy   : 0~100(%)</span>
+<span class="sd">    - resource : 0~4294967295</span>
+<span class="sd">    - hanger   : 0~65536</span>
+
+<span class="sd">    Special properties : True(Enabled)/False(Disabled)/None(Don't care)</span>
+
+<span class="sd">    - clocked      : Unit is clocked.</span>
+<span class="sd">    - burrowed     : Unit is burrowed.</span>
+<span class="sd">    - intransit    : Unit is lifted. (In transit)</span>
+<span class="sd">    - hallucinated : Unit is hallucination.</span>
+<span class="sd">    - invincible   : Unit is invincible.</span>
+
+<span class="sd">    UPRP may saved into 0x596cd8..? SC:R does not support the address</span>
+
+<span class="sd">    reference:</span>
+<span class="sd">    https://github.com/bwapi/bwapi/blob/master/Release_Binary/Starcraft/bwapi-data/data/Broodwar.map#L3165</span>
+<span class="sd">    """</span>
+
+    <span class="n">COLOR_HITPOINT</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\x08</span><span class="s1">'</span>
+    <span class="n">COLOR_SHIELD</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\x0E</span><span class="s1">'</span>
+    <span class="n">COLOR_ENERGY</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\x0F</span><span class="s1">'</span>
+    <span class="n">COLOR_RESOURCE</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\x17</span><span class="s1">'</span>
+    <span class="n">COLOR_HANGER</span> <span class="o">=</span> <span class="s1">'</span><span class="se">\x18</span><span class="s1">'</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">decode_property</span><span class="p">(</span><span class="n">property_</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">property_</span><span class="p">,</span> <span class="nb">bytes</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">property_</span><span class="p">)</span> <span class="o">==</span> <span class="mi">20</span>
+
+        <span class="n">sprpvalid</span> <span class="o">=</span> <span class="n">b2i2</span><span class="p">(</span><span class="n">property_</span><span class="p">,</span> <span class="mh">0x00</span><span class="p">)</span>
+        <span class="n">prpvalid</span> <span class="o">=</span> <span class="n">b2i2</span><span class="p">(</span><span class="n">property_</span><span class="p">,</span> <span class="mh">0x02</span><span class="p">)</span>
+        <span class="n">hitpoint</span> <span class="o">=</span> <span class="n">b2i1</span><span class="p">(</span><span class="n">property_</span><span class="p">,</span> <span class="mh">0x05</span><span class="p">)</span>
+        <span class="n">shield</span> <span class="o">=</span> <span class="n">b2i1</span><span class="p">(</span><span class="n">property_</span><span class="p">,</span> <span class="mh">0x06</span><span class="p">)</span>
+        <span class="n">energy</span> <span class="o">=</span> <span class="n">b2i1</span><span class="p">(</span><span class="n">property_</span><span class="p">,</span> <span class="mh">0x07</span><span class="p">)</span>
+        <span class="n">resource</span> <span class="o">=</span> <span class="n">b2i4</span><span class="p">(</span><span class="n">property_</span><span class="p">,</span> <span class="mh">0x08</span><span class="p">)</span>
+        <span class="n">hanger</span> <span class="o">=</span> <span class="n">b2i2</span><span class="p">(</span><span class="n">property_</span><span class="p">,</span> <span class="mh">0x0C</span><span class="p">)</span>
+        <span class="n">sprpflag</span> <span class="o">=</span> <span class="n">b2i2</span><span class="p">(</span><span class="n">property_</span><span class="p">,</span> <span class="mh">0x0E</span><span class="p">)</span>
+
+        <span class="n">list_</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">bit</span><span class="p">,</span> <span class="n">color</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">,</span> <span class="n">_PropTable</span><span class="o">.</span><span class="n">COLOR_HITPOINT</span><span class="p">,</span> <span class="n">hitpoint</span><span class="p">),</span>
+                <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">,</span> <span class="n">_PropTable</span><span class="o">.</span><span class="n">COLOR_SHIELD</span><span class="p">,</span> <span class="n">shield</span><span class="p">),</span>
+                <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">,</span> <span class="n">_PropTable</span><span class="o">.</span><span class="n">COLOR_ENERGY</span><span class="p">,</span> <span class="n">energy</span><span class="p">),</span>
+                <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="p">,</span> <span class="n">_PropTable</span><span class="o">.</span><span class="n">COLOR_RESOURCE</span><span class="p">,</span> <span class="n">resource</span><span class="p">),</span>
+                <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">5</span><span class="p">,</span> <span class="n">_PropTable</span><span class="o">.</span><span class="n">COLOR_HANGER</span><span class="p">,</span> <span class="n">hanger</span><span class="p">)]:</span>
+            <span class="k">if</span> <span class="n">prpvalid</span> <span class="o">&amp;</span> <span class="n">bit</span><span class="p">:</span>
+                <span class="n">list_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"</span><span class="si">{}{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">color</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+
+        <span class="k">for</span> <span class="n">bit</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">[(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'cloaked'</span><span class="p">),</span>
+                          <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">,</span> <span class="s1">'burrowed'</span><span class="p">),</span>
+                          <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">2</span><span class="p">,</span> <span class="s1">'intransit'</span><span class="p">),</span>
+                          <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">3</span><span class="p">,</span> <span class="s1">'hallucinated'</span><span class="p">),</span>
+                          <span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="p">,</span> <span class="s1">'invincible'</span><span class="p">)]:</span>
+            <span class="k">if</span> <span class="n">sprpvalid</span> <span class="o">&amp;</span> <span class="n">bit</span> <span class="ow">and</span> <span class="n">sprpflag</span> <span class="o">&amp;</span> <span class="n">bit</span><span class="p">:</span>
+                <span class="n">list_</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1F</span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="s2">"UnitProperty </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">' '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">list_</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">evaluated</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">construct_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">evaluated</span><span class="p">:</span>
+            <span class="n">chkt</span> <span class="o">=</span> <span class="n">GetChkTokenized</span><span class="p">()</span>
+            <span class="n">uprp</span> <span class="o">=</span> <span class="n">chkt</span><span class="o">.</span><span class="n">getsection</span><span class="p">(</span><span class="s1">'UPRP'</span><span class="p">)</span>
+            <span class="n">upus</span> <span class="o">=</span> <span class="n">chkt</span><span class="o">.</span><span class="n">getsection</span><span class="p">(</span><span class="s1">'UPUS'</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">bytes</span><span class="p">([</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="mi">64</span><span class="p">)</span>
+
+            <span class="c1"># property 0 does not affect any behavior of game.</span>
+            <span class="c1"># just recognize color for each properties</span>
+            <span class="n">prop_0</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"UnitPropertyTags"</span><span class="p">]</span>
+            <span class="n">prop_0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_PropTable</span><span class="o">.</span><span class="n">COLOR_HITPOINT</span> <span class="o">+</span> <span class="s2">"hitpoint"</span><span class="p">)</span>
+            <span class="n">prop_0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_PropTable</span><span class="o">.</span><span class="n">COLOR_SHIELD</span> <span class="o">+</span> <span class="s2">"shield"</span><span class="p">)</span>
+            <span class="n">prop_0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_PropTable</span><span class="o">.</span><span class="n">COLOR_ENERGY</span> <span class="o">+</span> <span class="s2">"energy"</span><span class="p">)</span>
+            <span class="n">prop_0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_PropTable</span><span class="o">.</span><span class="n">COLOR_RESOURCE</span> <span class="o">+</span> <span class="s2">"resource"</span><span class="p">)</span>
+            <span class="n">prop_0</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_PropTable</span><span class="o">.</span><span class="n">COLOR_HANGER</span> <span class="o">+</span> <span class="s2">"hanger"</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_pair</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prop_0</span><span class="p">)),</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">upus</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>
+                    <span class="n">uprpdata</span> <span class="o">=</span> <span class="n">uprp</span><span class="p">[</span><span class="mi">20</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="mi">20</span><span class="o">*</span><span class="n">i</span><span class="o">+</span><span class="mi">20</span><span class="p">]</span>
+                    <span class="n">string</span> <span class="o">=</span> <span class="n">_PropTable</span><span class="o">.</span><span class="n">decode_property</span><span class="p">(</span><span class="n">uprpdata</span><span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">add_pair</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">(</span><span class="n">string</span><span class="p">),</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">evaluated</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">Evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">construct_db</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">Evaluate</span><span class="p">()</span>
+
+<span class="n">Property</span> <span class="o">=</span> <span class="n">_PropTable</span><span class="p">()</span>
 </pre>
        </div>
       </article>

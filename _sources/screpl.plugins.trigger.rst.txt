@@ -7,10 +7,13 @@ Submodules
 .. toctree::
    :maxdepth: 4
 
+   screpl.plugins.trigger.actedit
    screpl.plugins.trigger.condcheck
+   screpl.plugins.trigger.condedit
    screpl.plugins.trigger.editor
    screpl.plugins.trigger.entry
    screpl.plugins.trigger.intacttrigger
+   screpl.plugins.trigger.trigentry
 
 Module contents
 ---------------

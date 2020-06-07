@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.trigger — SC-REPL 1.1.2 documentation
+   screpl.plugins.trigger — SC-REPL 1.1.3 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.3 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.2 documentation
+        SC-REPL 1.1.3 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.3 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.3 documentation">
            SC-REPL
           </a>
          </label>
@@ -239,6 +239,7 @@
 
 <span class="kn">from</span> <span class="nn">screpl.apps.repl</span> <span class="kn">import</span> <span class="n">REPL</span>
 <span class="kn">from</span> <span class="nn">screpl.core.appcommand</span> <span class="kn">import</span> <span class="n">AppCommand</span>
+<span class="kn">from</span> <span class="nn">screpl.encoder.const</span> <span class="kn">import</span> <span class="n">ArgEncNumber</span>
 <span class="kn">from</span> <span class="nn">screpl.main</span> <span class="kn">import</span> <span class="n">get_app_manager</span>
 <span class="kn">from</span> <span class="nn">screpl.utils.debug</span> <span class="kn">import</span> <span class="n">f_raise_error</span>
 <span class="kn">from</span> <span class="nn">eudplib.core.mapdata.stringmap</span> <span class="kn">import</span> <span class="n">strmap</span>
@@ -286,12 +287,12 @@
         <span class="n">EUDEndSwitch</span><span class="p">()</span>
 
         <span class="n">DoActions</span><span class="p">(</span><span class="n">act0</span> <span class="o">&lt;&lt;</span> <span class="n">SetMemory</span><span class="p">(</span><span class="n">measure_condition</span> <span class="o">+</span> <span class="mh">0x8</span><span class="p">,</span>
-                                  <span class="n">Add</span><span class="p">,</span>
-                                  <span class="mi">0</span><span class="p">))</span> <span class="c1"># 2 ** (31-k)</span>
+                                    <span class="n">Add</span><span class="p">,</span>
+                                    <span class="mi">0</span><span class="p">))</span> <span class="c1"># 2 ** (31-k)</span>
         <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">measure_condition</span> <span class="o">&lt;&lt;</span> <span class="n">Memory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
             <span class="n">DoActions</span><span class="p">(</span><span class="n">act1</span> <span class="o">&lt;&lt;</span> <span class="n">SetMemory</span><span class="p">(</span><span class="n">measure_condition</span> <span class="o">+</span> <span class="mh">0x8</span><span class="p">,</span>
-                                      <span class="n">Subtract</span><span class="p">,</span>
-                                      <span class="mi">0</span><span class="p">))</span> <span class="c1"># 2 ** (31-k)</span>
+                                        <span class="n">Subtract</span><span class="p">,</span>
+                                        <span class="mi">0</span><span class="p">))</span> <span class="c1"># 2 ** (31-k)</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">k</span> <span class="o">+=</span> <span class="mi">1</span>
     <span class="n">EUDEndWhile</span><span class="p">()</span>
@@ -299,9 +300,9 @@
 
 <div class="viewcode-block" id="_condcheck_trigger"><a class="viewcode-back" href="../../../screpl.plugins.trigger.html#screpl.plugins.trigger._condcheck_trigger">[docs]</a><span class="nd">@EUDTypedFunc</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="n">MaximumCircularBuffer</span><span class="p">(</span><span class="n">ResultEntry</span><span class="p">)])</span>
 <span class="k">def</span> <span class="nf">_condcheck_trigger</span><span class="p">(</span><span class="n">trigdb_epd</span><span class="p">,</span> <span class="n">entry_table</span><span class="p">):</span>
-    <span class="n">trig_conditions</span> <span class="o">=</span> <span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">)]</span>
+    <span class="n">trig_conditions</span><span class="o">=</span><span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">)]</span>
     <span class="n">trig_copy</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">()</span>
-    <span class="n">measure_conditions</span> <span class="o">=</span> <span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">)]</span>
+    <span class="n">measure_conditions</span><span class="o">=</span><span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">)]</span>
 
     <span class="n">cond_count</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">cond_bools</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
@@ -396,16 +397,14 @@
 
 <div class="viewcode-block" id="CondCheckTriggerManager"><a class="viewcode-back" href="../../../screpl.plugins.trigger.html#screpl.plugins.trigger.CondCheckTriggerManager">[docs]</a><span class="k">class</span> <span class="nc">CondCheckTriggerManager</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">trig_dbs</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">trig_count</span> <span class="o">=</span> <span class="mi">0</span>
-
         <span class="c1"># called result entries</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">player_result_entries</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">force_players</span> <span class="o">=</span> <span class="p">[</span><span class="nb">set</span><span class="p">(),</span> <span class="nb">set</span><span class="p">(),</span> <span class="nb">set</span><span class="p">(),</span> <span class="nb">set</span><span class="p">()]</span>
         <span class="k">for</span> <span class="n">pid</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">force_players</span><span class="p">[</span><span class="n">GetPlayerInfo</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span><span class="o">.</span><span class="n">force</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pid</span><span class="p">)</span>
 
         <span class="c1"># total result tables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trig_p2dbtables</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trig_id</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">result_tables</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># connect function to use inline eudplib</span>
@@ -422,8 +421,6 @@
                 <span class="k">break</span>
             <span class="k">if</span> <span class="n">acttype</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Trigger with Wait() action cannot be inlined"</span><span class="p">)</span>
-
-        <span class="n">trig_object</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="n">trigger</span><span class="p">)</span>
 
         <span class="c1"># build inlining player code</span>
         <span class="n">effplayers</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span> <span class="c1"># 0 ~ 8</span>
@@ -443,45 +440,46 @@
                         <span class="s2">"Unknown behavior on trigger with player </span><span class="si">%d</span><span class="s2">"</span> <span class="o">%</span> <span class="n">pid</span><span class="p">)</span>
 
         <span class="c1"># create result entries</span>
-        <span class="n">result_entries</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">p2dbtable</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">pid</span> <span class="ow">in</span> <span class="n">effplayers</span><span class="p">:</span>
             <span class="n">mcb</span> <span class="o">=</span> <span class="n">MaximumCircularBuffer</span><span class="p">(</span><span class="n">ResultEntry</span><span class="p">)</span><span class="o">.</span><span class="n">construct_w_empty</span><span class="p">([</span>
                 <span class="n">ResultEntry</span><span class="o">.</span><span class="n">construct</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">ENTRY_SIZE</span><span class="p">)</span>
             <span class="p">])</span>
-            <span class="n">result_entries</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span> <span class="o">=</span> <span class="n">mcb</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">result_tables</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">trig_object</span><span class="p">,</span>
-                                       <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trig_dbs</span><span class="p">),</span>
+            <span class="n">trig_db</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="n">trigger</span><span class="p">)</span>
+            <span class="n">p2dbtable</span><span class="p">[</span><span class="n">pid</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">trig_db</span><span class="p">,</span> <span class="n">mcb</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">result_tables</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">trig_db</span><span class="p">,</span>
+                                       <span class="bp">self</span><span class="o">.</span><span class="n">trig_id</span><span class="p">,</span>
                                        <span class="n">pid</span><span class="p">,</span>
                                        <span class="n">mcb</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trig_p2dbtables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p2dbtable</span><span class="p">)</span>
 
         <span class="c1"># construct inline trigger</span>
         <span class="n">inline_trig</span> <span class="o">=</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
                        <span class="o">+</span> <span class="n">i2b4</span><span class="p">(</span><span class="mh">0x10978d4a</span><span class="p">)</span>
                        <span class="o">+</span> <span class="n">i2b4</span><span class="p">(</span><span class="n">player_code</span><span class="p">)</span>
-                       <span class="o">+</span> <span class="p">(</span><span class="s1">'screpl_condcheck(</span><span class="si">%d</span><span class="s1">, f_getcurpl())'</span>
-                          <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">trig_count</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
+                       <span class="o">+</span> <span class="p">(</span><span class="s1">'screpl_condcheck(</span><span class="si">%d</span><span class="s1">)'</span>
+                          <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">trig_id</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">())</span>
         <span class="n">inline_trig</span> <span class="o">+=</span> <span class="nb">bytes</span><span class="p">(</span><span class="mi">2400</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">inline_trig</span><span class="p">))</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">trig_count</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">trig_dbs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">trig_object</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">player_result_entries</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">result_entries</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trig_id</span> <span class="o">+=</span> <span class="mi">1</span>
 
         <span class="k">return</span> <span class="n">inline_trig</span></div>
 
-<div class="viewcode-block" id="CondCheckTriggerManager.condcheck_inline"><a class="viewcode-back" href="../../../screpl.plugins.trigger.html#screpl.plugins.trigger.CondCheckTriggerManager.condcheck_inline">[docs]</a>    <span class="k">def</span> <span class="nf">condcheck_inline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trig_id</span><span class="p">,</span> <span class="n">player_id</span><span class="p">):</span>
-        <span class="n">trig_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trig_dbs</span><span class="p">[</span><span class="n">trig_id</span><span class="p">]</span>
-        <span class="n">player_result_entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">player_result_entries</span><span class="p">[</span><span class="n">trig_id</span><span class="p">]</span>
+<div class="viewcode-block" id="CondCheckTriggerManager.condcheck_inline"><a class="viewcode-back" href="../../../screpl.plugins.trigger.html#screpl.plugins.trigger.CondCheckTriggerManager.condcheck_inline">[docs]</a>    <span class="k">def</span> <span class="nf">condcheck_inline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trig_id</span><span class="p">):</span>
+        <span class="n">player_id</span> <span class="o">=</span> <span class="n">f_getcurpl</span><span class="p">()</span>
+        <span class="n">trig_p2dbtable</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">trig_p2dbtables</span><span class="p">[</span><span class="n">trig_id</span><span class="p">]</span>
         <span class="n">EUDSwitch</span><span class="p">(</span><span class="n">player_id</span><span class="p">)</span>
-        <span class="n">result_entry</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">entry_player_id</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">player_result_entry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">EUDSwitchCase</span><span class="p">()(</span><span class="n">entry_player_id</span><span class="p">)</span>
-            <span class="n">result_entry</span> <span class="o">&lt;&lt;</span> <span class="n">entry</span>
+        <span class="n">trig_db_epd</span><span class="p">,</span> <span class="n">entry</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">player_id</span><span class="p">,</span> <span class="p">(</span><span class="n">trig_db_</span><span class="p">,</span> <span class="n">entry_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">trig_p2dbtable</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">EUDSwitchCase</span><span class="p">()(</span><span class="n">player_id</span><span class="p">)</span>
+            <span class="n">trig_db_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="n">trig_db_</span><span class="p">)</span>
+            <span class="n">entry</span> <span class="o">&lt;&lt;</span> <span class="n">entry_</span>
             <span class="n">EUDBreak</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDSwitchDefault</span><span class="p">()():</span>
-            <span class="n">f_raise_error</span><span class="p">(</span><span class="s2">"screpl-condcheck trig id %D - player id %D unknown"</span><span class="p">,</span>
+            <span class="n">f_raise_error</span><span class="p">(</span><span class="s2">"screpl-condcheck trig_id %D: player_id %D unknown"</span><span class="p">,</span>
                           <span class="n">trig_id</span><span class="p">,</span> <span class="n">player_id</span><span class="p">)</span>
         <span class="n">EUDEndSwitch</span><span class="p">()</span>
-        <span class="n">_condcheck_trigger</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">trig_db</span><span class="p">),</span> <span class="n">result_entry</span><span class="p">)</span></div>
+        <span class="n">_condcheck_trigger</span><span class="p">(</span><span class="n">trig_db_epd</span><span class="p">,</span> <span class="n">entry</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="CondCheckTriggerManager.find_signature_and_update"><a class="viewcode-back" href="../../../screpl.plugins.trigger.html#screpl.plugins.trigger.CondCheckTriggerManager.find_signature_and_update">[docs]</a>    <span class="k">def</span> <span class="nf">find_signature_and_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""Find trigger with debugging signature</span>
@@ -523,11 +521,29 @@
 <div class="viewcode-block" id="plugin_setup"><a class="viewcode-back" href="../../../screpl.plugins.trigger.html#screpl.plugins.trigger.plugin_setup">[docs]</a><span class="k">def</span> <span class="nf">plugin_setup</span><span class="p">():</span>
     <span class="n">cctm</span><span class="o">.</span><span class="n">find_signature_and_update</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="n">cctm</span><span class="o">.</span><span class="n">trig_count</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">.editor</span> <span class="kn">import</span> <span class="n">TriggerEditorApp</span>
+
+    <span class="nd">@AppCommand</span><span class="p">([</span><span class="n">ArgEncNumber</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">start_triggereditor</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">):</span>
+        <span class="sd">"""Start TriggerEditorApp with given ptr, link type"""</span>
+        <span class="n">TriggerEditorApp</span><span class="o">.</span><span class="n">set_trig_ptr</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">nolink</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">TriggerEditorApp</span><span class="p">)</span>
+
+    <span class="nd">@AppCommand</span><span class="p">([</span><span class="n">ArgEncNumber</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">start_triggereditor_nolink</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">):</span>
+        <span class="sd">"""Start TriggerEditorApp with given ptr, nolink type"""</span>
+        <span class="n">TriggerEditorApp</span><span class="o">.</span><span class="n">set_trig_ptr</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">nolink</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">TriggerEditorApp</span><span class="p">)</span>
+
+    <span class="n">REPL</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="s1">'trigger'</span><span class="p">,</span> <span class="n">start_triggereditor</span><span class="p">)</span>
+    <span class="n">REPL</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="s1">'trigger_nolink'</span><span class="p">,</span> <span class="n">start_triggereditor_nolink</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cctm</span><span class="o">.</span><span class="n">result_tables</span><span class="p">:</span>
         <span class="kn">from</span> <span class="nn">.condcheck</span> <span class="kn">import</span> <span class="n">CondCheckApp</span>
 
         <span class="nd">@AppCommand</span><span class="p">([])</span>
         <span class="k">def</span> <span class="nf">start_condcheck</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">"""Start trigger condition checker"""</span>
             <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">CondCheckApp</span><span class="p">)</span>
 
         <span class="n">REPL</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="s1">'condcheck'</span><span class="p">,</span> <span class="n">start_condcheck</span><span class="p">)</span></div>

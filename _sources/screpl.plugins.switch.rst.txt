@@ -1,0 +1,18 @@
+screpl.plugins.switch package
+=============================
+
+Submodules
+----------
+
+.. toctree::
+   :maxdepth: 4
+
+   screpl.plugins.switch.manager
+
+Module contents
+---------------
+
+.. automodule:: screpl.plugins.switch
+   :members:
+   :undoc-members:
+   :show-inheritance:

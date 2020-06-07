@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.variable — SC-REPL 1.1.2 documentation
+   screpl.plugins.variable — SC-REPL 1.1.3 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.3 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.2 documentation
+        SC-REPL 1.1.3 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.3 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.3 documentation">
            SC-REPL
           </a>
          </label>
@@ -236,7 +236,7 @@
 <span class="n">death_units</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">watched_eud_vars</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">(</span><span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">)</span>
 
-<div class="viewcode-block" id="exploreTriggers"><a class="viewcode-back" href="../../../screpl.plugins.variable.html#screpl.plugins.variable.exploreTriggers">[docs]</a><span class="k">def</span> <span class="nf">exploreTriggers</span><span class="p">():</span>
+<div class="viewcode-block" id="explore_triggers"><a class="viewcode-back" href="../../../screpl.plugins.variable.html#screpl.plugins.variable.explore_triggers">[docs]</a><span class="k">def</span> <span class="nf">explore_triggers</span><span class="p">():</span>
     <span class="n">orig_triggers</span> <span class="o">=</span> <span class="n">GetChkTokenized</span><span class="p">()</span><span class="o">.</span><span class="n">getsection</span><span class="p">(</span><span class="sa">b</span><span class="s1">'TRIG'</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">orig_triggers</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2400</span> <span class="o">==</span> <span class="mi">0</span>
 
@@ -293,9 +293,9 @@
 
         <span class="n">offset</span> <span class="o">+=</span> <span class="mi">2400</span></div>
 
-<span class="n">exploreTriggers</span><span class="p">()</span>
+<span class="n">explore_triggers</span><span class="p">()</span>
 
-<div class="viewcode-block" id="watchVariable"><a class="viewcode-back" href="../../../screpl.plugins.variable.html#screpl.plugins.variable.watchVariable">[docs]</a><span class="k">def</span> <span class="nf">watchVariable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+<div class="viewcode-block" id="watch_variable"><a class="viewcode-back" href="../../../screpl.plugins.variable.html#screpl.plugins.variable.watch_variable">[docs]</a><span class="k">def</span> <span class="nf">watch_variable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
     <span class="k">assert</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
     <span class="n">watched_eud_vars</span><span class="o">.</span><span class="n">add_pair</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span></div>
 
@@ -304,10 +304,11 @@
     <span class="kn">from</span> <span class="nn">.varapp</span> <span class="kn">import</span> <span class="n">VariableApp</span>
 
     <span class="nd">@AppCommand</span><span class="p">([])</span>
-    <span class="k">def</span> <span class="nf">startCommand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">start_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""Start VariableApp"""</span>
         <span class="n">manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">VariableApp</span><span class="p">)</span>
 
-    <span class="n">REPL</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="s1">'var'</span><span class="p">,</span> <span class="n">startCommand</span><span class="p">)</span></div>
+    <span class="n">REPL</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="s1">'var'</span><span class="p">,</span> <span class="n">start_command</span><span class="p">)</span></div>
 </pre>
        </div>
       </article>

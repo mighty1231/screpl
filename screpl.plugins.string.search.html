@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.string.search module — SC-REPL 1.1.2 documentation
+   screpl.plugins.string.search module — SC-REPL 1.1.3 documentation
   </title>
   <link href="_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -62,7 +62,7 @@
   </script>
   <link href="genindex.html" rel="index" title="Index"/>
   <link href="search.html" rel="search" title="Search"/>
-  <link href="screpl.plugins.test.html" rel="next" title="screpl.plugins.test package"/>
+  <link href="screpl.plugins.switch.html" rel="next" title="screpl.plugins.switch package"/>
   <link href="screpl.plugins.string.manager.html" rel="prev" title="screpl.plugins.string.manager module"/>
  </head>
  <body data-md-color-accent="light-blue" data-md-color-primary="blue" dir="ltr">
@@ -85,7 +85,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.2 documentation">
+      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.3 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -163,7 +163,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="index.html">
-        SC-REPL 1.1.2 documentation
+        SC-REPL 1.1.3 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -191,10 +191,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.2 documentation">
+          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.3 documentation">
            <img alt=" logo" height="48" src="_static/" width="48"/>
           </a>
-          <a href="index.html" title="SC-REPL 1.1.2 documentation">
+          <a href="index.html" title="SC-REPL 1.1.3 documentation">
            SC-REPL
           </a>
          </label>
@@ -323,7 +323,7 @@ global variable
     <span class="kt">char</span> <span class="o">*</span><span class="n">ptr</span> <span class="o">=</span> <span class="n">get_string_ptr</span><span class="p">(</span><span class="n">string_id</span><span class="p">)</span>
     <span class="k">while</span> <span class="p">(</span><span class="o">*</span><span class="n">ptr</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">){</span>
         <span class="c1">// make utf-8, remove color code</span>
-        <span class="n">length</span><span class="p">,</span> <span class="n">is_null_end</span> <span class="o">=</span> <span class="n">strcpy_until_newline</span><span class="p">(</span><span class="n">line_buffer</span><span class="p">,</span> <span class="n">ptr</span><span class="p">)</span>
+        <span class="n">length</span><span class="p">,</span> <span class="n">is_null_end</span> <span class="o">=</span> <span class="n">_strcpy_until_newline</span><span class="p">(</span><span class="n">line_buffer</span><span class="p">,</span> <span class="n">ptr</span><span class="p">)</span>
 
         <span class="c1">// use KMP search</span>
         <span class="c1">// https://www.geeksforgeeks.org/kmp-algorithm-for-pattern-searching/</span>
@@ -384,12 +384,12 @@ global variable
         </dd>
        </dl>
        <dl class="py function">
-        <dt id="screpl.plugins.string.search.focusResult">
+        <dt id="screpl.plugins.string.search._focus_result">
          <code class="sig-prename descclassname">
           screpl.plugins.string.search.
          </code>
          <code class="sig-name descname">
-          focusResult
+          _focus_result
          </code>
          <span class="sig-paren">
           (
@@ -402,12 +402,12 @@ global variable
          <span class="sig-paren">
           )
          </span>
-         <a class="reference internal" href="_modules/screpl/plugins/string/search.html#focusResult">
+         <a class="reference internal" href="_modules/screpl/plugins/string/search.html#_focus_result">
           <span class="viewcode-link">
            [source]
           </span>
          </a>
-         <a class="headerlink" href="#screpl.plugins.string.search.focusResult" title="Permalink to this definition">
+         <a class="headerlink" href="#screpl.plugins.string.search._focus_result" title="Permalink to this definition">
           ¶
          </a>
         </dt>
@@ -641,7 +641,7 @@ global variable
            ,
            <em class="sig-param">
             <span class="n">
-             pattern
+             address
             </span>
            </em>
            <span class="sig-paren">
@@ -737,12 +737,12 @@ global variable
           </dd>
          </dl>
          <dl class="py method">
-          <dt id="screpl.plugins.string.search.StringSearchApp.setReturn_epd">
+          <dt id="screpl.plugins.string.search.StringSearchApp.set_return_epd">
            <em class="property">
             static
            </em>
            <code class="sig-name descname">
-            setReturn_epd
+            set_return_epd
            </code>
            <span class="sig-paren">
             (
@@ -755,83 +755,18 @@ global variable
            <span class="sig-paren">
             )
            </span>
-           <a class="reference internal" href="_modules/screpl/plugins/string/search.html#StringSearchApp.setReturn_epd">
+           <a class="reference internal" href="_modules/screpl/plugins/string/search.html#StringSearchApp.set_return_epd">
             <span class="viewcode-link">
              [source]
             </span>
            </a>
-           <a class="headerlink" href="#screpl.plugins.string.search.StringSearchApp.setReturn_epd" title="Permalink to this definition">
+           <a class="headerlink" href="#screpl.plugins.string.search.StringSearchApp.set_return_epd" title="Permalink to this definition">
             ¶
            </a>
           </dt>
           <dd>
           </dd>
          </dl>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.plugins.string.search.computeLPSArray">
-         <code class="sig-prename descclassname">
-          screpl.plugins.string.search.
-         </code>
-         <code class="sig-name descname">
-          computeLPSArray
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           pattern
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/plugins/string/search.html#computeLPSArray">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.plugins.string.search.computeLPSArray" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          KMP Search preprocessing - evaluate LPS array
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.plugins.string.search.strcpy_until_newline">
-         <code class="sig-prename descclassname">
-          screpl.plugins.string.search.
-         </code>
-         <code class="sig-name descname">
-          strcpy_until_newline
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           v_ptr
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/plugins/string/search.html#strcpy_until_newline">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.plugins.string.search.strcpy_until_newline" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
         </dd>
        </dl>
       </article>
@@ -856,13 +791,13 @@ global variable
        </span>
       </div>
      </a>
-     <a class="md-flex md-footer-nav__link md-footer-nav__link--next" href="screpl.plugins.test.html" rel="next" title="screpl.plugins.test package">
+     <a class="md-flex md-footer-nav__link md-footer-nav__link--next" href="screpl.plugins.switch.html" rel="next" title="screpl.plugins.switch package">
       <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
        <span class="md-flex__ellipsis">
         <span class="md-footer-nav__direction">
          Next
         </span>
-        screpl.plugins.test package
+        screpl.plugins.switch package
        </span>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">

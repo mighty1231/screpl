@@ -1,0 +1,7 @@
+screpl.plugins.switch.manager module
+====================================
+
+.. automodule:: screpl.plugins.switch.manager
+   :members:
+   :undoc-members:
+   :show-inheritance:

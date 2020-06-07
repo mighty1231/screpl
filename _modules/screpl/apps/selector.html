@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.apps.selector — SC-REPL 1.1.2 documentation
+   screpl.apps.selector — SC-REPL 1.1.3 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.3 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.2 documentation
+        SC-REPL 1.1.3 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.3 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.3 documentation">
            SC-REPL
           </a>
          </label>
@@ -222,142 +222,154 @@
        </h1>
        <div class="highlight">
         <pre>
-<span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+<span></span><span class="sd">"""SelectorApp"""</span>
+<span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="kn">import</span> <span class="nn">screpl.core.application</span> <span class="k">as</span> <span class="nn">application</span>
-<span class="kn">import</span> <span class="nn">screpl.resources.table.tables</span> <span class="k">as</span> <span class="nn">tb</span>
 <span class="kn">import</span> <span class="nn">screpl.main</span> <span class="k">as</span> <span class="nn">main</span>
-<span class="kn">import</span> <span class="nn">screpl.utils.referencetable</span> <span class="k">as</span> <span class="nn">referencetable</span>
+<span class="kn">import</span> <span class="nn">screpl.utils.referencetable</span> <span class="k">as</span> <span class="nn">rt</span>
 
 <span class="c1"># number of items to show in a page</span>
-<span class="n">NITEMS</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">ENTRY_COUNT_PER_PAGE</span> <span class="o">=</span> <span class="mi">8</span>
 
-<span class="k">def</span> <span class="nf">_createapp</span><span class="p">(</span><span class="n">domainname</span><span class="p">,</span> <span class="n">reftable</span><span class="p">):</span>
-    <span class="n">reftable_sz</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">reftable</span><span class="o">.</span><span class="n">_dict</span><span class="p">)</span>
-    <span class="n">_value</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">_offset</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">_result_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">_reftable_sz</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+<span class="n">_reftable_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+<span class="n">_value</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+<span class="n">_index</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+<span class="n">_result_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 
+<span class="n">DISPMODE_MAIN</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">DISPMODE_MANUAL</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">_dispmode</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
 
-    <span class="nd">@EUDFunc</span>
-    <span class="k">def</span> <span class="nf">focus_offset</span><span class="p">(</span><span class="n">new_offset</span><span class="p">):</span>
-        <span class="n">Trigger</span><span class="p">(</span>
-            <span class="n">conditions</span><span class="o">=</span><span class="n">new_offset</span><span class="o">.</span><span class="n">AtLeast</span><span class="p">(</span><span class="mh">0x80000000</span><span class="p">),</span>
-            <span class="n">actions</span><span class="o">=</span><span class="n">new_offset</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">Trigger</span><span class="p">(</span>
-            <span class="n">conditions</span><span class="o">=</span><span class="n">new_offset</span><span class="o">.</span><span class="n">AtLeast</span><span class="p">(</span><span class="n">reftable_sz</span><span class="p">),</span>
-            <span class="n">actions</span><span class="o">=</span><span class="n">new_offset</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="n">reftable_sz</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">new_offset</span> <span class="o">==</span> <span class="n">_offset</span><span class="p">):</span>
-            <span class="n">_offset</span> <span class="o">&lt;&lt;</span> <span class="n">new_offset</span>
-            <span class="n">_value</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">((</span><span class="n">EPD</span><span class="p">(</span><span class="n">reftable</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">new_offset</span><span class="p">)</span>
-            <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
+<div class="viewcode-block" id="_focus_index"><a class="viewcode-back" href="../../../screpl.apps.selector.html#screpl.apps.selector._focus_index">[docs]</a><span class="nd">@EUDFunc</span>
+<span class="k">def</span> <span class="nf">_focus_index</span><span class="p">(</span><span class="n">new_index</span><span class="p">):</span>
+    <span class="n">Trigger</span><span class="p">(</span>
+        <span class="n">conditions</span><span class="o">=</span><span class="n">new_index</span><span class="o">.</span><span class="n">AtLeast</span><span class="p">(</span><span class="mh">0x80000000</span><span class="p">),</span>
+        <span class="n">actions</span><span class="o">=</span><span class="n">new_index</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">Trigger</span><span class="p">(</span>
+        <span class="n">conditions</span><span class="o">=</span><span class="n">new_index</span><span class="o">.</span><span class="n">AtLeast</span><span class="p">(</span><span class="n">_reftable_sz</span><span class="p">),</span>
+        <span class="n">actions</span><span class="o">=</span><span class="n">new_index</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="n">_reftable_sz</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">new_index</span> <span class="o">==</span> <span class="n">_index</span><span class="p">):</span>
+        <span class="n">_index</span> <span class="o">&lt;&lt;</span> <span class="n">new_index</span>
+        <span class="n">_value</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">((</span><span class="n">_reftable_epd</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span><span class="o">*</span><span class="n">new_index</span><span class="p">)</span>
+        <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
+    <span class="n">EUDEndIf</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="SelectorApp"><a class="viewcode-back" href="../../../screpl.apps.selector.html#screpl.apps.selector.SelectorApp">[docs]</a><span class="k">class</span> <span class="nc">SelectorApp</span><span class="p">(</span><span class="n">application</span><span class="o">.</span><span class="n">Application</span><span class="p">):</span>
+<div class="viewcode-block" id="SelectorApp.set_content"><a class="viewcode-back" href="../../../screpl.apps.selector.html#screpl.apps.selector.SelectorApp.set_content">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">set_content</span><span class="p">(</span><span class="n">reftable</span><span class="p">,</span> <span class="n">variable</span><span class="p">):</span>
+        <span class="sd">"""Set initializing argument before start the app</span>
+
+<span class="sd">        Set the contents and address to write the result value</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            reftable(ReferenceTable): ReferenceTable object with pairs of</span>
+<span class="sd">                epd-type strings and numerical values.</span>
+<span class="sd">            variable(EUDVariable): the default value to set and where the</span>
+<span class="sd">                result value will be saved into</span>
+<span class="sd">        """</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">reftable</span><span class="p">,</span> <span class="n">rt</span><span class="o">.</span><span class="n">ReferenceTable</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">variable</span><span class="p">)</span>
+
+        <span class="n">_reftable_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="n">reftable</span><span class="p">)</span>
+        <span class="n">_reftable_sz</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">_reftable_epd</span><span class="p">)</span>
+        <span class="n">_value</span> <span class="o">&lt;&lt;</span> <span class="n">variable</span>
+        <span class="n">_result_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="n">variable</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">())</span></div>
+
+    <span class="k">def</span> <span class="nf">on_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">_dispmode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MAIN</span>
+        <span class="n">_index</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+        <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">name_epd</span><span class="p">,</span> <span class="n">value_epd</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">MemoryEPD</span><span class="p">(</span><span class="n">value_epd</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="n">_value</span><span class="p">)):</span>
+                <span class="n">_index</span> <span class="o">&lt;&lt;</span> <span class="n">i</span>
+                <span class="n">EUDReturn</span><span class="p">()</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="n">rt</span><span class="o">.</span><span class="n">ReferenceTable</span><span class="o">.</span><span class="n">iter_table</span><span class="p">(</span><span class="n">_reftable_epd</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+
+        <span class="c1"># failed on search</span>
+        <span class="n">_value</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">_reftable_epd</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_destruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">_result_epd</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">_result_epd</span><span class="p">,</span> <span class="n">_value</span><span class="p">)</span>
+            <span class="n">_result_epd</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
-    <span class="k">class</span> <span class="nc">_SelectorApp</span><span class="p">(</span><span class="n">application</span><span class="o">.</span><span class="n">Application</span><span class="p">):</span>
-        <span class="nd">@staticmethod</span>
-        <span class="k">def</span> <span class="nf">setContent</span><span class="p">(</span><span class="n">default</span><span class="p">,</span> <span class="n">result_epd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-            <span class="n">_value</span> <span class="o">&lt;&lt;</span> <span class="n">default</span>
-            <span class="k">if</span> <span class="n">result_epd</span><span class="p">:</span>
-                <span class="n">_result_epd</span> <span class="o">&lt;&lt;</span> <span class="n">result_epd</span>
-
-        <span class="k">def</span> <span class="nf">on_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="n">_offset</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
-            <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">name_epd</span><span class="p">,</span> <span class="n">value_epd</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">MemoryEPD</span><span class="p">(</span><span class="n">value_epd</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="n">_value</span><span class="p">)):</span>
-                    <span class="n">_offset</span> <span class="o">&lt;&lt;</span> <span class="n">i</span>
-                    <span class="n">EUDReturn</span><span class="p">()</span>
-                <span class="n">EUDEndIf</span><span class="p">()</span>
-
-            <span class="n">referencetable</span><span class="o">.</span><span class="n">ReferenceTable</span><span class="o">.</span><span class="n">iter_table</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">reftable</span><span class="p">),</span> <span class="n">func</span><span class="p">)</span>
-
-            <span class="c1"># failed on search</span>
-            <span class="n">_value</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
-
-        <span class="k">def</span> <span class="nf">on_destruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">_result_epd</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">_result_epd</span><span class="p">,</span> <span class="n">_value</span><span class="p">)</span>
-                <span class="n">_result_epd</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
-            <span class="n">EUDEndIf</span><span class="p">()</span>
-
-        <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-            <span class="n">app_manager</span> <span class="o">=</span> <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"ESC"</span><span class="p">)):</span>
-                <span class="n">app_manager</span><span class="o">.</span><span class="n">request_destruct</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
-                <span class="n">focus_offset</span><span class="p">(</span><span class="n">_offset</span> <span class="o">-</span> <span class="n">NITEMS</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">)):</span>
-                <span class="n">focus_offset</span><span class="p">(</span><span class="n">_offset</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
-                <span class="n">focus_offset</span><span class="p">(</span><span class="n">_offset</span> <span class="o">+</span> <span class="n">NITEMS</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">)):</span>
-                <span class="n">focus_offset</span><span class="p">(</span><span class="n">_offset</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="n">EUDEndIf</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">app_manager</span> <span class="o">=</span> <span class="n">main</span><span class="o">.</span><span class="n">get_app_manager</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"ESC"</span><span class="p">)):</span>
+            <span class="n">app_manager</span><span class="o">.</span><span class="n">request_destruct</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
+            <span class="n">_focus_index</span><span class="p">(</span><span class="n">_index</span> <span class="o">-</span> <span class="n">ENTRY_COUNT_PER_PAGE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">)):</span>
+            <span class="n">_focus_index</span><span class="p">(</span><span class="n">_index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
+            <span class="n">_focus_index</span><span class="p">(</span><span class="n">_index</span> <span class="o">+</span> <span class="n">ENTRY_COUNT_PER_PAGE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">)):</span>
+            <span class="n">_focus_index</span><span class="p">(</span><span class="n">_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_down</span><span class="p">(</span><span class="s2">"F1"</span><span class="p">)):</span>
+            <span class="n">_dispmode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MANUAL</span>
             <span class="n">app_manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_up</span><span class="p">(</span><span class="s2">"F1"</span><span class="p">)):</span>
+            <span class="n">_dispmode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MAIN</span>
+            <span class="n">app_manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
 
-        <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">_dispmode</span> <span class="o">==</span> <span class="n">DISPMODE_MAIN</span><span class="p">):</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x04</span><span class="s2">SelectorApp, value=%D, press F1</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">_value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span>
-                <span class="s2">"</span><span class="se">\x16</span><span class="si">{}</span><span class="s2"> Selector, value=%D, ESC, F7, F8</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">domainname</span><span class="p">),</span>
-                <span class="n">_value</span><span class="p">)</span>
+                <span class="s2">"</span><span class="se">\x17</span><span class="s2">Press F7, F8 to navigate items // "</span>
+                <span class="s2">"Try combine them with CTRL key. Choose item and press ESC</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
 
-            <span class="n">cur</span><span class="p">,</span> <span class="n">until</span><span class="p">,</span> <span class="n">pageend</span><span class="p">,</span> <span class="n">key_epd</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">_offset</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">reftable_sz</span> <span class="o">//</span> <span class="n">NITEMS</span> <span class="o">*</span> <span class="n">NITEMS</span><span class="p">)):</span>
-                <span class="n">DoActions</span><span class="p">([</span>
-                    <span class="n">cur</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="n">reftable_sz</span> <span class="o">//</span> <span class="n">NITEMS</span> <span class="o">*</span> <span class="n">NITEMS</span><span class="p">),</span>
-                    <span class="n">until</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="n">reftable_sz</span><span class="p">),</span>
-                    <span class="n">pageend</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">((</span><span class="n">reftable_sz</span> <span class="o">//</span> <span class="n">NITEMS</span> <span class="o">*</span> <span class="n">NITEMS</span><span class="p">)</span> <span class="o">+</span> <span class="n">NITEMS</span><span class="p">),</span>
-                    <span class="n">key_epd</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">reftable</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">reftable_sz</span> <span class="o">//</span> <span class="n">NITEMS</span> <span class="o">*</span> <span class="n">NITEMS</span><span class="p">)</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-                <span class="p">])</span>
-            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                <span class="n">quot</span><span class="p">,</span> <span class="n">mod</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">_offset</span><span class="p">,</span> <span class="n">NITEMS</span><span class="p">)</span>
-                <span class="n">cur</span> <span class="o">&lt;&lt;</span> <span class="n">quot</span> <span class="o">*</span> <span class="n">NITEMS</span>
-                <span class="n">until</span> <span class="o">&lt;&lt;</span> <span class="n">cur</span> <span class="o">+</span> <span class="n">NITEMS</span>
-                <span class="n">pageend</span> <span class="o">&lt;&lt;</span> <span class="n">until</span>
-                <span class="n">key_epd</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">reftable</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">cur</span> <span class="o">*</span> <span class="mi">2</span> 
+        <span class="n">quot</span><span class="p">,</span> <span class="n">rem</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">_index</span><span class="p">,</span> <span class="n">ENTRY_COUNT_PER_PAGE</span><span class="p">)</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">quot</span> <span class="o">*</span> <span class="n">ENTRY_COUNT_PER_PAGE</span>
+        <span class="n">pageend</span> <span class="o">=</span> <span class="n">cur</span> <span class="o">+</span> <span class="n">ENTRY_COUNT_PER_PAGE</span>
+        <span class="n">until</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+        <span class="n">text_table_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">pageend</span> <span class="o">&lt;=</span> <span class="n">_reftable_sz</span><span class="p">):</span>
+            <span class="n">until</span> <span class="o">&lt;&lt;</span> <span class="n">pageend</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="n">until</span> <span class="o">&lt;&lt;</span> <span class="n">_reftable_sz</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="c1"># print contents</span>
+        <span class="n">key_epd</span> <span class="o">=</span> <span class="n">_reftable_epd</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">cur</span> <span class="o">*</span> <span class="mi">2</span>
+        <span class="n">value_epd</span> <span class="o">=</span> <span class="n">key_epd</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+            <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cur</span> <span class="o">&gt;=</span> <span class="n">until</span><span class="p">)</span>
+
+            <span class="n">_emp</span> <span class="o">=</span> <span class="n">EUDTernary</span><span class="p">(</span><span class="n">cur</span> <span class="o">==</span> <span class="n">_index</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x02</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">_dispmode</span> <span class="o">==</span> <span class="n">DISPMODE_MANUAL</span><span class="p">):</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x17</span><span class="s2"> %D:"</span><span class="p">,</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">value_epd</span><span class="p">))</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
 
-            <span class="c1"># print contents</span>
-            <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
-                <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cur</span> <span class="o">&gt;=</span> <span class="n">until</span><span class="p">)</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"%C </span><span class="si">%E</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">_emp</span><span class="p">,</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">key_epd</span><span class="p">))</span>
 
-                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur</span> <span class="o">==</span> <span class="n">_offset</span><span class="p">):</span>
-                    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x11</span><span class="p">)</span> <span class="c1"># orange</span>
-                <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x02</span><span class="p">)</span> <span class="c1"># pale blue</span>
-                <span class="n">EUDEndIf</span><span class="p">()</span>
+            <span class="n">DoActions</span><span class="p">([</span>
+                <span class="n">cur</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+                <span class="n">key_epd</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+                <span class="n">value_epd</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+            <span class="p">])</span>
+        <span class="n">EUDEndInfLoop</span><span class="p">()</span>
 
-                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">" </span><span class="si">%E</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">key_epd</span><span class="p">))</span>
+        <span class="c1"># print spaces</span>
+        <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+            <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cur</span> <span class="o">&gt;=</span> <span class="n">pageend</span><span class="p">)</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">))</span>
+            <span class="n">cur</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">EUDEndInfLoop</span><span class="p">()</span>
 
-                <span class="n">DoActions</span><span class="p">([</span>
-                    <span class="n">cur</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
-                    <span class="n">key_epd</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-                <span class="p">])</span>
-            <span class="n">EUDEndInfLoop</span><span class="p">()</span>
-
-            <span class="c1"># print spaces</span>
-            <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
-                <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cur</span> <span class="o">&gt;=</span> <span class="n">pageend</span><span class="p">)</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">))</span>
-                <span class="n">cur</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">EUDEndInfLoop</span><span class="p">()</span>
-
-            <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">_SelectorApp</span>
-
-
-<span class="n">AIScriptSelectorApp</span>     <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">"AIScript"</span><span class="p">,</span>     <span class="n">tb</span><span class="o">.</span><span class="n">AIScript</span><span class="p">)</span>
-<span class="n">ModifierSelectorApp</span>     <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">"Modifier"</span><span class="p">,</span>     <span class="n">tb</span><span class="o">.</span><span class="n">Modifier</span><span class="p">)</span>
-<span class="n">AllyStatusSelectorApp</span>   <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">"AllyStatus"</span><span class="p">,</span>   <span class="n">tb</span><span class="o">.</span><span class="n">AllyStatus</span><span class="p">)</span>
-<span class="n">ComparisonSelectorApp</span>   <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">"Comparison"</span><span class="p">,</span>   <span class="n">tb</span><span class="o">.</span><span class="n">Comparison</span><span class="p">)</span>
-<span class="n">OrderSelectorApp</span>        <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">"Order"</span><span class="p">,</span>        <span class="n">tb</span><span class="o">.</span><span class="n">Order</span><span class="p">)</span>
-<span class="n">PlayerSelectorApp</span>       <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">"Player"</span><span class="p">,</span>       <span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">)</span>
-<span class="n">PropStateSelectorApp</span>    <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">"PropState"</span><span class="p">,</span>    <span class="n">tb</span><span class="o">.</span><span class="n">PropState</span><span class="p">)</span>
-<span class="n">ResourceSelectorApp</span>     <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">"Resource"</span><span class="p">,</span>     <span class="n">tb</span><span class="o">.</span><span class="n">Resource</span><span class="p">)</span>
-<span class="n">ScoreSelectorApp</span>        <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">"Score"</span><span class="p">,</span>        <span class="n">tb</span><span class="o">.</span><span class="n">Score</span><span class="p">)</span>
-<span class="n">SwitchActionSelectorApp</span> <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">"SwitchAction"</span><span class="p">,</span> <span class="n">tb</span><span class="o">.</span><span class="n">SwitchAction</span><span class="p">)</span>
-<span class="n">SwitchStateSelectorApp</span>  <span class="o">=</span> <span class="n">_createapp</span><span class="p">(</span><span class="s2">"SwitchState"</span><span class="p">,</span>  <span class="n">tb</span><span class="o">.</span><span class="n">SwitchState</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 </pre>
        </div>
       </article>

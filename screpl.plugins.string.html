@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.string package — SC-REPL 1.1.2 documentation
+   screpl.plugins.string package — SC-REPL 1.1.3 documentation
   </title>
   <link href="_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -85,7 +85,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.2 documentation">
+      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.3 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -163,7 +163,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="index.html">
-        SC-REPL 1.1.2 documentation
+        SC-REPL 1.1.3 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -186,10 +186,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.2 documentation">
+          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.3 documentation">
            <img alt=" logo" height="48" src="_static/" width="48"/>
           </a>
-          <a href="index.html" title="SC-REPL 1.1.2 documentation">
+          <a href="index.html" title="SC-REPL 1.1.3 documentation">
            SC-REPL
           </a>
          </label>
@@ -296,52 +296,12 @@
         </a>
        </h2>
        <dl class="py function">
-        <dt id="screpl.plugins.string.UTF8Check">
+        <dt id="screpl.plugins.string.allocate_for_buffer">
          <code class="sig-prename descclassname">
           screpl.plugins.string.
          </code>
          <code class="sig-name descname">
-          UTF8Check
-         </code>
-         <span class="sig-paren">
-          (
-         </span>
-         <em class="sig-param">
-          <span class="n">
-           offset
-          </span>
-         </em>
-         <span class="sig-paren">
-          )
-         </span>
-         <a class="reference internal" href="_modules/screpl/plugins/string.html#UTF8Check">
-          <span class="viewcode-link">
-           [source]
-          </span>
-         </a>
-         <a class="headerlink" href="#screpl.plugins.string.UTF8Check" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          <code class="xref py py-class docutils literal notranslate">
-           <span class="pre">
-            EUDFuncN
-           </span>
-          </code>
-          - if string starts with OFFSET is utf-8 decodable, return 1
-otherwise 0
-         </p>
-        </dd>
-       </dl>
-       <dl class="py function">
-        <dt id="screpl.plugins.string.allocateForBuffer">
-         <code class="sig-prename descclassname">
-          screpl.plugins.string.
-         </code>
-         <code class="sig-name descname">
-          allocateForBuffer
+          allocate_for_buffer
          </code>
          <span class="sig-paren">
           (
@@ -354,12 +314,12 @@ otherwise 0
          <span class="sig-paren">
           )
          </span>
-         <a class="reference internal" href="_modules/screpl/plugins/string.html#allocateForBuffer">
+         <a class="reference internal" href="_modules/screpl/plugins/string.html#allocate_for_buffer">
           <span class="viewcode-link">
            [source]
           </span>
          </a>
-         <a class="headerlink" href="#screpl.plugins.string.allocateForBuffer" title="Permalink to this definition">
+         <a class="headerlink" href="#screpl.plugins.string.allocate_for_buffer" title="Permalink to this definition">
           ¶
          </a>
         </dt>
@@ -370,6 +330,46 @@ otherwise 0
             EUDFuncN
            </span>
           </code>
+         </p>
+        </dd>
+       </dl>
+       <dl class="py function">
+        <dt id="screpl.plugins.string.f_check_utf8">
+         <code class="sig-prename descclassname">
+          screpl.plugins.string.
+         </code>
+         <code class="sig-name descname">
+          f_check_utf8
+         </code>
+         <span class="sig-paren">
+          (
+         </span>
+         <em class="sig-param">
+          <span class="n">
+           offset
+          </span>
+         </em>
+         <span class="sig-paren">
+          )
+         </span>
+         <a class="reference internal" href="_modules/screpl/plugins/string.html#f_check_utf8">
+          <span class="viewcode-link">
+           [source]
+          </span>
+         </a>
+         <a class="headerlink" href="#screpl.plugins.string.f_check_utf8" title="Permalink to this definition">
+          ¶
+         </a>
+        </dt>
+        <dd>
+         <p>
+          <code class="xref py py-class docutils literal notranslate">
+           <span class="pre">
+            EUDFuncN
+           </span>
+          </code>
+          - if string starts with OFFSET is utf-8 decodable, return 1
+otherwise 0
          </p>
         </dd>
        </dl>

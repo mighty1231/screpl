@@ -1,0 +1,7 @@
+screpl.plugins.trigger.condedit module
+======================================
+
+.. automodule:: screpl.plugins.trigger.condedit
+   :members:
+   :undoc-members:
+   :show-inheritance:

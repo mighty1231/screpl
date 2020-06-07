@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.trigger.editor module — SC-REPL 1.1.2 documentation
+   screpl.plugins.trigger.editor module — SC-REPL 1.1.3 documentation
   </title>
   <link href="_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -63,7 +63,7 @@
   <link href="genindex.html" rel="index" title="Index"/>
   <link href="search.html" rel="search" title="Search"/>
   <link href="screpl.plugins.trigger.entry.html" rel="next" title="screpl.plugins.trigger.entry module"/>
-  <link href="screpl.plugins.trigger.condcheck.html" rel="prev" title="screpl.plugins.trigger.condcheck module"/>
+  <link href="screpl.plugins.trigger.condedit.html" rel="prev" title="screpl.plugins.trigger.condedit module"/>
  </head>
  <body data-md-color-accent="light-blue" data-md-color-primary="blue" dir="ltr">
   <svg class="md-svg">
@@ -85,7 +85,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.2 documentation">
+      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.3 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -163,7 +163,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="index.html">
-        SC-REPL 1.1.2 documentation
+        SC-REPL 1.1.3 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -191,10 +191,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.2 documentation">
+          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.3 documentation">
            <img alt=" logo" height="48" src="_static/" width="48"/>
           </a>
-          <a href="index.html" title="SC-REPL 1.1.2 documentation">
+          <a href="index.html" title="SC-REPL 1.1.3 documentation">
            SC-REPL
           </a>
          </label>
@@ -363,6 +363,18 @@
             act_epd
            </code>
            <a class="headerlink" href="#screpl.plugins.trigger.editor.TriggerEditorApp.act_epd" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+          </dd>
+         </dl>
+         <dl class="py attribute">
+          <dt id="screpl.plugins.trigger.editor.TriggerEditorApp.flag_epd">
+           <code class="sig-name descname">
+            flag_epd
+           </code>
+           <a class="headerlink" href="#screpl.plugins.trigger.editor.TriggerEditorApp.flag_epd" title="Permalink to this definition">
             ¶
            </a>
           </dt>
@@ -835,6 +847,195 @@
           </dd>
          </dl>
          <dl class="py method">
+          <dt id="screpl.plugins.trigger.editor.TriggerEditorApp.new">
+           <code class="sig-name descname">
+            new
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             self
+            </span>
+           </em>
+           ,
+           <em class="sig-param">
+            <span class="n">
+             ptr
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="headerlink" href="#screpl.plugins.trigger.editor.TriggerEditorApp.new" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+           <p>
+            <a class="reference internal" href="screpl.core.appcommand.html#screpl.core.appcommand.AppCommandN" title="screpl.core.appcommand.AppCommandN">
+             <code class="xref py py-class docutils literal notranslate">
+              <span class="pre">
+               AppCommandN
+              </span>
+             </code>
+            </a>
+            - Start a new app with given ptr, link type
+           </p>
+          </dd>
+         </dl>
+         <dl class="py method">
+          <dt id="screpl.plugins.trigger.editor.TriggerEditorApp.new_nolink">
+           <code class="sig-name descname">
+            new_nolink
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             self
+            </span>
+           </em>
+           ,
+           <em class="sig-param">
+            <span class="n">
+             ptr
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="headerlink" href="#screpl.plugins.trigger.editor.TriggerEditorApp.new_nolink" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+           <p>
+            <a class="reference internal" href="screpl.core.appcommand.html#screpl.core.appcommand.AppCommandN" title="screpl.core.appcommand.AppCommandN">
+             <code class="xref py py-class docutils literal notranslate">
+              <span class="pre">
+               AppCommandN
+              </span>
+             </code>
+            </a>
+            - Start a new app with given ptr, nolink type
+           </p>
+          </dd>
+         </dl>
+         <dl class="py method">
+          <dt id="screpl.plugins.trigger.editor.TriggerEditorApp.next">
+           <code class="sig-name descname">
+            next
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             self
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="headerlink" href="#screpl.plugins.trigger.editor.TriggerEditorApp.next" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+           <p>
+            <a class="reference internal" href="screpl.core.appcommand.html#screpl.core.appcommand.AppCommandN" title="screpl.core.appcommand.AppCommandN">
+             <code class="xref py py-class docutils literal notranslate">
+              <span class="pre">
+               AppCommandN
+              </span>
+             </code>
+            </a>
+            - Set trigger pointer of current app to next trigger pointer
+           </p>
+          </dd>
+         </dl>
+         <dl class="py method">
+          <dt id="screpl.plugins.trigger.editor.TriggerEditorApp.setflag">
+           <code class="sig-name descname">
+            setflag
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             self
+            </span>
+           </em>
+           ,
+           <em class="sig-param">
+            <span class="n">
+             value
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="headerlink" href="#screpl.plugins.trigger.editor.TriggerEditorApp.setflag" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+           <p>
+            <a class="reference internal" href="screpl.core.appcommand.html#screpl.core.appcommand.AppCommandN" title="screpl.core.appcommand.AppCommandN">
+             <code class="xref py py-class docutils literal notranslate">
+              <span class="pre">
+               AppCommandN
+              </span>
+             </code>
+            </a>
+            - Update flag of current trigger with given value
+           </p>
+          </dd>
+         </dl>
+         <dl class="py method">
+          <dt id="screpl.plugins.trigger.editor.TriggerEditorApp.setp">
+           <code class="sig-name descname">
+            setp
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             self
+            </span>
+           </em>
+           ,
+           <em class="sig-param">
+            <span class="n">
+             ptr
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="headerlink" href="#screpl.plugins.trigger.editor.TriggerEditorApp.setp" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+           <p>
+            <a class="reference internal" href="screpl.core.appcommand.html#screpl.core.appcommand.AppCommandN" title="screpl.core.appcommand.AppCommandN">
+             <code class="xref py py-class docutils literal notranslate">
+              <span class="pre">
+               AppCommandN
+              </span>
+             </code>
+            </a>
+            - Set trigger pointer of current app to given argument
+           </p>
+          </dd>
+         </dl>
+         <dl class="py method">
           <dt id="screpl.plugins.trigger.editor.TriggerEditorApp.set_trig_epd">
            <em class="property">
             static
@@ -853,7 +1054,7 @@
            ,
            <em class="sig-param">
             <span class="n">
-             unlink
+             nolink
             </span>
             <span class="o">
              =
@@ -885,7 +1086,7 @@
             <dd class="field-odd">
              <p>
               <strong>
-               unlink
+               nolink
               </strong>
               (
               <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">
@@ -920,7 +1121,7 @@ with trigger pointer links.
            ,
            <em class="sig-param">
             <span class="n">
-             unlink
+             nolink
             </span>
             <span class="o">
              =
@@ -952,7 +1153,7 @@ with trigger pointer links.
             <dd class="field-odd">
              <p>
               <strong>
-               unlink
+               nolink
               </strong>
               (
               <a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.8)">
@@ -978,7 +1179,7 @@ with trigger pointer links.
   <footer class="md-footer">
    <div class="md-footer-nav">
     <nav class="md-footer-nav__inner md-grid">
-     <a class="md-flex md-footer-nav__link md-footer-nav__link--prev" href="screpl.plugins.trigger.condcheck.html" rel="prev" title="screpl.plugins.trigger.condcheck module">
+     <a class="md-flex md-footer-nav__link md-footer-nav__link--prev" href="screpl.plugins.trigger.condedit.html" rel="prev" title="screpl.plugins.trigger.condedit module">
       <div class="md-flex__cell md-flex__cell--shrink">
        <i class="md-icon md-icon--arrow-back md-footer-nav__button">
        </i>
@@ -988,7 +1189,7 @@ with trigger pointer links.
         <span class="md-footer-nav__direction">
          Previous
         </span>
-        screpl.plugins.trigger.condcheck module
+        screpl.plugins.trigger.condedit module
        </span>
       </div>
      </a>

@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.boundeditor.manager — SC-REPL 1.1.2 documentation
+   screpl.plugins.boundeditor.manager — SC-REPL 1.1.3 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.2 documentation
+        SC-REPL 1.1.3 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
            SC-REPL
           </a>
          </label>
@@ -240,7 +240,7 @@
 <span class="kn">from</span> <span class="nn">.testmode</span> <span class="kn">import</span> <span class="n">TestPatternApp</span>
 <span class="kn">from</span> <span class="nn">.exporter</span> <span class="kn">import</span> <span class="n">ExporterApp</span>
 
-<div class="viewcode-block" id="deleteSelectedUnit"><a class="viewcode-back" href="../../../../screpl.plugins.boundeditor.manager.html#screpl.plugins.boundeditor.manager.deleteSelectedUnit">[docs]</a><span class="k">def</span> <span class="nf">deleteSelectedUnit</span><span class="p">():</span>
+<div class="viewcode-block" id="delete_selected_units"><a class="viewcode-back" href="../../../../screpl.plugins.boundeditor.manager.html#screpl.plugins.boundeditor.manager.delete_selected_units">[docs]</a><span class="k">def</span> <span class="nf">delete_selected_units</span><span class="p">():</span>
     <span class="c1"># 0x6284B8  CurrentUnitSelection     CUNIT *CurrentUnitSelection[12]</span>
     <span class="c1"># 0x6284E8  AllPlayerSelectionGroups CUNIT *AllPlayerSelectionGroups[8][12]</span>
 
@@ -296,7 +296,7 @@
             <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"E"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
                 <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">ExporterApp</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"delete"</span><span class="p">)):</span>
-            <span class="n">deleteSelectedUnit</span><span class="p">()</span>
+            <span class="n">delete_selected_units</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>

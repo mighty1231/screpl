@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.string — SC-REPL 1.1.2 documentation
+   screpl.plugins.string — SC-REPL 1.1.3 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.3 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.2 documentation
+        SC-REPL 1.1.3 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.3 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.3 documentation">
            SC-REPL
           </a>
          </label>
@@ -223,6 +223,7 @@
        <div class="highlight">
         <pre>
 <span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">eudplib.eudlib.stringf.cputf8</span> <span class="kn">import</span> <span class="n">cp949_table</span>
 
 <span class="kn">from</span> <span class="nn">screpl.apps.repl</span> <span class="kn">import</span> <span class="n">REPL</span>
 <span class="kn">from</span> <span class="nn">screpl.core.appcommand</span> <span class="kn">import</span> <span class="n">AppCommand</span>
@@ -243,14 +244,13 @@
 
 <span class="n">cur_string_id</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
-<span class="kn">from</span> <span class="nn">eudplib.eudlib.stringf.cputf8</span> <span class="kn">import</span> <span class="n">cp949_table</span>
 <span class="n">cvtb</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="mi">65536</span>
 <span class="k">for</span> <span class="p">(</span><span class="n">ch1</span><span class="p">,</span> <span class="n">ch2</span><span class="p">),</span> <span class="n">tab</span> <span class="ow">in</span> <span class="n">cp949_table</span><span class="p">:</span>
     <span class="n">cvtb</span><span class="p">[</span><span class="n">ch1</span> <span class="o">+</span> <span class="n">ch2</span> <span class="o">*</span> <span class="mi">256</span><span class="p">]</span> <span class="o">=</span> <span class="n">tab</span>
 <span class="n">cvtb</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="n">cvtb</span><span class="p">)</span>
 
-<div class="viewcode-block" id="allocateForBuffer"><a class="viewcode-back" href="../../../screpl.plugins.string.html#screpl.plugins.string.allocateForBuffer">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">allocateForBuffer</span><span class="p">(</span><span class="n">string_id</span><span class="p">):</span>
+<div class="viewcode-block" id="allocate_for_buffer"><a class="viewcode-back" href="../../../screpl.plugins.string.html#screpl.plugins.string.allocate_for_buffer">[docs]</a><span class="nd">@EUDFunc</span>
+<span class="k">def</span> <span class="nf">allocate_for_buffer</span><span class="p">(</span><span class="n">string_id</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">new_alloc_epd</span>
     <span class="sd">'''</span>
 <span class="sd">    input: string id</span>
@@ -272,7 +272,7 @@
 
     <span class="c1"># for each character, allocate 4byte containing prefix 0xD</span>
     <span class="n">cur_epd</span> <span class="o">&lt;&lt;</span> <span class="n">new_alloc_epd</span>
-    <span class="n">is_utf8</span> <span class="o">=</span> <span class="n">UTF8Check</span><span class="p">(</span><span class="n">string_ptr</span><span class="p">)</span>
+    <span class="n">is_utf8</span> <span class="o">=</span> <span class="n">f_check_utf8</span><span class="p">(</span><span class="n">string_ptr</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">is_utf8</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
             <span class="c1"># buffer check</span>
@@ -322,8 +322,8 @@
                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">5</span><span class="o">+</span><span class="mi">6</span><span class="p">):</span>
                         <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">24</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">6</span> <span class="k">else</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">10</span>
                         <span class="n">Trigger</span><span class="p">(</span>
-                            <span class="n">conditions</span> <span class="o">=</span> <span class="n">ucode</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">),</span>
-                            <span class="n">actions</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">)</span>
+                            <span class="n">conditions</span><span class="o">=</span><span class="n">ucode</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">),</span>
+                            <span class="n">actions</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">)</span>
                         <span class="p">)</span>
                     <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">cur_epd</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
@@ -336,8 +336,8 @@
                     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="o">+</span><span class="mi">6</span><span class="o">+</span><span class="mi">6</span><span class="p">):</span>
                         <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">24</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">6</span> <span class="k">else</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">10</span> <span class="k">if</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">12</span> <span class="k">else</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">4</span><span class="p">)</span>
                         <span class="n">Trigger</span><span class="p">(</span>
-                            <span class="n">conditions</span> <span class="o">=</span> <span class="n">ucode</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">),</span>
-                            <span class="n">actions</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">)</span>
+                            <span class="n">conditions</span><span class="o">=</span><span class="n">ucode</span><span class="o">.</span><span class="n">ExactlyX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">i</span><span class="p">),</span>
+                            <span class="n">actions</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">,</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="n">j</span><span class="p">)</span>
                         <span class="p">)</span>
                     <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">cur_epd</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
                 <span class="n">EUDEndIf</span><span class="p">()</span>
@@ -357,8 +357,8 @@
 
     <span class="n">EUDReturn</span><span class="p">(</span><span class="n">ret_epd</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="UTF8Check"><a class="viewcode-back" href="../../../screpl.plugins.string.html#screpl.plugins.string.UTF8Check">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">UTF8Check</span><span class="p">(</span><span class="n">offset</span><span class="p">):</span>
+<div class="viewcode-block" id="f_check_utf8"><a class="viewcode-back" href="../../../screpl.plugins.string.html#screpl.plugins.string.f_check_utf8">[docs]</a><span class="nd">@EUDFunc</span>
+<span class="k">def</span> <span class="nf">f_check_utf8</span><span class="p">(</span><span class="n">offset</span><span class="p">):</span>
     <span class="sd">'''</span>
 <span class="sd">    if string starts with OFFSET is utf-8 decodable, return 1</span>
 <span class="sd">    otherwise 0</span>
@@ -436,10 +436,11 @@
     <span class="kn">from</span> <span class="nn">.manager</span> <span class="kn">import</span> <span class="n">StringManagerApp</span>
 
     <span class="nd">@AppCommand</span><span class="p">([])</span>
-    <span class="k">def</span> <span class="nf">startCommand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">start_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""Start StringManagerApp"""</span>
         <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">StringManagerApp</span><span class="p">)</span>
 
-    <span class="n">REPL</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="s1">'string'</span><span class="p">,</span> <span class="n">startCommand</span><span class="p">)</span></div>
+    <span class="n">REPL</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="s1">'string'</span><span class="p">,</span> <span class="n">start_command</span><span class="p">)</span></div>
 </pre>
        </div>
       </article>

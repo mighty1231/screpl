@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.boundeditor.pattern — SC-REPL 1.1.2 documentation
+   screpl.plugins.boundeditor.pattern — SC-REPL 1.1.3 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.2 documentation
+        SC-REPL 1.1.3 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.2 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.3 documentation">
            SC-REPL
           </a>
          </label>
@@ -250,7 +250,7 @@
 <span class="kn">from</span> <span class="nn">screpl.encoder.action</span> <span class="kn">import</span> <span class="n">encode_action_epd</span>
 <span class="kn">from</span> <span class="nn">screpl.utils.debug</span> <span class="kn">import</span> <span class="n">f_raise_warning</span>
 
-<span class="kn">from</span> <span class="nn">screpl.plugins.location.rect</span> <span class="kn">import</span> <span class="n">drawRectangle</span>
+<span class="kn">from</span> <span class="nn">screpl.plugins.location.rect</span> <span class="kn">import</span> <span class="n">draw_rectangle</span>
 <span class="kn">from</span> <span class="nn">.detail</span> <span class="kn">import</span> <span class="n">DetailedActionApp</span>
 <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">app_manager</span><span class="p">,</span>
@@ -275,10 +275,10 @@
     <span class="n">OBSTACLE_DESTRUCTPATTERN_END</span><span class="p">,</span>
     <span class="n">g_obstacle_destructpattern</span><span class="p">,</span>
     <span class="n">p_count</span><span class="p">,</span>
-    <span class="n">p_waitValue</span><span class="p">,</span>
-    <span class="n">p_actionCount</span><span class="p">,</span>
-    <span class="n">p_actionArrayEPD</span><span class="p">,</span>
-    <span class="n">executePattern</span>
+    <span class="n">p_wait_value</span><span class="p">,</span>
+    <span class="n">p_action_count</span><span class="p">,</span>
+    <span class="n">p_action_array_epd</span><span class="p">,</span>
+    <span class="n">execute_pattern</span>
 <span class="p">)</span>
 
 <span class="n">MACRO_BOMB</span> <span class="o">=</span> <span class="mi">0</span>
@@ -296,8 +296,8 @@
 <span class="n">frame</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">FRAME_PERIOD</span> <span class="o">=</span> <span class="mi">24</span>
 
-<div class="viewcode-block" id="evaluateLocations"><a class="viewcode-back" href="../../../../screpl.plugins.boundeditor.pattern.html#screpl.plugins.boundeditor.pattern.evaluateLocations">[docs]</a><span class="nd">@EUDFunc</span>
-<span class="k">def</span> <span class="nf">evaluateLocations</span><span class="p">():</span>
+<div class="viewcode-block" id="evaluate_locations"><a class="viewcode-back" href="../../../../screpl.plugins.boundeditor.pattern.html#screpl.plugins.boundeditor.pattern.evaluate_locations">[docs]</a><span class="nd">@EUDFunc</span>
+<span class="k">def</span> <span class="nf">evaluate_locations</span><span class="p">():</span>
     <span class="n">posX</span><span class="p">,</span> <span class="n">posY</span> <span class="o">=</span> <span class="n">app_manager</span><span class="o">.</span><span class="n">get_mouse_position</span><span class="p">()</span>
 
     <span class="n">cur</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
@@ -334,8 +334,8 @@
             <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">ba</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="mh">0x14</span> <span class="o">//</span> <span class="mi">4</span><span class="p">),</span>
         <span class="p">])</span>
         <span class="n">Trigger</span><span class="p">(</span>
-            <span class="n">conditions</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="mi">256</span><span class="p">),</span>
-            <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">conditions</span><span class="o">=</span><span class="n">cur</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="mi">256</span><span class="p">),</span>
+            <span class="n">actions</span><span class="o">=</span><span class="p">[</span>
                 <span class="n">cur</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
                 <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">la</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="mh">0x58DC60</span><span class="p">)),</span>
                 <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">ta</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="mh">0x58DC60</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span>
@@ -367,33 +367,33 @@
     <span class="n">EUDEndInfLoop</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="focusPatternID"><a class="viewcode-back" href="../../../../screpl.plugins.boundeditor.pattern.html#screpl.plugins.boundeditor.pattern.focusPatternID">[docs]</a><span class="k">def</span> <span class="nf">focusPatternID</span><span class="p">(</span><span class="n">new_id</span><span class="p">):</span>
+<div class="viewcode-block" id="focus_pattern_id"><a class="viewcode-back" href="../../../../screpl.plugins.boundeditor.pattern.html#screpl.plugins.boundeditor.pattern.focus_pattern_id">[docs]</a><span class="k">def</span> <span class="nf">focus_pattern_id</span><span class="p">(</span><span class="n">new_id</span><span class="p">):</span>
     <span class="k">global</span> <span class="n">p_count</span>
     <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">new_id</span> <span class="o">&gt;=</span> <span class="n">p_count</span><span class="p">):</span>
         <span class="n">focused_pattern_id</span> <span class="o">&lt;&lt;</span> <span class="n">new_id</span>
-        <span class="n">cur_wait_value</span> <span class="o">&lt;&lt;</span> <span class="n">p_waitValue</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">]</span>
+        <span class="n">cur_wait_value</span> <span class="o">&lt;&lt;</span> <span class="n">p_wait_value</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">]</span>
     <span class="n">EUDEndIf</span><span class="p">()</span></div>
 
-<div class="viewcode-block" id="insertPattern"><a class="viewcode-back" href="../../../../screpl.plugins.boundeditor.pattern.html#screpl.plugins.boundeditor.pattern.insertPattern">[docs]</a><span class="k">def</span> <span class="nf">insertPattern</span><span class="p">():</span>
+<div class="viewcode-block" id="insert_pattern"><a class="viewcode-back" href="../../../../screpl.plugins.boundeditor.pattern.html#screpl.plugins.boundeditor.pattern.insert_pattern">[docs]</a><span class="k">def</span> <span class="nf">insert_pattern</span><span class="p">():</span>
     <span class="k">global</span> <span class="n">p_count</span>
     <span class="c1"># p_count-1 -&gt; p_count</span>
     <span class="c1"># focused_pattern_id -&gt; focused_pattern_id+1</span>
     <span class="n">i</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
-    <span class="n">array_epd</span> <span class="o">=</span> <span class="n">p_actionArrayEPD</span><span class="p">[</span><span class="n">p_count</span><span class="p">]</span>
+    <span class="n">array_epd</span> <span class="o">=</span> <span class="n">p_action_array_epd</span><span class="p">[</span><span class="n">p_count</span><span class="p">]</span>
     <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="n">p_count</span><span class="o">-</span><span class="mi">1</span>
     <span class="n">ii</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
-        <span class="n">p_waitValue</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_waitValue</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">p_actionCount</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_actionCount</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-        <span class="n">p_actionArrayEPD</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_actionArrayEPD</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">p_wait_value</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_wait_value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">p_action_count</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_action_count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">p_action_array_epd</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_action_array_epd</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
         <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">focused_pattern_id</span><span class="p">)</span>
         <span class="n">DoActions</span><span class="p">([</span><span class="n">i</span><span class="o">.</span><span class="n">SubtractNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">ii</span><span class="o">.</span><span class="n">SubtractNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">)])</span>
     <span class="n">EUDEndInfLoop</span><span class="p">()</span>
-    <span class="n">p_actionArrayEPD</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">array_epd</span>
+    <span class="n">p_action_array_epd</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">array_epd</span>
 
     <span class="n">DoActions</span><span class="p">([</span>
-        <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">p_waitValue</span><span class="p">)</span> <span class="o">+</span> <span class="n">focused_pattern_id</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-        <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">p_actionCount</span><span class="p">)</span> <span class="o">+</span> <span class="n">focused_pattern_id</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">p_wait_value</span><span class="p">)</span> <span class="o">+</span> <span class="n">focused_pattern_id</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">p_action_count</span><span class="p">)</span> <span class="o">+</span> <span class="n">focused_pattern_id</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
     <span class="p">])</span>
     <span class="n">cur_wait_value</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
     <span class="n">p_count</span> <span class="o">+=</span> <span class="mi">1</span></div>
@@ -410,46 +410,46 @@
             <span class="c1"># focused_pattern_id &lt;- focused_pattern_id+1</span>
             <span class="c1"># p_count-2 &lt;&lt; p_count-1</span>
             <span class="n">i</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
-            <span class="n">array_epd</span> <span class="o">=</span> <span class="n">p_actionArrayEPD</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">]</span>
+            <span class="n">array_epd</span> <span class="o">=</span> <span class="n">p_action_array_epd</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">]</span>
             <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="n">focused_pattern_id</span>
             <span class="n">ii</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
                 <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">p_count</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-                <span class="n">p_waitValue</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_waitValue</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
-                <span class="n">p_actionCount</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_actionCount</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
-                <span class="n">p_actionArrayEPD</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_actionArrayEPD</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                <span class="n">p_wait_value</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_wait_value</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                <span class="n">p_action_count</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_action_count</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+                <span class="n">p_action_array_epd</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">p_action_array_epd</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
                 <span class="n">DoActions</span><span class="p">([</span><span class="n">i</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">ii</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">)])</span>
             <span class="n">EUDEndInfLoop</span><span class="p">()</span>
-            <span class="n">p_actionArrayEPD</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">array_epd</span>
+            <span class="n">p_action_array_epd</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">array_epd</span>
             <span class="n">p_count</span> <span class="o">-=</span> <span class="mi">1</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
     <span class="n">EUDEndIf</span><span class="p">()</span>
-    <span class="n">cur_wait_value</span> <span class="o">&lt;&lt;</span> <span class="n">p_waitValue</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">]</span></div>
+    <span class="n">cur_wait_value</span> <span class="o">&lt;&lt;</span> <span class="n">p_wait_value</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">]</span></div>
 
 <div class="viewcode-block" id="appendPattern"><a class="viewcode-back" href="../../../../screpl.plugins.boundeditor.pattern.html#screpl.plugins.boundeditor.pattern.appendPattern">[docs]</a><span class="k">def</span> <span class="nf">appendPattern</span><span class="p">():</span>
     <span class="k">global</span> <span class="n">p_count</span>
     <span class="n">DoActions</span><span class="p">([</span>
-        <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">p_waitValue</span><span class="p">)</span> <span class="o">+</span> <span class="n">p_count</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-        <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">p_actionCount</span><span class="p">)</span> <span class="o">+</span> <span class="n">p_count</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+        <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">p_wait_value</span><span class="p">)</span> <span class="o">+</span> <span class="n">p_count</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">p_action_count</span><span class="p">)</span> <span class="o">+</span> <span class="n">p_count</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
     <span class="p">])</span>
     <span class="n">focused_pattern_id</span> <span class="o">&lt;&lt;</span> <span class="n">p_count</span>
     <span class="n">cur_wait_value</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
     <span class="n">p_count</span> <span class="o">+=</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="appendAction"><a class="viewcode-back" href="../../../../screpl.plugins.boundeditor.pattern.html#screpl.plugins.boundeditor.pattern.appendAction">[docs]</a><span class="k">def</span> <span class="nf">appendAction</span><span class="p">(</span><span class="n">action</span><span class="p">):</span>
-    <span class="n">actionArray_epd</span> <span class="o">=</span> <span class="n">p_actionArrayEPD</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">]</span>
-    <span class="n">actionCount</span> <span class="o">=</span> <span class="n">p_actionCount</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">actionCount</span> <span class="o">==</span> <span class="n">MAX_ACTION_COUNT</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+<div class="viewcode-block" id="append_action"><a class="viewcode-back" href="../../../../screpl.plugins.boundeditor.pattern.html#screpl.plugins.boundeditor.pattern.append_action">[docs]</a><span class="k">def</span> <span class="nf">append_action</span><span class="p">(</span><span class="n">action</span><span class="p">):</span>
+    <span class="n">action_array_epd</span> <span class="o">=</span> <span class="n">p_action_array_epd</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">]</span>
+    <span class="n">action_count</span> <span class="o">=</span> <span class="n">p_action_count</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">action_count</span> <span class="o">==</span> <span class="n">MAX_ACTION_COUNT</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">f_raise_warning</span><span class="p">(</span><span class="s2">"Cannot create more action"</span><span class="p">)</span>
         <span class="n">EUDReturn</span><span class="p">()</span>
     <span class="n">EUDEndIf</span><span class="p">()</span>
 
-    <span class="n">encode_action_epd</span><span class="p">(</span><span class="n">actionArray_epd</span> <span class="o">+</span> <span class="p">(</span><span class="n">actionCount</span> <span class="o">*</span> <span class="p">(</span><span class="mi">32</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)),</span> <span class="n">action</span><span class="p">)</span>
-    <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">p_actionCount</span><span class="p">)</span> <span class="o">+</span> <span class="n">focused_pattern_id</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span></div>
+    <span class="n">encode_action_epd</span><span class="p">(</span><span class="n">action_array_epd</span> <span class="o">+</span> <span class="p">(</span><span class="n">action_count</span> <span class="o">*</span> <span class="p">(</span><span class="mi">32</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)),</span> <span class="n">action</span><span class="p">)</span>
+    <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">p_action_count</span><span class="p">)</span> <span class="o">+</span> <span class="n">focused_pattern_id</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span></div>
 
 <div class="viewcode-block" id="PatternApp"><a class="viewcode-back" href="../../../../screpl.plugins.boundeditor.pattern.html#screpl.plugins.boundeditor.pattern.PatternApp">[docs]</a><span class="k">class</span> <span class="nc">PatternApp</span><span class="p">(</span><span class="n">Application</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">on_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">cur_wait_value</span> <span class="o">&lt;&lt;</span> <span class="n">p_waitValue</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">]</span>
+        <span class="n">cur_wait_value</span> <span class="o">&lt;&lt;</span> <span class="n">p_wait_value</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">]</span>
         <span class="n">chosen_location</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
 
     <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -458,21 +458,21 @@
             <span class="n">app_manager</span><span class="o">.</span><span class="n">request_destruct</span><span class="p">()</span>
             <span class="n">EUDReturn</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'Q'</span><span class="p">)):</span>
-            <span class="n">focusPatternID</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">focus_pattern_id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'W'</span><span class="p">)):</span>
-            <span class="n">focusPatternID</span><span class="p">(</span><span class="n">focused_pattern_id</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">focus_pattern_id</span><span class="p">(</span><span class="n">focused_pattern_id</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'E'</span><span class="p">)):</span>
-            <span class="n">focusPatternID</span><span class="p">(</span><span class="n">focused_pattern_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">focus_pattern_id</span><span class="p">(</span><span class="n">focused_pattern_id</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'R'</span><span class="p">)):</span>
-            <span class="n">focusPatternID</span><span class="p">(</span><span class="n">p_count</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">focus_pattern_id</span><span class="p">(</span><span class="n">p_count</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'A'</span><span class="p">)):</span>
             <span class="n">appendPattern</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'I'</span><span class="p">)):</span>
-            <span class="n">insertPattern</span><span class="p">()</span>
+            <span class="n">insert_pattern</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'D'</span><span class="p">)):</span>
             <span class="n">deletePattern</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'T'</span><span class="p">)):</span>
-            <span class="n">executePattern</span><span class="p">(</span><span class="n">focused_pattern_id</span><span class="p">)</span>
+            <span class="n">execute_pattern</span><span class="p">(</span><span class="n">focused_pattern_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'P'</span><span class="p">)):</span>
             <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">DetailedActionApp</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'M'</span><span class="p">)):</span>
@@ -485,16 +485,16 @@
             <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">cur_wait_value</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="n">DoActions</span><span class="p">([</span>
                     <span class="n">cur_wait_value</span><span class="o">.</span><span class="n">SubtractNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
-                    <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">p_waitValue</span><span class="p">)</span> <span class="o">+</span> <span class="n">focused_pattern_id</span><span class="p">,</span> <span class="n">Subtract</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                    <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">p_wait_value</span><span class="p">)</span> <span class="o">+</span> <span class="n">focused_pattern_id</span><span class="p">,</span> <span class="n">Subtract</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
                 <span class="p">])</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'.'</span><span class="p">)):</span>
             <span class="n">DoActions</span><span class="p">([</span>
                 <span class="n">cur_wait_value</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
-                <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">p_waitValue</span><span class="p">)</span> <span class="o">+</span> <span class="n">focused_pattern_id</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">p_wait_value</span><span class="p">)</span> <span class="o">+</span> <span class="n">focused_pattern_id</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
             <span class="p">])</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">mouse_lclick</span><span class="p">()):</span>
-            <span class="n">evaluateLocations</span><span class="p">()</span>
+            <span class="n">evaluate_locations</span><span class="p">()</span>
         <span class="c1"># if EUDElseIf()(app_manager.mouse_rclick()):</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'N'</span><span class="p">)):</span>
             <span class="c1"># confirm</span>
@@ -529,24 +529,24 @@
                         <span class="n">effectunit</span> <span class="o">&lt;&lt;</span> <span class="n">g_effectunit_3</span>
                     <span class="n">EUDEndIf</span><span class="p">()</span>
 
-                    <span class="n">appendAction</span><span class="p">(</span><span class="n">CreateUnit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">effectunit</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_effectplayer</span><span class="p">))</span>
-                    <span class="n">appendAction</span><span class="p">(</span><span class="n">KillUnitAt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">effectunit</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_effectplayer</span><span class="p">))</span>
-                    <span class="c1"># appendAction(KillUnitAt(All, g_runner_unit, chosen_location, g_runner_force))</span>
-                    <span class="n">appendAction</span><span class="p">(</span><span class="n">KillUnitAt</span><span class="p">(</span><span class="n">All</span><span class="p">,</span> <span class="s2">"(men)"</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_runner_force</span><span class="p">))</span>
+                    <span class="n">append_action</span><span class="p">(</span><span class="n">CreateUnit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">effectunit</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_effectplayer</span><span class="p">))</span>
+                    <span class="n">append_action</span><span class="p">(</span><span class="n">KillUnitAt</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">effectunit</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_effectplayer</span><span class="p">))</span>
+                    <span class="c1"># append_action(KillUnitAt(All, g_runner_unit, chosen_location, g_runner_force))</span>
+                    <span class="n">append_action</span><span class="p">(</span><span class="n">KillUnitAt</span><span class="p">(</span><span class="n">All</span><span class="p">,</span> <span class="s2">"(men)"</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_runner_force</span><span class="p">))</span>
                 <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">macro_mode</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">MACRO_OBSTACLE</span><span class="p">)):</span>
-                    <span class="n">appendAction</span><span class="p">(</span><span class="n">CreateUnit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">g_obstacle_unit</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_effectplayer</span><span class="p">))</span>
+                    <span class="n">append_action</span><span class="p">(</span><span class="n">CreateUnit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">g_obstacle_unit</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_effectplayer</span><span class="p">))</span>
                     <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">g_obstacle_createpattern</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">OBSTACLE_CREATEPATTERN_KILL</span><span class="p">)):</span>
-                        <span class="c1"># appendAction(KillUnitAt(All, g_runner_unit, chosen_location, g_runner_force))</span>
-                        <span class="n">appendAction</span><span class="p">(</span><span class="n">KillUnitAt</span><span class="p">(</span><span class="n">All</span><span class="p">,</span> <span class="s2">"(men)"</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_runner_force</span><span class="p">))</span>
+                        <span class="c1"># append_action(KillUnitAt(All, g_runner_unit, chosen_location, g_runner_force))</span>
+                        <span class="n">append_action</span><span class="p">(</span><span class="n">KillUnitAt</span><span class="p">(</span><span class="n">All</span><span class="p">,</span> <span class="s2">"(men)"</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_runner_force</span><span class="p">))</span>
                     <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">g_obstacle_createpattern</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">OBSTACLE_CREATEPATTERN_REMOVE</span><span class="p">)):</span>
-                        <span class="c1"># appendAction(RemoveUnitAt(All, g_runner_unit, chosen_location, g_runner_force))</span>
-                        <span class="n">appendAction</span><span class="p">(</span><span class="n">RemoveUnitAt</span><span class="p">(</span><span class="n">All</span><span class="p">,</span> <span class="s2">"(men)"</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_runner_force</span><span class="p">))</span>
+                        <span class="c1"># append_action(RemoveUnitAt(All, g_runner_unit, chosen_location, g_runner_force))</span>
+                        <span class="n">append_action</span><span class="p">(</span><span class="n">RemoveUnitAt</span><span class="p">(</span><span class="n">All</span><span class="p">,</span> <span class="s2">"(men)"</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_runner_force</span><span class="p">))</span>
                     <span class="n">EUDEndIf</span><span class="p">()</span>
                 <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">macro_mode</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">MACRO_OBSTACLEDESTRUCT</span><span class="p">)):</span>
                     <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">g_obstacle_destructpattern</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">OBSTACLE_DESTRUCTPATTERN_KILL</span><span class="p">)):</span>
-                        <span class="n">appendAction</span><span class="p">(</span><span class="n">KillUnitAt</span><span class="p">(</span><span class="n">All</span><span class="p">,</span> <span class="n">g_obstacle_unit</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_effectplayer</span><span class="p">))</span>
+                        <span class="n">append_action</span><span class="p">(</span><span class="n">KillUnitAt</span><span class="p">(</span><span class="n">All</span><span class="p">,</span> <span class="n">g_obstacle_unit</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_effectplayer</span><span class="p">))</span>
                     <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">g_obstacle_destructpattern</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">OBSTACLE_DESTRUCTPATTERN_REMOVE</span><span class="p">)):</span>
-                        <span class="n">appendAction</span><span class="p">(</span><span class="n">RemoveUnitAt</span><span class="p">(</span><span class="n">All</span><span class="p">,</span> <span class="n">g_obstacle_unit</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_effectplayer</span><span class="p">))</span>
+                        <span class="n">append_action</span><span class="p">(</span><span class="n">RemoveUnitAt</span><span class="p">(</span><span class="n">All</span><span class="p">,</span> <span class="n">g_obstacle_unit</span><span class="p">,</span> <span class="n">chosen_location</span><span class="p">,</span> <span class="n">g_effectplayer</span><span class="p">))</span>
                     <span class="n">EUDEndIf</span><span class="p">()</span>
                 <span class="n">EUDEndIf</span><span class="p">()</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
@@ -554,7 +554,7 @@
 
         <span class="c1"># draw rectangle</span>
         <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">chosen_location</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
-            <span class="n">drawRectangle</span><span class="p">(</span><span class="n">chosen_location</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">FRAME_PERIOD</span><span class="p">)</span>
+            <span class="n">draw_rectangle</span><span class="p">(</span><span class="n">chosen_location</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">FRAME_PERIOD</span><span class="p">)</span>
 
             <span class="c1"># graphical set</span>
             <span class="n">DoActions</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
@@ -573,7 +573,7 @@
 
 
         <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x04</span><span class="s2">Total </span><span class="se">\x03</span><span class="s2">%D</span><span class="se">\x04</span><span class="s2"> actions, press </span><span class="se">\x07</span><span class="s2">'P'</span><span class="se">\x04</span><span class="s2"> to see detail</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
-            <span class="n">p_actionCount</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">])</span>
+            <span class="n">p_action_count</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">])</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Mode</span><span class="se">\x07</span><span class="s2">(M)</span><span class="se">\x04</span><span class="s2">: "</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">macro_mode</span> <span class="o">==</span> <span class="n">MACRO_BOMB</span><span class="p">):</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x11</span><span class="p">)</span>
