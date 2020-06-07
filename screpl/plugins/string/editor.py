@@ -1,3 +1,4 @@
+
 from eudplib import *
 
 from screpl.core.application import Application
@@ -80,6 +81,7 @@ class StringEditorApp(Application):
         reader = REPLByteRW()
         reader.seekoffset(offset)
         clear_overwrite, clear_insert = Forward(), Forward()
+        continue_overwrite, continue_insert = Forward(), Forward()
         if EUDIf()(v_mode == MODE_OVERWRITE):
             null_met = EUDVariable()
             null_met << 0
@@ -112,13 +114,65 @@ class StringEditorApp(Application):
                             if EUDElseIf()([hexb >= ord('A'), hexb <= ord('F')]):
                                 b1 += (hexb - ord('A') + 10)
                             if EUDElse()():
-                                f_raise_warning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
+                                f_raise_warning("Wrong usage on string escape. Press F1.")
                                 EUDJump(clear_overwrite)
                             EUDEndIf()
                             if nnn == 0:
                                 b1 *= 16
+                        if EUDIf()(b1 >= 0x80):
+                            f_raise_warning("Writing \\x80~\\xFF is prohibited. Instead, use \\u####")
+                            EUDJump(clear_overwrite)
+                        EUDEndIf()
+                    if EUDElseIf()(eb2 == ord('u')):
+                        b1 << 0
+                        for nnn in range(4):
+                            hexb = reader.read()
+                            if EUDIf()([hexb >= ord('0'), hexb <= ord('9')]):
+                                b1 += (hexb - ord('0'))
+                            if EUDElseIf()([hexb >= ord('a'), hexb <= ord('f')]):
+                                b1 += (hexb - ord('a') + 10)
+                            if EUDElseIf()([hexb >= ord('A'), hexb <= ord('F')]):
+                                b1 += (hexb - ord('A') + 10)
+                            if EUDElse()():
+                                f_raise_warning("Wrong usage on string escape. Press F1.")
+                                EUDJump(clear_overwrite)
+                            EUDEndIf()
+                            if nnn != 3:
+                                b1 *= 16
+                        if EUDIfNot()(b1 <= 0x7F):
+                            if EUDIf()(b1 <= 0x7FF):
+                                '''
+                                b1  : 0bxxxxxyyyyyy
+                                result : 0x0D 0x0D 0b110xxxxx 0b10yyyyyy
+                                '''
+                                value = EUDVariable()
+                                value << (0b10000000110000000000000000000000 + 0x0D0D)
+                                for i in range(5+6):
+                                    j = i + 24 if i < 6 else i + 10
+                                    Trigger(
+                                        conditions = b1.ExactlyX(1 << i, 1 << i),
+                                        actions = value.SetNumberX(1 << j, 1 << j)
+                                    )
+                                f_dwwrite_epd(v_cursor_epd, value)
+                            if EUDElse()():
+                                '''
+                                b1  : 0bxxxxyyyyyyzzzzzz
+                                result : 0x0D 0x1110xxxx 0b10yyyyyy 0b10zzzzzz
+                                '''
+                                value = EUDVariable()
+                                value << (0b10000000100000001110000000000000 + 0x0D)
+                                for i in range(4+6+6):
+                                    j = i + 24 if i < 6 else (i + 10 if i < 12 else i - 4)
+                                    Trigger(
+                                        conditions = b1.ExactlyX(1 << i, 1 << i),
+                                        actions = value.SetNumberX(1 << j, 1 << j)
+                                    )
+                                f_dwwrite_epd(v_cursor_epd, value)
+                            EUDEndIf()
+                            EUDJump(continue_overwrite)
+                        EUDEndIf()
                     if EUDElse()():
-                        f_raise_warning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
+                        f_raise_warning("Wrong usage on string escape. Press F1.")
                         EUDJump(clear_overwrite)
                     EUDEndIf()
                 EUDEndIf()
@@ -133,6 +187,8 @@ class StringEditorApp(Application):
                     b3 = reader.read()
                     f_dwwrite_epd(v_cursor_epd, 0x0D + b1*0x100 + b2*0x10000 + b3*0x1000000)
                 EUDEndIf()
+
+                continue_overwrite << NextTrigger()
                 v_cursor_epd += 1
             EUDEndInfLoop()
 
@@ -166,13 +222,65 @@ class StringEditorApp(Application):
                             if EUDElseIf()([hexb >= ord('A'), hexb <= ord('F')]):
                                 b1 += (hexb - ord('A') + 10)
                             if EUDElse()():
-                                f_raise_warning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
+                                f_raise_warning("Wrong usage on string escape. Press F1.")
                                 EUDJump(clear_insert)
                             EUDEndIf()
                             if nnn == 0:
                                 b1 *= 16
+                        if EUDIf()(b1 >= 0x80):
+                            f_raise_warning("Writing \\x80~\\xFF is prohibited. Instead, use \\u####")
+                            EUDJump(clear_insert)
+                        EUDEndIf()
+                    if EUDElseIf()(eb2 == ord('u')):
+                        b1 << 0
+                        for nnn in range(4):
+                            hexb = reader.read()
+                            if EUDIf()([hexb >= ord('0'), hexb <= ord('9')]):
+                                b1 += (hexb - ord('0'))
+                            if EUDElseIf()([hexb >= ord('a'), hexb <= ord('f')]):
+                                b1 += (hexb - ord('a') + 10)
+                            if EUDElseIf()([hexb >= ord('A'), hexb <= ord('F')]):
+                                b1 += (hexb - ord('A') + 10)
+                            if EUDElse()():
+                                f_raise_warning("Wrong usage on string escape. Press F1.")
+                                EUDJump(clear_insert)
+                            EUDEndIf()
+                            if nnn != 3:
+                                b1 *= 16
+                        if EUDIfNot()(b1 <= 0x7F):
+                            if EUDIf()(b1 <= 0x7FF):
+                                '''
+                                b1  : 0bxxxxxyyyyyy
+                                result : 0x0D 0x0D 0b110xxxxx 0b10yyyyyy
+                                '''
+                                value = EUDVariable()
+                                value << (0b10000000110000000000000000000000 + 0x0D0D)
+                                for i in range(5+6):
+                                    j = i + 24 if i < 6 else i + 10
+                                    Trigger(
+                                        conditions = b1.ExactlyX(1 << i, 1 << i),
+                                        actions = value.SetNumberX(1 << j, 1 << j)
+                                    )
+                                f_dwwrite_epd(v_cursor_epd, value)
+                            if EUDElse()():
+                                '''
+                                b1  : 0bxxxxyyyyyyzzzzzz
+                                result : 0x0D 0x1110xxxx 0b10yyyyyy 0b10zzzzzz
+                                '''
+                                value = EUDVariable()
+                                value << (0b10000000100000001110000000000000 + 0x0D)
+                                for i in range(4+6+6):
+                                    j = i + 24 if i < 6 else (i + 10 if i < 12 else i - 4)
+                                    Trigger(
+                                        conditions = b1.ExactlyX(1 << i, 1 << i),
+                                        actions = value.SetNumberX(1 << j, 1 << j)
+                                    )
+                                f_dwwrite_epd(v_cursor_epd, value)
+                            EUDEndIf()
+                            EUDJump(continue_insert)
+                        EUDEndIf()
                     if EUDElse()():
-                        f_raise_warning("String escape character '\\' usage-> '\\\\', '\\n', '\\t' or '\\x##'")
+                        f_raise_warning("Wrong usage on string escape. Press F1.")
                         EUDJump(clear_insert)
                     EUDEndIf()
                 EUDEndIf()
@@ -187,6 +295,8 @@ class StringEditorApp(Application):
                     b3 = reader.read()
                     f_dwwrite_epd(v_cursor_epd, 0x0D + b1*0x100 + b2*0x10000 + b3*0x1000000)
                 EUDEndIf()
+
+                continue_insert << NextTrigger()
                 v_cursor_epd += 1
             EUDEndInfLoop()
 
@@ -307,15 +417,15 @@ class StringEditorApp(Application):
         if EUDElse()():
             writer.write_f(
                 "String Editor\n"
-                "Press F7, F8, HOME, or END to move the cursor\n"
-                "Press INSERT to toggle insert/overwrite mode\n"
-                "Press BACKSPACE/DELETE to remove a character on the cursor\n"
-                "Chat any string to insert/overwrite on the cursor\n"
-                "Chat \\n (newline) \\t (tab) \\x## (bytecode) to insert special characters\n"
+                "Chat any string to insert/overwrite on the cursor. "
+                "Press BACKSPACE/DELETE to remove a character on the cursor.\n"
+                "Press F7, F8, HOME, or END to move the cursor. "
+                "Press INSERT to toggle insert/overwrite mode.\n"
+                "Chat \\n (newline) \\t (tab) \\x## (bytecode) \\u#### (unicode) to insert special characters\n"
                 "\\x12 Right Align \\x13 Center Align \\x0B \\x14 Invisible \\x0C Remove Beyond\n"
                 "\x01\\x01 \x02\\x02 \x03\\x03 \x04\\x04 \x06\\x06 \x07\\x07 \x08\\x08 \x0E\\x0E \x0F\\x0F \x10\\x10 \x11\\x11\n"
                 "\x15\\x15 \x16\\x16 \x17\\x17 \x18\\x18 \x19\\x19 \x1A\\x1A \x1B\\x1B \x1C\\x1C \x1D\\x1D \x1E\\x1E \x1F\\x1F\n"
-                "\x05\\x05 Grey\n"
+                "\x02\\uac00 \uac00 \\u2606 \u2606 \x05\\x05 Grey\n"
             )
         EUDEndIf()
         writer.write(0)
