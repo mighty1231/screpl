@@ -12,7 +12,7 @@ _reftable_sz = EUDVariable()
 _reftable_epd = EUDVariable()
 _value = EUDVariable()
 _index = EUDVariable()
-_result_epd = EUDVariable()
+_result_epd = EUDVariable(EPD(0))
 
 DISPMODE_MAIN = 0
 DISPMODE_MANUAL = 1
@@ -144,3 +144,5 @@ class SelectorApp(application.Application):
             writer.write(ord('\n'))
             cur += 1
         EUDEndInfLoop()
+
+        writer.write(0)

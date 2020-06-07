@@ -24,8 +24,9 @@ from screpl.encoder.const import ArgEncNumber
 import screpl.resources.table.tables as tb
 
 from screpl.apps.selector import SelectorApp
-from screpl.plugins.unit.manager import UnitManagerApp
 from screpl.plugins.location.manager import LocationManagerApp
+from screpl.plugins.switch.manager import SwitchManagerApp
+from screpl.plugins.unit.manager import UnitManagerApp
 
 from screpl.main import get_app_manager
 
@@ -150,7 +151,9 @@ class TrigConditionEditorApp(Application):
 
     @AppCommand([])
     def Switch(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SwitchManagerApp.set_content(v_value_to_set)
+        app_manager.start_application(SwitchManagerApp)
 
     @AppCommand([])
     def Unit(self):
@@ -217,12 +220,12 @@ class TrigConditionEditorApp(Application):
                            "\x04[ Save (CTRL+Y) ] [ CANCEL (CTRL+N) ]\n",
                            TrigEntry.cast(v_focused_entry).name_epd)
         if EUDElse()():
-            writer.write_f("\x04Condition Editor App\n"
-                           "Press F7, F8 to change focus\n"
-                           "Chat 'setn(##)' sets the value of focused entry\n"
-                           "For example,\n"
-                           "\x041. \x02%Ssetn(33)\n"
-                           "\x042. \x02%Ssetn(0xFFFFFFFF)\n",
-                           app_manager.su_prefix, app_manager.su_prefix)
+            writer.write_f(
+                "\x04Condition Editor App\n"
+                "Press F7, F8 to change focus\n"
+                "Chat 'setn(##)' to set the value of focused entry\n"
+                "Chat followings to set value with helper apps\n"
+                "  ConditionType(), Comparison(), Player(), Resource(), "
+                "Score(), SwitchState(), Location(), Switch(), Unit()\n")
         EUDEndIf()
         writer.write(0)

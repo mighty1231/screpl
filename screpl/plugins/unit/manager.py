@@ -6,7 +6,7 @@ from . import app_manager
 
 # app-specific initializing arguments
 _unitid = EUDVariable(0)
-_resultref_unitid_epd = EUDVariable(0)
+_resultref_unitid_epd = EUDVariable(EPD(0))
 
 '''
 unitid
@@ -38,12 +38,12 @@ class UnitManagerApp(Application):
         self.focus_unit_id(_unitid)
 
         # restore initializing arguments
-        _resultref_unitid_epd << 0
+        _resultref_unitid_epd << EPD(0)
 
     def on_destruct(self):
         unitid = self.unitid
         resultref_unitid_epd = self.resultref_unitid_epd
-        if EUDIfNot()(resultref_unitid_epd == 0):
+        if EUDIfNot()(resultref_unitid_epd == EPD(0)):
             f_dwwrite_epd(resultref_unitid_epd, unitid)
         EUDEndIf()
         _unitid << unitid

@@ -10,7 +10,7 @@ from .editor import LocationEditorApp
 
 # app-specific initializing arguments
 _location = EUDVariable(1)
-_resultref_location_epd = EUDVariable(0)
+_resultref_location_epd = EUDVariable(EPD(0))
 
 class LocationManagerApp(Application):
     fields = [
@@ -39,7 +39,7 @@ class LocationManagerApp(Application):
 
         # restore initializing arguments
         _location << 1
-        _resultref_location_epd << 0
+        _resultref_location_epd << EPD(0)
 
     def set_location(self, new_location):
         Trigger(
@@ -69,7 +69,7 @@ class LocationManagerApp(Application):
 
     def on_destruct(self):
         resultref_location_epd = self.resultref_location_epd
-        if EUDIfNot()(resultref_location_epd == 0):
+        if EUDIfNot()(resultref_location_epd == EPD(0)):
             f_dwwrite_epd(resultref_location_epd, self.location)
         EUDEndIf()
 
