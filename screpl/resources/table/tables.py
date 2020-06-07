@@ -96,6 +96,13 @@ _locationnames = bytearray(NAME_SIZE*255)
 for k, v in locmap._s2id.items():
     length = len(k)
     _locationnames[NAME_SIZE*v:NAME_SIZE*v+length] = k
+for idx in range(255):
+    if _locationnames[NAME_SIZE*idx] == 0:
+        # SCMD-syntax
+        default_name = "Location {}".format(idx+1)
+        length = len(default_name)
+        _locationnames[NAME_SIZE*idx:NAME_SIZE*idx+length] = default_name.encode()
+
 _locationname_db_epd = EPD(Db(_locationnames))
 
 def get_locationname_epd(location_idx):
@@ -109,14 +116,19 @@ _switchnames = bytearray(NAME_SIZE*256)
 for k, v in swmap._s2id.items():
     length = len(k)
     _switchnames[NAME_SIZE*v:NAME_SIZE*v+length] = k
+for idx in range(256):
+    if _switchnames[NAME_SIZE*idx] == 0:
+        # SCMD-syntax
+        default_name = "Switch{}".format(idx+1)
+        length = len(default_name)
+        _switchnames[NAME_SIZE*idx:NAME_SIZE*idx+length] = default_name.encode()
 _switchname_db_epd = EPD(Db(_switchnames))
 
 def get_switchname_epd(switch_idx):
     if EUDIfNot()(switch_idx <= 255):
         f_raise_error("get_switchname_epd: IndexError")
     EUDEndIf()
-    return (_switchname_db_epd - (NAME_SIZE//4)
-            + switch_idx * (NAME_SIZE//4))
+    return (_switchname_db_epd + switch_idx * (NAME_SIZE//4))
 
 _arr_defaultunitnames = EUDArray(list(map(EPDConstString, [
     "Terran Marine",

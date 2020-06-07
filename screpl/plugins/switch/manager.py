@@ -79,7 +79,7 @@ class SwitchManagerApp(Application):
 
             _emp = EUDTernary(cur == _index)(0x11)(0x02)
 
-            writer.write_f("%C %D: %E", _emp, cur, get_switchname_epd(cur))
+            writer.write_f("%C %D: %E ", _emp, cur, get_switchname_epd(cur))
 
             if EUDIf()(Switch(cur, Set)):
                 writer.write_f("\x07Set\n")
