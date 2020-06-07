@@ -35,10 +35,10 @@ Above lines of codes enable your UMS map display the HP of specific unit contino
 There are some standard plugins, and corresponding demo videos.
 
 * `sample` plugin - [video](https://youtu.be/6RexCF3SBFU), [source](example/sample/myapp.py)
-* `location` plugin - [video](https://youtu.be/f3M0CDGIX2A), [source](screpl/plugins/location)
 * `boundeditor` plugin - [video](https://youtu.be/c_VYYc7Ozy8), [source](screpl/plugins/boundeditor
 )
 * `variable` and `string`  plugin - [video](https://youtu.be/s9jIWKP2bfE)
+* `trigger` plugin - [video](https://youtu.be/TUCm6b36u0k)
 
 There are many amazing features other than them. `bridge` enables to communicate applications by using remote client.
 
