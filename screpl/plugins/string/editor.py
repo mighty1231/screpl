@@ -23,6 +23,10 @@ v_mode = EUDVariable(MODE_INSERT)
 tmp_storage = Db(10000)
 tmp_storage_epd = EPD(tmp_storage)
 
+DISPMODE_MAIN = 0
+DISPMODE_MANUAL = 1
+v_dispmode = EUDVariable()
+
 class StringEditorApp(Application):
     def on_init(self):
         v_mode << MODE_INSERT
@@ -39,6 +43,7 @@ class StringEditorApp(Application):
             v_string_epd << allocate_for_buffer(cur_string_id)
         EUDEndIf()
         v_cursor_epd << v_string_epd
+        v_dispmode << DISPMODE_MAIN
 
     def on_destruct(self):
         if EUDIf()(v_changed == 0):
@@ -194,10 +199,17 @@ class StringEditorApp(Application):
 
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-        if EUDElseIf()(app_manager.key_press("insert")):
+        if EUDElseIf()(app_manager.key_press("INSERT")):
             v_mode << 1 - v_mode
-        if EUDElseIf()(app_manager.key_press("delete")):
+        if EUDElseIf()(app_manager.key_press("DELETE")):
             f_strcpy_epd(v_cursor_epd, v_cursor_epd + 1)
+            app_manager.clean_text()
+        if EUDElseIf()(app_manager.key_press("BACK")):
+            if EUDIfNot()(v_cursor_epd == v_string_epd):
+                v_cursor_epd -= 1
+                f_strcpy_epd(v_cursor_epd, v_cursor_epd + 1)
+            EUDEndIf()
+            app_manager.clean_text()
         if EUDElseIf()(app_manager.key_press("F7")):
             if EUDIfNot()(v_cursor_epd == v_string_epd):
                 v_cursor_epd -= 1
@@ -225,6 +237,12 @@ class StringEditorApp(Application):
                 v_cursor_epd += 1
             EUDEndInfLoop()
             v_frame << BLINK_PERIOD * 2 - 1
+        if EUDElseIf()(app_manager.key_down("F1")):
+            v_dispmode << DISPMODE_MANUAL
+            app_manager.clean_text()
+        if EUDElseIf()(app_manager.key_up("F1")):
+            v_dispmode << DISPMODE_MAIN
+            app_manager.clean_text()
         EUDEndIf()
         app_manager.request_update()
 
@@ -239,50 +257,65 @@ class StringEditorApp(Application):
         color_code : 0x01 - 0x1F
         except for 0x09 - 0x0D, 0x12, 0x13
         '''
-        global v_cursor_epd
+        if EUDIf()(v_dispmode == DISPMODE_MAIN):
+            global v_cursor_epd
 
-        v_cursor_val, v_cursor_val2 = EUDCreateVariables(2)
-        v_cursor_val  << f_dwread_epd(v_cursor_epd)
-        v_cursor_val2 << f_dwread_epd(v_cursor_epd + 1)
-        if EUDIf()(v_frame < BLINK_PERIOD):
-            '''
-            the way to show cursor
-            cursor_epd     : 0D xx xx xx (0D -> '|' or color code)
-            cursor_epd + 1 : 0D xx xx xx (0D -> restored color code )
-            '''
-            if EUDIf()(v_mode == MODE_OVERWRITE):
-                v_color, v_tmp_epd = EUDCreateVariables(2)
+            v_cursor_val, v_cursor_val2 = EUDCreateVariables(2)
+            v_cursor_val  << f_dwread_epd(v_cursor_epd)
+            v_cursor_val2 << f_dwread_epd(v_cursor_epd + 1)
+            if EUDIf()(v_frame < BLINK_PERIOD):
+                '''
+                the way to show cursor
+                cursor_epd     : 0D xx xx xx (0D -> '|' or color code)
+                cursor_epd + 1 : 0D xx xx xx (0D -> restored color code )
+                '''
+                if EUDIf()(v_mode == MODE_OVERWRITE):
+                    v_color, v_tmp_epd = EUDCreateVariables(2)
 
-                v_color << 0x01 # default color code
-                v_tmp_epd << v_string_epd
-                if EUDInfLoop()():
-                    EUDBreakIf(v_cursor_epd <= v_tmp_epd)
-                    if EUDIf()(MemoryXEPD(v_tmp_epd, AtMost, 0x1F000000, 0xFF000000)):
-                        code = f_bread_epd(v_tmp_epd, 3)
-                        if EUDIfNot()([code >= 0x09, code <= 0x0D]):
-                            if EUDIfNot()([code >= 0x12, code <= 0x13]):
-                                v_color << code
+                    v_color << 0x01 # default color code
+                    v_tmp_epd << v_string_epd
+                    if EUDInfLoop()():
+                        EUDBreakIf(v_cursor_epd <= v_tmp_epd)
+                        if EUDIf()(MemoryXEPD(v_tmp_epd, AtMost, 0x1F000000, 0xFF000000)):
+                            code = f_bread_epd(v_tmp_epd, 3)
+                            if EUDIfNot()([code >= 0x09, code <= 0x0D]):
+                                if EUDIfNot()([code >= 0x12, code <= 0x13]):
+                                    v_color << code
+                                EUDEndIf()
                             EUDEndIf()
                         EUDEndIf()
+                        v_tmp_epd += 1
+                    EUDEndInfLoop()
+
+                    # write color code
+                    if EUDIf()(v_color == 0x11):
+                        f_bwrite_epd(v_cursor_epd, 0, 0x0E)
+                    if EUDElse()():
+                        f_bwrite_epd(v_cursor_epd, 0, 0x11)
                     EUDEndIf()
-                    v_tmp_epd += 1
-                EUDEndInfLoop()
+                    f_bwrite_epd(v_cursor_epd + 1, 0, v_color) # restoring color
 
-                # write color code
-                if EUDIf()(v_color == 0x11):
-                    f_bwrite_epd(v_cursor_epd, 0, 0x0E)
-                if EUDElse()():
-                    f_bwrite_epd(v_cursor_epd, 0, 0x11)
+                if EUDElse()(): # insert
+                    f_bwrite_epd(v_cursor_epd, 0, ord('|'))
                 EUDEndIf()
-                f_bwrite_epd(v_cursor_epd + 1, 0, v_color) # restoring color
-
-            if EUDElse()(): # insert
-                f_bwrite_epd(v_cursor_epd, 0, ord('|'))
             EUDEndIf()
-        EUDEndIf()
-        writer.write_strepd(v_string_epd)
-        writer.write(0)
+            writer.write_strepd(v_string_epd)
 
-        # restore string near cursor
-        f_dwwrite_epd(v_cursor_epd, v_cursor_val)
-        f_dwwrite_epd(v_cursor_epd + 1, v_cursor_val2)
+            # restore string near cursor
+            f_dwwrite_epd(v_cursor_epd, v_cursor_val)
+            f_dwwrite_epd(v_cursor_epd + 1, v_cursor_val2)
+        if EUDElse()():
+            writer.write_f(
+                "String Editor\n"
+                "Press F7, F8, HOME, or END to move the cursor\n"
+                "Press INSERT to toggle insert/overwrite mode\n"
+                "Press BACKSPACE/DELETE to remove a character on the cursor\n"
+                "Chat any string to insert/overwrite on the cursor\n"
+                "Chat \\n (newline) \\t (tab) \\x## (bytecode) to insert special characters\n"
+                "\\x12 Right Align \\x13 Center Align \\x0B \\x14 Invisible \\x0C Remove Beyond\n"
+                "\x01\\x01 \x02\\x02 \x03\\x03 \x04\\x04 \x06\\x06 \x07\\x07 \x08\\x08 \x0E\\x0E \x0F\\x0F \x10\\x10 \x11\\x11\n"
+                "\x15\\x15 \x16\\x16 \x17\\x17 \x18\\x18 \x19\\x19 \x1A\\x1A \x1B\\x1B \x1C\\x1C \x1D\\x1D \x1E\\x1E \x1F\\x1F\n"
+                "\x05\\x05 Grey\n"
+            )
+        EUDEndIf()
+        writer.write(0)

@@ -101,7 +101,7 @@ class SelectorApp(application.Application):
         if EUDElse()():
             writer.write_f(
                 "\x17Press F7, F8 to navigate items // "
-                "Try combine them with CTRL key\n"
+                "Try combine them with CTRL key. Choose item and press ESC\n"
             )
         EUDEndIf()
 
