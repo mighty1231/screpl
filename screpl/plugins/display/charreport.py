@@ -103,7 +103,6 @@ class CharReportApp(Application):
     def print(self, writer):
         writer.write_f("\x16Character report - bridge client is required\n")
         writer.write_f("\x13Sent %D bytes / Remaining %D bytes\n\n\n\n",
-            v_written,
-            v_remaining_bytes
-        )
+                       v_written,
+                       v_remaining_bytes)
         writer.write(0)

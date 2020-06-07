@@ -300,6 +300,25 @@ class REPLByteRW:
         EUDEndInfLoop()
 
     @EUDMethod
+    def write_memory_table_epd(self, epd_, off_, cnt):
+        reader = REPLByteRW()
+        reader.epd << epd_
+        reader.off << off_
+
+        written = EUDVariable()
+        written << 0
+        if EUDInfLoop()():
+            EUDBreakIf(cnt == 0)
+
+            b = reader.read()
+
+            self.write_bytehex(b)
+            self.write(ord(' '))
+
+            DoActions(cnt.SubtractNumber(1))
+        EUDEndInfLoop()
+
+    @EUDMethod
     def write_bool(self, value):
         if EUDIfNot()(value == 0):
             self.write_strepd(cs.EPDConstString("True"))

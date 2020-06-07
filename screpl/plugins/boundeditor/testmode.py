@@ -25,8 +25,8 @@ from . import (
     su_id,
     g_runner_unit,
     g_start_location,
-    executePattern,
-    p_waitValue,
+    execute_pattern,
+    p_wait_value,
     p_count
 )
 
@@ -63,20 +63,20 @@ class TestPatternApp(Application):
         if EUDElseIf()(app_manager.key_press('T')):
             v_turbomode += 1
             Trigger(
-                conditions = [v_turbomode.Exactly(TURBOMODE_END)],
+                conditions=[v_turbomode.Exactly(TURBOMODE_END)],
                 actions = [v_turbomode.SetNumber(0)]
             )
         EUDEndIf()
 
         # Create Tester Unit for every death
         Trigger(
-            conditions = [Bring(su_id, Exactly, 0, g_runner_unit, g_start_location)],
-            actions = [CreateUnit(1, g_runner_unit, g_start_location, su_id)]
+            conditions=[Bring(su_id, Exactly, 0, g_runner_unit, g_start_location)],
+            actions=[CreateUnit(1, g_runner_unit, g_start_location, su_id)]
         )
 
         # Timer
         if EUDIf()(timer == next_timer):
-            executePattern(pattern_id)
+            execute_pattern(pattern_id)
 
             # timer reset
             if EUDIf()(pattern_id == 0):
@@ -85,7 +85,7 @@ class TestPatternApp(Application):
             EUDEndIf()
 
             # set next timer
-            next_timer += p_waitValue[pattern_id]
+            next_timer += p_wait_value[pattern_id]
             pattern_id += 1
             if EUDIf()(pattern_id == p_count):
                 pattern_id << 0

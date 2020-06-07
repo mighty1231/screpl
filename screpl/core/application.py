@@ -206,7 +206,7 @@ class ApplicationInstance:
             class MyApp(Application):
                 fields = ['var']
 
-                def someMethod(self):
+                def some_method(self):
                     self.var = 1
 
                     # get reference for self.var
@@ -272,7 +272,7 @@ class Application(metaclass=_ApplicationMetaclass):
         Arguments:
             address (EUDVariable): address of chat from super user.
         """
-        self.run_command(address)
+        self.run_command(address) # pylint: disable=no-member
 
     def on_resume(self):
         """Called exactly once after newly started app is destructed
@@ -309,6 +309,7 @@ class Application(metaclass=_ApplicationMetaclass):
         Before the AppManager start the appliction, it should be called.
         """
         if not cls._allocated_:
+            cls._allocated_ = True
             cls.manager = manager
 
             if cls != Application:
@@ -331,7 +332,6 @@ class Application(metaclass=_ApplicationMetaclass):
                 cmdtable.add_pair(name, cmd.get_cmd_ptr())
 
             cls._cmdtable_ = cmdtable
-            cls._allocated_ = True
 
     @classmethod
     def add_command(cls, name, cmd):

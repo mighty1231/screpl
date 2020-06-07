@@ -95,25 +95,23 @@ def read_number(offset, delim, ref_offset_epd, ref_retval_epd):
         # Hex
         if EUDIf()(_b == ord('x')):
             _b << _reader.read()
-            ret *= 16
             if EUDIf()([ord('0') <= _b, _b <= ord('9')]):
-                ret += _b - ord('0')
+                ret << ret*16 + _b - ord('0')
             if EUDElseIf()([ord('a') <= _b, _b <= ord('f')]):
-                ret += _b - (ord('a') - 10)
+                ret << ret*16 + _b - (ord('a') - 10)
             if EUDElseIf()([ord('A') <= _b, _b <= ord('F')]):
-                ret += _b - (ord('A') - 10)
+                ret << ret*16 + _b - (ord('A') - 10)
             if EUDElse()():
                 EUDJump(failed) # At least one character
             EUDEndIf()
             if EUDInfLoop()():
                 _b << _reader.read()
-                ret *= 16
                 if EUDIf()([ord('0') <= _b, _b <= ord('9')]):
-                    ret += _b - ord('0')
+                    ret << ret*16 + _b - ord('0')
                 if EUDElseIf()([ord('a') <= _b, _b <= ord('f')]):
-                    ret += _b - (ord('a') - 10)
+                    ret << ret*16 + _b - (ord('a') - 10)
                 if EUDElseIf()([ord('A') <= _b, _b <= ord('F')]):
-                    ret += _b - (ord('A') - 10)
+                    ret << ret*16 + _b - (ord('A') - 10)
                 if EUDElse()():
                     EUDJump(read_delim)
                 EUDEndIf()

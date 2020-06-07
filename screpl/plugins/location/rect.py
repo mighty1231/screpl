@@ -1,10 +1,15 @@
 from eudplib import *
 
-from . import app_manager, mapw, maph
 from screpl.resources import offset
 
+from screpl.main import get_app_manager
+
+app_manager = get_app_manager()
+mapw = app_manager.get_map_width()
+maph = app_manager.get_map_height()
+
 @EUDFunc
-def drawRectangle(location, frame, frame_period):
+def draw_rectangle(location, frame, frame_period):
     su_id = app_manager.get_superuser_id()
 
     cur_epd = EPD(0x58DC60 - 0x14) + (0x14 // 4) * location
@@ -173,7 +178,7 @@ def drawRectangle(location, frame, frame_period):
         f_dwwrite_epd(re, lv)
         f_dwwrite_epd(le, lv)
         minus(bias, length, dv, tv, te, de)
-    if EUDElseIf()(tv  > dv + 32):
+    if EUDElseIf()(tv > dv + 32):
         length << tv - dv
         bias << (frame * length) // frame_period
 

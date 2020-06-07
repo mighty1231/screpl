@@ -5,7 +5,7 @@ from screpl.core.application import Application
 from screpl.encoder.const import ArgEncNumber
 from screpl.utils.debug import f_raise_warning
 
-from . import *
+from . import app_manager, cu_mem_activeids, cu_mem_activeid_contents
 from .cunitrw import cu_members, CUnitMemberEntry
 
 _cunit_epd = EUDVariable(EPD(0))
@@ -22,7 +22,7 @@ class CUnitDetailApp(Application):
     ]
 
     @staticmethod
-    def setFocus_epd(cunit_epd):
+    def set_focus_epd(cunit_epd):
         _cunit_epd << cunit_epd
 
     def on_init(self):
@@ -31,14 +31,14 @@ class CUnitDetailApp(Application):
         activemem_size << cu_mem_activeids.size
         _cunit_epd << EPD(0)
 
-    def focusMemID(self, new_memid):
+    def focus_mem_id(self, new_memid):
         Trigger(
-            conditions = new_memid.AtLeast(0x80000000),
-            actions = new_memid.SetNumber(0)
+            conditions=new_memid.AtLeast(0x80000000),
+            actions=new_memid.SetNumber(0)
         )
         Trigger(
-            conditions = new_memid.AtLeast(activemem_size),
-            actions = new_memid.SetNumber(activemem_size-1)
+            conditions=new_memid.AtLeast(activemem_size),
+            actions=new_memid.SetNumber(activemem_size-1)
         )
         self.focused_memid = new_memid
 
@@ -48,13 +48,13 @@ class CUnitDetailApp(Application):
             app_manager.request_destruct()
             EUDReturn()
         if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            self.focusMemID(focused_memid - 8)
+            self.focus_mem_id(focused_memid - 8)
         if EUDElseIf()(app_manager.key_press("F7")):
-            self.focusMemID(focused_memid - 1)
+            self.focus_mem_id(focused_memid - 1)
         if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            self.focusMemID(focused_memid + 8)
+            self.focus_mem_id(focused_memid + 8)
         if EUDElseIf()(app_manager.key_press("F8")):
-            self.focusMemID(focused_memid + 1)
+            self.focus_mem_id(focused_memid + 1)
         if EUDElseIf()(app_manager.key_press("H", hold=["LCTRL"])):
             dw, epd = f_cunitepdread_epd(EPD(0x6284B8))
             self.cunit_epd = epd
@@ -72,7 +72,7 @@ class CUnitDetailApp(Application):
         writer.write_f("\x04CUnit Detail (ptr=%H) (F7/F8 navigate, CTRL+H selected unit)\n", f_epd2ptr(cunit_epd))
 
         focused_memid = self.focused_memid
-        quot, mod = f_div(focused_memid, 8)
+        quot = f_div(focused_memid, 8)[0]
         cur = quot * 8
         pageend = cur + 8
         until = EUDVariable()
@@ -95,7 +95,7 @@ class CUnitDetailApp(Application):
             cu_member = cu_members[f_dwread_epd(cu_mem_activeid_contents + cur)]
             cu_member = CUnitMemberEntry.cast(cu_member)
 
-            writer.write_f(" %E: ", cu_member.name)
+            writer.write_f(" %E: ", cu_member.name_epd)
             cu_member.write_f(cunit_epd + cu_member.off_epd, cu_member.off)
             writer.write(ord('\n'))
 

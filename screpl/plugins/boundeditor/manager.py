@@ -11,7 +11,7 @@ from .pattern import PatternApp
 from .testmode import TestPatternApp
 from .exporter import ExporterApp
 
-def deleteSelectedUnit():
+def delete_selected_units():
     # 0x6284B8  CurrentUnitSelection     CUNIT *CurrentUnitSelection[12]
     # 0x6284E8  AllPlayerSelectionGroups CUNIT *AllPlayerSelectionGroups[8][12]
 
@@ -67,7 +67,7 @@ class BoundManagerApp(Application):
             if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
                 app_manager.start_application(ExporterApp)
         if EUDElseIf()(app_manager.key_press("delete")):
-            deleteSelectedUnit()
+            delete_selected_units()
         EUDEndIf()
 
     def print(self, writer):

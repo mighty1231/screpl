@@ -36,7 +36,7 @@ code:
         char *ptr = get_string_ptr(string_id)
         while (*ptr != 0){
             // make utf-8, remove color code
-            length, is_null_end = strcpy_until_newline(line_buffer, ptr)
+            length, is_null_end = _strcpy_until_newline(line_buffer, ptr)
 
             // use KMP search
             // https://www.geeksforgeeks.org/kmp-algorithm-for-pattern-searching/
@@ -87,7 +87,7 @@ v_return_epd = EUDVariable(0)
 
 v_is_utf8 = EUDVariable()
 
-def strcpy_until_newline(v_ptr):
+def _strcpy_until_newline(v_ptr):
     reader, writer = REPLByteRW(), REPLByteRW()
     reader.seekoffset(v_ptr)
     writer.seekepd(EPD(db_line_buffer))
@@ -155,8 +155,8 @@ def strcpy_until_newline(v_ptr):
                             ch = ch1
                             j = i - 6
                         Trigger(
-                            conditions = ucode.ExactlyX(1 << i, 1 << i),
-                            actions = ch.SetNumberX(1 << j, 1 << j)
+                            conditions=ucode.ExactlyX(1 << i, 1 << i),
+                            actions=ch.SetNumberX(1 << j, 1 << j)
                         )
                     writer.write(ch1)
                     writer.write(ch2)
@@ -180,8 +180,8 @@ def strcpy_until_newline(v_ptr):
                             ch = ch1
                             j = i - 12
                         Trigger(
-                            conditions = ucode.ExactlyX(1 << i, 1 << i),
-                            actions = ch.SetNumberX(1 << j, 1 << j)
+                            conditions=ucode.ExactlyX(1 << i, 1 << i),
+                            actions=ch.SetNumberX(1 << j, 1 << j)
                         )
                     writer.write(ch1)
                     writer.write(ch2)
@@ -193,7 +193,7 @@ def strcpy_until_newline(v_ptr):
     writer.write(0)
     return reader.getoffset() - v_ptr - 1, is_null_end
 
-def computeLPSArray(pattern):
+def _compute_lps_array(pattern):
     '''
     KMP Search preprocessing - evaluate LPS array
     '''
@@ -273,7 +273,7 @@ def KMPSearch(pattern):
     EUDReturn(0)
 
 @EUDFunc
-def focusResult(new_focus):
+def _focus_result(new_focus):
     if EUDIfNot()(new_focus >= v_search_cnt):
         if EUDIfNot()(new_focus == v_focused):
             v_focused << new_focus
@@ -283,7 +283,7 @@ def focusResult(new_focus):
 
 class StringSearchApp(Application):
     @staticmethod
-    def setReturn_epd(return_epd):
+    def set_return_epd(return_epd):
         v_return_epd << return_epd
 
     def on_destruct(self):
@@ -292,7 +292,7 @@ class StringSearchApp(Application):
         EUDEndIf()
         v_return_epd << 0
 
-    def on_chat(self, pattern):
+    def on_chat(self, address):
         v_string_id, v_result_line_ptr = EUDCreateVariables(2)
         c_dupcheck = Forward()
         trig_cpoint = Forward() # continue point
@@ -300,7 +300,7 @@ class StringSearchApp(Application):
 
         # evaluate LPS array
         # https://www.geeksforgeeks.org/kmp-algorithm-for-pattern-searching/
-        computeLPSArray(pattern)
+        _compute_lps_array(address)
 
         v_search_cnt << 0
         v_string_id << 1
@@ -314,13 +314,13 @@ class StringSearchApp(Application):
             SeqCompute([(EPD(c_dupcheck + 8), SetTo, offset)])
 
             v_textptr = STRSection + offset
-            v_is_utf8 << UTF8Check(v_textptr)
+            v_is_utf8 << f_check_utf8(v_textptr)
             if EUDInfLoop()():
                 ch = f_bread(v_textptr)
                 EUDBreakIf(ch == 0)
 
-                length, is_null_end = strcpy_until_newline(v_textptr)
-                found = KMPSearch(pattern)
+                length, is_null_end = _strcpy_until_newline(v_textptr)
+                found = KMPSearch(address)
                 if EUDIf()(found == 1):
                     DoActions([
                         SetMemoryEPD(EPD(v_search_ids) + v_search_cnt, SetTo, v_string_id),
@@ -348,7 +348,7 @@ class StringSearchApp(Application):
 
         writer = REPLByteRW()
         writer.seekepd(EPD(db_target))
-        writer.write_str(pattern)
+        writer.write_str(address)
         writer.write(0)
         v_focused << 0
 
@@ -357,21 +357,21 @@ class StringSearchApp(Application):
             app_manager.request_destruct()
             EUDReturn()
         if EUDElseIf()(app_manager.key_press('F7')):
-            focusResult(v_focused-1)
+            _focus_result(v_focused-1)
         if EUDElseIf()(app_manager.key_press('F8')):
-            focusResult(v_focused+1)
+            _focus_result(v_focused+1)
         EUDEndIf()
         app_manager.request_update()
 
     def print(self, writer):
         if EUDIf()(v_search_cnt == 0):
             writer.write_f("Search results \"%E\" - not found\n" + "\n" * 8,
-                EPD(db_target))
+                           EPD(db_target))
         if EUDElse()():
             writer.write_f("Search results \"%E\" - %D / total %D found\n",
-                EPD(db_target),
-                v_focused,
-                v_search_cnt)
+                           EPD(db_target),
+                           v_focused,
+                           v_search_cnt)
 
             quot, mod = f_div(v_focused, 8)
             cur = quot * 8
@@ -394,8 +394,8 @@ class StringSearchApp(Application):
                 EUDEndIf()
 
                 writer.write_f(" %D: %S\n",
-                    v_search_ids[cur],
-                    v_search_strings[cur])
+                               v_search_ids[cur],
+                               v_search_strings[cur])
 
                 DoActions([cur.AddNumber(1)])
             EUDEndInfLoop()

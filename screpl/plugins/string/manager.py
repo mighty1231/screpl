@@ -8,7 +8,9 @@ from screpl.main import is_bridge_mode, get_main_writer
 
 from . import *
 
-def writeFirstLine(string):
+v_result_epd = EUDVariable(EPD(0))
+
+def _write_first_line(string):
     '''
     write the first line of string, excluding empty line
     '''
@@ -17,38 +19,50 @@ def writeFirstLine(string):
 
     writer = get_main_writer()
 
-    writingLine = EUDVariable()
-    writingLine << 0
+    writing_line = EUDVariable()
+    writing_line << 0
     if EUDInfLoop()():
         b = reader.read()
         EUDBreakIf(b == 0)
-        if EUDIf()([writingLine == 1, b == ord('\n')]):
+        if EUDIf()([writing_line == 1, b == ord('\n')]):
             writer.write_f("...")
             EUDBreak()
         EUDEndIf()
 
         if EUDIfNot()(b == 0xD):
             if EUDIfNot()(b == ord('\n')):
-                writingLine << 1
+                writing_line << 1
                 writer.write(b)
             EUDEndIf()
         EUDEndIf()
     EUDEndInfLoop()
 
-def setStringID(new_string_id):
+def _set_string_id(new_string_id):
     if EUDIf()([new_string_id >= 1, new_string_id <= string_count]):
         cur_string_id << new_string_id
     EUDEndIf()
 
 class StringManagerApp(Application):
+    @staticmethod
+    def set_return(result_var):
+        assert IsEUDVariable(result_var)
+        v_result_epd << EPD(result_var.getValueAddr())
+        _set_string_id(result_var)
+
+    def on_destruct(self):
+        if EUDIfNot()(v_result_epd == EPD(0)):
+            f_dwwrite_epd(v_result_epd, cur_string_id)
+        EUDEndIf()
+        v_result_epd << EPD(0)
+
     def loop(self):
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
             EUDReturn()
         if EUDElseIf()(app_manager.key_press("F7")):
-            setStringID(cur_string_id - 1)
+            _set_string_id(cur_string_id - 1)
         if EUDElseIf()(app_manager.key_press("F8")):
-            setStringID(cur_string_id + 1)
+            _set_string_id(cur_string_id + 1)
         if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
             from .editor import StringEditorApp
             app_manager.start_application(StringEditorApp)
@@ -58,14 +72,14 @@ class StringManagerApp(Application):
                 app_manager.start_application(StringExporterApp)
         if EUDElseIf()(app_manager.key_press("F", hold=["LCTRL"])):
             from .search import StringSearchApp
-            StringSearchApp.setReturn_epd(EPD(cur_string_id.getValueAddr()))
+            StringSearchApp.set_return_epd(EPD(cur_string_id.getValueAddr()))
             app_manager.start_application(StringSearchApp)
         EUDEndIf()
         app_manager.request_update()
 
     def print(self, writer):
         writer.write_f("\x04StringManager id=%D / total %D strings\n", cur_string_id, string_count)
-        writeFirstLine(STRSection + f_dwread_epd(STRSection_epd + cur_string_id))
+        _write_first_line(STRSection + f_dwread_epd(STRSection_epd + cur_string_id))
         writer.write_f("\n\n\x04LCTRL+E Edit string...\n")
         writer.write_f("LCTRL+F Search strings...\n")
         if is_bridge_mode():
@@ -77,4 +91,4 @@ class StringManagerApp(Application):
 
     @AppCommand([ArgEncNumber])
     def id(self, new_string_id):
-        setStringID(new_string_id)
+        _set_string_id(new_string_id)

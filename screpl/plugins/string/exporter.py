@@ -5,14 +5,14 @@ from screpl.main import get_main_writer
 
 from . import *
 
-STATE_CONFIG    = 0
+STATE_CONFIG = 0
 STATE_EXPORTING = 1
 v_state = EUDVariable(STATE_CONFIG)
 
-MODE_SCMD      = 0
-MODE_EUDPLIB   = 1
+MODE_SCMD = 0
+MODE_EUDPLIB = 1
 MODE_EUDEDITOR = 2
-MODE_END     = 3
+MODE_END = 3
 v_mode = EUDVariable(MODE_SCMD)
 
 storage = Db(STRING_BUFFER_SZ)
@@ -117,10 +117,10 @@ class StringExporterApp(Application):
         EUDEndIf()
 
         if EUDIf()(v_state == STATE_CONFIG):
-            if EUDIf()(app_manager.key_press("Y", hold = ["LCTRL"])):
+            if EUDIf()(app_manager.key_press("Y", hold=["LCTRL"])):
                 v_state << STATE_EXPORTING
                 write_strings()
-            if EUDElseIf()(app_manager.key_press("O", hold = ["LCTRL"])):
+            if EUDElseIf()(app_manager.key_press("O", hold=["LCTRL"])):
                 v_mode += 1
                 Trigger(
                     conditions=v_mode.Exactly(MODE_END),
@@ -162,16 +162,12 @@ class StringExporterApp(Application):
                 ])
             EUDEndIf()
             writer.write_f("\n\x16Mode: %CSCMDraft2 %Ceudplib %CEUDEditor\n",
-                em_scmd,
-                em_eudplib,
-                em_eudeditor)
+                           em_scmd, em_eudplib, em_eudeditor)
             writer.write_f("\x16Press CTRL+O to change mode\n")
             writer.write_f("\x16Press CTRL+Y to export\n")
         if EUDElse()():
             writer.write_f("\x13Sent %D bytes / Remaining %D bytes\n\n\n\n",
-                written,
-                remaining_bytes
-            )
+                           written, remaining_bytes)
         EUDEndIf()
 
         writer.write(0)

@@ -11,12 +11,10 @@ TUI
 """
 from eudplib import *
 
-from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
-from screpl.encoder.const import ArgEncNumber
 from screpl.main import is_bridge_mode
 
-from . import *
+from . import app_manager
 from .detail import CUnitDetailApp
 from .option import CUnitOptionApp
 from .readstruct import ReadStructApp

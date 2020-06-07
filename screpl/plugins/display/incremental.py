@@ -16,9 +16,9 @@ v_screen_size_y = EUDVariable()
 app_manager = get_app_manager()
 
 class IncrementalDisplayApp(Application):
-    def on_chat(self, offset):
+    def on_chat(self, address):
         """read chat, fill db, and reset"""
-        f_strcpy(db_char, offset)
+        f_strcpy(db_char, address)
         v_count << 1
         v_num_lines << 1
 

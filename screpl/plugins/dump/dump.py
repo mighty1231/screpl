@@ -1,10 +1,11 @@
 from eudplib import *
 
 from screpl.core.application import Application
-from screpl.main import get_main_writer
 from screpl.utils.byterw import REPLByteRW
 
-from . import app_manager
+from screpl.main import get_app_manager, get_main_writer
+
+app_manager = get_app_manager()
 
 storage = Db(200000)
 remaining_bytes = EUDVariable(0)
@@ -15,7 +16,7 @@ writer = get_main_writer()
 _ptr = EUDVariable()
 _size = EUDVariable()
 
-def dumpToStorage():
+def dump_to_storage():
     global writer
     writer.seekepd(EPD(storage))
     reader = REPLByteRW()
@@ -37,12 +38,12 @@ def dumpToStorage():
 
 class DumpApp(Application):
     @staticmethod
-    def setTarget(ptr, size):
+    def set_target(ptr, size):
         _ptr << ptr
         _size << size
 
     def on_init(self):
-        dumpToStorage()
+        dump_to_storage()
 
     def loop(self):
         global written, remaining_bytes

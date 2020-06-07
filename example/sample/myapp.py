@@ -46,7 +46,7 @@ class MyApp(Application):
     def on_destruct(self):
         """You may free variable that had allocated on init()"""
 
-    def on_chat(self, offset):
+    def on_chat(self, address):
         """Callback for super user chat
 
         As default behavior, (from Application class), it reads command
@@ -54,7 +54,7 @@ class MyApp(Application):
         default.
         """
         self.trial += 1
-        Application.on_chat(self, offset)
+        Application.on_chat(self, address)
 
     def on_resume(self):
         """Called exactly once after newly started app was dead"""

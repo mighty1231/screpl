@@ -69,10 +69,10 @@ class ChatReaderApp(application.Application):
     def on_destruct(self):
         _result_writer.seekepd(EPD(0))
 
-    def on_chat(self, offset):
+    def on_chat(self, address):
         """Receives chat to store to temporary storage"""
         _temp_writer.seekepd(EPD(_temp_storage))
-        _temp_writer.write_str(offset)
+        _temp_writer.write_str(address)
         _temp_writer.write(0)
         main.get_app_manager().request_update()
 

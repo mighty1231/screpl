@@ -98,8 +98,7 @@ def repl_monitor_eudfunc(funcn, io=True, profile=False):
 def repl_monitor_appmethod(appmtd, io=True, profile=False):
     appmtd.set_funcn_callback(
         functools.partial(repl_monitor_eudfunc,
-                          io=io, profile=profile
-    ))
+                          io=io, profile=profile))
 
 def repl_monitor_appcommand(appcmd, io=True, profile=False):
     assert appcmd not in monitored_objects, "command should not be monitored twice"

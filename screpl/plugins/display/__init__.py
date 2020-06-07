@@ -74,11 +74,13 @@ def plugin_setup():
 
     @AppCommand([])
     def start_command1(self):
+        """Start IncrementalDisplayApp"""
         app_manager.start_application(IncrementalDisplayApp)
     REPL.add_command('display', start_command1)
 
     if is_bridge_mode():
         @AppCommand([])
         def start_command2(self):
+            """Export character report to bridge. # of characters per line"""
             app_manager.start_application(CharReportApp)
         REPL.add_command('charreport', start_command2)

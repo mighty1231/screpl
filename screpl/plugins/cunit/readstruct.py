@@ -12,10 +12,7 @@ TUI:
 """
 from eudplib import *
 
-from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
-from screpl.core.appmethod import AppTypedMethod
-from screpl.encoder.const import ArgEncNumber
 from screpl.main import get_app_manager, get_main_writer
 import screpl.resources.table.tables as tb
 
@@ -63,8 +60,8 @@ def _write_cunits():
             EUDBreakIf(v_cunit == 0)
 
             writer.write_f("%H %D: ",
-                v_cunit,
-                get_unit_index_from_addr(v_cunit))
+                           v_cunit,
+                           get_unit_index_from_addr(v_cunit))
             writer.write_unit(f_wread_epd(v_cunit_epd + (0x64//4), 0))
             writer.write_f("\n")
 
@@ -131,10 +128,10 @@ class ReadStructApp(Application):
         EUDEndIf()
 
         if EUDIf()(v_state == STATE_CONFIG):
-            if EUDIf()(app_manager.key_press("Y", hold = ["LCTRL"])):
+            if EUDIf()(app_manager.key_press("Y", hold=["LCTRL"])):
                 v_state << STATE_EXPORTING
                 _write_cunits()
-            if EUDElseIf()(app_manager.key_press("O", hold = ["LCTRL"])):
+            if EUDElseIf()(app_manager.key_press("O", hold=["LCTRL"])):
                 v_mode += 1
                 Trigger(
                     conditions=v_mode.Exactly(MODE_END),
@@ -170,8 +167,7 @@ class ReadStructApp(Application):
                            "Press CTRL+Y to export\n", e_sel, e_all)
         if EUDElse()():
             writer.write_f("\x13Sent %D bytes / Remaining %D bytes\n\n\n\n",
-                v_written,
-                v_remaining_bytes
-            )
+                           v_written,
+                           v_remaining_bytes)
         EUDEndIf()
         writer.write(0)

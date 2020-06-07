@@ -17,11 +17,9 @@ def plugin_setup():
     from .dump import DumpApp
 
     @AppCommand([ArgEncNumber, ArgEncNumber])
-    def startCommand(self, ptr, size):
-        '''
-        Dump memory to bridge, given ptr and size
-        '''
-        DumpApp.setTarget(ptr, size)
+    def start_command(self, ptr, size):
+        """Dump binary data to bridge, given ptr and size"""
+        DumpApp.set_target(ptr, size)
         app_manager.start_application(DumpApp)
 
-    REPL.add_command('dump', startCommand)
+    REPL.add_command('dump', start_command)

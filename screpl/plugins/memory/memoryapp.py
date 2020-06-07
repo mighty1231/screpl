@@ -19,13 +19,13 @@ class MemoryApp(Application):
     ]
 
     @staticmethod
-    def setContent_ptr(ptr, size):
+    def set_content_ptr(ptr, size):
         _ptr << ptr
         _epd << EPD(ptr)
         _size << size
 
     @staticmethod
-    def setContent_epd(epd, size):
+    def set_content_epd(epd, size):
         _ptr << ((epd * 4) + 0x58A364)
         _epd << epd
         _size << size
@@ -51,7 +51,7 @@ class MemoryApp(Application):
         ptr, epd, size = self.ptr, self.epd, self.size
 
         writer.write_f("Memory (ptr = %H, epd = %D, size = %D)\n",
-            ptr, epd, size)
+                       ptr, epd, size)
 
         cur_ptr, endp = EUDCreateVariables(2)
         cur_ptr << ptr

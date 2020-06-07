@@ -178,6 +178,7 @@ def set_bridge_mode(bridge_mode):
     if _bridge_region:
         @AppCommand([])
         def toggle_blind(repl):
+            """Toggle blind mode"""
             _is_blind_mode << 1 - _is_blind_mode
         repl.REPL.add_command("blind", toggle_blind)
 

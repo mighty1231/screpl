@@ -2,15 +2,15 @@ from eudplib import *
 
 from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
-from screpl.resources.table.tables import GetLocationNameEPDPointer
+from screpl.resources.table.tables import get_locationname_epd
 
 from . import app_manager, keymap, FRAME_PERIOD
-from .rect import drawRectangle
 from .editor import LocationEditorApp
+from .rect import draw_rectangle
 
 # app-specific initializing arguments
 _location = EUDVariable(1)
-_resultref_location_epd = EUDVariable(0)
+_resultref_location_epd = EUDVariable(EPD(0))
 
 class LocationManagerApp(Application):
     fields = [
@@ -19,11 +19,11 @@ class LocationManagerApp(Application):
 
         "frame", # parameter used on draw rectangle as animation
 
-        "centerview", # do centerview on every setLocation() calles if 1
+        "centerview", # do centerview on every set_location() calles if 1
     ]
 
     @staticmethod
-    def setContent(location, resultref_location_epd = None):
+    def set_content(location, resultref_location_epd = None):
         # set initializing arguments
         _location << EncodeLocation(location)
         if resultref_location_epd:
@@ -35,24 +35,24 @@ class LocationManagerApp(Application):
         self.frame = 0
         self.resultref_location_epd = _resultref_location_epd
 
-        self.setLocation(_location)
+        self.set_location(_location)
 
         # restore initializing arguments
         _location << 1
-        _resultref_location_epd << 0
+        _resultref_location_epd << EPD(0)
 
-    def setLocation(self, new_location):
+    def set_location(self, new_location):
         Trigger(
-            conditions = new_location.AtLeast(0x80000000),
-            actions = new_location.SetNumber(1)
+            conditions=new_location.AtLeast(0x80000000),
+            actions=new_location.SetNumber(1)
         )
         Trigger(
-            conditions = new_location.Exactly(0),
-            actions = new_location.SetNumber(1)
+            conditions=new_location.Exactly(0),
+            actions=new_location.SetNumber(1)
         )
         Trigger(
-            conditions = new_location.AtLeast(256),
-            actions = new_location.SetNumber(255)
+            conditions=new_location.AtLeast(256),
+            actions=new_location.SetNumber(255)
         )
         if EUDIfNot()(new_location == self.location):
             self.frame = 0
@@ -69,7 +69,7 @@ class LocationManagerApp(Application):
 
     def on_destruct(self):
         resultref_location_epd = self.resultref_location_epd
-        if EUDIfNot()(resultref_location_epd == 0):
+        if EUDIfNot()(resultref_location_epd == EPD(0)):
             f_dwwrite_epd(resultref_location_epd, self.location)
         EUDEndIf()
 
@@ -81,26 +81,26 @@ class LocationManagerApp(Application):
             app_manager.request_destruct()
             EUDReturn()
         if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            self.setLocation(location - 8)
+            self.set_location(location - 8)
         if EUDElseIf()(app_manager.key_press("F7")):
-            self.setLocation(location - 1)
+            self.set_location(location - 1)
         if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            self.setLocation(location + 8)
+            self.set_location(location + 8)
         if EUDElseIf()(app_manager.key_press("F8")):
-            self.setLocation(location + 1)
+            self.set_location(location + 1)
         if EUDElseIf()(app_manager.key_press(keymap["manager"]["open_editor"])):
-            LocationEditorApp.setTarget(location)
+            LocationEditorApp.set_target(location)
             app_manager.start_application(LocationEditorApp)
             EUDReturn()
         EUDEndIf()
 
         # draw location with "Scanner Sweep"
-        drawRectangle(self.location, self.frame, FRAME_PERIOD)
+        draw_rectangle(self.location, self.frame, FRAME_PERIOD)
 
         frame = self.frame + 1
         Trigger(
-            conditions = frame.Exactly(FRAME_PERIOD),
-            actions = frame.SetNumber(0)
+            conditions=frame.Exactly(FRAME_PERIOD),
+            actions=frame.SetNumber(0)
         )
         self.frame = frame
         app_manager.request_update()
@@ -131,8 +131,8 @@ class LocationManagerApp(Application):
         quot, mod = f_div(target_location - 1, 8)
         cur = quot * 8 + 1
         until = cur + 8
-        if EUDIf()(until == 255):
-            until << 254
+        if EUDIf()(until == 257):
+            until << 256
         EUDEndIf()
 
         # fill contents
@@ -149,10 +149,10 @@ class LocationManagerApp(Application):
             #   0x08: Low Air
             #   0x10: Med Air
             #   0x20: High Air
-            left  = f_dwread_epd(cur_epd)
-            top   = f_dwread_epd(cur_epd + 1)
+            left = f_dwread_epd(cur_epd)
+            top = f_dwread_epd(cur_epd + 1)
             right = f_dwread_epd(cur_epd + 2)
-            bottom  = f_dwread_epd(cur_epd + 3)
+            bottom = f_dwread_epd(cur_epd + 3)
             flag = f_wread_epd(cur_epd + 4, 2)
 
             if EUDIf()(cur == target_location):
@@ -161,11 +161,11 @@ class LocationManagerApp(Application):
                 writer.write(0x02) # pale blue
             EUDEndIf()
 
-            str_epd = GetLocationNameEPDPointer(cur)
+            str_epd = get_locationname_epd(cur)
             writer.write_f(" %D %E: %D x %D // ", cur, str_epd, right-left, bottom-top)
 
             layers = ['Low Ground', 'Med Ground', 'High Ground',
-                    'Low Air', 'Med Air', 'High Air']
+                      'Low Air', 'Med Air', 'High Air']
             if EUDIf()(flag.Exactly(0)):
                 writer.write_f("All")
             if EUDElse()():
@@ -184,5 +184,9 @@ class LocationManagerApp(Application):
 
             DoActions([cur_ptr.AddNumber(0x14), cur.AddNumber(1), cur_epd.AddNumber(0x14//4)])
         EUDEndInfLoop()
+
+        if EUDIf()(until == 256):
+            writer.write(ord('\n'))
+        EUDEndIf()
 
         writer.write(0)

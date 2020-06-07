@@ -15,6 +15,7 @@ from eudplib import *
 
 from screpl.apps.repl import REPL
 from screpl.core.appcommand import AppCommand
+from screpl.encoder.const import ArgEncNumber
 from screpl.main import get_app_manager
 from screpl.utils.debug import f_raise_error
 from eudplib.core.mapdata.stringmap import strmap
@@ -62,12 +63,12 @@ def f_get_exact_amount(cond_epd):
         EUDEndSwitch()
 
         DoActions(act0 << SetMemory(measure_condition + 0x8,
-                                  Add,
-                                  0)) # 2 ** (31-k)
+                                    Add,
+                                    0)) # 2 ** (31-k)
         if EUDIfNot()(measure_condition << Memory(0, 0, 0)):
             DoActions(act1 << SetMemory(measure_condition + 0x8,
-                                      Subtract,
-                                      0)) # 2 ** (31-k)
+                                        Subtract,
+                                        0)) # 2 ** (31-k)
         EUDEndIf()
         k += 1
     EUDEndWhile()
@@ -75,9 +76,9 @@ def f_get_exact_amount(cond_epd):
 
 @EUDTypedFunc([None, MaximumCircularBuffer(ResultEntry)])
 def _condcheck_trigger(trigdb_epd, entry_table):
-    trig_conditions = [Forward() for _ in range(16)]
+    trig_conditions=[Forward() for _ in range(16)]
     trig_copy = Forward()
-    measure_conditions = [Forward() for _ in range(16)]
+    measure_conditions=[Forward() for _ in range(16)]
 
     cond_count = EUDVariable(0)
     cond_bools = EUDArray(16)
@@ -172,16 +173,14 @@ def _condcheck_trigger(trigdb_epd, entry_table):
 
 class CondCheckTriggerManager:
     def __init__(self):
-        self.trig_dbs = []
-        self.trig_count = 0
-
         # called result entries
-        self.player_result_entries = []
         self.force_players = [set(), set(), set(), set()]
         for pid in range(8):
             self.force_players[GetPlayerInfo(pid).force].add(pid)
 
         # total result tables
+        self.trig_p2dbtables = []
+        self.trig_id = 0
         self.result_tables = []
 
         # connect function to use inline eudplib
@@ -198,8 +197,6 @@ class CondCheckTriggerManager:
                 break
             if acttype == 4:
                 raise ValueError("Trigger with Wait() action cannot be inlined")
-
-        trig_object = Db(trigger)
 
         # build inlining player code
         effplayers = set() # 0 ~ 8
@@ -219,45 +216,46 @@ class CondCheckTriggerManager:
                         "Unknown behavior on trigger with player %d" % pid)
 
         # create result entries
-        result_entries = {}
+        p2dbtable = {}
         for pid in effplayers:
             mcb = MaximumCircularBuffer(ResultEntry).construct_w_empty([
                 ResultEntry.construct() for _ in range(ENTRY_SIZE)
             ])
-            result_entries[pid] = mcb
-            self.result_tables.append((trig_object,
-                                       len(self.trig_dbs),
+            trig_db = Db(trigger)
+            p2dbtable[pid] = (trig_db, mcb)
+            self.result_tables.append((trig_db,
+                                       self.trig_id,
                                        pid,
                                        mcb))
+        self.trig_p2dbtables.append(p2dbtable)
 
         # construct inline trigger
         inline_trig = (bytes(20)
                        + i2b4(0x10978d4a)
                        + i2b4(player_code)
-                       + ('screpl_condcheck(%d, f_getcurpl())'
-                          % self.trig_count).encode())
+                       + ('screpl_condcheck(%d)'
+                          % self.trig_id).encode())
         inline_trig += bytes(2400-len(inline_trig))
 
-        self.trig_count += 1
-        self.trig_dbs.append(trig_object)
-        self.player_result_entries.append(result_entries)
+        self.trig_id += 1
 
         return inline_trig
 
-    def condcheck_inline(self, trig_id, player_id):
-        trig_db = self.trig_dbs[trig_id]
-        player_result_entry = self.player_result_entries[trig_id]
+    def condcheck_inline(self, trig_id):
+        player_id = f_getcurpl()
+        trig_p2dbtable = self.trig_p2dbtables[trig_id]
         EUDSwitch(player_id)
-        result_entry = EUDVariable()
-        for entry_player_id, entry in player_result_entry.items():
-            EUDSwitchCase()(entry_player_id)
-            result_entry << entry
+        trig_db_epd, entry = EUDCreateVariables(2)
+        for player_id, (trig_db_, entry_) in trig_p2dbtable.items():
+            EUDSwitchCase()(player_id)
+            trig_db_epd << EPD(trig_db_)
+            entry << entry_
             EUDBreak()
         if EUDSwitchDefault()():
-            f_raise_error("screpl-condcheck trig id %D - player id %D unknown",
+            f_raise_error("screpl-condcheck trig_id %D: player_id %D unknown",
                           trig_id, player_id)
         EUDEndSwitch()
-        _condcheck_trigger(EPD(trig_db), result_entry)
+        _condcheck_trigger(trig_db_epd, entry)
 
     def find_signature_and_update(self):
         """Find trigger with debugging signature
@@ -299,11 +297,29 @@ cctm = CondCheckTriggerManager()
 def plugin_setup():
     cctm.find_signature_and_update()
 
-    if cctm.trig_count:
+    from .editor import TriggerEditorApp
+
+    @AppCommand([ArgEncNumber])
+    def start_triggereditor(self, ptr):
+        """Start TriggerEditorApp with given ptr, link type"""
+        TriggerEditorApp.set_trig_ptr(ptr, nolink=False)
+        app_manager.start_application(TriggerEditorApp)
+
+    @AppCommand([ArgEncNumber])
+    def start_triggereditor_nolink(self, ptr):
+        """Start TriggerEditorApp with given ptr, nolink type"""
+        TriggerEditorApp.set_trig_ptr(ptr, nolink=True)
+        app_manager.start_application(TriggerEditorApp)
+
+    REPL.add_command('trigger', start_triggereditor)
+    REPL.add_command('trigger_nolink', start_triggereditor_nolink)
+
+    if cctm.result_tables:
         from .condcheck import CondCheckApp
 
         @AppCommand([])
         def start_condcheck(self):
+            """Start trigger condition checker"""
             app_manager.start_application(CondCheckApp)
 
         REPL.add_command('condcheck', start_condcheck)

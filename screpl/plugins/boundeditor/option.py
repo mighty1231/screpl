@@ -18,10 +18,11 @@ Expected TUI:
 
 from eudplib import *
 
-from screpl.apps.selector import PlayerSelectorApp
+from screpl.apps.selector import SelectorApp
 from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
 from screpl.encoder.const import ArgEncNumber
+import screpl.resources.table.tables as tb
 
 from screpl.plugins.location.manager import LocationManagerApp
 from screpl.plugins.unit.manager import UnitManagerApp
@@ -81,52 +82,52 @@ class OptionApp(Application):
             app_manager.request_destruct()
         if EUDElseIf()(app_manager.key_press("F7")):
             Trigger(
-                conditions = focus.Exactly(0),
-                actions = focus.SetNumber(FOCUS_END)
+                conditions=focus.Exactly(0),
+                actions=focus.SetNumber(FOCUS_END)
             )
             DoActions(focus.SubtractNumber(1))
         if EUDElseIf()(app_manager.key_press("F8")):
             DoActions(focus.AddNumber(1))
             Trigger(
-                conditions = focus.Exactly(FOCUS_END),
-                actions = focus.SetNumber(0)
+                conditions=focus.Exactly(FOCUS_END),
+                actions=focus.SetNumber(0)
             )
         if EUDElseIf()(app_manager.key_press("insert")):
             if EUDIf()(focus.Exactly(FOCUS_EFFECTPLAYER)):
-                PlayerSelectorApp.setContent(g_effectplayer, EPD(g_effectplayer.getValueAddr()))
-                app_manager.start_application(PlayerSelectorApp)
+                SelectorApp.set_content(tb.Player, g_effectplayer)
+                app_manager.start_application(SelectorApp)
             if EUDElseIf()(focus.Exactly(FOCUS_EFFECTUNIT1)):
-                UnitManagerApp.setContent(g_effectunit_1, EPD(g_effectunit_1.getValueAddr()))
+                UnitManagerApp.set_content(g_effectunit_1, EPD(g_effectunit_1.getValueAddr()))
                 app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_EFFECTUNIT2)):
-                UnitManagerApp.setContent(g_effectunit_2, EPD(g_effectunit_2.getValueAddr()))
+                UnitManagerApp.set_content(g_effectunit_2, EPD(g_effectunit_2.getValueAddr()))
                 app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_EFFECTUNIT3)):
-                UnitManagerApp.setContent(g_effectunit_3, EPD(g_effectunit_3.getValueAddr()))
+                UnitManagerApp.set_content(g_effectunit_3, EPD(g_effectunit_3.getValueAddr()))
                 app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_OBSTACLEUNIT)):
-                UnitManagerApp.setContent(g_obstacle_unit, EPD(g_obstacle_unit.getValueAddr()))
+                UnitManagerApp.set_content(g_obstacle_unit, EPD(g_obstacle_unit.getValueAddr()))
                 app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_RUNNER_FORCE)):
-                PlayerSelectorApp.setContent(g_runner_force, EPD(g_runner_force.getValueAddr()))
-                app_manager.start_application(PlayerSelectorApp)
+                SelectorApp.set_content(tb.Player, g_runner_force)
+                app_manager.start_application(SelectorApp)
             if EUDElseIf()(focus.Exactly(FOCUS_RUNNER_UNIT)):
-                UnitManagerApp.setContent(g_runner_unit, EPD(g_runner_unit.getValueAddr()))
+                UnitManagerApp.set_content(g_runner_unit, EPD(g_runner_unit.getValueAddr()))
                 app_manager.start_application(UnitManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_START_LOCATION)):
-                LocationManagerApp.setContent(g_start_location, EPD(g_start_location.getValueAddr()))
+                LocationManagerApp.set_content(g_start_location, EPD(g_start_location.getValueAddr()))
                 app_manager.start_application(LocationManagerApp)
             if EUDElseIf()(focus.Exactly(FOCUS_OBSCREATE_PATTERN)):
                 DoActions(g_obstacle_createpattern.AddNumber(1))
                 Trigger(
-                    conditions = g_obstacle_createpattern.Exactly(OBSTACLE_CREATEPATTERN_END),
-                    actions = g_obstacle_createpattern.SetNumber(0)
+                    conditions=g_obstacle_createpattern.Exactly(OBSTACLE_CREATEPATTERN_END),
+                    actions=g_obstacle_createpattern.SetNumber(0)
                 )
             if EUDElseIf()(focus.Exactly(FOCUS_OBSDESTRUCT_PATTERN)):
                 DoActions(g_obstacle_destructpattern.AddNumber(1))
                 Trigger(
-                    conditions = g_obstacle_destructpattern.Exactly(OBSTACLE_DESTRUCTPATTERN_END),
-                    actions = g_obstacle_destructpattern.SetNumber(0)
+                    conditions=g_obstacle_destructpattern.Exactly(OBSTACLE_DESTRUCTPATTERN_END),
+                    actions=g_obstacle_destructpattern.SetNumber(0)
                 )
             EUDEndIf()
         EUDEndIf()

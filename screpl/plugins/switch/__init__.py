@@ -1,3 +1,4 @@
+"""switch (trigger-Switch, SetSwitch) plugin"""
 from eudplib import *
 
 from screpl.apps.repl import REPL
@@ -9,11 +10,11 @@ app_manager = get_app_manager()
 
 def plugin_setup():
     # make commands
-    from .manager import UnitManagerApp
+    from .manager import SwitchManagerApp
 
     @AppCommand([])
     def start_command(self):
-        """Start UnitManagerApp"""
-        app_manager.start_application(UnitManagerApp)
+        """Start SwitchManagerApp"""
+        app_manager.start_application(SwitchManagerApp)
 
-    REPL.add_command('unit', start_command)
+    REPL.add_command('switch', start_command)
