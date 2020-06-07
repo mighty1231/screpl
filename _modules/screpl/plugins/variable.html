@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.variable — SC-REPL 1.1.3 documentation
+   screpl.plugins.variable — SC-REPL 1.1.4 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.3 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.3 documentation
+        SC-REPL 1.1.4 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.3 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.3 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.4 documentation">
            SC-REPL
           </a>
          </label>
@@ -298,6 +298,10 @@
 <div class="viewcode-block" id="watch_variable"><a class="viewcode-back" href="../../../screpl.plugins.variable.html#screpl.plugins.variable.watch_variable">[docs]</a><span class="k">def</span> <span class="nf">watch_variable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
     <span class="k">assert</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
     <span class="n">watched_eud_vars</span><span class="o">.</span><span class="n">add_pair</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span></div>
+
+<div class="viewcode-block" id="plugin_get_dependency"><a class="viewcode-back" href="../../../screpl.plugins.variable.html#screpl.plugins.variable.plugin_get_dependency">[docs]</a><span class="k">def</span> <span class="nf">plugin_get_dependency</span><span class="p">():</span>
+    <span class="sd">"""Returns list of required plugins"""</span>
+    <span class="k">return</span> <span class="p">[]</span></div>
 
 <div class="viewcode-block" id="plugin_setup"><a class="viewcode-back" href="../../../screpl.plugins.variable.html#screpl.plugins.variable.plugin_setup">[docs]</a><span class="k">def</span> <span class="nf">plugin_setup</span><span class="p">():</span>
     <span class="c1"># make commands</span>
