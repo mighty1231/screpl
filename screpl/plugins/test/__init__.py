@@ -15,6 +15,10 @@ def make_command(app):
     cmd.func.__doc__ = "Command to test %s" % app.__name__
     return cmd
 
+def plugin_get_dependency():
+    """Returns list of required plugins"""
+    return []
+
 def plugin_setup():
     from .array import REPLArrayTestApp
     from .monitor import MonitorTestApp

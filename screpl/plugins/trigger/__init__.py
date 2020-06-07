@@ -294,6 +294,12 @@ class CondCheckTriggerManager:
 
 cctm = CondCheckTriggerManager()
 
+def plugin_get_dependency():
+    return ["screpl.plugins.location",
+            "screpl.plugins.string",
+            "screpl.plugins.switch",
+            "screpl.plugins.unit"]
+
 def plugin_setup():
     cctm.find_signature_and_update()
 

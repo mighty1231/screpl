@@ -5,6 +5,10 @@ from screpl.main import get_app_manager
 
 from .memoryapp import MemoryApp
 
+def plugin_get_dependency():
+    """Returns list of required plugins"""
+    return []
+
 def plugin_setup():
     manager = get_app_manager()
 

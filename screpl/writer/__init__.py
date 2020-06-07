@@ -33,8 +33,9 @@ def write_location(self, val):
     if EUDIf()([val >= 1, val <= 255]):
         name_epd = tb.get_locationname_epd(val)
         self.write_f('"%E"', name_epd)
+    if EUDElse()():
+        self.write_decimal(val)
     EUDEndIf()
-    self.write_decimal(val)
 
 @EUDMethod
 def write_aiscript(self, val):

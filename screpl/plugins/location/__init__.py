@@ -19,6 +19,10 @@ FRAME_PERIOD = 24
 # initialize variables
 app_manager = get_app_manager()
 
+def plugin_get_dependency():
+    """Returns list of required plugins"""
+    return []
+
 def plugin_setup():
     DoActions([
         # make enable to create "Scanner Sweep"
