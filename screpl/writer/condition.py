@@ -25,8 +25,7 @@ condition_epd_offset_map = EPDOffsetMap((
 def write_condition_epd(self, epd):
     """Write trigger condition with eudplib syntax"""
 
-    # condtype 13 should be Briefing() but it has same
-    # semantics with Always()
+    # condtype 13: Briefing()?
     write_mtds = [
         (1, _write__CountdownTimer),
         (2, _write__Command),
@@ -40,7 +39,6 @@ def write_condition_epd(self, epd):
         (10, _write__MostResources),
         (11, _write__Switch),
         (12, _write__ElapsedTime),
-        (13, _write__Always),
         (14, _write__Opponents),
         (15, _write__Deaths),
         (16, _write__CommandLeast),

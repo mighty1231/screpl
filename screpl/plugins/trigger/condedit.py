@@ -105,7 +105,9 @@ class TrigConditionEditorApp(Application):
 
     @AppCommand([])
     def ConditionType(self):
-        pass
+        v_value_to_set << self.get_focused_value()
+        SelectorApp.set_content(tb.ConditionType, v_value_to_set)
+        app_manager.start_application(SelectorApp)
 
     @AppCommand([])
     def Comparison(self):
