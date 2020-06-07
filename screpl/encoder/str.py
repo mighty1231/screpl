@@ -4,7 +4,7 @@ import screpl.resources.table.tables as tb
 from screpl.utils.referencetable import search_table
 from screpl.utils.string import f_strcmp_ptrepd
 
-from .encoder import ArgEncoderPtr
+from .encoder import ArgEncoderPtr, read_number, read_string
 
 tmpbuf = Db(150) # Temporarily store string
 
