@@ -131,8 +131,8 @@ class LocationManagerApp(Application):
         quot, mod = f_div(target_location - 1, 8)
         cur = quot * 8 + 1
         until = cur + 8
-        if EUDIf()(until == 255):
-            until << 254
+        if EUDIf()(until == 257):
+            until << 256
         EUDEndIf()
 
         # fill contents
@@ -184,5 +184,9 @@ class LocationManagerApp(Application):
 
             DoActions([cur_ptr.AddNumber(0x14), cur.AddNumber(1), cur_epd.AddNumber(0x14//4)])
         EUDEndInfLoop()
+
+        if EUDIf()(until == 256):
+            writer.write(ord('\n'))
+        EUDEndIf()
 
         writer.write(0)

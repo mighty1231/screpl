@@ -443,7 +443,7 @@ ActionType = ReferenceTable([
     ("SetAllianceStatus", 57),
 ], key_f=EPDConstString, final=True)
 
-class _PropertyObject(ReferenceTable):
+class _PropTable(ReferenceTable):
     """Property reference table
 
     Property Structure
@@ -477,13 +477,18 @@ class _PropertyObject(ReferenceTable):
     - hallucinated : Unit is hallucination.
     - invincible   : Unit is invincible.
 
-    maximum length (173 bytes)::
+    UPRP may saved into 0x596cd8..? SC:R does not support the address
 
-        UnitProperty(hitpoints=100, shield=100, energy=100, resource=4294967295,
-            hanger=65535, cloacked=False, burrowed=False, intransit=False,
-            hallucinated=False, invincible=False)
-
+    reference:
+    https://github.com/bwapi/bwapi/blob/master/Release_Binary/Starcraft/bwapi-data/data/Broodwar.map#L3165
     """
+
+    COLOR_HITPOINT = '\x08'
+    COLOR_SHIELD = '\x0E'
+    COLOR_ENERGY = '\x0F'
+    COLOR_RESOURCE = '\x17'
+    COLOR_HANGER = '\x18'
+
     @staticmethod
     def decode_property(property_):
         assert isinstance(property_, bytes) and len(property_) == 20
@@ -497,25 +502,25 @@ class _PropertyObject(ReferenceTable):
         hanger = b2i2(property_, 0x0C)
         sprpflag = b2i2(property_, 0x0E)
 
-        tuple_ = []
-        for bit, name, value in [(1 << 1, 'hitpoint', hitpoint),
-                                 (1 << 2, 'shield', shield),
-                                 (1 << 3, 'energy', energy),
-                                 (1 << 4, 'resource', resource),
-                                 (1 << 5, 'hanger', hanger)]:
+        list_ = []
+        for bit, color, value in [
+                (1 << 1, _PropTable.COLOR_HITPOINT, hitpoint),
+                (1 << 2, _PropTable.COLOR_SHIELD, shield),
+                (1 << 3, _PropTable.COLOR_ENERGY, energy),
+                (1 << 4, _PropTable.COLOR_RESOURCE, resource),
+                (1 << 5, _PropTable.COLOR_HANGER, hanger)]:
             if prpvalid & bit:
-                tuple_.append((name, value))
+                list_.append("{}{}".format(color, value))
 
         for bit, name in [(1 << 0, 'cloaked'),
                           (1 << 1, 'burrowed'),
                           (1 << 2, 'intransit'),
                           (1 << 3, 'hallucinated'),
                           (1 << 4, 'invincible')]:
-            if sprpvalid & bit:
-                tuple_.append((name, bool(sprpflag & bit)))
+            if sprpvalid & bit and sprpflag & bit:
+                list_.append("\x1F{}".format(name))
 
-        kwargs = ', '.join(['{}={}'.format(k, v) for k, v in tuple_])
-        return "UnitProperty({})".format(kwargs)
+        return "UnitProperty {}".format(' '.join(list_))
 
     def __init__(self):
         super().__init__()
@@ -527,10 +532,20 @@ class _PropertyObject(ReferenceTable):
             uprp = chkt.getsection('UPRP')
             upus = chkt.getsection('UPUS') or bytes([1] * 64)
 
+            # property 0 does not affect any behavior of game.
+            # just recognize color for each properties
+            prop_0 = ["UnitPropertyTags"]
+            prop_0.append(_PropTable.COLOR_HITPOINT + "hitpoint")
+            prop_0.append(_PropTable.COLOR_SHIELD + "shield")
+            prop_0.append(_PropTable.COLOR_ENERGY + "energy")
+            prop_0.append(_PropTable.COLOR_RESOURCE + "resource")
+            prop_0.append(_PropTable.COLOR_HANGER + "hanger")
+            self.add_pair(EPDConstString(" ".join(prop_0)), 0)
+
             for i in range(64):
                 if upus[i]:
                     uprpdata = uprp[20*i:20*i+20]
-                    string = _PropertyObject.decode_property(uprpdata)
+                    string = _PropTable.decode_property(uprpdata)
                     self.add_pair(EPDConstString(string), i+1)
 
             self.evaluated = True
@@ -539,4 +554,4 @@ class _PropertyObject(ReferenceTable):
         self.construct_db()
         return super().Evaluate()
 
-Property = _PropertyObject()
+Property = _PropTable()

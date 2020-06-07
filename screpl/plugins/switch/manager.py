@@ -23,7 +23,6 @@ def _focus_index(new_index):
     )
     if EUDIfNot()(new_index == _index):
         _index << new_index
-        app_manager.request_update()
     EUDEndIf()
 
 class SwitchManagerApp(Application):
@@ -58,6 +57,7 @@ class SwitchManagerApp(Application):
         if EUDElseIf()(app_manager.key_press("F8")):
             _focus_index(_index + 1)
         EUDEndIf()
+        app_manager.request_update()
 
     def print(self, writer):
         writer.write_f("\x16Switch Manager\n")
