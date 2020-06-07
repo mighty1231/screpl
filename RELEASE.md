@@ -1,3 +1,10 @@
+# Release 1.1.4
+
+## Bug Fixes and Other Changes
+* fixed `REPLByteRW.write_location`
+* plugins should explicitly declare `plugin_get_dependency()`
+
+
 # Release 1.1.3
 
 ## Major Features and Improvements
