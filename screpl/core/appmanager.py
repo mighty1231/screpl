@@ -151,7 +151,6 @@ class AppManager:
             self.is_starting_app << 0
         EUDEndIf()
 
-        self.clean_text()
         self.request_update()
 
     def _update_key_state(self):
@@ -391,12 +390,6 @@ class AppManager:
 
     def get_superuser_id(self):
         return self.su_id
-
-    def clean_text(self):
-        """Cleans text UI of previous app."""
-        EUDIfNot()(main.is_blind_mode())
-        f_printf("\n" * 12)
-        EUDEndIf()
 
     def run(self, writer):
         # only super user may interact with apps

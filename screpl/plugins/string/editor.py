@@ -313,13 +313,11 @@ class StringEditorApp(Application):
             v_mode << 1 - v_mode
         if EUDElseIf()(app_manager.key_press("DELETE")):
             f_strcpy_epd(v_cursor_epd, v_cursor_epd + 1)
-            app_manager.clean_text()
         if EUDElseIf()(app_manager.key_press("BACK")):
             if EUDIfNot()(v_cursor_epd == v_string_epd):
                 v_cursor_epd -= 1
                 f_strcpy_epd(v_cursor_epd, v_cursor_epd + 1)
             EUDEndIf()
-            app_manager.clean_text()
         if EUDElseIf()(app_manager.key_press("F7")):
             if EUDIfNot()(v_cursor_epd == v_string_epd):
                 v_cursor_epd -= 1
@@ -349,10 +347,8 @@ class StringEditorApp(Application):
             v_frame << BLINK_PERIOD * 2 - 1
         if EUDElseIf()(app_manager.key_down("F1")):
             v_dispmode << DISPMODE_MANUAL
-            app_manager.clean_text()
         if EUDElseIf()(app_manager.key_up("F1")):
             v_dispmode << DISPMODE_MAIN
-            app_manager.clean_text()
         EUDEndIf()
         app_manager.request_update()
 

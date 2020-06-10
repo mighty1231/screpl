@@ -223,6 +223,43 @@ def _cmd_eudturbo(self):
         writer.write_f("eudturbo \x04OFF")
     EUDEndIf()
 
+def print_ui():
+    """print display buffer from manager
+
+    It temporary saves line counts. If line count is decreased, additionally
+    print empty lines
+    """
+    prev_ln = EUDVariable()
+    empty_lines = Db(13)
+
+    text_ptr = f_dwread_epd(EPD(0x640B58))
+    f_printf("%E", EPD(_manager.display_buffer))
+    cur_ln = f_dwread_epd(EPD(0x640B58)) - text_ptr
+    Trigger(
+        conditions=cur_ln.AtLeast(0x80000000),
+        actions=cur_ln.AddNumber(11),
+    )
+    Trigger(
+        conditions=cur_ln.Exactly(0),
+        actions=cur_ln.AddNumber(11),
+    )
+
+    # now cur_ln is one of 1, 2, ..., 11
+    if EUDIfNot()(prev_ln <= cur_ln):
+        diff = prev_ln - cur_ln
+        _main_writer.seekepd(EPD(empty_lines))
+        if EUDInfLoop()():
+            EUDBreakIf(diff == 0)
+            _main_writer.write(ord("\n"))
+            diff -= 1
+        EUDEndInfLoop()
+        _main_writer.write(0)
+        f_printf("%E", EPD(empty_lines))
+    EUDEndIf()
+    prev_ln << cur_ln
+
+    SeqCompute([(EPD(0x640B58), SetTo, text_ptr)])
+
 def run():
     """Run main loop of SC-REPL"""
     global _loop_count
@@ -243,15 +280,11 @@ def run():
     if _bridge_region:
         # in blind mode case, display buffer is managed in BlindModeBlock
         if EUDIf()(_is_blind_mode == 0):
-            text_ptr = f_dwread_epd(EPD(0x640B58))
-            f_printf("%E", EPD(_manager.display_buffer))
-            SeqCompute([(EPD(0x640B58), SetTo, text_ptr)])
+            print_ui()
         EUDEndIf()
         _bridge_region.run()
     else:
-        text_ptr = f_dwread_epd(EPD(0x640B58))
-        f_printf("%E", EPD(_manager.display_buffer))
-        SeqCompute([(EPD(0x640B58), SetTo, text_ptr)])
+        print_ui()
 
     # update loop count
     _loop_count += 1

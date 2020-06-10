@@ -399,11 +399,5 @@ class StringSearchApp(Application):
 
                 DoActions([cur.AddNumber(1)])
             EUDEndInfLoop()
-
-            if EUDInfLoop()():
-                EUDBreakIf(cur >= pageend)
-                writer.write(ord('\n'))
-                cur += 1
-            EUDEndInfLoop()
         EUDEndIf()
         writer.write(0)

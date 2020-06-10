@@ -82,17 +82,14 @@ class UnitManagerApp(Application):
 
         target_unitid = self.unitid
 
-        branch, branch_common, branch_last = [Forward() for _ in range(3)]
         cur, until = EUDCreateVariables(2)
         if EUDIf()(target_unitid == 232):
             cur << 232
             until << 232 + 1
-            DoActions(SetNextPtr(branch, branch_last))
         if EUDElse()():
             quot, mod = f_div(target_unitid, 8)
             cur << quot * 8
             until << cur + 8
-            DoActions(SetNextPtr(branch, branch_common))
         EUDEndIf()
 
         # fill contents
@@ -112,10 +109,4 @@ class UnitManagerApp(Application):
 
             DoActions(cur.AddNumber(1))
         EUDEndInfLoop()
-
-        branch << RawTrigger()
-        branch_last << NextTrigger()
-        writer.write_f("\n" * 7)
-
-        branch_common << NextTrigger()
         writer.write(0)

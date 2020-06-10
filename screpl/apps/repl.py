@@ -116,14 +116,6 @@ class REPL(application.Application):
             ])
         EUDEndInfLoop()
 
-        # make empty lines
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= pageend)
-            writer.write(ord('\n'))
-            writer.write(ord('\n'))
-            DoActions(cur.AddNumber(1))
-        EUDEndInfLoop()
-
         writer.write(0)
 
     @appcommand.AppCommand([])

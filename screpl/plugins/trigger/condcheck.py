@@ -60,7 +60,6 @@ def _set_focus(new_focus):
     global v_focus
     if EUDIfNot()(new_focus >= arr_length):
         v_focus << new_focus
-        app_manager.clean_text()
     EUDEndIf()
 
 class CondCheckApp(Application):
@@ -77,10 +76,8 @@ class CondCheckApp(Application):
             _set_focus(v_focus+1)
         if EUDElseIf()(app_manager.key_down("F1")):
             v_mode << MODE_HELP
-            app_manager.clean_text()
         if EUDElseIf()(app_manager.key_up("F1")):
             v_mode << MODE_MAIN
-            app_manager.clean_text()
         if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
             TriggerEditorApp.set_trig_ptr(arr_trig_object[v_focus], nolink=True)
             app_manager.start_application(TriggerEditorApp)

@@ -77,11 +77,9 @@ class CUnitOptionApp(Application):
             EUDEndIf()
         if EUDElseIf()(app_manager.key_down("F1")):
             v_mode << MODE_HELP
-            app_manager.clean_text()
             app_manager.request_update()
         if EUDElseIf()(app_manager.key_up("F1")):
             v_mode << MODE_MAIN
-            app_manager.clean_text()
             app_manager.request_update()
         EUDEndIf()
 
@@ -142,11 +140,6 @@ class CUnitOptionApp(Application):
                 DoActions([cur.AddNumber(1)])
             EUDEndInfLoop()
 
-            if EUDInfLoop()():
-                EUDBreakIf(cur >= pageend)
-                writer.write(ord('\n'))
-                cur += 1
-            EUDEndInfLoop()
         if EUDElse()():
             focused_entry = CUnitMemberEntry(cu_members[v_focused])
             writer.write_f("\x04CUnitMemberEntry \x11%E\x04\n", focused_entry.name_epd)

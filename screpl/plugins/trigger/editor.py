@@ -316,11 +316,9 @@ class TriggerEditorApp(Application):
             EUDEndIf()
         if EUDElseIf()(app_manager.key_down("F1")):
             v_mode << MODE_HELP
-            app_manager.clean_text()
             app_manager.request_update()
         if EUDElseIf()(app_manager.key_up("F1")):
             v_mode << MODE_MAIN
-            app_manager.clean_text()
             app_manager.request_update()
         EUDEndIf()
         olddb_epd = self.olddb_epd
@@ -421,12 +419,6 @@ class TriggerEditorApp(Application):
                     cur.AddNumber(1),
                     text_table_epd.AddNumber(ENTRY_LINE_LENGTH // 4),
                 ])
-            EUDEndInfLoop()
-
-            if EUDInfLoop()():
-                EUDBreakIf(cur >= pageend)
-                writer.write(ord('\n'))
-                cur += 1
             EUDEndInfLoop()
         if EUDElse()():
             writer.write_f(

@@ -182,10 +182,8 @@ class LocationEditorApp(Application):
             )
         if EUDElseIf()(app_manager.key_down("F1")):
             v_dispmode << DISPMODE_MANUAL
-            app_manager.clean_text()
         if EUDElseIf()(app_manager.key_up("F1")):
             v_dispmode << DISPMODE_MAIN
-            app_manager.clean_text()
         EUDEndIf()
 
         # new mouse values and location

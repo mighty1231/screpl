@@ -143,10 +143,4 @@ class DetailedActionApp(Application):
             DoActions([cur.AddNumber(1), action_epd.AddNumber(32//4)])
         EUDEndInfLoop()
 
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= pageend)
-            writer.write(ord('\n'))
-            cur += 1
-        EUDEndInfLoop()
-
         writer.write(0)

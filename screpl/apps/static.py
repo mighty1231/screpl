@@ -85,11 +85,4 @@ class StaticApp(application.Application):
             DoActions(cur.AddNumber(1))
         EUDEndInfLoop()
 
-        # fill with empty lines
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= pageend)
-            writer.write(ord('\n'))
-            DoActions(cur.AddNumber(1))
-        EUDEndInfLoop()
-
         writer.write(0)

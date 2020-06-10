@@ -190,10 +190,8 @@ class TrigConditionEditorApp(Application):
             set_focus(v_focus + 1)
         if EUDElseIf()(app_manager.key_down("F1")):
             v_mode << MODE_HELP
-            app_manager.clean_text()
         if EUDElseIf()(app_manager.key_up("F1")):
             v_mode << MODE_MAIN
-            app_manager.clean_text()
         EUDEndIf()
         app_manager.request_update()
 

@@ -90,11 +90,4 @@ class SwitchManagerApp(Application):
             DoActions(cur.AddNumber(1))
         EUDEndInfLoop()
 
-        # print spaces
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= pageend)
-            writer.write(ord('\n'))
-            cur += 1
-        EUDEndInfLoop()
-
         writer.write(0)

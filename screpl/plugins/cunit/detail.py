@@ -102,12 +102,6 @@ class CUnitDetailApp(Application):
             DoActions(cur.AddNumber(1))
         EUDEndInfLoop()
 
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= pageend)
-            writer.write(ord('\n'))
-            cur += 1
-        EUDEndInfLoop()
-
         writer.write(0)
 
     @AppCommand([ArgEncNumber])
