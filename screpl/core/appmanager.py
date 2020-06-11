@@ -4,11 +4,15 @@ from screpl.utils.pool import DbPool, VarPool
 from screpl.utils.debug import f_raise_error, f_raise_warning, f_printf
 from screpl.utils.keycode import get_key_code
 from screpl.utils.string import f_strlen
+from screpl.utils.uuencode import uuencode, uudecode
 
 import screpl.main as main
 
 _KEYPRESS_DELAY = 8
 _APP_MAX_COUNT = 30
+
+_INTERACT_SIMPLE = 0xEBEBEBEB
+_INTERACT_CUSTOM = 0xEEEEEEEE
 
 class AppManager:
     def __init__(self, su_id, su_prefix, su_prefixlen):
@@ -49,6 +53,15 @@ class AppManager:
         self.mouse_prev_state = EUDVariable(0)
         self.mouse_state = EUDArray([1, 1, 1])
         self.mouse_pos = EUDCreateVariables(2)
+
+        # user interactions
+        self._interactive_method = None
+        self._allocating_methods = []
+        self._simple_interacton_id = 0
+        self._binary_buffer = Db(60)
+        self._gc_buffer = Db(b'..\x5C\xFF\x14SCR' + b'.' * 77)
+        self._recv_funcptr = EUDVariable()
+        self._recv_simple_interaction_id = EUDVariable()
 
         # 64, 96, 128, 192, 256
         # Multiply 32 to get pixel coordinate
@@ -153,6 +166,31 @@ class AppManager:
 
         self.request_update()
 
+    def push_current_allocating_method(self, method):
+        if method.interactive:
+            self._interactive_method = method
+        self._allocating_methods.append(method)
+
+    def pop_current_allocating_method(self):
+        last = self._allocating_methods.pop()
+        if last is self._interactive_method:
+
+            self._interactive_method = None
+            for method in reversed(self._allocating_methods):
+                if method.interactive:
+                    self._interactive_method = method
+                    break
+
+    @EUDMethod
+    def _send_simple_interaction(self, funcptr, id_):
+        if EUDIf()(Memory(0x512684, Exactly, self.su_id)):
+            f_dwwrite_epd(EPD(self._binary_buffer), funcptr)
+            f_dwwrite_epd(EPD(self._binary_buffer)+1, _INTERACT_SIMPLE)
+            f_dwwrite_epd(EPD(self._binary_buffer)+2, id_)
+            uuencode(self._binary_buffer, 12, EPD(self._gc_buffer) + 2)
+            QueueGameCommand(self._gc_buffer + 2, 82)
+        EUDEndIf()
+
     def _update_key_state(self):
         # keystate
         # 0: not changed
@@ -241,39 +279,6 @@ class AppManager:
         EUDEndLoopN()
         f_repmovsd_epd(prev_states, EPD(0x596A18), 0x100//4)
 
-    def key_down(self, key):
-        key = get_key_code(key)
-        ret = [
-            Memory(0x68C144, Exactly, 0), # chat status - not chatting
-            MemoryEPD(self.keystates + key, Exactly, 1)
-        ]
-        return ret
-
-    def key_up(self, key):
-        key = get_key_code(key)
-        ret = [
-            Memory(0x68C144, Exactly, 0), # chat status - not chatting
-            MemoryEPD(self.keystates + key, Exactly, 2**32-1)
-        ]
-        return ret
-
-    def key_press(self, key, hold=None):
-        """hold: list of keys, such as LCTRL, LSHIFT, LALT, etc..."""
-
-        if hold is None:
-            hold = []
-
-        key = get_key_code(key)
-        actions = [
-            Memory(0x68C144, Exactly, 0), # chat status - not chatting
-            MemoryEPD(self.keystates + key, AtLeast, 1),
-            MemoryEPD(self.keystates_sub + key, Exactly, 1)
-        ]
-        for holdkey in hold:
-            holdkey = get_key_code(holdkey)
-            actions.append(MemoryEPD(self.keystates + holdkey, AtLeast, 1))
-        return actions
-
     def _update_mouse_state(self):
         # up   -> up   : 1
         # up   -> down : 2
@@ -306,6 +311,81 @@ class AppManager:
         x, y = self.mouse_pos
         x << f_dwread_epd(EPD(0x0062848C)) + f_dwread_epd(EPD(0x006CDDC4))
         y << f_dwread_epd(EPD(0x006284A8)) + f_dwread_epd(EPD(0x006CDDC8))
+
+    def key_down(self, key):
+        if not self._interactive_method:
+            raise RuntimeError(
+                "User interactions should be checked under "
+                "interactive AppMethods, method:{}"
+                .format(self._interactive_method))
+
+        interaction_id = self._interactive_method.register_interaction()
+
+        key = get_key_code(key)
+        conditions = [
+            Memory(0x68C144, Exactly, 0), # chat status - not chatting
+            MemoryEPD(self.keystates + key, Exactly, 1)
+        ]
+
+        if EUDIf()(conditions):
+            self._send_simple_interaction(self._interactive_method.funcptr, interaction_id)
+        EUDEndIf()
+
+        return [self._recv_funcptr == self._interactive_method.funcptr,
+                self._recv_simple_interaction_id == interaction_id]
+
+    def key_up(self, key):
+        if not self._interactive_method:
+            raise RuntimeError(
+                "User interactions should be checked under "
+                "interactive AppMethods, method:{}"
+                .format(self._interactive_method))
+
+        interaction_id = self._interactive_method.register_interaction()
+
+        key = get_key_code(key)
+        conditions = [
+            Memory(0x68C144, Exactly, 0), # chat status - not chatting
+            MemoryEPD(self.keystates + key, Exactly, 2**32-1)
+        ]
+
+        if EUDIf()(conditions):
+            self._send_simple_interaction(self._interactive_method.funcptr, interaction_id)
+        EUDEndIf()
+
+        return [self._recv_funcptr == self._interactive_method.funcptr,
+                self._recv_simple_interaction_id == interaction_id]
+
+    def key_press(self, key, hold=None):
+        """hold: list of keys, such as LCTRL, LSHIFT, LALT, etc..."""
+        if not self._interactive_method:
+            raise RuntimeError(
+                "User interactions should be checked under "
+                "interactive AppMethods, method:{}"
+                .format(self._interactive_method))
+
+        interaction_id = self._interactive_method.register_interaction()
+
+        if hold is None:
+            hold = []
+
+        key = get_key_code(key)
+        conditions = [
+            Memory(0x68C144, Exactly, 0), # chat status - not chatting
+            MemoryEPD(self.keystates + key, AtLeast, 1),
+            MemoryEPD(self.keystates_sub + key, Exactly, 1)
+        ]
+
+        for holdkey in hold:
+            holdkey = get_key_code(holdkey)
+            conditions.append(MemoryEPD(self.keystates + holdkey, AtLeast, 1))
+
+        if EUDIf()(conditions):
+            self._send_simple_interaction(self._interactive_method.funcptr, interaction_id)
+        EUDEndIf()
+
+        return [self._recv_funcptr == self._interactive_method.funcptr,
+                self._recv_simple_interaction_id == interaction_id]
 
     def mouse_lclick(self):
         return MemoryEPD(EPD(self.mouse_state), Exactly, 0)
@@ -407,15 +487,50 @@ class AppManager:
         # process all new chats
         prev_text_idx = EUDVariable(initval=10)
         lbl_after_chat = Forward()
+        self._recv_simple_interaction_id << 0
+
         if EUDIf()(Memory(0x640B58, Exactly, prev_text_idx)):
             EUDJump(lbl_after_chat)
         EUDEndIf()
+        cur_text_idx = f_dwread_epd(EPD(0x640B58))
+        i = EUDVariable()
+
+        # read interactions
+        i << prev_text_idx
+        chat_off = 0x640B60 + 218 * i
+        if EUDInfLoop()():
+            EUDBreakIf(i == cur_text_idx)
+            if EUDIf()(f_memcmp(chat_off,
+                                Db(b'\x14SCR'),
+                                4) == 0):
+                written = uudecode(chat_off + 4, EPD(self._binary_buffer))
+                if EUDIf()(written >= 8):
+                    _method_ptr = f_dwread_epd(EPD(self._binary_buffer))
+                    _interact_id = f_dwread_epd(EPD(self._binary_buffer)+1)
+
+                    self._recv_funcptr << _method_ptr
+                    if EUDIf()([written >= 12,
+                                _interact_id == _INTERACT_SIMPLE]):
+                        self._recv_simple_interaction_id << \
+                            f_dwread_epd(EPD(self._binary_buffer)+2)
+                    EUDEndIf()
+                EUDEndIf()
+                f_bwrite(chat_off, 0)
+            EUDEndIf()
+
+            # search next updated lines
+            if EUDIf()(i == 10):
+                i << 0
+                chat_off << 0x640B60
+            if EUDElse()():
+                i += 1
+                chat_off += 218
+            EUDEndIf()
+        EUDEndInfLoop()
 
         # parse updated lines
         # since on_chat may change text, temporary buffer is required
         db_gametext = Db(13*218+2)
-        i = EUDVariable()
-        cur_text_idx = f_dwread_epd(EPD(0x640B58))
         f_repmovsd_epd(EPD(db_gametext), EPD(0x640B60), (13*218+2)//4)
 
         i << prev_text_idx

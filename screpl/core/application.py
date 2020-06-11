@@ -278,8 +278,12 @@ class Application(metaclass=_ApplicationMetaclass):
         """Called exactly once after newly started app is destructed
         and the app became to be foreground again"""
 
+    @appmethod.AppTypedMethod([], interactive=True)
     def loop(self):
-        """Called exactly once in every frame"""
+        """Called exactly once in every frame.
+
+        All UI-functions of superuser should be handled on here.
+        """
 
     @appmethod.AppMethodWithMainWriter
     def print(self, writer):

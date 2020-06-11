@@ -10,15 +10,20 @@ from . import application
 
 
 class AppMethodN:
-    def __init__(self, argtypes, rettypes, method, *, with_main_writer, traced):
+    def __init__(self, argtypes, rettypes, method, *,
+                 with_main_writer, interactive, traced):
+        # special methods
+        # interactive functions prevent overriding
+        self.with_main_writer = with_main_writer
+        self.interactive = interactive
+        self.interaction_id = 0
+
         # Step 1 from parameters
         self.argtypes = argtypes
         self.rettypes = rettypes
 
         self.method = method
         self.name = method.__name__
-
-        self.with_main_writer = with_main_writer
 
         # Step 2 initialize with class
         self.argn = -1
@@ -89,6 +94,9 @@ class AppMethodN:
             if parent.with_main_writer:
                 self.with_main_writer = True
 
+            if parent.interactive:
+                self.interactive = True
+
         # initialize or check argtype
         if self.argtypes:
             if self.with_main_writer:
@@ -153,7 +161,10 @@ class AppMethodN:
                 raise RuntimeError("print() cannot be decorated")
             funcn = self.funcn_callback(funcn)
 
+        manager.push_current_allocating_method(self)
         funcn._CreateFuncBody()
+        manager.pop_current_allocating_method()
+
         f_idcstart, f_idcend = createIndirectCaller(funcn)
 
         self.funcn = funcn
@@ -161,31 +172,42 @@ class AppMethodN:
 
         self.status = 'allocated'
 
+    def register_interaction(self):
+        assert self.interactive
+
+        self.interaction_id += 1
+        return self.interaction_id
+
     def apply(self, manager):
         assert self.status in ['initialized', 'allocated'], self
         return self.funcptr_cls.cast(manager.cur_methods[self.index])
 
-    def apply_absolute(self):
-        return self.funcn
-
     def __call__(self, instance, *args, **kwargs):
-        '''
-        Direct call - used for superclass method call
-        '''
+        """Direct call method
+
+        Call the method absolutely, regardless of current foreground app.
+        It is used on calling supermethod on overriding case.
+        """
         if not isinstance(instance, application.ApplicationInstance):
             raise ValueError(
                 "The first argument should be ApplicationInstance")
+        if self.interactive:
+            raise RuntimeError(
+                "Interactive functions should not be overrided")
         return self.funcn(*args, **kwargs)
 
 ''' Decorator to make AppMethodN '''
 def AppTypedMethod(argtypes,
                    rettypes=[],
                    *,
+                   interactive=False,
                    with_main_writer=False,
                    traced=False):
     def ret(method):
         return AppMethodN(argtypes, rettypes, method,
-                          with_main_writer=with_main_writer, traced=traced)
+                          with_main_writer=with_main_writer,
+                          interactive=interactive,
+                          traced=traced)
     return ret
 
 def AppMethod(method):
