@@ -62,6 +62,7 @@ class AppManager:
         self._gc_buffer = Db(b'..\x5C\xFF\x14SCR' + b'.' * 77)
         self._recv_funcptr = EUDVariable()
         self._recv_simple_interaction_id = EUDVariable()
+        self._human_count = EUDVariable()
 
         # 64, 96, 128, 192, 256
         # Multiply 32 to get pixel coordinate
@@ -76,7 +77,7 @@ class AppManager:
         self.varpool.free(ptr)
 
     def alloc_db_epd(self, sizequarter):
-        ''' allocate SIZEQUARTER*4 bytes '''
+        """allocate SIZEQUARTER*4 bytes"""
         return self.dbpool.alloc_epd(sizequarter)
 
     def free_db_epd(self, epd):
@@ -86,10 +87,11 @@ class AppManager:
         return self._foreground_app_instance
 
     def start_application(self, app):
-        '''
-        It just reserve to start app.
-        The app is initialized at the start of the next loop.
-        '''
+        """Queue to start app
+
+        It just records that the app should start. Actual start of the app is
+        at the next frame.
+        """
         from .application import Application
         assert issubclass(app, Application)
 
@@ -326,13 +328,31 @@ class AppManager:
             Memory(0x68C144, Exactly, 0), # chat status - not chatting
             MemoryEPD(self.keystates + key, Exactly, 1)
         ]
+        v_ret_bool = EUDVariable()
+        trig_branch, trig_ifthen, trig_else = Forward(), Forward(), Forward()
 
         if EUDIf()(conditions):
-            self._send_simple_interaction(self._interactive_method.funcptr, interaction_id)
+            DoActions(SetNextPtr(trig_branch, trig_ifthen))
+            v_ret_bool << 1
+        if EUDElse()():
+            DoActions(SetNextPtr(trig_branch, trig_else))
+            v_ret_bool << 0
         EUDEndIf()
 
-        return [self._recv_funcptr == self._interactive_method.funcptr,
-                self._recv_simple_interaction_id == interaction_id]
+        if EUDIf()(self.is_multiplaying()):
+            trig_branch << RawTrigger()
+            trig_ifthen << NextTrigger()
+            self._send_simple_interaction(
+                self._interactive_method.funcptr,
+                interaction_id)
+
+            trig_else << NextTrigger()
+            v_ret_bool << EUDTernary(
+                [self._recv_funcptr == self._interactive_method.funcptr,
+                 self._recv_simple_interaction_id == interaction_id])(1)(0)
+        EUDEndIf()
+
+        return v_ret_bool == 1
 
     def key_up(self, key):
         if not self._interactive_method:
@@ -348,13 +368,31 @@ class AppManager:
             Memory(0x68C144, Exactly, 0), # chat status - not chatting
             MemoryEPD(self.keystates + key, Exactly, 2**32-1)
         ]
+        v_ret_bool = EUDVariable()
+        trig_branch, trig_ifthen, trig_else = Forward(), Forward(), Forward()
 
         if EUDIf()(conditions):
-            self._send_simple_interaction(self._interactive_method.funcptr, interaction_id)
+            DoActions(SetNextPtr(trig_branch, trig_ifthen))
+            v_ret_bool << 1
+        if EUDElse()():
+            DoActions(SetNextPtr(trig_branch, trig_else))
+            v_ret_bool << 0
         EUDEndIf()
 
-        return [self._recv_funcptr == self._interactive_method.funcptr,
-                self._recv_simple_interaction_id == interaction_id]
+        if EUDIf()(self.is_multiplaying()):
+            trig_branch << RawTrigger()
+            trig_ifthen << NextTrigger()
+            self._send_simple_interaction(
+                self._interactive_method.funcptr,
+                interaction_id)
+
+            trig_else << NextTrigger()
+            v_ret_bool << EUDTernary(
+                [self._recv_funcptr == self._interactive_method.funcptr,
+                 self._recv_simple_interaction_id == interaction_id])(1)(0)
+        EUDEndIf()
+
+        return v_ret_bool == 1
 
     def key_press(self, key, hold=None):
         """hold: list of keys, such as LCTRL, LSHIFT, LALT, etc..."""
@@ -375,17 +413,34 @@ class AppManager:
             MemoryEPD(self.keystates + key, AtLeast, 1),
             MemoryEPD(self.keystates_sub + key, Exactly, 1)
         ]
-
         for holdkey in hold:
             holdkey = get_key_code(holdkey)
             conditions.append(MemoryEPD(self.keystates + holdkey, AtLeast, 1))
+        v_ret_bool = EUDVariable()
+        trig_branch, trig_ifthen, trig_else = Forward(), Forward(), Forward()
 
         if EUDIf()(conditions):
-            self._send_simple_interaction(self._interactive_method.funcptr, interaction_id)
+            DoActions(SetNextPtr(trig_branch, trig_ifthen))
+            v_ret_bool << 1
+        if EUDElse()():
+            DoActions(SetNextPtr(trig_branch, trig_else))
+            v_ret_bool << 0
         EUDEndIf()
 
-        return [self._recv_funcptr == self._interactive_method.funcptr,
-                self._recv_simple_interaction_id == interaction_id]
+        if EUDIf()(self.is_multiplaying()):
+            trig_branch << RawTrigger()
+            trig_ifthen << NextTrigger()
+            self._send_simple_interaction(
+                self._interactive_method.funcptr,
+                interaction_id)
+
+            trig_else << NextTrigger()
+            v_ret_bool << EUDTernary(
+                [self._recv_funcptr == self._interactive_method.funcptr,
+                 self._recv_simple_interaction_id == interaction_id])(1)(0)
+        EUDEndIf()
+
+        return v_ret_bool == 1
 
     def mouse_lclick(self):
         return MemoryEPD(EPD(self.mouse_state), Exactly, 0)
@@ -420,21 +475,26 @@ class AppManager:
         # Multiply 32 to get pixel coordinate
         return self.map_height
 
+    def is_multiplaying(self):
+        """If current game have more than two humans, return true,
+        otherwise false
+        """
+        return self._human_count >= 2
+
     def request_update(self):
-        '''
-        Request update of application
-        Should be called under AppMethod or AppCommand
-        '''
+        """Request update of the display buffer.
+
+        This should be called under AppMethod or AppCommand
+        """
         self.update << 1
 
     def request_destruct(self):
-        '''
-        Request self-destruct of application
-        It should be called under AppMethod or AppCommand
+        """Request destruct of the application self, on foreground
 
-        When a single app requested start_application,
-          destruction should not be requested at the same frame.
-        '''
+        This should be called under AppMethod or AppCommand. When a single
+        app requested start_application, destruction should not be requested
+        at the same frame.
+        """
         if EUDIfNot()(self.is_starting_app == 0):
             f_raise_error("Conflict: start_application and request_destruct")
         EUDEndIf()
@@ -478,6 +538,14 @@ class AppManager:
             self._update_key_state()
         EUDEndIf()
 
+        # update human count
+        self._human_count << 0
+        for player_id in range(8):
+            if GetPlayerInfo(player_id).typestr == "Human":
+                if EUDIf()(f_playerexist(player_id)):
+                    self._human_count += 1
+                EUDEndIf()
+
         # update current application
         if EUDIfNot()([self.is_terminating_app == 0,
                        self.is_starting_app == 0]):
@@ -496,37 +564,39 @@ class AppManager:
         i = EUDVariable()
 
         # read interactions
-        i << prev_text_idx
-        chat_off = 0x640B60 + 218 * i
-        if EUDInfLoop()():
-            EUDBreakIf(i == cur_text_idx)
-            if EUDIf()(f_memcmp(chat_off,
-                                Db(b'\x14SCR'),
-                                4) == 0):
-                written = uudecode(chat_off + 4, EPD(self._binary_buffer))
-                if EUDIf()(written >= 8):
-                    _method_ptr = f_dwread_epd(EPD(self._binary_buffer))
-                    _interact_id = f_dwread_epd(EPD(self._binary_buffer)+1)
+        if EUDIf()(self.is_multiplaying()):
+            i << prev_text_idx
+            chat_off = 0x640B60 + 218 * i
+            if EUDInfLoop()():
+                EUDBreakIf(i == cur_text_idx)
+                if EUDIf()(f_memcmp(chat_off,
+                                    Db(b'\x14SCR'),
+                                    4) == 0):
+                    written = uudecode(chat_off + 4, EPD(self._binary_buffer))
+                    if EUDIf()(written >= 8):
+                        _method_ptr = f_dwread_epd(EPD(self._binary_buffer))
+                        _interact_id = f_dwread_epd(EPD(self._binary_buffer)+1)
 
-                    self._recv_funcptr << _method_ptr
-                    if EUDIf()([written >= 12,
-                                _interact_id == _INTERACT_SIMPLE]):
-                        self._recv_simple_interaction_id << \
-                            f_dwread_epd(EPD(self._binary_buffer)+2)
+                        self._recv_funcptr << _method_ptr
+                        if EUDIf()([written >= 12,
+                                    _interact_id == _INTERACT_SIMPLE]):
+                            self._recv_simple_interaction_id << \
+                                f_dwread_epd(EPD(self._binary_buffer)+2)
+                        EUDEndIf()
                     EUDEndIf()
+                    f_bwrite(chat_off, 0)
                 EUDEndIf()
-                f_bwrite(chat_off, 0)
-            EUDEndIf()
 
-            # search next updated lines
-            if EUDIf()(i == 10):
-                i << 0
-                chat_off << 0x640B60
-            if EUDElse()():
-                i += 1
-                chat_off += 218
-            EUDEndIf()
-        EUDEndInfLoop()
+                # search next updated lines
+                if EUDIf()(i == 10):
+                    i << 0
+                    chat_off << 0x640B60
+                if EUDElse()():
+                    i += 1
+                    chat_off += 218
+                EUDEndIf()
+            EUDEndInfLoop()
+        EUDEndIf()
 
         # parse updated lines
         # since on_chat may change text, temporary buffer is required
