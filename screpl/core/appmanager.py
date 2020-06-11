@@ -13,6 +13,7 @@ _APP_MAX_COUNT = 30
 
 _INTERACT_SIMPLE = 0xEBEBEBEB
 _INTERACT_CUSTOM = 0xEEEEEEEE
+_INTERACT_MOUSE = 0xFFEBEBFF
 
 class AppManager:
     def __init__(self, su_id, su_prefix, su_prefixlen):
@@ -57,11 +58,13 @@ class AppManager:
         # user interactions
         self._interactive_method = None
         self._allocating_methods = []
-        self._simple_interacton_id = 0
         self._binary_buffer = Db(60)
         self._gc_buffer = Db(b'..\x5C\xFF\x14SCR' + b'.' * 77)
         self._recv_funcptr = EUDVariable()
         self._recv_simple_interaction_id = EUDVariable()
+        self._recv_mouse_interaction_id = EUDVariable()
+        self._recv_mouse_posx = EUDVariable()
+        self._recv_mouse_posy = EUDVariable()
         self._human_count = EUDVariable()
 
         # 64, 96, 128, 192, 256
@@ -314,7 +317,7 @@ class AppManager:
         x << f_dwread_epd(EPD(0x0062848C)) + f_dwread_epd(EPD(0x006CDDC4))
         y << f_dwread_epd(EPD(0x006284A8)) + f_dwread_epd(EPD(0x006CDDC8))
 
-    def key_down(self, key):
+    def _interaction_simple(self, conditions):
         if not self._interactive_method:
             raise RuntimeError(
                 "User interactions should be checked under "
@@ -323,87 +326,50 @@ class AppManager:
 
         interaction_id = self._interactive_method.register_interaction()
 
+        v_ret_bool = EUDVariable()
+        trig_branch, trig_ifthen, trig_else = Forward(), Forward(), Forward()
+
+        if EUDIf()(conditions):
+            DoActions(SetNextPtr(trig_branch, trig_ifthen))
+            v_ret_bool << 1
+        if EUDElse()():
+            DoActions(SetNextPtr(trig_branch, trig_else))
+            v_ret_bool << 0
+        EUDEndIf()
+
+        if EUDIf()(self.is_multiplaying()):
+            trig_branch << RawTrigger()
+            trig_ifthen << NextTrigger()
+            self._send_simple_interaction(
+                self._interactive_method.funcptr,
+                interaction_id)
+
+            trig_else << NextTrigger()
+            v_ret_bool << EUDTernary(
+                [self._recv_funcptr == self._interactive_method.funcptr,
+                 self._recv_simple_interaction_id == interaction_id])(1)(0)
+        EUDEndIf()
+
+        return v_ret_bool == 1
+
+    def key_down(self, key):
         key = get_key_code(key)
         conditions = [
             Memory(0x68C144, Exactly, 0), # chat status - not chatting
             MemoryEPD(self.keystates + key, Exactly, 1)
         ]
-        v_ret_bool = EUDVariable()
-        trig_branch, trig_ifthen, trig_else = Forward(), Forward(), Forward()
-
-        if EUDIf()(conditions):
-            DoActions(SetNextPtr(trig_branch, trig_ifthen))
-            v_ret_bool << 1
-        if EUDElse()():
-            DoActions(SetNextPtr(trig_branch, trig_else))
-            v_ret_bool << 0
-        EUDEndIf()
-
-        if EUDIf()(self.is_multiplaying()):
-            trig_branch << RawTrigger()
-            trig_ifthen << NextTrigger()
-            self._send_simple_interaction(
-                self._interactive_method.funcptr,
-                interaction_id)
-
-            trig_else << NextTrigger()
-            v_ret_bool << EUDTernary(
-                [self._recv_funcptr == self._interactive_method.funcptr,
-                 self._recv_simple_interaction_id == interaction_id])(1)(0)
-        EUDEndIf()
-
-        return v_ret_bool == 1
+        return self._interaction_simple(conditions)
 
     def key_up(self, key):
-        if not self._interactive_method:
-            raise RuntimeError(
-                "User interactions should be checked under "
-                "interactive AppMethods, method:{}"
-                .format(self._interactive_method))
-
-        interaction_id = self._interactive_method.register_interaction()
-
         key = get_key_code(key)
         conditions = [
             Memory(0x68C144, Exactly, 0), # chat status - not chatting
             MemoryEPD(self.keystates + key, Exactly, 2**32-1)
         ]
-        v_ret_bool = EUDVariable()
-        trig_branch, trig_ifthen, trig_else = Forward(), Forward(), Forward()
-
-        if EUDIf()(conditions):
-            DoActions(SetNextPtr(trig_branch, trig_ifthen))
-            v_ret_bool << 1
-        if EUDElse()():
-            DoActions(SetNextPtr(trig_branch, trig_else))
-            v_ret_bool << 0
-        EUDEndIf()
-
-        if EUDIf()(self.is_multiplaying()):
-            trig_branch << RawTrigger()
-            trig_ifthen << NextTrigger()
-            self._send_simple_interaction(
-                self._interactive_method.funcptr,
-                interaction_id)
-
-            trig_else << NextTrigger()
-            v_ret_bool << EUDTernary(
-                [self._recv_funcptr == self._interactive_method.funcptr,
-                 self._recv_simple_interaction_id == interaction_id])(1)(0)
-        EUDEndIf()
-
-        return v_ret_bool == 1
+        return self._interaction_simple(conditions)
 
     def key_press(self, key, hold=None):
         """hold: list of keys, such as LCTRL, LSHIFT, LALT, etc..."""
-        if not self._interactive_method:
-            raise RuntimeError(
-                "User interactions should be checked under "
-                "interactive AppMethods, method:{}"
-                .format(self._interactive_method))
-
-        interaction_id = self._interactive_method.register_interaction()
-
         if hold is None:
             hold = []
 
@@ -416,11 +382,52 @@ class AppManager:
         for holdkey in hold:
             holdkey = get_key_code(holdkey)
             conditions.append(MemoryEPD(self.keystates + holdkey, AtLeast, 1))
+        return self._interaction_simple(conditions)
+
+    def mouse_lclick(self, mx, my):
+        conditions = MemoryEPD(EPD(self.mouse_state), Exactly, 0)
+        return self._interaction_mouse(conditions, mx, my)
+
+    def mouse_lrelease(self, mx, my):
+        conditions = MemoryEPD(EPD(self.mouse_state), Exactly, 1)
+        return self._interaction_mouse(conditions, mx, my)
+
+    def mouse_lpress(self, mx, my):
+        conditions = MemoryEPD(EPD(self.mouse_state), AtLeast, 2)
+        return self._interaction_mouse(conditions, mx, my)
+
+    def mouse_rclick(self, mx, my):
+        conditions = MemoryEPD(EPD(self.mouse_state+1), Exactly, 0)
+        return self._interaction_mouse(conditions, mx, my)
+
+    def mouse_rpress(self, mx, my):
+        conditions = MemoryEPD(EPD(self.mouse_state+1), AtLeast, 2)
+        return self._interaction_mouse(conditions, mx, my)
+
+    def mouse_mclick(self, mx, my):
+        conditions = MemoryEPD(EPD(self.mouse_state+2), Exactly, 0)
+        return self._interaction_mouse(conditions, mx, my)
+
+    def mouse_mpress(self, mx, my):
+        conditions = MemoryEPD(EPD(self.mouse_state+2), AtLeast, 2)
+        return self._interaction_mouse(conditions, mx, my)
+
+    def _interaction_mouse(self, conditions, mx, my):
+        if not self._interactive_method:
+            raise RuntimeError(
+                "User interactions should be checked under "
+                "interactive AppMethods, method:{}"
+                .format(self._interactive_method))
+
+        interaction_id = self._interactive_method.register_interaction()
+
         v_ret_bool = EUDVariable()
         trig_branch, trig_ifthen, trig_else = Forward(), Forward(), Forward()
 
         if EUDIf()(conditions):
             DoActions(SetNextPtr(trig_branch, trig_ifthen))
+            mx << self.mouse_pos[0]
+            my << self.mouse_pos[1]
             v_ret_bool << 1
         if EUDElse()():
             DoActions(SetNextPtr(trig_branch, trig_else))
@@ -430,40 +437,34 @@ class AppManager:
         if EUDIf()(self.is_multiplaying()):
             trig_branch << RawTrigger()
             trig_ifthen << NextTrigger()
-            self._send_simple_interaction(
+            self._send_mouse_interaction(
                 self._interactive_method.funcptr,
                 interaction_id)
 
             trig_else << NextTrigger()
-            v_ret_bool << EUDTernary(
-                [self._recv_funcptr == self._interactive_method.funcptr,
-                 self._recv_simple_interaction_id == interaction_id])(1)(0)
+            if EUDIf()([self._recv_funcptr == self._interactive_method.funcptr,
+                        self._recv_mouse_interaction_id == interaction_id]):
+                mx << self._recv_mouse_posx
+                my << self._recv_mouse_posy
+                v_ret_bool << 1
+            if EUDElse()():
+                v_ret_bool << 0
+            EUDEndIf()
         EUDEndIf()
 
         return v_ret_bool == 1
 
-    def mouse_lclick(self):
-        return MemoryEPD(EPD(self.mouse_state), Exactly, 0)
-
-    def mouse_lpress(self):
-        return MemoryEPD(EPD(self.mouse_state), AtLeast, 2)
-
-    def mouse_rclick(self):
-        return MemoryEPD(EPD(self.mouse_state+1), Exactly, 0)
-
-    def mouse_rpress(self):
-        return MemoryEPD(EPD(self.mouse_state+1), AtLeast, 2)
-
-    def mouse_mclick(self):
-        return MemoryEPD(EPD(self.mouse_state+2), Exactly, 0)
-
-    def mouse_mpress(self):
-        return MemoryEPD(EPD(self.mouse_state+2), AtLeast, 2)
-
     @EUDMethod
-    def get_mouse_position(self):
-        x, y = self.mouse_pos
-        EUDReturn([x, y])
+    def _send_mouse_interaction(self, funcptr, id_):
+        if EUDIf()(Memory(0x512684, Exactly, self.su_id)):
+            f_dwwrite_epd(EPD(self._binary_buffer), funcptr)
+            f_dwwrite_epd(EPD(self._binary_buffer)+1, _INTERACT_MOUSE)
+            f_dwwrite_epd(EPD(self._binary_buffer)+2, id_)
+            f_dwwrite_epd(EPD(self._binary_buffer)+3, self.mouse_pos[0])
+            f_dwwrite_epd(EPD(self._binary_buffer)+4, self.mouse_pos[1])
+            uuencode(self._binary_buffer, 20, EPD(self._gc_buffer) + 2)
+            QueueGameCommand(self._gc_buffer + 2, 82)
+        EUDEndIf()
 
     def get_map_width(self):
         # 64, 96, 128, 192, 256
@@ -556,6 +557,7 @@ class AppManager:
         prev_text_idx = EUDVariable(initval=10)
         lbl_after_chat = Forward()
         self._recv_simple_interaction_id << 0
+        self._recv_mouse_interaction_id << 0
 
         if EUDIf()(Memory(0x640B58, Exactly, prev_text_idx)):
             EUDJump(lbl_after_chat)
@@ -578,10 +580,18 @@ class AppManager:
                         _interact_id = f_dwread_epd(EPD(self._binary_buffer)+1)
 
                         self._recv_funcptr << _method_ptr
-                        if EUDIf()([written >= 12,
-                                    _interact_id == _INTERACT_SIMPLE]):
+                        if EUDIf()([_interact_id == _INTERACT_SIMPLE,
+                                    written >= 12]):
                             self._recv_simple_interaction_id << \
                                 f_dwread_epd(EPD(self._binary_buffer)+2)
+                        if EUDElseIf()([_interact_id == _INTERACT_MOUSE,
+                                        written >= 20]):
+                            self._recv_mouse_interaction_id << \
+                                f_dwread_epd(EPD(self._binary_buffer)+2)
+                            self._recv_mouse_posx << \
+                                f_dwread_epd(EPD(self._binary_buffer)+3)
+                            self._recv_mouse_posy << \
+                                f_dwread_epd(EPD(self._binary_buffer)+4)
                         EUDEndIf()
                     EUDEndIf()
                     f_bwrite(chat_off, 0)

@@ -67,10 +67,10 @@ chosen_location = EUDVariable(0)
 frame = EUDVariable(0)
 FRAME_PERIOD = 24
 
+v_mouse_x, v_mouse_y = EUDVariable(), EUDVariable()
+
 @EUDFunc
 def evaluate_locations():
-    posX, posY = app_manager.get_mouse_position()
-
     cur = EUDVariable()
     cur << chosen_location
 
@@ -90,10 +90,10 @@ def evaluate_locations():
         (EPD(ba) + 1, SetTo, be),
 
         # value field of Memory
-        (EPD(la) + 2, SetTo, posX),
-        (EPD(ta) + 2, SetTo, posY),
-        (EPD(ra) + 2, SetTo, posX),
-        (EPD(ba) + 2, SetTo, posY),
+        (EPD(la) + 2, SetTo, v_mouse_x),
+        (EPD(ta) + 2, SetTo, v_mouse_y),
+        (EPD(ra) + 2, SetTo, v_mouse_x),
+        (EPD(ba) + 2, SetTo, v_mouse_y),
     ])
 
     if EUDInfLoop()():
@@ -264,7 +264,7 @@ class PatternApp(Application):
                 cur_wait_value.AddNumber(1),
                 SetMemoryEPD(EPD(p_wait_value) + focused_pattern_id, Add, 1),
             ])
-        if EUDElseIf()(app_manager.mouse_lclick()):
+        if EUDElseIf()(app_manager.mouse_lclick(v_mouse_x, v_mouse_y)):
             evaluate_locations()
         # if EUDElseIf()(app_manager.mouse_rclick()):
         if EUDElseIf()(app_manager.key_press('N')):
