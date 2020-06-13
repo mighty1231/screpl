@@ -168,15 +168,27 @@ class ReferenceTable(EUDObject):
         return f_dwread_epd(table_epd)
 
 class LengthForward(ConstExpr):
-    def __init__(self, iterable):
-        super().__init__(None, 0, 0)
+    def __init__(self, iterable, offset=0):
+        super().__init__(self, offset, 0)
         self.iterable = iterable
         self.value = None
 
     def Evaluate(self):
         if not self.value:
             self.value = RlocInt_C(len(self.iterable), 0)
-        return self.value
+        return self.value + self.offset
+
+    def __add__(self, value):
+        if not isinstance(value, int):
+            raise ValueError
+
+        return LengthForward(self.iterable, self.offset + value)
+
+    def __sub__(self, value):
+        if not isinstance(value, int):
+            raise ValueError
+
+        return LengthForward(self.iterable, self.offset - value)
 
 @EUDTypedFunc([None, None, EUDFuncPtr(2, 1), None], [None])
 def search_table(key, table_epd, compare_func, retval_epd):
