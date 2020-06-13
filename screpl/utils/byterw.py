@@ -196,24 +196,25 @@ class REPLByteRW:
         EUDReturn(written)
 
     def write_decimal(self, number):
-        if IsEUDVariable(number):
-            self._write_decimal(number)
-        else:
+        if isinstance(number, int):
             self.write_strepd(cs.EPDConstString(str(number)))
+        else:
+            self._write_decimal(number)
+
 
     def write_hex(self, number):
-        if IsEUDVariable(number):
-            self._write_hex(number)
-        else:
+        if isinstance(number, int):
             self.write_strepd(cs.EPDConstString("0x%08X" % number))
+        else:
+            self._write_hex(number)
 
     def write_binary(self, number):
-        if IsEUDVariable(number):
-            self._write_binary(number)
-        else:
+        if isinstance(number, int):
             chars = ['1' if (number & (1<<t)) else '0'
                      for t in range(31, -1, -1)]
             self.write_strepd(cs.EPDConstString("0b" + "".join(chars)))
+        else:
+            self._write_binary(number)
 
     @EUDMethod
     def _write_decimal(self, number):
