@@ -5,15 +5,12 @@ from screpl.utils.debug import f_raise_error, f_raise_warning, f_printf
 from screpl.utils.keycode import get_key_code
 from screpl.utils.string import f_strlen
 from screpl.utils.uuencode import uuencode, uudecode
+from screpl.utils.sync import SyncManager
 
 import screpl.main as main
 
 _KEYPRESS_DELAY = 8
 _APP_MAX_COUNT = 30
-
-_INTERACT_SIMPLE = 0xEBEBEBEB
-_INTERACT_CUSTOM = 0xEEEEEEEE
-_INTERACT_MOUSE = 0xFFEBEBFF
 
 class AppManager:
     def __init__(self, su_id, su_prefix, su_prefixlen):
@@ -56,16 +53,10 @@ class AppManager:
         self.mouse_pos = EUDCreateVariables(2)
 
         # user interactions
+        self._human_count = EUDVariable()
+        self.sync_manager = SyncManager(self.su_id, self.is_multiplaying)
         self._interactive_method = None
         self._allocating_methods = []
-        self._binary_buffer = Db(60)
-        self._gc_buffer = Db(b'..\x5C\xFF\x14SCR' + b'.' * 77)
-        self._recv_funcptr = EUDVariable()
-        self._recv_simple_interaction_id = EUDVariable()
-        self._recv_mouse_interaction_id = EUDVariable()
-        self._recv_mouse_posx = EUDVariable()
-        self._recv_mouse_posy = EUDVariable()
-        self._human_count = EUDVariable()
 
         # 64, 96, 128, 192, 256
         # Multiply 32 to get pixel coordinate
@@ -188,6 +179,10 @@ class AppManager:
 
     @EUDMethod
     def _send_simple_interaction(self, funcptr, id_):
+        """QueueGameCommand
+
+        https://github.com/furion85/vgce/blob/master/docs/Blizzard/Starcraft/packets2.txt#L17
+        """
         if EUDIf()(Memory(0x512684, Exactly, self.su_id)):
             f_dwwrite_epd(EPD(self._binary_buffer), funcptr)
             f_dwwrite_epd(EPD(self._binary_buffer)+1, _INTERACT_SIMPLE)
@@ -312,159 +307,98 @@ class AppManager:
                 actions=self.mouse_prev_state.SetNumberX(0, c)
             )
 
-        # mouse position
-        x, y = self.mouse_pos
-        x << f_dwread_epd(EPD(0x0062848C)) + f_dwread_epd(EPD(0x006CDDC4))
-        y << f_dwread_epd(EPD(0x006284A8)) + f_dwread_epd(EPD(0x006CDDC8))
+        self.mouse_pos[0] << (f_dwread_epd(EPD(0x0062848C))
+                              + f_dwread_epd(EPD(0x006CDDC4)))
+        self.mouse_pos[1] << (f_dwread_epd(EPD(0x006284A8))
+                              + f_dwread_epd(EPD(0x006CDDC8)))
 
-    def _interaction_simple(self, conditions):
-        if not self._interactive_method:
-            raise RuntimeError(
-                "User interactions should be checked under "
-                "interactive AppMethods, method:{}"
-                .format(self._interactive_method))
 
-        interaction_id = self._interactive_method.register_interaction()
+    @EUDMethod
+    def get_mouse_position(self):
+        """evaluate mouse position
 
-        v_ret_bool = EUDVariable()
-        trig_branch, trig_ifthen, trig_else = Forward(), Forward(), Forward()
+        This can cause desync
+        """
+        EUDReturn(self.mouse_pos[0], self.mouse_pos[1])
 
-        if EUDIf()(conditions):
-            DoActions(SetNextPtr(trig_branch, trig_ifthen))
-            v_ret_bool << 1
-        if EUDElse()():
-            DoActions(SetNextPtr(trig_branch, trig_else))
-            v_ret_bool << 0
-        EUDEndIf()
-
-        if EUDIf()(self.is_multiplaying()):
-            trig_branch << RawTrigger()
-            trig_ifthen << NextTrigger()
-            self._send_simple_interaction(
-                self._interactive_method.funcptr,
-                interaction_id)
-
-            trig_else << NextTrigger()
-            v_ret_bool << EUDTernary(
-                [self._recv_funcptr == self._interactive_method.funcptr,
-                 self._recv_simple_interaction_id == interaction_id])(1)(0)
-        EUDEndIf()
-
-        return v_ret_bool == 1
-
-    def key_down(self, key):
+    def key_down(self, key, send_variables=[]):
         key = get_key_code(key)
-        conditions = [
-            Memory(0x68C144, Exactly, 0), # chat status - not chatting
-            MemoryEPD(self.keystates + key, Exactly, 1)
-        ]
-        return self._interaction_simple(conditions)
+        # conditions = [
+        #     Memory(0x68C144, Exactly, 0), # chat status - not chatting
+        #     MemoryEPD(self.keystates + key, Exactly, 1)
+        # ]
+        return self.sync_manager.interact_check(
+            self._interactive_method,
+            [(EPD(0x68C144), lambda epd: MemoryEPD(epd, Exactly, 0)),
+             (self.keystates + key, lambda epd: MemoryEPD(epd, Exactly, 0))],
+            send_variables=send_variables)
 
-    def key_up(self, key):
+    def key_up(self, key, send_variables=[]):
         key = get_key_code(key)
-        conditions = [
-            Memory(0x68C144, Exactly, 0), # chat status - not chatting
-            MemoryEPD(self.keystates + key, Exactly, 2**32-1)
-        ]
-        return self._interaction_simple(conditions)
+        # conditions = [
+        #     Memory(0x68C144, Exactly, 0), # chat status - not chatting
+        #     MemoryEPD(self.keystates + key, Exactly, 2**32-1)
+        # ]
+        return self.sync_manager.interact_check(
+            self._interactive_method,
+            [(EPD(0x68C144), lambda epd: MemoryEPD(epd, Exactly, 0)),
+             (self.keystates + key, lambda epd: MemoryEPD(epd, Exactly, 2**32-1))],
+            send_variables=send_variables)
 
-    def key_press(self, key, hold=None):
+    def key_press(self, key, hold=None, send_variables=[]):
         """hold: list of keys, such as LCTRL, LSHIFT, LALT, etc..."""
         if hold is None:
             hold = []
 
         key = get_key_code(key)
-        conditions = [
-            Memory(0x68C144, Exactly, 0), # chat status - not chatting
-            MemoryEPD(self.keystates + key, AtLeast, 1),
-            MemoryEPD(self.keystates_sub + key, Exactly, 1)
+        condition_pairs = [
+            (EPD(0x68C144), lambda epd: MemoryEPD(epd, Exactly, 0)),
+            (self.keystates + key, lambda epd: MemoryEPD(epd, AtLeast, 1)),
+            (self.keystates_sub + key, lambda epd: MemoryEPD(epd, Exactly, 1)),
         ]
         for holdkey in hold:
             holdkey = get_key_code(holdkey)
-            conditions.append(MemoryEPD(self.keystates + holdkey, AtLeast, 1))
-        return self._interaction_simple(conditions)
+            condition_pairs.append((self.keystates + holdkey,
+                                    lambda epd: MemoryEPD(epd, AtLeast, 1)))
+        return self.sync_manager.interact_check(
+            self._interactive_method, condition_pairs,
+            send_variables=send_variables)
 
-    def mouse_lclick(self, mx, my):
-        conditions = MemoryEPD(EPD(self.mouse_state), Exactly, 0)
-        return self._interaction_mouse(conditions, mx, my)
+    def mouse_lclick(self, send_variables=[]):
+        return self.sync_manager.interact_check(
+            self._interactive_method,
+            [(EPD(self.mouse_state), lambda epd: MemoryEPD(epd, Exactly, 0))],
+            send_variables=send_variables)
 
-    def mouse_lrelease(self, mx, my):
-        conditions = MemoryEPD(EPD(self.mouse_state), Exactly, 1)
-        return self._interaction_mouse(conditions, mx, my)
+    def mouse_lpress(self, send_variables=[]):
+        return self.sync_manager.interact_check(
+            self._interactive_method,
+            [(EPD(self.mouse_state), lambda epd: MemoryEPD(epd, AtLeast, 2))],
+            send_variables=send_variables)
 
-    def mouse_lpress(self, mx, my):
-        conditions = MemoryEPD(EPD(self.mouse_state), AtLeast, 2)
-        return self._interaction_mouse(conditions, mx, my)
+    def mouse_rclick(self, send_variables=[]):
+        return self.sync_manager.interact_check(
+            self._interactive_method,
+            [(EPD(self.mouse_state+1), lambda epd: MemoryEPD(epd, Exactly, 0))],
+            send_variables=send_variables)
 
-    def mouse_rclick(self, mx, my):
-        conditions = MemoryEPD(EPD(self.mouse_state+1), Exactly, 0)
-        return self._interaction_mouse(conditions, mx, my)
+    def mouse_rpress(self, send_variables=[]):
+        return self.sync_manager.interact_check(
+            self._interactive_method,
+            [(EPD(self.mouse_state+1), lambda epd: MemoryEPD(epd, AtLeast, 2))],
+            send_variables=send_variables)
 
-    def mouse_rpress(self, mx, my):
-        conditions = MemoryEPD(EPD(self.mouse_state+1), AtLeast, 2)
-        return self._interaction_mouse(conditions, mx, my)
+    def mouse_mclick(self, send_variables=[]):
+        return self.sync_manager.interact_check(
+            self._interactive_method,
+            [(EPD(self.mouse_state+2), lambda epd: MemoryEPD(epd, Exactly, 0))],
+            send_variables=send_variables)
 
-    def mouse_mclick(self, mx, my):
-        conditions = MemoryEPD(EPD(self.mouse_state+2), Exactly, 0)
-        return self._interaction_mouse(conditions, mx, my)
-
-    def mouse_mpress(self, mx, my):
-        conditions = MemoryEPD(EPD(self.mouse_state+2), AtLeast, 2)
-        return self._interaction_mouse(conditions, mx, my)
-
-    def _interaction_mouse(self, conditions, mx, my):
-        if not self._interactive_method:
-            raise RuntimeError(
-                "User interactions should be checked under "
-                "interactive AppMethods, method:{}"
-                .format(self._interactive_method))
-
-        interaction_id = self._interactive_method.register_interaction()
-
-        v_ret_bool = EUDVariable()
-        trig_branch, trig_ifthen, trig_else = Forward(), Forward(), Forward()
-
-        if EUDIf()(conditions):
-            DoActions(SetNextPtr(trig_branch, trig_ifthen))
-            mx << self.mouse_pos[0]
-            my << self.mouse_pos[1]
-            v_ret_bool << 1
-        if EUDElse()():
-            DoActions(SetNextPtr(trig_branch, trig_else))
-            v_ret_bool << 0
-        EUDEndIf()
-
-        if EUDIf()(self.is_multiplaying()):
-            trig_branch << RawTrigger()
-            trig_ifthen << NextTrigger()
-            self._send_mouse_interaction(
-                self._interactive_method.funcptr,
-                interaction_id)
-
-            trig_else << NextTrigger()
-            if EUDIf()([self._recv_funcptr == self._interactive_method.funcptr,
-                        self._recv_mouse_interaction_id == interaction_id]):
-                mx << self._recv_mouse_posx
-                my << self._recv_mouse_posy
-                v_ret_bool << 1
-            if EUDElse()():
-                v_ret_bool << 0
-            EUDEndIf()
-        EUDEndIf()
-
-        return v_ret_bool == 1
-
-    @EUDMethod
-    def _send_mouse_interaction(self, funcptr, id_):
-        if EUDIf()(Memory(0x512684, Exactly, self.su_id)):
-            f_dwwrite_epd(EPD(self._binary_buffer), funcptr)
-            f_dwwrite_epd(EPD(self._binary_buffer)+1, _INTERACT_MOUSE)
-            f_dwwrite_epd(EPD(self._binary_buffer)+2, id_)
-            f_dwwrite_epd(EPD(self._binary_buffer)+3, self.mouse_pos[0])
-            f_dwwrite_epd(EPD(self._binary_buffer)+4, self.mouse_pos[1])
-            uuencode(self._binary_buffer, 20, EPD(self._gc_buffer) + 2)
-            QueueGameCommand(self._gc_buffer + 2, 82)
-        EUDEndIf()
+    def mouse_mpress(self, send_variables=[]):
+        return self.sync_manager.interact_check(
+            self._interactive_method,
+            [(EPD(self.mouse_state+2), lambda epd: MemoryEPD(epd, AtLeast, 2))],
+            send_variables=send_variables)
 
     def get_map_width(self):
         # 64, 96, 128, 192, 256
@@ -556,8 +490,7 @@ class AppManager:
         # process all new chats
         prev_text_idx = EUDVariable(initval=10)
         lbl_after_chat = Forward()
-        self._recv_simple_interaction_id << 0
-        self._recv_mouse_interaction_id << 0
+        self.sync_manager.clear_recv()
 
         if EUDIf()(Memory(0x640B58, Exactly, prev_text_idx)):
             EUDJump(lbl_after_chat)
@@ -571,31 +504,7 @@ class AppManager:
             chat_off = 0x640B60 + 218 * i
             if EUDInfLoop()():
                 EUDBreakIf(i == cur_text_idx)
-                if EUDIf()(f_memcmp(chat_off,
-                                    Db(b'\x14SCR'),
-                                    4) == 0):
-                    written = uudecode(chat_off + 4, EPD(self._binary_buffer))
-                    if EUDIf()(written >= 8):
-                        _method_ptr = f_dwread_epd(EPD(self._binary_buffer))
-                        _interact_id = f_dwread_epd(EPD(self._binary_buffer)+1)
-
-                        self._recv_funcptr << _method_ptr
-                        if EUDIf()([_interact_id == _INTERACT_SIMPLE,
-                                    written >= 12]):
-                            self._recv_simple_interaction_id << \
-                                f_dwread_epd(EPD(self._binary_buffer)+2)
-                        if EUDElseIf()([_interact_id == _INTERACT_MOUSE,
-                                        written >= 20]):
-                            self._recv_mouse_interaction_id << \
-                                f_dwread_epd(EPD(self._binary_buffer)+2)
-                            self._recv_mouse_posx << \
-                                f_dwread_epd(EPD(self._binary_buffer)+3)
-                            self._recv_mouse_posy << \
-                                f_dwread_epd(EPD(self._binary_buffer)+4)
-                        EUDEndIf()
-                    EUDEndIf()
-                    f_bwrite(chat_off, 0)
-                EUDEndIf()
+                self.sync_manager.parse_recv(chat_off)
 
                 # search next updated lines
                 if EUDIf()(i == 10):
