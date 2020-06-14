@@ -13,10 +13,9 @@ class AppMethodN:
     def __init__(self, argtypes, rettypes, method, *,
                  with_main_writer, interactive, traced):
         # special methods
-        # interactive functions prevent overriding
+        # overriding interactive functions should be avoided
         self.with_main_writer = with_main_writer
         self.interactive = interactive
-        self.interaction_id = 0
 
         # Step 1 from parameters
         self.argtypes = argtypes
@@ -171,12 +170,6 @@ class AppMethodN:
         self.funcptr_val._initvars = [f_idcstart, EPD(f_idcend + 4)]
 
         self.status = 'allocated'
-
-    def register_interaction(self):
-        assert self.interactive
-
-        self.interaction_id += 1
-        return self.interaction_id
 
     def apply(self, manager):
         assert self.status in ['initialized', 'allocated'], self

@@ -1,10 +1,8 @@
 from eudplib import *
 
 from screpl.utils.pool import DbPool, VarPool
-from screpl.utils.debug import f_raise_error, f_raise_warning, f_printf
+from screpl.utils.debug import f_raise_error, f_raise_warning
 from screpl.utils.keycode import get_key_code
-from screpl.utils.string import f_strlen
-from screpl.utils.uuencode import uuencode, uudecode
 from screpl.utils.sync import SyncManager
 
 import screpl.main as main
@@ -53,8 +51,8 @@ class AppManager:
         self.mouse_pos = EUDCreateVariables(2)
 
         # user interactions
-        self._human_count = EUDVariable()
         self.sync_manager = SyncManager(self.su_id, self.is_multiplaying)
+        self.human_count = EUDVariable()
         self._interactive_method = None
         self._allocating_methods = []
 
@@ -176,20 +174,6 @@ class AppManager:
                 if method.interactive:
                     self._interactive_method = method
                     break
-
-    @EUDMethod
-    def _send_simple_interaction(self, funcptr, id_):
-        """QueueGameCommand
-
-        https://github.com/furion85/vgce/blob/master/docs/Blizzard/Starcraft/packets2.txt#L17
-        """
-        if EUDIf()(Memory(0x512684, Exactly, self.su_id)):
-            f_dwwrite_epd(EPD(self._binary_buffer), funcptr)
-            f_dwwrite_epd(EPD(self._binary_buffer)+1, _INTERACT_SIMPLE)
-            f_dwwrite_epd(EPD(self._binary_buffer)+2, id_)
-            uuencode(self._binary_buffer, 12, EPD(self._gc_buffer) + 2)
-            QueueGameCommand(self._gc_buffer + 2, 82)
-        EUDEndIf()
 
     def _update_key_state(self):
         # keystate
@@ -323,10 +307,6 @@ class AppManager:
 
     def key_down(self, key, send_variables=[]):
         key = get_key_code(key)
-        # conditions = [
-        #     Memory(0x68C144, Exactly, 0), # chat status - not chatting
-        #     MemoryEPD(self.keystates + key, Exactly, 1)
-        # ]
         return self.sync_manager.interact_check(
             self._interactive_method,
             [(EPD(0x68C144), lambda epd: MemoryEPD(epd, Exactly, 0)),
@@ -335,10 +315,6 @@ class AppManager:
 
     def key_up(self, key, send_variables=[]):
         key = get_key_code(key)
-        # conditions = [
-        #     Memory(0x68C144, Exactly, 0), # chat status - not chatting
-        #     MemoryEPD(self.keystates + key, Exactly, 2**32-1)
-        # ]
         return self.sync_manager.interact_check(
             self._interactive_method,
             [(EPD(0x68C144), lambda epd: MemoryEPD(epd, Exactly, 0)),
@@ -414,7 +390,7 @@ class AppManager:
         """If current game have more than two humans, return true,
         otherwise false
         """
-        return self._human_count >= 2
+        return self.human_count >= 2
 
     def request_update(self):
         """Request update of the display buffer.
@@ -474,11 +450,11 @@ class AppManager:
         EUDEndIf()
 
         # update human count
-        self._human_count << 0
+        self.human_count << 0
         for player_id in range(8):
             if GetPlayerInfo(player_id).typestr == "Human":
                 if EUDIf()(f_playerexist(player_id)):
-                    self._human_count += 1
+                    self.human_count += 1
                 EUDEndIf()
 
         # update current application

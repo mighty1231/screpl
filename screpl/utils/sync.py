@@ -17,7 +17,6 @@
 
 """
 from eudplib import *
-from .struct import REPLStruct
 from .uuencode import uuencode, uudecode
 
 _INTERACT_MAX = 6
@@ -47,6 +46,12 @@ class SyncManager:
                        condition_pairs,
                        send_variables=[]):
         """Send private memory of superuser and check the condition met"""
+        if not method:
+            raise RuntimeError(
+                "User interactions should be checked under "
+                "interactive AppMethods, method:{}"
+                .format(method))
+
         conditions = []
         for epd, condfunc in condition_pairs:
             conditions.append(condfunc(epd))
