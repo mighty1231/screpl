@@ -80,7 +80,7 @@ class SyncManager:
                 assign_values.append((
                     self.values + len(assign_values),
                     SetTo,
-                    f_dwread_epd(self.epdaddrs + len(assign_epds))))
+                    f_dwread_epd(epd)))
 
             for var in send_variables:
                 assign_epds.append((self.epdaddrs + len(assign_epds),
@@ -107,7 +107,6 @@ class SyncManager:
             trig_finally << NextTrigger()
 
             # check condition with sync
-            match_success = Forward()
             match_fail = Forward()
             match_end = Forward()
 

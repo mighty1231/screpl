@@ -330,7 +330,7 @@ class AppManager:
         return self.sync_manager.interact_check(
             self._interactive_method,
             [(EPD(0x68C144), lambda epd: MemoryEPD(epd, Exactly, 0)),
-             (self.keystates + key, lambda epd: MemoryEPD(epd, Exactly, 0))],
+             (self.keystates + key, lambda epd: MemoryEPD(epd, Exactly, 1))],
             send_variables=send_variables)
 
     def key_up(self, key, send_variables=[]):

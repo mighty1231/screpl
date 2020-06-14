@@ -225,6 +225,10 @@ class PatternApp(Application):
 
     def loop(self):
         global macro_mode
+        mouse_pos = app_manager.get_mouse_position()
+        v_mouse_x << mouse_pos[0]
+        v_mouse_y << mouse_pos[1]
+
         if EUDIf()(app_manager.key_press('ESC')):
             app_manager.request_destruct()
             EUDReturn()
@@ -264,7 +268,8 @@ class PatternApp(Application):
                 cur_wait_value.AddNumber(1),
                 SetMemoryEPD(EPD(p_wait_value) + focused_pattern_id, Add, 1),
             ])
-        if EUDElseIf()(app_manager.mouse_lclick(v_mouse_x, v_mouse_y)):
+        if EUDElseIf()(app_manager.mouse_lclick(send_variables=[v_mouse_x,
+                                                                v_mouse_y])):
             evaluate_locations()
         # if EUDElseIf()(app_manager.mouse_rclick()):
         if EUDElseIf()(app_manager.key_press('N')):

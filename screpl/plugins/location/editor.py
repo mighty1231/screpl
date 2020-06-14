@@ -1,7 +1,6 @@
 from eudplib import *
 
 from screpl.apps.chatreader import ChatReaderApp
-from screpl.apps.repl import REPL
 from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
 from screpl.encoder.const import ArgEncNumber
@@ -171,6 +170,16 @@ class LocationEditorApp(Application):
     def loop(self):
         global cur_mode, cur_grid_mode
 
+        # new mouse values and location
+        pos = app_manager.get_mouse_position()
+        cur_mX << pos[0]
+        cur_mY << pos[1]
+        cur_lv << f_dwread_epd(le)
+        cur_tv << f_dwread_epd(te)
+        cur_rv << f_dwread_epd(re)
+        cur_bv << f_dwread_epd(be)
+        is_holding << 0
+
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
             EUDReturn()
@@ -184,19 +193,7 @@ class LocationEditorApp(Application):
             v_dispmode << DISPMODE_MANUAL
         if EUDElseIf()(app_manager.key_up("F1")):
             v_dispmode << DISPMODE_MAIN
-        EUDEndIf()
-
-        # new mouse values and location
-        pos = app_manager.get_mouse_position()
-        cur_mX << pos[0]
-        cur_mY << pos[1]
-        cur_lv << f_dwread_epd(le)
-        cur_tv << f_dwread_epd(te)
-        cur_rv << f_dwread_epd(re)
-        cur_bv << f_dwread_epd(be)
-
-        # set modes!
-        if EUDIf()(app_manager.mouse_lclick()):
+        if EUDElseIf()(app_manager.mouse_lclick(send_variables=[cur_mX, cur_mY])):
             '''
             evaluate available modes
             if available modes not changed,
@@ -206,7 +203,9 @@ class LocationEditorApp(Application):
             '''
             self.evaluate_available_modes()
 
-            if EUDIf()(f_memcmp(prev_available_modes, cur_available_modes, 4*len(py_modes)) == 0):
+            if EUDIf()(f_memcmp(prev_available_modes,
+                                cur_available_modes,
+                                4*len(py_modes)) == 0):
                 cur_mode += 1
             if EUDElse()():
                 cur_mode << 0
@@ -230,16 +229,17 @@ class LocationEditorApp(Application):
                 EUDEndLoopN()
             EUDEndIf()
 
-            f_repmovsd_epd(EPD(prev_available_modes), EPD(cur_available_modes), len(py_modes))
-        EUDEndIf()
-
-        # get new mode
-        if EUDIf()(app_manager.key_down(keymap["editor"]["hold"])):
+            f_repmovsd_epd(EPD(prev_available_modes),
+                           EPD(cur_available_modes),
+                           len(py_modes))
+        if EUDElseIf()(app_manager.key_down(keymap["editor"]["hold"],
+                                        send_variables=[cur_mX, cur_mY])):
             is_holding << 1
             prev_mX << cur_mX
             prev_mY << cur_mY
-        if EUDElseIf()(app_manager.key_up(keymap["editor"]["hold"])):
-            is_holding << 0
+        if EUDElseIf()(app_manager.key_press(keymap["editor"]["hold"],
+                                             send_variables=[cur_mX, cur_mY])):
+            is_holding << 1
         EUDEndIf()
 
         # functions
