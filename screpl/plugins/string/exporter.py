@@ -132,7 +132,8 @@ class StringExporterApp(Application):
 
             remaining_bytes -= new_written
             written += new_written
-            if EUDIf()(remaining_bytes == 0):
+            if EUDIf()(app_manager.synchronize([
+                    (EPD(remaining_bytes.getValueAddr()), Exactly, 0)])):
                 v_state << STATE_CONFIG
             EUDEndIf()
         EUDEndIf()

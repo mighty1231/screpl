@@ -305,9 +305,15 @@ class AppManager:
         """
         EUDReturn(self.mouse_pos[0], self.mouse_pos[1])
 
+    def synchronize(self, conditions, variables_to_sync=[]):
+        return self.sync_manager.sync_and_check(
+            self._interactive_method,
+            conditions,
+            sync=variables_to_sync)
+
     def key_down(self, key, sync=[]):
         key = get_key_code(key)
-        return self.sync_manager.interact_check(
+        return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(0x68C144), Exactly, 0),
              (self.keystates + key, Exactly, 1)],
@@ -315,7 +321,7 @@ class AppManager:
 
     def key_up(self, key, sync=[]):
         key = get_key_code(key)
-        return self.sync_manager.interact_check(
+        return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(0x68C144), Exactly, 0),
              (self.keystates + key, Exactly, 2**32-1)],
@@ -339,42 +345,42 @@ class AppManager:
         for holdkey in hold:
             holdkey = get_key_code(holdkey)
             condition_pairs.append((self.keystates + holdkey, AtLeast, 1))
-        return self.sync_manager.interact_check(
+        return self.sync_manager.sync_and_check(
             self._interactive_method, condition_pairs,
             sync=sync)
 
     def mouse_lclick(self, sync=[]):
-        return self.sync_manager.interact_check(
+        return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(self.mouse_state), Exactly, 0)],
             sync=sync)
 
     def mouse_lpress(self, sync=[]):
-        return self.sync_manager.interact_check(
+        return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(self.mouse_state), AtLeast, 2)],
             sync=sync)
 
     def mouse_rclick(self, sync=[]):
-        return self.sync_manager.interact_check(
+        return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(self.mouse_state+1), Exactly, 0)],
             sync=sync)
 
     def mouse_rpress(self, sync=[]):
-        return self.sync_manager.interact_check(
+        return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(self.mouse_state+1), AtLeast, 2)],
             sync=sync)
 
     def mouse_mclick(self, sync=[]):
-        return self.sync_manager.interact_check(
+        return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(self.mouse_state+2), Exactly, 0)],
             sync=sync)
 
     def mouse_mpress(self, sync=[]):
-        return self.sync_manager.interact_check(
+        return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(self.mouse_state+2), AtLeast, 2)],
             sync=sync)
@@ -393,7 +399,7 @@ class AppManager:
         """If current game have more than two humans, return true,
         otherwise false
         """
-        return self.human_count >= 1
+        return self.human_count >= 2
 
     def request_update(self):
         """Request update of the display buffer.
@@ -418,15 +424,20 @@ class AppManager:
     def send_app_output_to_bridge(self, src_buffer, size):
         from screpl.bridge_server.blocks.appoutput import (
             APP_OUTPUT_MAXSIZE,
-            appOutputSize,
-            appOutputBuffer,
+            app_output_size,
+            app_output_buffer,
         )
         from screpl.main import is_bridge_mode
 
         if not is_bridge_mode():
             raise RuntimeError("Currently bridge is not activated")
 
-        if EUDIfNot()(appOutputSize == 0):
+        # only super user may get app output
+        if EUDIfNot()(Memory(0x512684, Exactly, self.su_id)):
+            EUDReturn(0)
+        EUDEndIf()
+
+        if EUDIfNot()(app_output_size == 0):
             EUDReturn(0)
         EUDEndIf()
 
@@ -437,8 +448,8 @@ class AppManager:
             written << size
         EUDEndIf()
 
-        f_memcpy(appOutputBuffer, src_buffer, written)
-        appOutputSize << written
+        f_memcpy(app_output_buffer, src_buffer, written)
+        app_output_size << written
 
         EUDReturn(written)
 

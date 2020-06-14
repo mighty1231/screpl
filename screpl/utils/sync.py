@@ -28,6 +28,8 @@ class SyncManager:
     def __init__(self, su_id, is_multiplaying):
         self.su_id = su_id
         self.is_multiplaying = is_multiplaying
+
+        # https://github.com/phu54321/vgce/blob/master/docs/Blizzard/Starcraft/packets2.txt#L17
         self.gc_buffer = Db(b'..\x5C\xFF\x14SCR' + b'.' * 76)
         self.buffer = EUDArray(_INTERACT_MAX * 2 + 1)
         self.epdaddrs = EPD(self.buffer) + 1
@@ -45,7 +47,7 @@ class SyncManager:
 
 
     @EUDMethod
-    def _interact_check(self, size, funcptr, epdvals, comptypes, compvals):
+    def _sync_and_check(self, size, funcptr, epdvals, comptypes, compvals):
         cond_comp0 = [Forward() for _ in range(_INTERACT_MAX)]
         cond_comp1 = [Forward() for _ in range(_INTERACT_MAX)]
         trig_preproc_end = Forward()
@@ -187,7 +189,7 @@ class SyncManager:
 
         return v_ret_bool
 
-    def interact_check(self, method, condition_pairs, sync=[]):
+    def sync_and_check(self, method, condition_pairs, sync=[]):
         """Send private memory of superuser and check the condition met
 
         Args:
@@ -218,7 +220,7 @@ class SyncManager:
         if len(sync) < _INTERACT_MAX:
             self._send_variable_epds[len(sync)] << 0
 
-        return self._interact_check(size, method.funcptr,
+        return self._sync_and_check(size, method.funcptr,
             EPD(EUDArray(epds)), EPD(EUDArray(comptypes)), EPD(EUDArray(values)))
 
 
