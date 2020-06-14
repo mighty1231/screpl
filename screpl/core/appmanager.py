@@ -309,16 +309,16 @@ class AppManager:
         key = get_key_code(key)
         return self.sync_manager.interact_check(
             self._interactive_method,
-            [(EPD(0x68C144), lambda epd: MemoryEPD(epd, Exactly, 0)),
-             (self.keystates + key, lambda epd: MemoryEPD(epd, Exactly, 1))],
+            [(EPD(0x68C144), Exactly, 0),
+             (self.keystates + key, Exactly, 1)],
             send_variables=send_variables)
 
     def key_up(self, key, send_variables=[]):
         key = get_key_code(key)
         return self.sync_manager.interact_check(
             self._interactive_method,
-            [(EPD(0x68C144), lambda epd: MemoryEPD(epd, Exactly, 0)),
-             (self.keystates + key, lambda epd: MemoryEPD(epd, Exactly, 2**32-1))],
+            [(EPD(0x68C144), Exactly, 0),
+             (self.keystates + key, Exactly, 2**32-1)],
             send_variables=send_variables)
 
     def key_press(self, key, hold=None, send_variables=[]):
@@ -328,14 +328,13 @@ class AppManager:
 
         key = get_key_code(key)
         condition_pairs = [
-            (EPD(0x68C144), lambda epd: MemoryEPD(epd, Exactly, 0)),
-            (self.keystates + key, lambda epd: MemoryEPD(epd, AtLeast, 1)),
-            (self.keystates_sub + key, lambda epd: MemoryEPD(epd, Exactly, 1)),
+            (EPD(0x68C144), Exactly, 0),
+            (self.keystates + key, AtLeast, 1),
+            (self.keystates_sub + key, Exactly, 1),
         ]
         for holdkey in hold:
             holdkey = get_key_code(holdkey)
-            condition_pairs.append((self.keystates + holdkey,
-                                    lambda epd: MemoryEPD(epd, AtLeast, 1)))
+            condition_pairs.append((self.keystates + holdkey, AtLeast, 1))
         return self.sync_manager.interact_check(
             self._interactive_method, condition_pairs,
             send_variables=send_variables)
@@ -343,37 +342,37 @@ class AppManager:
     def mouse_lclick(self, send_variables=[]):
         return self.sync_manager.interact_check(
             self._interactive_method,
-            [(EPD(self.mouse_state), lambda epd: MemoryEPD(epd, Exactly, 0))],
+            [(EPD(self.mouse_state), Exactly, 0)],
             send_variables=send_variables)
 
     def mouse_lpress(self, send_variables=[]):
         return self.sync_manager.interact_check(
             self._interactive_method,
-            [(EPD(self.mouse_state), lambda epd: MemoryEPD(epd, AtLeast, 2))],
+            [(EPD(self.mouse_state), AtLeast, 2)],
             send_variables=send_variables)
 
     def mouse_rclick(self, send_variables=[]):
         return self.sync_manager.interact_check(
             self._interactive_method,
-            [(EPD(self.mouse_state+1), lambda epd: MemoryEPD(epd, Exactly, 0))],
+            [(EPD(self.mouse_state+1), Exactly, 0)],
             send_variables=send_variables)
 
     def mouse_rpress(self, send_variables=[]):
         return self.sync_manager.interact_check(
             self._interactive_method,
-            [(EPD(self.mouse_state+1), lambda epd: MemoryEPD(epd, AtLeast, 2))],
+            [(EPD(self.mouse_state+1), AtLeast, 2)],
             send_variables=send_variables)
 
     def mouse_mclick(self, send_variables=[]):
         return self.sync_manager.interact_check(
             self._interactive_method,
-            [(EPD(self.mouse_state+2), lambda epd: MemoryEPD(epd, Exactly, 0))],
+            [(EPD(self.mouse_state+2), Exactly, 0)],
             send_variables=send_variables)
 
     def mouse_mpress(self, send_variables=[]):
         return self.sync_manager.interact_check(
             self._interactive_method,
-            [(EPD(self.mouse_state+2), lambda epd: MemoryEPD(epd, AtLeast, 2))],
+            [(EPD(self.mouse_state+2), AtLeast, 2)],
             send_variables=send_variables)
 
     def get_map_width(self):
@@ -390,7 +389,7 @@ class AppManager:
         """If current game have more than two humans, return true,
         otherwise false
         """
-        return self.human_count >= 2
+        return self.human_count >= 1
 
     def request_update(self):
         """Request update of the display buffer.

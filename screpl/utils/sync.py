@@ -18,6 +18,7 @@
 """
 from eudplib import *
 from .uuencode import uuencode, uudecode
+from screpl.apps.logger import Logger
 
 _INTERACT_MAX = 6
 
@@ -40,31 +41,63 @@ class SyncManager:
 
         self._search_success = EUDVariable()
         self._searched_value_epdp = EUDVariable()
+        self._send_variables = [EUDVariable() for _ in range(_INTERACT_MAX)]
+        self._send_variable_epds = [EUDVariable() for _ in range(_INTERACT_MAX)]
 
-    def interact_check(self,
-                       method,
-                       condition_pairs,
-                       send_variables=[]):
-        """Send private memory of superuser and check the condition met"""
-        if not method:
-            raise RuntimeError(
-                "User interactions should be checked under "
-                "interactive AppMethods, method:{}"
-                .format(method))
 
-        conditions = []
-        for epd, condfunc in condition_pairs:
-            conditions.append(condfunc(epd))
-
-        size = len(condition_pairs) + len(send_variables)
-        if size > _INTERACT_MAX:
-            raise SyncLimitError()
-
-        v_ret_bool = EUDVariable()
+    @EUDMethod
+    def _interact_check(self, size, funcptr, epdvals, comptypes, compvals):
+        cond_comp0 = [Forward() for _ in range(_INTERACT_MAX)]
+        cond_comp1 = [Forward() for _ in range(_INTERACT_MAX)]
+        trig_preproc_end = Forward()
         trig_branch = Forward()
         trig_ifthen = Forward()
         trig_finally = Forward()
-        if EUDIf()(conditions):
+
+        v_ret_bool = EUDVariable()
+
+        f_readcomptype_epd = f_readgen_epd(0x0F0B0000, (0, lambda t: t))
+
+        epdval_variables = []
+        for i in range(_INTERACT_MAX):
+            if EUDIf()(MemoryEPD(epdvals + i, Exactly, 0)):
+                # make action 0
+                SeqCompute([
+                    (EPD(cond_comp0[i]+12), SetTo, 0),
+                    (EPD(cond_comp1[i]+12), SetTo, 0),
+                ])
+                EUDJump(trig_preproc_end)
+            EUDEndIf()
+            epdval = f_dwread_epd(epdvals + i)
+            comptype = f_readcomptype_epd(comptypes+i)
+            compval = f_dwread_epd(compvals + i)
+
+            epdval_variables.append(epdval)
+
+            SeqCompute([
+                (EPD(cond_comp0[i]+4), SetTo, epdval),
+                (EPD(cond_comp0[i]+12), SetTo, comptype),
+                (EPD(cond_comp0[i]+8), SetTo, compval),
+
+                (EPD(cond_comp1[i]+12), SetTo, comptype),
+                (EPD(cond_comp1[i]+8), SetTo, compval),
+            ])
+        trig_preproc_end << NextTrigger()
+
+        # with Logger.get_multiline_writer('ww') as writer:
+        #     writer.write_condition_epd(EPD(cond_comp0[0]))
+        #     writer.write(ord('\n'))
+        #     writer.write_condition_epd(EPD(cond_comp0[1]))
+        #     writer.write(ord('\n'))
+        #     writer.write_condition_epd(EPD(cond_comp0[2]))
+        #     writer.write(ord('\n'))
+        #     writer.write_condition_epd(EPD(cond_comp0[3]))
+        #     writer.write(ord('\n'))
+        #     writer.write_condition_epd(EPD(cond_comp0[4]))
+        #     writer.write(0)
+
+        if EUDIf()([cond << MemoryEPD(0, Exactly, 0)
+                    for cond in cond_comp0]):
             DoActions(SetNextPtr(trig_branch, trig_ifthen))
             v_ret_bool << 1
         if EUDElse()():
@@ -76,66 +109,94 @@ class SyncManager:
             trig_branch << RawTrigger()
             trig_ifthen << NextTrigger()
 
-            assign_epds = []
-            assign_values = []
-            for epd, _ in condition_pairs:
-                assign_epds.append((self.epdaddrs + len(assign_epds),
-                                    SetTo,
-                                    epd))
-                assign_values.append((
-                    self.values + len(assign_values),
-                    SetTo,
-                    f_dwread_epd(epd)))
-
-            for var in send_variables:
-                assign_epds.append((self.epdaddrs + len(assign_epds),
-                                    SetTo,
-                                    EPD(var.getValueAddr())))
-                assign_values.append((self.values + len(assign_values),
-                                      SetTo,
-                                      var))
-
-            if len(assign_epds) < _INTERACT_MAX:
-                assign_epds.append((self.epdaddrs + len(assign_epds),
-                                    SetTo, 0))
-
             # send superuser's memory status
             if EUDIf()(Memory(0x512684, Exactly, self.su_id)):
-                SeqCompute([(EPD(self.buffer), SetTo, method.funcptr)]
-                           + assign_epds + assign_values)
+                # fill buffer
+                trig_cond_end, trig_write_end = Forward(), Forward()
+                v_buffer_epdaddrs, v_buffer_values = EUDVariable(), EUDVariable()
+
+                SeqCompute([(EPD(self.buffer), SetTo, funcptr)])
+
+                # loop epd / values
+                v_buffer_epdaddrs << self.epdaddrs
+                v_buffer_values << self.values
+                for i, epdval in enumerate(epdval_variables):
+                    EUDJumpIf(MemoryEPD(epdvals + i, Exactly, 0), trig_cond_end)
+                    f_dwwrite_epd(v_buffer_epdaddrs, epdval)
+                    f_dwwrite_epd(v_buffer_values, f_dwread_epd(epdval))
+                    DoActions([
+                        v_buffer_epdaddrs.AddNumber(1),
+                        v_buffer_values.AddNumber(1),
+                    ])
+                trig_cond_end << NextTrigger()
+
+                # loop over sending variables
+                for var, var_epd in zip(self._send_variables,
+                                        self._send_variable_epds):
+                    EUDJumpIf(var_epd.Exactly(0), trig_write_end)
+                    f_dwwrite_epd(v_buffer_epdaddrs, var_epd)
+                    f_dwwrite_epd(v_buffer_values, var)
+                    DoActions([
+                        v_buffer_epdaddrs.AddNumber(1),
+                        v_buffer_values.AddNumber(1),
+                    ])
+                trig_write_end << NextTrigger()
+
+                # make endpoint
+                if EUDIfNot()(size == _INTERACT_MAX):
+                    f_dwwrite_epd(self.epdaddrs + size, 0)
+                EUDEndIf()
+
                 uuencode(self.buffer,
                          4 * (1 + _INTERACT_MAX + size),
                          EPD(self.gc_buffer) + 2)
+                self.log_buffer("send", self.buffer)
                 QueueGameCommand(self.gc_buffer + 2, 82)
             EUDEndIf()
 
             trig_finally << NextTrigger()
 
             # check condition with sync
+            trig_break = Forward()
+            match_success = Forward()
             match_fail = Forward()
             match_end = Forward()
 
-            if EUDIfNot()(Memory(self.recv_buffer, Exactly, method.funcptr)):
+            if EUDIfNot()(Memory(self.recv_buffer, Exactly, funcptr)):
                 EUDJump(match_fail)
             EUDEndIf()
 
             # check conditions
-            for epd, condfunc in condition_pairs:
-                self.search_epd(epd)
+            Logger.format("search...")
+            for i, epdval in enumerate(epdval_variables):
+                EUDJumpIf(MemoryEPD(epdvals + i, Exactly, 0), trig_break)
+                self.search_epd(epdval)
                 if EUDIfNot()(self._search_success):
+                    Logger.format("search fail %H", 0x58a364 + 4*epdval)
+                    EUDJump(match_fail)
+                if EUDElse()():
+                    Logger.format("search success %H", 0x58a364 + 4*epdval)
+                EUDEndIf()
+                if EUDIfNot()((cond_comp1[i]
+                               << MemoryEPD(self._searched_value_epdp,
+                                            Exactly, 0))):
+                    Logger.format("match fail")
                     EUDJump(match_fail)
                 EUDEndIf()
-                if EUDIfNot()(condfunc(self._searched_value_epdp)):
-                    EUDJump(match_fail)
-                EUDEndIf()
+
+            trig_break << NextTrigger()
+            Logger.format("success")
 
             # set variables
-            for var in send_variables:
-                self.search_epd(EPD(var.getValueAddr()))
+            for epdval in self._send_variable_epds:
+                EUDJumpIf(epdval == 0, match_success)
+                self.search_epd(epdval)
                 if EUDIf()(self._search_success):
-                    var << f_dwread_epd(self._searched_value_epdp)
+                    f_dwwrite_epd(epdval,
+                                  f_dwread_epd(self._searched_value_epdp))
                 EUDEndIf()
 
+            match_success << NextTrigger()
             v_ret_bool << 1
             EUDJump(match_end)
 
@@ -144,7 +205,38 @@ class SyncManager:
             match_end << NextTrigger()
         EUDEndIf()
 
-        return v_ret_bool == 1
+        return v_ret_bool
+
+    def interact_check(self, method, condition_pairs, send_variables=[]):
+        """Send private memory of superuser and check the condition met"""
+        if not method:
+            raise RuntimeError(
+                "User interactions should be checked under "
+                "interactive AppMethods, method:{}"
+                .format(method))
+
+        size = len(condition_pairs) + len(send_variables)
+        if size > _INTERACT_MAX:
+            raise SyncLimitError()
+
+        epds, comptypes, values = [], [], []
+        for epd, comptype, value in condition_pairs:
+            epds.append(epd)
+            comptypes.append((EncodeComparison(comptype) << 16) + 0xf000000)
+            values.append(value)
+        epds.extend([0] * (_INTERACT_MAX - len(condition_pairs)))
+        comptypes.extend([0] * (_INTERACT_MAX - len(condition_pairs)))
+        values.extend([0] * (_INTERACT_MAX - len(condition_pairs)))
+
+        for i, var in enumerate(send_variables):
+            self._send_variables[i] << var
+            self._send_variable_epds[i] << EPD(var.getValueAddr())
+        if len(send_variables) < _INTERACT_MAX:
+            self._send_variable_epds[len(send_variables)] << 0
+
+        return self._interact_check(size, method.funcptr,
+            EPD(EUDArray(epds)), EPD(EUDArray(comptypes)), EPD(EUDArray(values)))
+
 
     @EUDMethod
     def search_epd(self, epdv):
@@ -183,7 +275,20 @@ class SyncManager:
         self.recv_buffer[0] = 0
 
     def parse_recv(self, address):
-        if EUDIf()(f_memcmp(address, Db(b'\x14SCR'), 4) == 0):
-            written = uudecode(address + 4, EPD(self.recv_buffer))
-            f_bwrite(address, 0)
+        if EUDIf()(Memory(self.recv_buffer, Exactly, 0)):
+            if EUDIf()(f_memcmp(address, Db(b'\x14SCR'), 4) == 0):
+                written = uudecode(address + 4, EPD(self.recv_buffer))
+                self.log_buffer("recv", self.recv_buffer)
+                f_bwrite(address, 0)
+            EUDEndIf()
         EUDEndIf()
+
+    def log_buffer(self, title, buf):
+        from screpl.apps.logger import Logger
+        with Logger.get_multiline_writer(title) as writer:
+            writer.write_f("funcptr %H\n", f_dwread_epd(EPD(buf)))
+            for i in range(_INTERACT_MAX):
+                epd = f_dwread_epd(EPD(buf) + 1 + i)
+                value = f_dwread_epd(EPD(buf) + 1 + i + _INTERACT_MAX)
+                writer.write_f(" %D: %H: %D\n", i, 0x58A364+4*epd, value)
+            writer.write(0)
