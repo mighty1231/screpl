@@ -263,17 +263,18 @@ class TriggerEditorApp(Application):
         cond_epd = self.cond_epd
         act_epd = self.act_epd
 
+        hold_ctrl = app_manager.key_holdcounter("LCTRL")
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            self.update_index(index - ENTRY_COUNT_PER_PAGE)
-        if EUDElseIf()(app_manager.key_press("F7")):
-            self.update_index(index - 1)
-        if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            self.update_index(index + ENTRY_COUNT_PER_PAGE)
-        if EUDElseIf()(app_manager.key_press("F8")):
-            self.update_index(index + 1)
+        if EUDElseIf()(app_manager.key_press("F7", sync=[hold_ctrl])):
+            self.update_index(index - EUDTernary(hold_ctrl)
+                                                (ENTRY_COUNT_PER_PAGE)
+                                                (1))
+        if EUDElseIf()(app_manager.key_press("F8", sync=[hold_ctrl])):
+            self.update_index(index + EUDTernary(hold_ctrl)
+                                                (ENTRY_COUNT_PER_PAGE)
+                                                (1))
         if EUDElseIf()(app_manager.key_press("R")):
             self.update_text()
         if EUDElseIf()(app_manager.key_press("T", hold=["LCTRL"])):

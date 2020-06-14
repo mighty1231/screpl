@@ -268,8 +268,7 @@ class PatternApp(Application):
                 cur_wait_value.AddNumber(1),
                 SetMemoryEPD(EPD(p_wait_value) + focused_pattern_id, Add, 1),
             ])
-        if EUDElseIf()(app_manager.mouse_lclick(send_variables=[v_mouse_x,
-                                                                v_mouse_y])):
+        if EUDElseIf()(app_manager.mouse_lclick(sync=[v_mouse_x, v_mouse_y])):
             evaluate_locations()
         # if EUDElseIf()(app_manager.mouse_rclick()):
         if EUDElseIf()(app_manager.key_press('N')):

@@ -18,7 +18,6 @@
 """
 from eudplib import *
 from .uuencode import uuencode, uudecode
-from screpl.apps.logger import Logger
 
 _INTERACT_MAX = 6
 
@@ -84,18 +83,6 @@ class SyncManager:
             ])
         trig_preproc_end << NextTrigger()
 
-        # with Logger.get_multiline_writer('ww') as writer:
-        #     writer.write_condition_epd(EPD(cond_comp0[0]))
-        #     writer.write(ord('\n'))
-        #     writer.write_condition_epd(EPD(cond_comp0[1]))
-        #     writer.write(ord('\n'))
-        #     writer.write_condition_epd(EPD(cond_comp0[2]))
-        #     writer.write(ord('\n'))
-        #     writer.write_condition_epd(EPD(cond_comp0[3]))
-        #     writer.write(ord('\n'))
-        #     writer.write_condition_epd(EPD(cond_comp0[4]))
-        #     writer.write(0)
-
         if EUDIf()([cond << MemoryEPD(0, Exactly, 0)
                     for cond in cond_comp0]):
             DoActions(SetNextPtr(trig_branch, trig_ifthen))
@@ -150,7 +137,6 @@ class SyncManager:
                 uuencode(self.buffer,
                          4 * (1 + _INTERACT_MAX + size),
                          EPD(self.gc_buffer) + 2)
-                self.log_buffer("send", self.buffer)
                 QueueGameCommand(self.gc_buffer + 2, 82)
             EUDEndIf()
 
@@ -167,25 +153,19 @@ class SyncManager:
             EUDEndIf()
 
             # check conditions
-            Logger.format("search...")
             for i, epdval in enumerate(epdval_variables):
                 EUDJumpIf(MemoryEPD(epdvals + i, Exactly, 0), trig_break)
                 self.search_epd(epdval)
                 if EUDIfNot()(self._search_success):
-                    Logger.format("search fail %H", 0x58a364 + 4*epdval)
                     EUDJump(match_fail)
-                if EUDElse()():
-                    Logger.format("search success %H", 0x58a364 + 4*epdval)
                 EUDEndIf()
                 if EUDIfNot()((cond_comp1[i]
                                << MemoryEPD(self._searched_value_epdp,
                                             Exactly, 0))):
-                    Logger.format("match fail")
                     EUDJump(match_fail)
                 EUDEndIf()
 
             trig_break << NextTrigger()
-            Logger.format("success")
 
             # set variables
             for epdval in self._send_variable_epds:
@@ -207,15 +187,19 @@ class SyncManager:
 
         return v_ret_bool
 
-    def interact_check(self, method, condition_pairs, send_variables=[]):
-        """Send private memory of superuser and check the condition met"""
+    def interact_check(self, method, condition_pairs, sync=[]):
+        """Send private memory of superuser and check the condition met
+
+        Args:
+            sync(list): list of EUDVariables to synchronize
+        """
         if not method:
             raise RuntimeError(
                 "User interactions should be checked under "
                 "interactive AppMethods, method:{}"
                 .format(method))
 
-        size = len(condition_pairs) + len(send_variables)
+        size = len(condition_pairs) + len(sync)
         if size > _INTERACT_MAX:
             raise SyncLimitError()
 
@@ -228,11 +212,11 @@ class SyncManager:
         comptypes.extend([0] * (_INTERACT_MAX - len(condition_pairs)))
         values.extend([0] * (_INTERACT_MAX - len(condition_pairs)))
 
-        for i, var in enumerate(send_variables):
+        for i, var in enumerate(sync):
             self._send_variables[i] << var
             self._send_variable_epds[i] << EPD(var.getValueAddr())
-        if len(send_variables) < _INTERACT_MAX:
-            self._send_variable_epds[len(send_variables)] << 0
+        if len(sync) < _INTERACT_MAX:
+            self._send_variable_epds[len(sync)] << 0
 
         return self._interact_check(size, method.funcptr,
             EPD(EUDArray(epds)), EPD(EUDArray(comptypes)), EPD(EUDArray(values)))
@@ -278,7 +262,6 @@ class SyncManager:
         if EUDIf()(Memory(self.recv_buffer, Exactly, 0)):
             if EUDIf()(f_memcmp(address, Db(b'\x14SCR'), 4) == 0):
                 written = uudecode(address + 4, EPD(self.recv_buffer))
-                self.log_buffer("recv", self.recv_buffer)
                 f_bwrite(address, 0)
             EUDEndIf()
         EUDEndIf()

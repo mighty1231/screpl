@@ -305,25 +305,29 @@ class AppManager:
         """
         EUDReturn(self.mouse_pos[0], self.mouse_pos[1])
 
-    def key_down(self, key, send_variables=[]):
+    def key_down(self, key, sync=[]):
         key = get_key_code(key)
         return self.sync_manager.interact_check(
             self._interactive_method,
             [(EPD(0x68C144), Exactly, 0),
              (self.keystates + key, Exactly, 1)],
-            send_variables=send_variables)
+            sync=sync)
 
-    def key_up(self, key, send_variables=[]):
+    def key_up(self, key, sync=[]):
         key = get_key_code(key)
         return self.sync_manager.interact_check(
             self._interactive_method,
             [(EPD(0x68C144), Exactly, 0),
              (self.keystates + key, Exactly, 2**32-1)],
-            send_variables=send_variables)
+            sync=sync)
 
-    def key_press(self, key, hold=None, send_variables=[]):
+    def key_holdcounter(self, key):
+        key = get_key_code(key)
+        return f_dwread_epd(self.keystates + key)
+
+    def key_press(self, key, hold=None, sync=[]):
         """hold: list of keys, such as LCTRL, LSHIFT, LALT, etc..."""
-        if hold is None:
+        if not hold:
             hold = []
 
         key = get_key_code(key)
@@ -337,43 +341,43 @@ class AppManager:
             condition_pairs.append((self.keystates + holdkey, AtLeast, 1))
         return self.sync_manager.interact_check(
             self._interactive_method, condition_pairs,
-            send_variables=send_variables)
+            sync=sync)
 
-    def mouse_lclick(self, send_variables=[]):
+    def mouse_lclick(self, sync=[]):
         return self.sync_manager.interact_check(
             self._interactive_method,
             [(EPD(self.mouse_state), Exactly, 0)],
-            send_variables=send_variables)
+            sync=sync)
 
-    def mouse_lpress(self, send_variables=[]):
+    def mouse_lpress(self, sync=[]):
         return self.sync_manager.interact_check(
             self._interactive_method,
             [(EPD(self.mouse_state), AtLeast, 2)],
-            send_variables=send_variables)
+            sync=sync)
 
-    def mouse_rclick(self, send_variables=[]):
+    def mouse_rclick(self, sync=[]):
         return self.sync_manager.interact_check(
             self._interactive_method,
             [(EPD(self.mouse_state+1), Exactly, 0)],
-            send_variables=send_variables)
+            sync=sync)
 
-    def mouse_rpress(self, send_variables=[]):
+    def mouse_rpress(self, sync=[]):
         return self.sync_manager.interact_check(
             self._interactive_method,
             [(EPD(self.mouse_state+1), AtLeast, 2)],
-            send_variables=send_variables)
+            sync=sync)
 
-    def mouse_mclick(self, send_variables=[]):
+    def mouse_mclick(self, sync=[]):
         return self.sync_manager.interact_check(
             self._interactive_method,
             [(EPD(self.mouse_state+2), Exactly, 0)],
-            send_variables=send_variables)
+            sync=sync)
 
-    def mouse_mpress(self, send_variables=[]):
+    def mouse_mpress(self, sync=[]):
         return self.sync_manager.interact_check(
             self._interactive_method,
             [(EPD(self.mouse_state+2), AtLeast, 2)],
-            send_variables=send_variables)
+            sync=sync)
 
     def get_map_width(self):
         # 64, 96, 128, 192, 256

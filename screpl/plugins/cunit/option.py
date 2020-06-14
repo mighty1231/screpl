@@ -31,17 +31,14 @@ class CUnitOptionApp(Application):
         v_mode << MODE_MAIN
 
     def loop(self):
+        hold_ctrl = app_manager.key_holdcounter("LCTRL")
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            set_focus(v_focused - 8)
-        if EUDElseIf()(app_manager.key_press("F7")):
-            set_focus(v_focused - 1)
-        if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            set_focus(v_focused + 8)
-        if EUDElseIf()(app_manager.key_press("F8")):
-            set_focus(v_focused + 1)
+        if EUDElseIf()(app_manager.key_press("F7", sync=[hold_ctrl])):
+            set_focus(v_focused - EUDTernary(hold_ctrl)(8)(1))
+        if EUDElseIf()(app_manager.key_press("F8", sync=[hold_ctrl])):
+            set_focus(v_focused + EUDTernary(hold_ctrl)(8)(1))
         if EUDElseIf()(app_manager.key_press("H")):
             member = CUnitMemberEntry.cast(cu_members[v_focused])
             if EUDIf()(member.activated == 1):

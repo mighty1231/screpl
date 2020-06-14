@@ -77,17 +77,14 @@ class LocationManagerApp(Application):
         # F7 - previous location
         # F8 - next location
         location = self.location
+        hold_ctrl = app_manager.key_holdcounter("LCTRL")
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            self.set_location(location - 8)
-        if EUDElseIf()(app_manager.key_press("F7")):
-            self.set_location(location - 1)
-        if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            self.set_location(location + 8)
-        if EUDElseIf()(app_manager.key_press("F8")):
-            self.set_location(location + 1)
+        if EUDElseIf()(app_manager.key_press("F7", sync=[hold_ctrl])):
+            self.set_location(location - EUDTernary(hold_ctrl)(8)(1))
+        if EUDElseIf()(app_manager.key_press("F8", sync=[hold_ctrl])):
+            self.set_location(location + EUDTernary(hold_ctrl)(8)(1))
         if EUDElseIf()(app_manager.key_press(keymap["manager"]["open_editor"])):
             LocationEditorApp.set_target(location)
             app_manager.start_application(LocationEditorApp)

@@ -64,17 +64,14 @@ class UnitManagerApp(Application):
 
     def loop(self):
         unitid = self.unitid
+        hold_ctrl = app_manager.key_holdcounter("LCTRL")
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            self.focus_unit_id(unitid - 8)
-        if EUDElseIf()(app_manager.key_press("F7")):
-            self.focus_unit_id(unitid - 1)
-        if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            self.focus_unit_id(unitid + 8)
-        if EUDElseIf()(app_manager.key_press("F8")):
-            self.focus_unit_id(unitid + 1)
+        if EUDElseIf()(app_manager.key_press("F7", sync=[hold_ctrl])):
+            self.focus_unit_id(unitid - EUDTernary(hold_ctrl)(8)(1))
+        if EUDElseIf()(app_manager.key_press("F8", sync=[hold_ctrl])):
+            self.focus_unit_id(unitid + EUDTernary(hold_ctrl)(8)(1))
         EUDEndIf()
 
     def print(self, writer):

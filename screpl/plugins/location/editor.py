@@ -193,7 +193,7 @@ class LocationEditorApp(Application):
             v_dispmode << DISPMODE_MANUAL
         if EUDElseIf()(app_manager.key_up("F1")):
             v_dispmode << DISPMODE_MAIN
-        if EUDElseIf()(app_manager.mouse_lclick(send_variables=[cur_mX, cur_mY])):
+        if EUDElseIf()(app_manager.mouse_lclick(sync=[cur_mX, cur_mY])):
             '''
             evaluate available modes
             if available modes not changed,
@@ -233,12 +233,12 @@ class LocationEditorApp(Application):
                            EPD(cur_available_modes),
                            len(py_modes))
         if EUDElseIf()(app_manager.key_down(keymap["editor"]["hold"],
-                                        send_variables=[cur_mX, cur_mY])):
+                                            sync=[cur_mX, cur_mY])):
             is_holding << 1
             prev_mX << cur_mX
             prev_mY << cur_mY
         if EUDElseIf()(app_manager.key_press(keymap["editor"]["hold"],
-                                             send_variables=[cur_mX, cur_mY])):
+                                             sync=[cur_mX, cur_mY])):
             is_holding << 1
         EUDEndIf()
 
