@@ -37,8 +37,8 @@ class SyncManager:
 
         # received
         self.recv_buffer = EUDArray(_INTERACT_MAX * 2 + 1)
-        self.recv_epdaddrs = EPD(self.buffer) + 1
-        self.recv_values = EPD(self.buffer) + 1 + _INTERACT_MAX
+        self.recv_epdaddrs = EPD(self.recv_buffer) + 1
+        self.recv_values = EPD(self.recv_buffer) + 1 + _INTERACT_MAX
 
         self._search_success = EUDVariable()
         self._searched_value_epdp = EUDVariable()
