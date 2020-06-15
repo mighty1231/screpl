@@ -6,8 +6,6 @@ from eudplib.core.eudfunc.eudtypedfuncn import EUDTypedFuncN, applyTypes
 from eudplib.core.eudstruct.vararray import EUDVArrayData
 from eudplib.core.eudfunc.eudfptr import createIndirectCaller
 
-from . import application
-
 
 class AppMethodN:
     def __init__(self, argtypes, rettypes, method, *,
@@ -181,6 +179,8 @@ class AppMethodN:
         Call the method absolutely, regardless of current foreground app.
         It is used on calling supermethod on overriding case.
         """
+        from . import application
+
         if not isinstance(instance, application.ApplicationInstance):
             raise ValueError(
                 "The first argument should be ApplicationInstance")
@@ -191,13 +191,13 @@ class AppMethodN:
 
 ''' Decorator to make AppMethodN '''
 def AppTypedMethod(argtypes,
-                   rettypes=[],
+                   rettypes=None,
                    *,
                    interactive=False,
                    with_main_writer=False,
                    traced=False):
     def ret(method):
-        return AppMethodN(argtypes, rettypes, method,
+        return AppMethodN(argtypes, rettypes or [], method,
                           with_main_writer=with_main_writer,
                           interactive=interactive,
                           traced=traced)

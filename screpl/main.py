@@ -76,14 +76,7 @@ def initialize_with_id(su_id):
     su_prefix = Db(40)
     writer = get_main_writer()
     writer.seekepd(EPD(su_prefix))
-    writer.write_str(0x57EEEB + 36*su_id) # player structure
-    writer.write(ord(':'))
-    if EUDIf()(f_getuserplayerid() == su_id):
-        writer.write(7)
-    if EUDElse()():
-        writer.write(2)
-    EUDEndIf()
-    writer.write(ord(' '))
+    writer.write_f("%S:\x07 ", 0x57EEEB + 36*su_id)
     writer.write(0)
     su_prefixlen = f_strlen(su_prefix)
 
@@ -106,15 +99,9 @@ def initialize_with_name(su_name):
     # build prefix for super user's chat
     # since game text uses different color code whether some chat is
     # mine or not, it should be differentiated recognizing user player id
-    su_prefix, su_id = EUDCreateVariables(2)
+    su_id = EUDVariable()
     su_name = su_name.encode('utf-8')
-    prefix_su = Db(su_name + bytes([58, 7, 32, 0]))
-    prefix_ot = Db(su_name + bytes([58, 2, 32, 0]))
-    if EUDIf()(f_getuserplayerid() == su_id):
-        su_prefix << prefix_su
-    if EUDElse()():
-        su_prefix << prefix_ot
-    EUDEndIf()
+    su_prefix = Db(su_name + bytes([58, 7, 32, 0]))
     su_prefixlen = len(su_name) + 3
 
     # find superuser id

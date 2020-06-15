@@ -5,8 +5,6 @@ from screpl.utils.debug import f_raise_error, f_raise_warning
 from screpl.utils.keycode import get_key_code
 from screpl.utils.sync import SyncManager
 
-import screpl.main as main
-
 _KEYPRESS_DELAY = 8
 _APP_MAX_COUNT = 30
 
@@ -305,33 +303,33 @@ class AppManager:
         """
         EUDReturn(self.mouse_pos[0], self.mouse_pos[1])
 
-    def synchronize(self, conditions, variables_to_sync=[]):
+    def synchronize(self, conditions, variables_to_sync=None):
         return self.sync_manager.sync_and_check(
             self._interactive_method,
             conditions,
-            sync=variables_to_sync)
+            sync=variables_to_sync or [])
 
-    def key_down(self, key, sync=[]):
+    def key_down(self, key, sync=None):
         key = get_key_code(key)
         return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(0x68C144), Exactly, 0),
              (self.keystates + key, Exactly, 1)],
-            sync=sync)
+            sync=sync or [])
 
-    def key_up(self, key, sync=[]):
+    def key_up(self, key, sync=None):
         key = get_key_code(key)
         return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(0x68C144), Exactly, 0),
              (self.keystates + key, Exactly, 2**32-1)],
-            sync=sync)
+            sync=sync or [])
 
     def key_holdcounter(self, key):
         key = get_key_code(key)
         return f_dwread_epd(self.keystates + key)
 
-    def key_press(self, key, hold=None, sync=[]):
+    def key_press(self, key, hold=None, sync=None):
         """hold: list of keys, such as LCTRL, LSHIFT, LALT, etc..."""
         if not hold:
             hold = []
@@ -347,43 +345,43 @@ class AppManager:
             condition_pairs.append((self.keystates + holdkey, AtLeast, 1))
         return self.sync_manager.sync_and_check(
             self._interactive_method, condition_pairs,
-            sync=sync)
+            sync=sync or [])
 
-    def mouse_lclick(self, sync=[]):
+    def mouse_lclick(self, sync=None):
         return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(self.mouse_state), Exactly, 0)],
-            sync=sync)
+            sync=sync or [])
 
-    def mouse_lpress(self, sync=[]):
+    def mouse_lpress(self, sync=None):
         return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(self.mouse_state), AtLeast, 2)],
-            sync=sync)
+            sync=sync or [])
 
-    def mouse_rclick(self, sync=[]):
+    def mouse_rclick(self, sync=None):
         return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(self.mouse_state+1), Exactly, 0)],
-            sync=sync)
+            sync=sync or [])
 
-    def mouse_rpress(self, sync=[]):
+    def mouse_rpress(self, sync=None):
         return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(self.mouse_state+1), AtLeast, 2)],
-            sync=sync)
+            sync=sync or [])
 
-    def mouse_mclick(self, sync=[]):
+    def mouse_mclick(self, sync=None):
         return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(self.mouse_state+2), Exactly, 0)],
-            sync=sync)
+            sync=sync or [])
 
-    def mouse_mpress(self, sync=[]):
+    def mouse_mpress(self, sync=None):
         return self.sync_manager.sync_and_check(
             self._interactive_method,
             [(EPD(self.mouse_state+2), AtLeast, 2)],
-            sync=sync)
+            sync=sync or [])
 
     def get_map_width(self):
         # 64, 96, 128, 192, 256
@@ -482,19 +480,28 @@ class AppManager:
         lbl_after_chat = Forward()
         self.sync_manager.clear_recv()
 
-        if EUDIf()(Memory(0x640B58, Exactly, prev_text_idx)):
-            EUDJump(lbl_after_chat)
-        EUDEndIf()
-        cur_text_idx = f_dwread_epd(EPD(0x640B58))
+        EUDJumpIf(Memory(0x640B58, Exactly, prev_text_idx), lbl_after_chat)
         i = EUDVariable()
+        cur_text_idx = f_dwread_epd(EPD(0x640B58))
 
-        # read interactions
+        # parse updated lines & sync things
+        # since on_chat may change text, temporary buffer is required
+        i << prev_text_idx
         if EUDIf()(self.is_multiplaying()):
-            i << prev_text_idx
             chat_off = 0x640B60 + 218 * i
             if EUDInfLoop()():
                 EUDBreakIf(i == cur_text_idx)
+
+                # check it is synchronizinng message
                 self.sync_manager.parse_recv(chat_off)
+
+                # if it is superuser's chat, handle it and send buffer
+                if EUDIf()([Memory(0x512684, Exactly, self.su_id),
+                            f_memcmp(chat_off,
+                                     self.su_prefix,
+                                     self.su_prefixlen) == 0]):
+                    self.sync_manager.send_chat(chat_off + self.su_prefixlen)
+                EUDEndIf()
 
                 # search next updated lines
                 if EUDIf()(i == 10):
@@ -505,33 +512,38 @@ class AppManager:
                     chat_off += 218
                 EUDEndIf()
             EUDEndInfLoop()
+
+            # recv chat
+            if EUDIfNot()(Memory(self.sync_manager.recv_chat_buffer,
+                                 Exactly, 0)):
+                self._foreground_app_instance.on_chat(
+                    self.sync_manager.recv_chat_buffer)
+            EUDEndIf()
+        if EUDElse()(): # single play
+            i << prev_text_idx
+            db_gametext = Db(13*218+2)
+            f_repmovsd_epd(EPD(db_gametext), EPD(0x640B60), (13*218+2)//4)
+            chat_off = db_gametext + 218 * i
+            if EUDInfLoop()():
+                EUDBreakIf(i == cur_text_idx)
+                if EUDIf()(f_memcmp(chat_off,
+                                    self.su_prefix,
+                                    self.su_prefixlen) == 0):
+                    self._foreground_app_instance.on_chat(chat_off
+                                                          + self.su_prefixlen)
+                EUDEndIf()
+
+                # search next updated lines
+                if EUDIf()(i == 10):
+                    i << 0
+                    chat_off << db_gametext
+                if EUDElse()():
+                    i += 1
+                    chat_off += 218
+                EUDEndIf()
+            EUDEndInfLoop()
         EUDEndIf()
 
-        # parse updated lines
-        # since on_chat may change text, temporary buffer is required
-        db_gametext = Db(13*218+2)
-        f_repmovsd_epd(EPD(db_gametext), EPD(0x640B60), (13*218+2)//4)
-
-        i << prev_text_idx
-        chat_off = db_gametext + 218 * i
-        if EUDInfLoop()():
-            EUDBreakIf(i == cur_text_idx)
-            if EUDIf()(f_memcmp(chat_off,
-                                self.su_prefix,
-                                self.su_prefixlen) == 0):
-                self._foreground_app_instance.on_chat(chat_off
-                                                      + self.su_prefixlen)
-            EUDEndIf()
-
-            # search next updated lines
-            if EUDIf()(i == 10):
-                i << 0
-                chat_off << db_gametext
-            if EUDElse()():
-                i += 1
-                chat_off += 218
-            EUDEndIf()
-        EUDEndInfLoop()
         prev_text_idx << cur_text_idx
         lbl_after_chat << NextTrigger()
 

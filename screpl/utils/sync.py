@@ -1,9 +1,12 @@
 """Synchronize private memory
 
+Use QueueGameCommand
+(https://github.com/phu54321/vgce/blob/master/docs/Blizzard/Starcraft/packets2.txt#L17)
+
 .. code-block:: c
 
     struct interaction {
-        int signature; // \x14SCR
+        int signature; // \x14SCB
         char encoded_content[76];
     };
 
@@ -29,13 +32,12 @@ class SyncManager:
         self.su_id = su_id
         self.is_multiplaying = is_multiplaying
 
-        # https://github.com/phu54321/vgce/blob/master/docs/Blizzard/Starcraft/packets2.txt#L17
-        self.gc_buffer = Db(b'..\x5C\xFF\x14SCR' + b'.' * 76)
+        # synchronizes binary data
+        self.memgc_buffer = Db(b'..\x5C\xFF\x14SCB' + b'.' * 76)
         self.buffer = EUDArray(_INTERACT_MAX * 2 + 1)
         self.epdaddrs = EPD(self.buffer) + 1
         self.values = EPD(self.buffer) + 1 + _INTERACT_MAX
 
-        # received
         self.recv_buffer = EUDArray(_INTERACT_MAX * 2 + 1)
         self.recv_epdaddrs = EPD(self.recv_buffer) + 1
         self.recv_values = EPD(self.recv_buffer) + 1 + _INTERACT_MAX
@@ -45,6 +47,9 @@ class SyncManager:
         self._send_variables = [EUDVariable() for _ in range(_INTERACT_MAX)]
         self._send_variable_epds = [EUDVariable() for _ in range(_INTERACT_MAX)]
 
+        # synchronizes raw chat data
+        self.chatgc_buffer = Db(b'..\x5C\xFF\x14SCC' + b'.' * 218)
+        self.recv_chat_buffer = Db(b'.' * 218) # null character
 
     @EUDMethod
     def _sync_and_check(self, size, funcptr, epdvals, comptypes, compvals):
@@ -138,8 +143,8 @@ class SyncManager:
 
                 uuencode(self.buffer,
                          4 * (1 + _INTERACT_MAX + size),
-                         EPD(self.gc_buffer) + 2)
-                QueueGameCommand(self.gc_buffer + 2, 82)
+                         EPD(self.memgc_buffer) + 2)
+                QueueGameCommand(self.memgc_buffer + 2, 82)
             EUDEndIf()
 
             trig_finally << NextTrigger()
@@ -189,7 +194,7 @@ class SyncManager:
 
         return v_ret_bool
 
-    def sync_and_check(self, method, condition_pairs, sync=[]):
+    def sync_and_check(self, method, condition_pairs, sync):
         """Send private memory of superuser and check the condition met
 
         Args:
@@ -221,14 +226,15 @@ class SyncManager:
             self._send_variable_epds[len(sync)] << 0
 
         return self._sync_and_check(size, method.funcptr,
-            EPD(EUDArray(epds)), EPD(EUDArray(comptypes)), EPD(EUDArray(values)))
+                                    EPD(EUDArray(epds)),
+                                    EPD(EUDArray(comptypes)),
+                                    EPD(EUDArray(values)))
 
 
     @EUDMethod
     def search_epd(self, epdv):
         trig_comp = Forward()
         trig_comp2 = Forward()
-        epdaddrp = EUDVariable()
 
         SeqCompute([
             (self._search_success, SetTo, 0),
@@ -257,15 +263,25 @@ class SyncManager:
             ])
         EUDEndLoopN()
 
+    def send_chat(self, address):
+        f_strcpy(self.chatgc_buffer + 8, address)
+        QueueGameCommand(self.chatgc_buffer + 2, 82)
+
     def clear_recv(self):
-        self.recv_buffer[0] = 0
+        DoActions([
+            SetMemory(self.recv_buffer, SetTo, 0),
+            SetMemory(self.recv_chat_buffer, SetTo, 0),
+        ])
 
     def parse_recv(self, address):
-        if EUDIf()(Memory(self.recv_buffer, Exactly, 0)):
-            if EUDIf()(f_memcmp(address, Db(b'\x14SCR'), 4) == 0):
-                written = uudecode(address + 4, EPD(self.recv_buffer))
-                f_bwrite(address, 0)
-            EUDEndIf()
+        if EUDIf()([Memory(self.recv_buffer, Exactly, 0),
+                    f_memcmp(address, Db(b'\x14SCB'), 4) == 0]):
+            uudecode(address + 4, EPD(self.recv_buffer))
+            f_bwrite(address, 0)
+        if EUDElseIf()([Memory(self.recv_chat_buffer, Exactly, 0),
+                        f_memcmp(address, Db(b'\x14SCC'), 4) == 0]):
+            f_strcpy(self.recv_chat_buffer, address + 4)
+            f_bwrite(address, 0)
         EUDEndIf()
 
     def log_buffer(self, title, buf):
