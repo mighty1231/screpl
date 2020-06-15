@@ -55,7 +55,8 @@ from . import (
 MACRO_BOMB = 0
 MACRO_OBSTACLE = 1
 MACRO_OBSTACLEDESTRUCT = 2
-MACRO_UNDEFINED = 3
+MACRO_MOVEUNIT = 3
+MACRO_UNDEFINED = 4
 macro_mode = EUDVariable(0)
 
 cur_wait_value = EUDVariable()
@@ -323,6 +324,8 @@ class PatternApp(Application):
                     if EUDElseIf()(g_obstacle_destructpattern.Exactly(OBSTACLE_DESTRUCTPATTERN_REMOVE)):
                         append_action(RemoveUnitAt(All, g_obstacle_unit, chosen_location, g_effectplayer))
                     EUDEndIf()
+                if EUDElseIf()(macro_mode.Exactly(MACRO_MOVEUNIT)):
+                    append_action(MoveUnit(All, "(men)", g_runner_force, 64, chosen_location))
                 EUDEndIf()
             EUDEndIf()
         EUDEndIf()
@@ -349,25 +352,13 @@ class PatternApp(Application):
 
         writer.write_f("\x04Total \x03%D\x04 actions, press \x07'P'\x04 to see detail\n",
             p_action_count[focused_pattern_id])
-        writer.write_f("Mode\x07(M)\x04: ")
-        if EUDIf()(macro_mode == MACRO_BOMB):
-            writer.write(0x11)
-        if EUDElse()():
-            writer.write(0x04)
-        EUDEndIf()
-        writer.write_f("Bomb ")
-        if EUDIf()(macro_mode == MACRO_OBSTACLE):
-            writer.write(0x11)
-        if EUDElse()():
-            writer.write(0x04)
-        EUDEndIf()
-        writer.write_f("Obstacle ")
-        if EUDIf()(macro_mode == MACRO_OBSTACLEDESTRUCT):
-            writer.write(0x11)
-        if EUDElse()():
-            writer.write(0x04)
-        EUDEndIf()
-        writer.write_f("ObstacleDestruct\n")
+        writer.write_f(
+            "Mode\x07(M)\x04: %CBomb %CObstacle %CObstacleDestruct %CMoveUnit\n",
+            EUDTernary(macro_mode == MACRO_BOMB)(0x11)(0x04),
+            EUDTernary(macro_mode == MACRO_OBSTACLE)(0x11)(0x04),
+            EUDTernary(macro_mode == MACRO_OBSTACLEDESTRUCT)(0x11)(0x04),
+            EUDTernary(macro_mode == MACRO_MOVEUNIT)(0x11)(0x04),
+        )
 
         writer.write_f("\x07LClick\x04 with mouse - choose location, "\
             "press \x07'N'\x04 to confirm it and insert actions\n")

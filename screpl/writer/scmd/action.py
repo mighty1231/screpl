@@ -33,6 +33,8 @@ def write_scmd_action_epd(self, epd):
         _write_scmd__KillUnitAt_epd(self, epd)
     if EUDElseIf()(acttype == 25):
         _write_scmd__RemoveUnitAt_epd(self, epd)
+    if EUDElseIf()(acttype == 39):
+        _write_scmd__MoveUnit_epd(self, epd)
     if EUDElse()():
         self.write_f("UNKNOWN_ACTION_TYPE_%D\n", acttype)
     EUDEndIf()
@@ -114,4 +116,20 @@ def _write_scmd__RemoveUnitAt_epd(self, epd):
     self.write_decimal(m.amount)
     self.write_f(", ")
     self.write_location(m.locid1)
+    self.write_f(");\n")
+
+@EUDMethod
+def _write_scmd__MoveUnit_epd(self, epd):
+    # Move Unit("Players", "Unit Name", Unit Amount(#), "Source", "Destination");
+    m = action_epd_offset_map(epd)
+    self.write_f("Move Unit(")
+    self.write_scmd_const(tb_scmd_player, m.player1)
+    self.write_f(", ")
+    self.write_scmd_unit(m.unitid)
+    self.write_f(", ")
+    self.write_decimal(m.amount)
+    self.write_f(", ")
+    self.write_location(m.locid1)
+    self.write_f(", ")
+    self.write_location(m.player2)
     self.write_f(");\n")

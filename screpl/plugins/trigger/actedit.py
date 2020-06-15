@@ -282,8 +282,8 @@ class TrigActionEditorApp(Application):
                 "Chat 'setn(##)' to set the value of focused entry\n"
                 "Chat followings to set value with helper apps\n"
                 "  ActionType(), AllyStatus(), Count(), Modifier(), Order(), "
-                "Player(), Property(), PropState(), Resource(), Score(), "
-                "SwitchAction(), AIScript(), Location(), String(), Switch(), "
+                "Player(), Property(), PropState(), Resource(), Score()\n"
+                "  SwitchAction(), AIScript(), Location(), String(), Switch()"
                 "Unit()\n")
         EUDEndIf()
         writer.write(0)

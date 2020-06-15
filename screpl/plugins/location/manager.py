@@ -169,7 +169,7 @@ class LocationManagerApp(Application):
                 cnt = EUDVariable()
                 cnt << 0
                 for i, layer in enumerate(layers):
-                    if EUDIf()(flag.ExactlyX(1 << i, 1 << i)):
+                    if EUDIfNot()(flag.ExactlyX(1 << i, 1 << i)):
                         if EUDIf()(cnt >= 1):
                             writer.write_f(", ")
                         EUDEndIf()

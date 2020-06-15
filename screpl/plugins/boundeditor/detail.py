@@ -29,6 +29,10 @@ frame = EUDVariable(0)
 
 FRAME_PERIOD = 24
 
+DISP_MAIN = 0
+DISP_MANUAL = 1
+v_display_mode = EUDVariable()
+
 @EUDFunc
 def focus_action_id(new_actionid):
     if EUDIfNot()(new_actionid >= action_count):
@@ -74,17 +78,25 @@ class DetailedActionApp(Application):
         action_count << p_action_count[focused_pattern_id]
         action_id << action_count - 1
         action_array_epd << p_action_array_epd[focused_pattern_id]
+        v_display_mode << DISP_MAIN
 
     def loop(self):
+        hold_ctrl = app_manager.key_holdcounter("LCTRL")
         if EUDIf()(app_manager.key_press('ESC')):
             app_manager.request_destruct()
             EUDReturn()
-        if EUDElseIf()(app_manager.key_press('f7')):
-            focus_action_id(action_id-1)
-        if EUDElseIf()(app_manager.key_press('f8')):
-            focus_action_id(action_id+1)
-        if EUDElseIf()(app_manager.key_press('delete')):
+        if EUDElseIf()(app_manager.key_press("F7", sync=[hold_ctrl])):
+            focus_action_id(action_id - EUDTernary(hold_ctrl)(8)(1))
+        if EUDElseIf()(app_manager.key_press("F8", sync=[hold_ctrl])):
+            focus_action_id(action_id + EUDTernary(hold_ctrl)(8)(1))
+        if EUDElseIf()(app_manager.key_press('DELETE')):
             delete_action()
+        if EUDElseIf()(app_manager.key_down('F1')):
+            v_display_mode << DISP_MANUAL
+            app_manager.request_update()
+        if EUDElseIf()(app_manager.key_up('F1')):
+            v_display_mode << DISP_MAIN
+            app_manager.request_update()
         if EUDElseIf()(app_manager.key_press('E', hold=['LCTRL'])):
             TrigActionEditorApp.set_act_epd(
                 action_array_epd + (32//4)*action_id)
@@ -107,40 +119,49 @@ class DetailedActionApp(Application):
         EUDEndIf()
 
     def print(self, writer):
-        writer.write_f("Pattern %D action editor, "\
-                "press 'ESC' to go back (F7, F8, Delete)\n", focused_pattern_id+1)
+        if EUDIf()(v_display_mode == DISP_MAIN):
+            writer.write_f("Pattern %D action editor, press F1 to get manual\n",
+                           focused_pattern_id+1)
 
-        if EUDIf()(action_id == -1):
-            writer.write(0)
-            EUDReturn()
-        EUDEndIf()
-
-        quot = f_div(action_id, 8)[0]
-        cur = quot * 8
-        pageend = cur + 8
-        until = EUDVariable()
-        if EUDIf()(pageend <= action_count):
-            until << pageend
-        if EUDElse()():
-            until << action_count
-        EUDEndIf()
-
-        # fill contents
-        action_epd = action_array_epd + (32//4) * cur
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= until)
-
-            if EUDIf()(cur == action_id):
-                writer.write(0x11) # orange
-            if EUDElse()():
-                writer.write(0x02) # pale blue
+            if EUDIf()(action_id == -1):
+                writer.write(0)
+                EUDReturn()
             EUDEndIf()
 
-            writer.write_f(" %D: ", cur)
-            writer.write_action_epd(action_epd)
-            writer.write(ord('\n'))
+            quot = f_div(action_id, 8)[0]
+            cur = quot * 8
+            pageend = cur + 8
+            until = EUDVariable()
+            if EUDIf()(pageend <= action_count):
+                until << pageend
+            if EUDElse()():
+                until << action_count
+            EUDEndIf()
 
-            DoActions([cur.AddNumber(1), action_epd.AddNumber(32//4)])
-        EUDEndInfLoop()
+            # fill contents
+            action_epd = action_array_epd + (32//4) * cur
+            if EUDInfLoop()():
+                EUDBreakIf(cur >= until)
+
+                if EUDIf()(cur == action_id):
+                    writer.write(0x11) # orange
+                if EUDElse()():
+                    writer.write(0x02) # pale blue
+                EUDEndIf()
+
+                writer.write_f(" %D: ", cur)
+                writer.write_action_epd(action_epd)
+                writer.write(ord('\n'))
+
+                DoActions([cur.AddNumber(1), action_epd.AddNumber(32//4)])
+            EUDEndInfLoop()
+        if EUDElse()():
+            writer.write_f(
+                "Pattern action editor\n"
+                "Press F7/F8 to move focus\n"
+                "Press F7/F8 with holding CTRL key to move focus at page level\n"
+                "Press CTRL+E to modify the chosen action\n"
+                "Press ESC to get back to pattern editor\n")
+        EUDEndIf()
 
         writer.write(0)
