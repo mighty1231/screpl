@@ -15,7 +15,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout_3">
-    <item row="0" column="0">
+    <item row="0" column="1">
      <widget class="QSplitter" name="splitter_3">
       <property name="orientation">
        <enum>Qt::Horizontal</enum>
@@ -46,14 +46,14 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_2">
+         <widget class="QGroupBox" name="gb_1_1">
           <property name="title">
            <string>Input command log</string>
           </property>
           <property name="flat">
            <bool>true</bool>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
+          <layout class="QVBoxLayout" name="verticalLayout_8">
            <item>
             <widget class="QTextEdit" name="to_cmdlog">
              <property name="acceptRichText">
@@ -65,7 +65,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox_3">
+         <widget class="QGroupBox" name="gb_1_2">
           <property name="title">
            <string>Input command</string>
           </property>
@@ -114,7 +114,7 @@
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
-          <widget class="QGroupBox" name="groupBox_6">
+          <widget class="QGroupBox" name="gb_2_1">
            <property name="title">
             <string>logs from Logger</string>
            </property>
@@ -131,7 +131,7 @@
             </item>
            </layout>
           </widget>
-          <widget class="QGroupBox" name="groupBox">
+          <widget class="QGroupBox" name="gb_2_2">
            <property name="title">
             <string>Profile</string>
            </property>
@@ -168,7 +168,7 @@
             </item>
            </layout>
           </widget>
-          <widget class="QGroupBox" name="groupBox_5">
+          <widget class="QGroupBox" name="gb_2_3">
            <property name="title">
             <string>App Output</string>
            </property>
@@ -217,14 +217,14 @@
           <property name="orientation">
            <enum>Qt::Vertical</enum>
           </property>
-          <widget class="QGroupBox" name="groupBox_7">
+          <widget class="QGroupBox" name="gb_3_1">
            <property name="title">
             <string>Display</string>
            </property>
            <property name="flat">
             <bool>true</bool>
            </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <layout class="QVBoxLayout" name="verticalLayout_7">
             <item>
              <widget class="QTextEdit" name="from_display">
               <property name="readOnly">
@@ -237,14 +237,14 @@
             </item>
            </layout>
           </widget>
-          <widget class="QGroupBox" name="groupBox_9">
+          <widget class="QGroupBox" name="gb_3_2">
            <property name="title">
             <string>Blindmode Display</string>
            </property>
            <property name="flat">
             <bool>true</bool>
            </property>
-           <layout class="QHBoxLayout" name="horizontalLayout_7">
+           <layout class="QVBoxLayout" name="verticalLayout_6">
             <item>
              <widget class="QTextEdit" name="from_blindmodedisplay">
               <property name="readOnly">
@@ -252,6 +252,20 @@
               </property>
               <property name="acceptRichText">
                <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QGroupBox" name="gb_3_3">
+           <property name="title">
+            <string>Application Stack</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <item>
+             <widget class="QListView" name="appstacklistview">
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
               </property>
              </widget>
             </item>

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QLabel>
+#include <QStringListModel>
 
 #include "worker.h"
 
@@ -22,6 +23,7 @@ public:
 
 public slots:
     void updateAppOutput(QString);
+    void updateAppStack(QStringList);
     void updateLoggerLog(QString);
     void updateBlindModeDisplay(QString);
     void updateGameText(QString);
@@ -47,5 +49,7 @@ private:
 
     QLabel *label_proc;
     QLabel *label_repl;
+
+    QStringListModel *appstack_model;
 };
 #endif // MAINWINDOW_H

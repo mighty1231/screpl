@@ -262,11 +262,12 @@ class ApplicationStruct(REPLStruct):
         ('appfields', EUDVArray(12345)),
         ('appmethods', EUDVArray(12345)),
         'cmdtable_epd',
+        'name_epd',
     ]
 
     @staticmethod
     def construct():
-        return ApplicationStruct.initialize_with(0, 0, 0)
+        return ApplicationStruct.initialize_with(0, 0, 0, 0)
 
 class Application(metaclass=_ApplicationMetaclass):
     """Basic structure that defines the way to interact with user"""

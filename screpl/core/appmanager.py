@@ -1,6 +1,7 @@
 from eudplib import *
 
 from screpl.utils.array import create_refarray
+from screpl.utils.conststring import EPDConstString
 from screpl.utils.debug import f_raise_error, f_raise_warning
 from screpl.utils.keycode import get_key_code
 from screpl.utils.pool import DbPool, VarPool
@@ -85,18 +86,20 @@ class AppManager:
         app.allocate(self)
         self._start_application(len(app._fields_),
                                 app._methodarray_,
-                                EPD(app._cmdtable_))
+                                EPD(app._cmdtable_),
+                                EPDConstString(app.__name__))
         if jump:
             EUDJump(self.trig_loop_end)
 
     @EUDMethod
-    def _start_application(self, fieldsize, methods, cmdtable_epd):
+    def _start_application(self, fieldsize, methods, cmdtable_epd, name_epd):
         new_appstruct = self.app_stack.push_and_getref()
 
         if EUDIfNot()(new_appstruct == 0):
             new_appstruct.appfields = self.alloc_variable(fieldsize)
             new_appstruct.appmethods = methods
             new_appstruct.cmdtable_epd = cmdtable_epd
+            new_appstruct.name_epd = name_epd
             self.foreground_appstruct << new_appstruct
 
             self.app_status << _APP_STATUS_INITIALIZE

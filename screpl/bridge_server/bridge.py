@@ -45,12 +45,14 @@ from .blocks import (
     gametext,
     logger,
     profile,
+    appstack,
 )
 from screpl.bridge_server.signature import dead_signature, restore_signature
 import screpl.main as main
 
 # protocol versions
 BRIDGE_PROTOCOL_VER_1 = 0x20200604
+BRIDGE_PROTOCOL_VER_2 = 0x20200616
 
 class BridgeRegion(EUDObject):
     def __init__(self):
@@ -69,6 +71,7 @@ class BridgeRegion(EUDObject):
         self.blocks.append(gametext.GameTextBlock(self))
         self.blocks.append(logger.LoggerBlock(self))
         self.blocks.append(profile.ProfileBlock(self))
+        self.blocks.append(appstack.AppStackBlock(self))
 
         self.buf_command = Db(300)
 
