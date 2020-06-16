@@ -426,6 +426,20 @@ class REPLByteRW:
          - %S: string with ptr
          - %E: string with epd
          - %C: single character
+         - %:{funcname};: function call with given arguments
+
+        For example::
+
+            writer.write_f("Val%D - %:strn;...", 10, (0x57EEEB, 5))
+
+        is same to::
+
+            writer.write_strepd(EPDConstString("Val"))
+            writer.write_decimal(10)
+            writer.write_strepd(EPDConstString(" - "))
+            writer.write_strn(0x57EEEB, 5)
+            writer.write_strepd(EPDConstString("..."))
+
 
         Write %% to represent %
         '''
@@ -518,6 +532,11 @@ class REPLByteRW:
                 else:
                     items.append(('C', curarg))
                 argidx += 1
+            elif fmt[pos+1] == ':':
+                idx = fmt[pos+1:].index(';')
+                items.append(('mtd', (fmt[pos+2:pos+1+idx], curarg)))
+                pos += idx
+                argidx += 1
             else:
                 print(fmt[pos:])
                 raise RuntimeError("Unable to parse {}".format(fmt))
@@ -561,5 +580,8 @@ class REPLByteRW:
                 self.write_strepd(arg)
             elif fm == 'C':
                 self.write(arg)
+            elif fm == 'mtd':
+                funcname, arg = arg
+                getattr(self, f'write_{funcname}')(*arg)
             else:
                 func_matches[fm](arg)

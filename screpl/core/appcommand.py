@@ -6,9 +6,8 @@ from eudplib.core.eudstruct.vararray import EUDVArrayData
 from eudplib.core.eudfunc.eudfptr import createIndirectCaller
 
 from screpl.encoder.encoder import ArgEncoderPtr, read_name, _read_until_delimiter
-from screpl.utils.byterw import REPLByteRW
+from screpl.utils.debug import f_epdsprintf
 from screpl.utils.referencetable import search_table
-from screpl.utils.conststring import EPDConstString
 from screpl.utils.string import f_strcmp_ptrepd
 
 _MAXARGCNT = 8
@@ -24,8 +23,14 @@ _encode_success = EUDVariable()
 
 AppCommandPtr = EUDFuncPtr(0, 0)
 
-def run_app_command(manager, txtptr):
+_logbuf_epd = EUDVariable(0)
+
+def run_app_command(manager, txtptr, logbuf_epd=None):
     _offset << txtptr
+    if logbuf_epd:
+        _logbuf_epd << logbuf_epd
+    else:
+        _logbuf_epd << 0
 
     # get current AppCommand table
     _run_app_command(manager.foreground_appstruct.cmdtable_epd)
@@ -49,12 +54,24 @@ def _run_app_command(cmdtable_epd):
             func.setFunc(AppCommandPtr.cast(ret))
             func()
         if EUDElse()():
-            logger.Logger.format(
-                "run_app_command(): Failed to search function %E",
-                EPD(funcname))
+            if EUDIf()(_logbuf_epd == 0):
+                logger.Logger.format(
+                    "run_app_command(): failed to search function %E",
+                    EPD(funcname))
+            if EUDElse()():
+                f_epdsprintf(
+                    _logbuf_epd,
+                    "run_app_command(): failed to search function %E",
+                    EPD(funcname))
+            EUDEndIf()
         EUDEndIf()
     if EUDElse()():
-        logger.Logger.format("run_app_command(): Failed to read command")
+        if EUDIf()(_logbuf_epd == 0):
+            logger.Logger.format("run_app_command(): failed to read command")
+        if EUDElse()():
+            f_epdsprintf(_logbuf_epd,
+                         "run_app_command(): failed to read command")
+        EUDEndIf()
     EUDEndIf()
 
 @EUDFunc
@@ -66,6 +83,13 @@ def encode_arguments():
     _encode_success << 1
     if EUDIf()(_argn == 0):
         _encode_success << _read_until_delimiter(ord(' '), ord(')'))
+        if EUDIfNot()(_encode_success):
+            if EUDIf()(_logbuf_epd == 0):
+                logger.Logger.format("SyntaxError")
+            if EUDElse()():
+                f_epdsprintf(_logbuf_epd, "SyntaxError")
+            EUDEndIf()
+        EUDEndIf()
     if EUDElse()():
         delim << ord(',')
         if EUDInfLoop()():
@@ -78,14 +102,17 @@ def encode_arguments():
                     EPD(_offset.getValueAddr()), \
                     EPD(_arg_storage)+i) == 1):
                 _encode_success << 0 # failed to encode argument
-                writer = logger.Logger.get_writer()
-                writer.write_strepd(EPDConstString(\
-                        '\x06Syntax Error: during encoding argument ['))
-                writer.write_decimal(i)
-                writer.write_strepd(EPDConstString('] \x16'))
-                writer.write_strn(_offset, 5)
-                writer.write_strepd(EPDConstString('...'))
-                writer.write(0)
+
+                if EUDIf()(_logbuf_epd == 0):
+                    logger.Logger.format(
+                        "SyntaxError: during encoding argument[%D] \x16%:strn;...",
+                        i, (_offset, 5))
+                if EUDElse()():
+                    f_epdsprintf(
+                        _logbuf_epd,
+                        "SyntaxError: during encoding argument[%D] \x16%:strn;...",
+                        i, (_offset, 5))
+                EUDEndIf()
                 EUDBreak()
             EUDEndIf()
             i += 1

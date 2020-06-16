@@ -33,15 +33,13 @@ class REPL(application.Application):
     @staticmethod
     def get_output_writer():
         """returns writer object that supports to write output"""
-        REPL._output_writer.seekepd(_repl_output_epd_ptr)
+        REPL._output_writer.seekepd(_repl_output_epd_ptr-_LINE_SIZE//4)
         return REPL._output_writer
 
     def on_chat(self, address):
         REPL._output_writer.seekepd(_repl_input_epd_ptr)
         REPL._output_writer.write_str(address)
         REPL._output_writer.write(0)
-
-        application.Application.on_chat(self, address)
 
         quot, mod = f_div(_repl_index, _PAGE_NUMLINES // 2)
         _repl_top_index << _repl_index - mod
@@ -51,6 +49,11 @@ class REPL(application.Application):
             _repl_output_epd_ptr.AddNumber(_LINE_SIZE // 4),
             _repl_index.AddNumber(1)
         ])
+
+        self.run_command(
+            address,
+            logbuf_epd=_repl_output_epd_ptr - (_LINE_SIZE // 4))
+
         main.get_app_manager().request_update()
 
     def loop(self):

@@ -222,10 +222,10 @@ class ApplicationInstance:
         return (self._manager.foreground_appstruct.appfields._epd
                 + (18*attrid + 348//4))
 
-    def run_command(self, address):
+    def run_command(self, address, logbuf_epd=None):
         if self._absolute:
             raise ValueError("Running command absolutely is not supported")
-        appcommand.run_app_command(self._manager, address)
+        appcommand.run_app_command(self._manager, address, logbuf_epd)
 
     def __getattr__(self, name):
         if name in self._cls._commands_:

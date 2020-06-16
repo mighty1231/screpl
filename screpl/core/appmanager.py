@@ -473,10 +473,14 @@ class AppManager:
             db_gametext = Db(13*218+2)
             f_repmovsd_epd(EPD(db_gametext), EPD(0x640B60), (13*218+2)//4)
             chat_off = db_gametext + 218 * last_text_idx
-            from screpl.apps.logger import Logger
-            Logger.format("line %D %S", last_text_idx, chat_off)
             if EUDInfLoop()():
                 EUDBreakIf(last_text_idx == cur_text_idx)
+
+                DoActions(last_text_idx.AddNumber(1))
+                Trigger(
+                    conditions=[last_text_idx == 11],
+                    actions=[last_text_idx.SetNumber(0)],
+                )
                 if EUDIf()(f_memcmp(chat_off,
                                     self.su_prefix,
                                     self.su_prefixlen) == 0):
@@ -485,13 +489,11 @@ class AppManager:
                 EUDEndIf()
 
                 # search next updated lines
-                if EUDIf()(last_text_idx == 10):
-                    last_text_idx << 0
-                    chat_off << db_gametext
-                if EUDElse()():
-                    last_text_idx += 1
-                    chat_off += 218
-                EUDEndIf()
+                DoActions(chat_off.AddNumber(218))
+                Trigger(
+                    conditions=[last_text_idx == 0],
+                    actions=[chat_off.SetNumber(db_gametext)],
+                )
             EUDEndInfLoop()
         EUDEndIf()
 
