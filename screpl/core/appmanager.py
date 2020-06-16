@@ -410,6 +410,8 @@ class AppManager:
         return self.su_id
 
     def run(self, writer):
+        from screpl.main import get_bridge_region
+
         # only super user may interact with apps
         if EUDIf()(Memory(0x512684, Exactly, self.su_id)):
             self._update_mouse_state()
@@ -431,6 +433,26 @@ class AppManager:
         last_text_idx = EUDVariable(initval=10)
         lbl_after_chat = Forward()
         self.sync_manager.clear_recv()
+
+        # accept commands from bridge
+        bridge = get_bridge_region()
+        if bridge:
+            buf_command = bridge.buf_command
+            if EUDIf()([Memory(0x512684, Exactly, self.su_id),
+                        Memory(buf_command, AtLeast, 1)]):
+
+                if EUDIf()(self.is_multiplaying()):
+                    self.sync_manager.send_chat(buf_command)
+                    DoActions(SetMemory(buf_command, SetTo, 0))
+                if EUDElse()():
+                    temp = Db(300)
+                    f_repmovsd_epd(EPD(temp),
+                                   EPD(buf_command),
+                                   300 // 4)
+                    DoActions(SetMemory(buf_command, SetTo, 0))
+                    self._foreground_app_instance.on_chat(temp)
+                EUDEndIf()
+            EUDEndIf()
 
         EUDJumpIf(Memory(0x640B58, Exactly, last_text_idx), lbl_after_chat)
         cur_text_idx = f_dwread_epd(EPD(0x640B58))

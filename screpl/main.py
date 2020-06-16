@@ -46,6 +46,9 @@ def is_bridge_mode():
     """Returns bool that indicates bridge is active"""
     return _bridge_region is not None
 
+def get_bridge_region():
+    return _bridge_region
+
 def is_blind_mode():
     """Returns bool that indicates blind mode is active"""
     if is_bridge_mode():
