@@ -23,11 +23,11 @@ class _REPLStructMetaclass(type):
     def __new__(mcl, name, bases, dct):
         cls = super().__new__(mcl, name, bases, dct)
         fields = {}
-        for index, member in enumerate(dct['fields']):
-            if isinstance(member, str):
-                name, ty = member, None
+        for index, field in enumerate(dct['fields']):
+            if isinstance(field, str):
+                name, ty = field, None
             else:
-                name, ty = member
+                name, ty = field
                 if ty is selftype:
                     ty = cls
             assert name not in ['_epd', '_from', '_value'], \

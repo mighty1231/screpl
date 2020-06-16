@@ -428,21 +428,19 @@ class AppManager:
         self._update_app_stack()
 
         # process all new chats
-        prev_text_idx = EUDVariable(initval=10)
+        last_text_idx = EUDVariable(initval=10)
         lbl_after_chat = Forward()
         self.sync_manager.clear_recv()
 
-        EUDJumpIf(Memory(0x640B58, Exactly, prev_text_idx), lbl_after_chat)
-        i = EUDVariable()
+        EUDJumpIf(Memory(0x640B58, Exactly, last_text_idx), lbl_after_chat)
         cur_text_idx = f_dwread_epd(EPD(0x640B58))
 
         # parse updated lines & sync things
         # since on_chat may change text, temporary buffer is required
-        i << prev_text_idx
         if EUDIf()(self.is_multiplaying()):
-            chat_off = 0x640B60 + 218 * i
+            chat_off = 0x640B60 + 218 * last_text_idx
             if EUDInfLoop()():
-                EUDBreakIf(i == cur_text_idx)
+                EUDBreakIf(last_text_idx == cur_text_idx)
 
                 # check it is synchronizinng message
                 self.sync_manager.parse_recv(chat_off)
@@ -456,11 +454,11 @@ class AppManager:
                 EUDEndIf()
 
                 # search next updated lines
-                if EUDIf()(i == 10):
-                    i << 0
+                if EUDIf()(last_text_idx == 10):
+                    last_text_idx << 0
                     chat_off << 0x640B60
                 if EUDElse()():
-                    i += 1
+                    last_text_idx += 1
                     chat_off += 218
                 EUDEndIf()
             EUDEndInfLoop()
@@ -474,9 +472,11 @@ class AppManager:
         if EUDElse()(): # single play
             db_gametext = Db(13*218+2)
             f_repmovsd_epd(EPD(db_gametext), EPD(0x640B60), (13*218+2)//4)
-            chat_off = db_gametext + 218 * i
+            chat_off = db_gametext + 218 * last_text_idx
+            from screpl.apps.logger import Logger
+            Logger.format("line %D %S", last_text_idx, chat_off)
             if EUDInfLoop()():
-                EUDBreakIf(i == cur_text_idx)
+                EUDBreakIf(last_text_idx == cur_text_idx)
                 if EUDIf()(f_memcmp(chat_off,
                                     self.su_prefix,
                                     self.su_prefixlen) == 0):
@@ -485,11 +485,11 @@ class AppManager:
                 EUDEndIf()
 
                 # search next updated lines
-                if EUDIf()(i == 10):
-                    i << 0
+                if EUDIf()(last_text_idx == 10):
+                    last_text_idx << 0
                     chat_off << db_gametext
                 if EUDElse()():
-                    i += 1
+                    last_text_idx += 1
                     chat_off += 218
                 EUDEndIf()
             EUDEndInfLoop()
@@ -501,8 +501,6 @@ class AppManager:
         self._foreground_app_instance.loop()
 
         self.trig_loop_end << NextTrigger()
-        prev_text_idx << cur_text_idx
-
         if EUDIf()([self.app_status == 0, self.update >= 1]):
             # evaluate display buffer
             writer.seekepd(EPD(self.display_buffer))
@@ -510,7 +508,7 @@ class AppManager:
             # print() uses main writer internally
             self._foreground_app_instance.print()
             self.update << 0
-        if EUDElse()():
+        if EUDElseIfNot()(self.app_status == _APP_STATUS_NORMAL):
             writer.seekepd(EPD(self.display_buffer))
             if EUDIf()(self.app_status == _APP_STATUS_DESTRUCTING):
                 writer.write_f("Destructing App...")
