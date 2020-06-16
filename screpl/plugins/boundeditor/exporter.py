@@ -169,7 +169,6 @@ class ExporterApp(Application):
 
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         EUDEndIf()
 
         if EUDIf()(mode == MODE_CONFIG):

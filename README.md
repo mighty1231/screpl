@@ -13,7 +13,6 @@ class MyApp(Application):
     def loop(self):
         if EUDIf()(get_app_manager().key_press("ESC")):
             get_app_manager().request_destruct()
-            EUDReturn()
         EUDEndIf()
         get_app_manager().request_update()
 

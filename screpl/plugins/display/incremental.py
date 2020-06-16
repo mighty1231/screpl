@@ -26,7 +26,6 @@ class IncrementalDisplayApp(Application):
         global db_char, v_num_lines, v_count
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         EUDEndIf()
         app_manager.request_update()
 

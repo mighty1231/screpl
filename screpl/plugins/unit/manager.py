@@ -91,7 +91,6 @@ class UnitManagerApp(Application):
 
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_down("F1")):
             v_display_mode << DISP_MANUAL
             app_manager.request_update()

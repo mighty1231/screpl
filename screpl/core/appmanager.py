@@ -1,16 +1,21 @@
 from eudplib import *
 
-from screpl.utils.pool import DbPool, VarPool
+from screpl.utils.array import create_refarray
 from screpl.utils.debug import f_raise_error, f_raise_warning
 from screpl.utils.keycode import get_key_code
+from screpl.utils.pool import DbPool, VarPool
 from screpl.utils.sync import SyncManager
 
 _KEYPRESS_DELAY = 8
 _APP_MAX_COUNT = 30
 
+_APP_STATUS_NORMAL = 0
+_APP_STATUS_INITIALIZE = 1
+_APP_STATUS_DESTRUCTING = 2
+
 class AppManager:
     def __init__(self, su_id, su_prefix, su_prefixlen):
-        from .application import ApplicationInstance
+        from .application import ApplicationInstance, ApplicationStruct
 
         self.su_id = su_id
         self.su_prefix = su_prefix
@@ -22,20 +27,12 @@ class AppManager:
 
         # variables that support several apps
         self._foreground_app_instance = ApplicationInstance(self)
-        self.app_cnt = EUDVariable(0)
-        self.cur_app_id = EUDVariable(-1)
-        self.app_method_stack = EUDArray(_APP_MAX_COUNT)
-        self.app_cmdtab_stack = EUDArray(_APP_MAX_COUNT)
-        self.app_member_stack = EUDArray(_APP_MAX_COUNT)
-        if EUDExecuteOnce()():
-            self.cur_methods = EUDVArray(12345)(_from=EUDVariable())
-            self.cur_members = EUDVArray(12345)(_from=EUDVariable())
-        EUDEndExecuteOnce()
-        self.cur_cmdtable_epd = EUDVariable()
-
-        # related to life cycle of app
-        self.is_starting_app = EUDVariable(0)
-        self.is_terminating_app = EUDVariable(0)
+        app_refarray = create_refarray(ApplicationStruct,
+                                       ApplicationStruct.construct)
+        self.app_stack = app_refarray.construct(_APP_MAX_COUNT)
+        self.app_status = EUDVariable(_APP_STATUS_NORMAL)
+        self.foreground_appstruct = ApplicationStruct.construct()
+        self.trig_loop_end = Forward()
 
         # text ui
         self.display_buffer = Db(4000)
@@ -76,7 +73,7 @@ class AppManager:
     def get_foreground_app_instance(self):
         return self._foreground_app_instance
 
-    def start_application(self, app):
+    def start_application(self, app, jump=True):
         """Queue to start app
 
         It just records that the app should start. Actual start of the app is
@@ -89,74 +86,33 @@ class AppManager:
         self._start_application(len(app._fields_),
                                 app._methodarray_,
                                 EPD(app._cmdtable_))
+        if jump:
+            EUDJump(self.trig_loop_end)
 
     @EUDMethod
-    def _start_application(self, fieldsize, methods, table_epd):
-        if EUDIfNot()(self.is_terminating_app == 0):
-            f_raise_error("Conflict: start_application and request_destruct")
-        EUDEndIf()
+    def _start_application(self, fieldsize, methods, cmdtable_epd):
+        new_appstruct = self.app_stack.push_and_getref()
 
-        if EUDIf()(self.app_cnt < _APP_MAX_COUNT):
-            self.app_member_stack[self.app_cnt] = self.alloc_variable(fieldsize)
-            self.app_method_stack[self.app_cnt] = methods
-            self.app_cmdtab_stack[self.app_cnt] = table_epd
-            self.app_cnt += 1
+        if EUDIfNot()(new_appstruct == 0):
+            new_appstruct.appfields = self.alloc_variable(fieldsize)
+            new_appstruct.appmethods = methods
+            new_appstruct.cmdtable_epd = cmdtable_epd
+            self.foreground_appstruct << new_appstruct
 
-            self.is_starting_app << 1
+            self.app_status << _APP_STATUS_INITIALIZE
         if EUDElse()():
             f_raise_warning("APP COUNT reached MAX, No more spaces")
         EUDEndIf()
 
     def _update_app_stack(self):
-        # Terminate one
-        if EUDIfNot()(self.is_terminating_app == 0):
-            if EUDIf()(self.app_cnt == 1):
-                f_raise_error("FATAL ERROR: Excessive TerminateApplication")
-            EUDEndIf()
-
-            self._foreground_app_instance.on_destruct()
-            self.free_variable(self.cur_members)
-
-            self.app_cnt -= 1
-            self.cur_app_id << self.app_cnt - 1
-            members    = self.app_member_stack[self.cur_app_id]
-            methods    = self.app_method_stack[self.cur_app_id]
-            table_epd  = self.app_cmdtab_stack[self.cur_app_id]
-
-            self.cur_members      << members
-            self.cur_members._epd << EPD(members)
-            self.cur_methods      << methods
-            self.cur_methods._epd << EPD(methods)
-            self.cur_cmdtable_epd << table_epd
-
+        if EUDIf()(self.app_status == _APP_STATUS_DESTRUCTING):
             self._foreground_app_instance.on_resume()
-
-            self.is_terminating_app << 0
+            self.request_update()
+        if EUDElseIf()(self.app_status == _APP_STATUS_INITIALIZE):
+            self._foreground_app_instance.on_init()
+            self.request_update()
         EUDEndIf()
-
-        # Initialize one or more
-        if EUDIfNot()(self.is_starting_app == 0):
-            if EUDInfLoop()():
-                self.cur_app_id += 1
-                members    = self.app_member_stack[self.cur_app_id]
-                methods    = self.app_method_stack[self.cur_app_id]
-                table_epd  = self.app_cmdtab_stack[self.cur_app_id]
-
-                self.cur_members      << members
-                self.cur_members._epd << EPD(members)
-                self.cur_methods      << methods
-                self.cur_methods._epd << EPD(methods)
-                self.cur_cmdtable_epd << table_epd
-
-                self._foreground_app_instance.on_init()
-
-                EUDBreakIf(self.cur_app_id >= self.app_cnt - 1)
-            EUDEndInfLoop()
-
-            self.is_starting_app << 0
-        EUDEndIf()
-
-        self.request_update()
+        self.app_status << _APP_STATUS_NORMAL
 
     def push_current_allocating_method(self, method):
         if method.interactive:
@@ -406,17 +362,16 @@ class AppManager:
         """
         self.update << 1
 
+    @EUDMethod
     def request_destruct(self):
-        """Request destruct of the application self, on foreground
+        """Request destruct of the application self, on foreground"""
+        self.app_status << _APP_STATUS_DESTRUCTING
+        self._foreground_app_instance.on_destruct()
+        self.free_variable(self.foreground_appstruct.appfields)
 
-        This should be called under AppMethod or AppCommand. When a single
-        app requested start_application, destruction should not be requested
-        at the same frame.
-        """
-        if EUDIfNot()(self.is_starting_app == 0):
-            f_raise_error("Conflict: start_application and request_destruct")
-        EUDEndIf()
-        self.is_terminating_app << 1
+        self.app_stack.pop()
+        self.foreground_appstruct << self.app_stack.at(self.app_stack.size-1)
+        EUDJump(self.trig_loop_end)
 
     @EUDMethod
     def send_app_output_to_bridge(self, src_buffer, size):
@@ -470,10 +425,7 @@ class AppManager:
                 EUDEndIf()
 
         # update current application
-        if EUDIfNot()([self.is_terminating_app == 0,
-                       self.is_starting_app == 0]):
-            self._update_app_stack()
-        EUDEndIf()
+        self._update_app_stack()
 
         # process all new chats
         prev_text_idx = EUDVariable(initval=10)
@@ -520,7 +472,6 @@ class AppManager:
                     self.sync_manager.recv_chat_buffer)
             EUDEndIf()
         if EUDElse()(): # single play
-            i << prev_text_idx
             db_gametext = Db(13*218+2)
             f_repmovsd_epd(EPD(db_gametext), EPD(0x640B60), (13*218+2)//4)
             chat_off = db_gametext + 218 * i
@@ -544,17 +495,27 @@ class AppManager:
             EUDEndInfLoop()
         EUDEndIf()
 
-        prev_text_idx << cur_text_idx
         lbl_after_chat << NextTrigger()
 
         # loop
         self._foreground_app_instance.loop()
 
-        # evaluate display buffer
-        if EUDIfNot()(self.update == 0):
+        self.trig_loop_end << NextTrigger()
+        prev_text_idx << cur_text_idx
+
+        if EUDIf()([self.app_status == 0, self.update >= 1]):
+            # evaluate display buffer
             writer.seekepd(EPD(self.display_buffer))
 
             # print() uses main writer internally
             self._foreground_app_instance.print()
             self.update << 0
+        if EUDElse()():
+            writer.seekepd(EPD(self.display_buffer))
+            if EUDIf()(self.app_status == _APP_STATUS_DESTRUCTING):
+                writer.write_f("Destructing App...")
+            if EUDElse()():
+                writer.write_f("Starting App...")
+            EUDEndIf()
+            writer.write(0)
         EUDEndIf()

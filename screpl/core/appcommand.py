@@ -28,7 +28,7 @@ def run_app_command(manager, txtptr):
     _offset << txtptr
 
     # get current AppCommand table
-    _run_app_command(manager.cur_cmdtable_epd)
+    _run_app_command(manager.foreground_appstruct.cmdtable_epd)
 
 @EUDFunc
 def _run_app_command(cmdtable_epd):

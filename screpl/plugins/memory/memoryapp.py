@@ -41,7 +41,6 @@ class MemoryApp(Application):
     def loop(self):
         if EUDIf()(manager.key_press("ESC")):
             manager.request_destruct()
-            EUDReturn()
         EUDEndIf()
         if EUDIfNot()(self.autorefresh == 0):
             manager.request_update()

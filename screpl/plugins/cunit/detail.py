@@ -47,7 +47,6 @@ class CUnitDetailApp(Application):
         hold_ctrl = app_manager.key_holdcounter("LCTRL")
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press("F7", sync=[hold_ctrl])):
             self.focus_mem_id(focused_memid - EUDTernary(hold_ctrl)(8)(1))
         if EUDElseIf()(app_manager.key_press("F8", sync=[hold_ctrl])):

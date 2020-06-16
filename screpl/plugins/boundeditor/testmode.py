@@ -53,7 +53,6 @@ class TestPatternApp(Application):
         global timer, pattern_id, next_timer, v_turbomode
         if EUDIf()(app_manager.key_press('ESC')):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press('R')):
             DoActions([
                 timer.SetNumber(0),

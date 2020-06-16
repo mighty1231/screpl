@@ -266,7 +266,6 @@ class TriggerEditorApp(Application):
         hold_ctrl = app_manager.key_holdcounter("LCTRL")
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press("F7", sync=[hold_ctrl])):
             self.update_index(index - EUDTernary(hold_ctrl)
                                                 (ENTRY_COUNT_PER_PAGE)

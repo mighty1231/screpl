@@ -124,7 +124,6 @@ class ReadStructApp(Application):
 
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         EUDEndIf()
 
         if EUDIf()(v_state == STATE_CONFIG):

@@ -232,7 +232,6 @@ class PatternApp(Application):
 
         if EUDIf()(app_manager.key_press('ESC')):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press('Q')):
             focus_pattern_id(0)
         if EUDElseIf()(app_manager.key_press('W')):

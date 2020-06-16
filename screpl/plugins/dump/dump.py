@@ -50,7 +50,6 @@ class DumpApp(Application):
 
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         EUDEndIf()
 
         new_written = app_manager.send_app_output_to_bridge(storage + written, remaining_bytes)

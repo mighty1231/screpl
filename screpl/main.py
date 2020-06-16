@@ -253,7 +253,7 @@ def run():
 
     if EUDExecuteOnce()():
         # REPL is the application on the base
-        _manager.start_application(repl.REPL)
+        _manager.start_application(repl.REPL, jump=False)
     EUDEndExecuteOnce()
 
     if EUDIfNot()(_trigger_timer.Exactly(-1)):

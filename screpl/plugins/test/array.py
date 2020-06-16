@@ -14,7 +14,6 @@ class REPLArrayTestApp(Application):
     def loop(self):
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         EUDEndIf()
         app_manager.request_update()
 

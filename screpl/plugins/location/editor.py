@@ -182,7 +182,6 @@ class LocationEditorApp(Application):
 
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press(keymap["editor"]["change_grid_mode"])):
             cur_grid_mode += 1
             Trigger(

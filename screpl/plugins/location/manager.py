@@ -80,7 +80,6 @@ class LocationManagerApp(Application):
         hold_ctrl = app_manager.key_holdcounter("LCTRL")
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press("F7", sync=[hold_ctrl])):
             self.set_location(location - EUDTernary(hold_ctrl)(8)(1))
         if EUDElseIf()(app_manager.key_press("F8", sync=[hold_ctrl])):
@@ -88,7 +87,6 @@ class LocationManagerApp(Application):
         if EUDElseIf()(app_manager.key_press(keymap["manager"]["open_editor"])):
             LocationEditorApp.set_target(location)
             app_manager.start_application(LocationEditorApp)
-            EUDReturn()
         EUDEndIf()
 
         # draw location with "Scanner Sweep"

@@ -2,6 +2,7 @@ from eudplib import *
 
 from screpl.utils.conststring import EPDConstString
 from screpl.utils.referencetable import ReferenceTable
+from screpl.utils.struct import REPLStruct
 
 from . import appcommand
 from . import appmethod
@@ -56,10 +57,10 @@ class _ApplicationMetaclass(type):
     """
     apps = []
     def __init__(cls, name, bases, dct):
-        """ Fill methods, commands, members """
+        """ Fill methods, commands, fields """
         super().__init__(name, bases, dct)
 
-        # build methods and members, basically from parent class
+        # build methods and fields, basically from parent class
         pcls = cls.__mro__[1]
         if pcls == object:
             methods = _IndexPair()
@@ -142,7 +143,7 @@ class _ApplicationMetaclass(type):
         _ApplicationMetaclass.apps.append(cls)
 
 class ApplicationInstance:
-    """Mimic object for application instance.
+    """Class to handle application on python side
 
     ApplicationInstance is a pure python object to manage attributes of
     Application instance, which is on the foreground of application stack,
@@ -198,8 +199,8 @@ class ApplicationInstance:
             self._cls = Application
             self._absolute = False
 
-    def get_reference_epd(self, member):
-        """Returns address for current foreground app instance member
+    def get_reference_epd(self, field):
+        """Returns address for current foreground app instance field
 
         For example::
 
@@ -217,8 +218,8 @@ class ApplicationInstance:
 
         Traditional EUDVariable can be referenced as EPD(var.getValueAddr())
         """
-        attrid, _ = self._cls._fields_[member]
-        return (self._manager.cur_members._epd
+        attrid, _ = self._cls._fields_[field]
+        return (self._manager.foreground_appstruct.appfields._epd
                 + (18*attrid + 348//4))
 
     def run_command(self, address):
@@ -237,7 +238,7 @@ class ApplicationInstance:
                 return v.applyAbsolute()
         elif name in self._cls._fields_:
             attrid, attrtype = self._cls._fields_[name]
-            attr = self._manager.cur_members.get(attrid)
+            attr = self._manager.foreground_appstruct.appfields.get(attrid)
             if attrtype:
                 return attrtype.cast(attr)
             else:
@@ -250,10 +251,22 @@ class ApplicationInstance:
             super().__setattr__(name, value)
         elif name in self._cls._fields_:
             attrid, _ = self._cls._fields_[name]
-            self._manager.cur_members.set(attrid, value)
+            self._manager.foreground_appstruct.appfields.set(attrid, value)
         else:
             raise AttributeError("Application '%s' has no attribute '%s'"
                                  % (self._cls, name))
+
+class ApplicationStruct(REPLStruct):
+    """Class to handle application on eudplib side"""
+    fields = [
+        ('appfields', EUDVArray(12345)),
+        ('appmethods', EUDVArray(12345)),
+        'cmdtable_epd',
+    ]
+
+    @staticmethod
+    def construct():
+        return ApplicationStruct.initialize_with(0, 0, 0)
 
 class Application(metaclass=_ApplicationMetaclass):
     """Basic structure that defines the way to interact with user"""
@@ -319,7 +332,7 @@ class Application(metaclass=_ApplicationMetaclass):
             if cls != Application:
                 parent_cls = cls.__mro__[1]
                 assert issubclass(parent_cls, Application)
-                parent_cls.allocate(manager) # pylint: disable=no-member
+                parent_cls.allocate(manager) # pylint: disable=no-field
 
             # allocate methods
             methodarray = []

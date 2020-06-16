@@ -69,7 +69,6 @@ class CondCheckApp(Application):
     def loop(self):
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press("F7")):
             _set_focus(v_focus-1)
         if EUDElseIf()(app_manager.key_press("F8")):

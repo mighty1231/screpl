@@ -171,7 +171,8 @@ class AppMethodN:
 
     def apply(self, manager):
         assert self.status in ['initialized', 'allocated'], self
-        return self.funcptr_cls.cast(manager.cur_methods[self.index])
+        method = manager.foreground_appstruct.appmethods[self.index]
+        return self.funcptr_cls.cast(method)
 
     def __call__(self, instance, *args, **kwargs):
         """Direct call method

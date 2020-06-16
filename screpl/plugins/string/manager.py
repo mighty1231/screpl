@@ -58,7 +58,6 @@ class StringManagerApp(Application):
     def loop(self):
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press("F7")):
             _set_string_id(cur_string_id - 1)
         if EUDElseIf()(app_manager.key_press("F8")):

@@ -322,3 +322,204 @@ class REPLArray(struct.REPLStruct):
             EUDPopBlock(blockname)[1] is self,
             'arrayloop mismatch'
         )
+
+@cachedfunc
+def create_refarray(cls, empty_constructor):
+    """Create a reference array class"""
+    assert issubclass(cls, struct.REPLStruct)
+
+    class _(struct.REPLStruct):
+        fields = [
+            'max_size',
+            'size',
+            'contents', # EPD(EUDArray())
+            'end'
+        ]
+
+        @staticmethod
+        def construct(max_size, initvals=None):
+            if not initvals:
+                initvals = []
+            size = len(initvals)
+            values = initvals + [empty_constructor()
+                                 for _ in range(max_size - size)]
+            contents = EPD(EUDArray(values))
+
+            return _.initialize_with(max_size, size, contents,
+                                             contents + size)
+
+        @EUDTypedMethod([None], [cls])
+        def at(self, index):
+            if EUDIf()(index >= self.size):
+                debug.f_raise_error("IndexError: array index out of range")
+            EUDEndIf()
+            return f_dwread_epd(self.contents + index)
+
+        @EUDTypedMethod([], [cls])
+        def push_and_getref(self):
+            size = self.size
+            end = self.end
+            if EUDIf()(size == self.max_size):
+                debug.f_raise_warning(
+                    "BufferOverflowError: array size exceeds max_size")
+                EUDReturn(0)
+            EUDEndIf()
+
+            self.end = end + 1
+            self.size = size + 1
+
+            EUDReturn(f_dwread_epd(end))
+
+        @EUDTypedMethod([], [cls])
+        def pop(self):
+            """Removes and returns item at last"""
+            end = self.end
+            size = self.size
+            if EUDIf()(size == 0):
+                debug.f_raise_error("IndexError: pop from empty array")
+            EUDEndIf()
+
+            end -= 1
+            ret = f_dwread_epd(end)
+            self.end = end
+            self.size = size-1
+            return ret
+
+        @EUDTypedMethod([None], [cls])
+        def insert_and_getref(self, index):
+            """Inserts item on index
+
+            ====== ===== ======= ======= === ========= ======== ======
+            insert index index+1 index+2 ... size-1    size     size+1
+            ------ ----- ------- ------- --- --------- -------- ------
+            before v_i   v_(i+1) v_(i+2) ... v_(s-1)   (end)
+            after  value v_i     v_(i+1) ... v_(s-2)   v_(s-1)  (end)
+            ====== ===== ======= ======= === ========= ======== ======
+            """
+            contents = self.contents
+            size = self.size
+            end = self.end
+
+            if EUDIf()(size == self.max_size):
+                debug.f_raise_warning(
+                    "BufferOverflowError: array size exceeds max_size")
+                EUDReturn(0)
+            EUDEndIf()
+            if EUDIfNot()(index <= size):
+                debug.f_raise_warning("IndexError: array index out of range")
+                EUDReturn(0)
+            EUDEndIf()
+
+            cpmoda, loopc = Forward(), Forward()
+            dstepdp = end
+            srcepdp = end-1
+            VProc([dstepdp, srcepdp, contents, index], [
+                SetMemory(cpmoda, SetTo, 1),
+                dstepdp.QueueAddTo(EPD(cpmoda)),
+                srcepdp.QueueAssignTo(EPD(0x6509B0)),
+                contents.QueueAssignTo(EPD(loopc+8)),
+                index.QueueAddTo(EPD(loopc+8))
+            ])
+
+            # while (src != &(contents+index))
+            if EUDWhileNot()(loopc << Memory(cpmoda, Exactly, 0)):
+                # cpmod = *src
+                cpmod = f_dwread_cp(0)
+                cpmoda << cpmod.getDestAddr()
+
+                # *(--dst) = --cpmod
+                VProc(cpmod, [
+                    SetMemory(cpmoda, Add, -1),
+                    SetMemory(0x6509B0, Add, -1)
+                ])
+            EUDEndWhile()
+
+            f_setcurpl2cpcache()
+            self.size = size + 1
+            self.end = end + 1
+
+            EUDReturn(f_dwread_epd(contents + index))
+
+        @EUDMethod
+        def delete(self, index):
+            """Deletes item with index
+
+            ====== ======= ======= === ====== ======
+            before index   index+1 ... size-2 size-1
+            after  index+1 index+2 ... size-1 (empty)
+            ====== ======= ======= === ====== ======
+            """
+            contents = self.contents
+            size = self.size
+            end = self.end
+
+            if EUDIf()(index >= size):
+                debug.f_raise_error("IndexError: array index out of range")
+            EUDEndIf()
+
+            dst = contents + index
+            src = dst + 1
+            f_repmovsd_epd(dst, src, size-index-1)
+            self.size = size - 1
+            self.end = end - 1
+
+        @EUDTypedMethod([EUDTypedFuncPtr([cls, cls], [None])], [])
+        def sort(self, comp):
+            '''
+            comp: EUDFuncN that accepts two elements in the range as arguments,
+            and returns a value convertible to bool. The value returned indicates
+            whether the element passed as first argument is considered to go
+            before the second in the specific strict weak ordering it defines.
+            The function shall not modify any of its arguments.
+            This can either be a function pointer or a function object.
+            '''
+            size = self.size
+
+            # non-recursive quicksort
+            stack = _.allocate(size * 2)
+            stack.append(0)
+            stack.append(size-1)
+            if EUDWhileNot()(stack.size == 0):
+                right = stack.pop()
+                left = stack.pop()
+
+                # unsigned comparison
+                EUDContinueIf(left >= right)
+
+                index = _partition(self, left, right, comp)
+
+                # left part
+                # prevent index be -1, due to unsigned comparison
+                if EUDIfNot()(index == 0):
+                    stack.append(left)
+                    stack.append(index-1)
+                EUDEndIf()
+
+                # right part
+                stack.append(index+1)
+                stack.append(right)
+            EUDEndWhile()
+            stack.free()
+
+        def values(self):
+            """iterate over values in array"""
+            blockname = 'arrayloop'
+            EUDCreateBlock(blockname, self)
+
+            epd = self.contents
+            end = self.end
+            cond = Forward()
+            SeqCompute([(EPD(cond + 8), SetTo, end)])
+            EUDWhileNot()(cond << epd.Exactly(0))
+
+            yield cls.cast(f_dwread_epd(epd))
+            EUDSetContinuePoint()
+            epd += 1
+            EUDEndWhile()
+
+            ep_assert(
+                EUDPopBlock(blockname)[1] is self,
+                'arrayloop mismatch'
+            )
+
+    return _
