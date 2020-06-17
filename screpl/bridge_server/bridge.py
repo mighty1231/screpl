@@ -106,7 +106,7 @@ class BridgeRegion(EUDObject):
         emitbuffer.WriteBytes(dead_signature)
         emitbuffer.WriteDword(0)
         emitbuffer.WriteDword(0)
-        emitbuffer.WriteDword(BRIDGE_PROTOCOL_VER_1)
+        emitbuffer.WriteDword(BRIDGE_PROTOCOL_VER_2)
         emitbuffer.WriteDword(self.GetDataSize())
 
         emitbuffer.WriteBytes(bytes(300))
