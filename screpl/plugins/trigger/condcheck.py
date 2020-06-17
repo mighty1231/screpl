@@ -4,7 +4,7 @@ from eudplib import *
 from screpl.core.application import Application
 from screpl.main import get_app_manager
 from screpl.main import get_main_writer
-from screpl.resources.table.tables import Player
+from screpl.resources.table.tables import Player, ConditionType
 
 from . import cctm
 from .entry import MaximumCircularBuffer, ResultEntry
@@ -42,16 +42,23 @@ def write_entry(entry):
     cond_count = entry.cond_count
     cond_bools_epd = entry.cond_bools_epd
     cond_values_epd = entry.cond_values_epd
+    cond_types_epd = entry.cond_types_epd
 
     writer.write_f("\x16%D-%D: ", start_tick, end_tick)
     if EUDWhileNot()(cond_count == 0):
-        color = EUDTernary(MemoryEPD(cond_bools_epd, Exactly, 0))(6)(7)
-        writer.write_f("%C%D ", color, f_dwread_epd(cond_values_epd))
+        writer.write(EUDTernary(MemoryEPD(cond_bools_epd, Exactly, 0))(6)(7))
+        if EUDIfNot()(MemoryEPD(cond_types_epd, Exactly, 0)):
+            writer.write_constant(EPD(ConditionType),
+                                  f_dwread_epd(cond_types_epd))
+            writer.write(ord(':'))
+        EUDEndIf()
+        writer.write_f("%D ", f_dwread_epd(cond_values_epd))
 
         DoActions([
             cond_count.SubtractNumber(1),
             cond_bools_epd.AddNumber(1),
             cond_values_epd.AddNumber(1),
+            cond_types_epd.AddNumber(1),
         ])
     EUDEndWhile()
     writer.write_f("\n")
@@ -96,7 +103,7 @@ class CondCheckApp(Application):
             mcb.iter(write_entry)
         if EUDElse()():
             writer.write_f(
-                "\x04Condition log - (Navigation: F7/F8, Edit trigger: CTRL+E)\n"
+                "\x04Condition check Manual - (Navigation: F7/F8, Edit trigger: CTRL+E)\n"
                 "\x17(start_tick)-(end_tick): \x0Fv0 v1 v2 ...\n"
                 "\x17tick\x04: the value of 0x57F23C (f_getgametick())\n"
                 "\x04During \x17start_tick \x04to \x17end_tick\x04, "

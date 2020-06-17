@@ -83,12 +83,14 @@ def _condcheck_trigger(trigdb_epd, entry_table):
     cond_count = EUDVariable(0)
     cond_bools = EUDArray(16)
     cond_values = EUDArray(16)
+    cond_types = EUDArray(16)
 
     # initialize
     DoActions(
         [cond_count.SetNumber(0)]
         + [SetMemory(cond_bools + i, SetTo, 0) for i in range(16)]
         + [SetMemory(cond_values + i, SetTo, 0) for i in range(16)]
+        + [SetMemory(cond_types + i, SetTo, 0) for i in range(16)]
     )
 
     # disassemble trigger - conditions
@@ -136,6 +138,7 @@ def _condcheck_trigger(trigdb_epd, entry_table):
         EUDEndSwitch()
         if EUDIf()(is_comparison == 1): # cond check
             cond_values[i] = f_get_exact_amount(EPD(trig_conditions[i]))
+            cond_types[i] = cond_type
         EUDEndIf()
         cond_count += 1
 
@@ -151,7 +154,8 @@ def _condcheck_trigger(trigdb_epd, entry_table):
         last_entry = entry_table.last()
         if EUDIf()(last_entry.update(cond_count,
                                      EPD(cond_bools),
-                                     EPD(cond_values)) == 0):
+                                     EPD(cond_values),
+                                     EPD(cond_types)) == 0):
 
             # update complete
             EUDJump(trig_end)
@@ -167,6 +171,7 @@ def _condcheck_trigger(trigdb_epd, entry_table):
     new_entry.cond_count = cond_count
     f_repmovsd_epd(new_entry.cond_bools_epd, EPD(cond_bools), cond_count)
     f_repmovsd_epd(new_entry.cond_values_epd, EPD(cond_values), cond_count)
+    f_repmovsd_epd(new_entry.cond_types_epd, EPD(cond_types), cond_count)
 
     trig_end << NextTrigger()
 
