@@ -4,16 +4,6 @@ from screpl.apps.repl import REPL
 from screpl.core.appcommand import AppCommand
 from screpl.main import get_app_manager
 
-keymap = {
-    "manager" : {
-        "open_editor" : "E"
-    },
-
-    "editor" : {
-        "hold": "H",
-        "change_grid_mode": "G",
-    }
-}
 FRAME_PERIOD = 24
 
 # initialize variables

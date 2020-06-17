@@ -4,10 +4,12 @@ def ConstString(msg):
     if not hasattr(ConstString, 'textdict'):
         ConstString.textdict = {}
     textdict = ConstString.textdict
+    if isinstance(msg, str):
+        msg = msg.encode('utf-8')
     try:
         return textdict[msg]
     except KeyError:
-        textdict[msg] = Db(u2b(msg) + b'\0')
+        textdict[msg] = Db(msg + b'\0')
         return textdict[msg]
 
 def EPDConstString(msg):

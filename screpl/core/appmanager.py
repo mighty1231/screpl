@@ -318,6 +318,12 @@ class AppManager:
             [(EPD(self.mouse_state), AtLeast, 2)],
             sync=sync or [])
 
+    def mouse_ldrag(self, sync=None):
+        return self.sync_manager.sync_and_check(
+            self._interactive_method,
+            [(EPD(self.mouse_state), Exactly, 3)],
+            sync=sync or [])
+
     def mouse_rclick(self, sync=None):
         return self.sync_manager.sync_and_check(
             self._interactive_method,
