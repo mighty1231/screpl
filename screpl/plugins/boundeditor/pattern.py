@@ -64,10 +64,6 @@ cur_wait_value = EUDVariable()
 # choose location
 chosen_location = EUDVariable(0)
 
-# draw location
-frame = EUDVariable(0)
-FRAME_PERIOD = 24
-
 v_mouse_x, v_mouse_y = EUDVariable(), EUDVariable()
 
 @EUDFunc
@@ -331,13 +327,7 @@ class PatternApp(Application):
 
         # draw rectangle
         if EUDIfNot()(chosen_location.Exactly(0)):
-            draw_rectangle(chosen_location, frame, FRAME_PERIOD)
-
-            # graphical set
-            DoActions(frame.AddNumber(1))
-            if EUDIf()(frame == FRAME_PERIOD):
-                DoActions(frame.SetNumber(0))
-            EUDEndIf()
+            draw_rectangle(chosen_location)
         EUDEndIf()
         app_manager.request_update()
 

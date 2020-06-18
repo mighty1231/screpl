@@ -25,9 +25,6 @@ from . import (
 action_id = EUDVariable(0)
 action_count = EUDVariable(0)
 action_array_epd = EUDVariable(0)
-frame = EUDVariable(0)
-
-FRAME_PERIOD = 24
 
 DISP_MAIN = 0
 DISP_MANUAL = 1
@@ -107,13 +104,7 @@ class DetailedActionApp(Application):
 
             locid1 = f_dwread_epd(action_epd)
             if EUDIfNot()(locid1 == 0):
-                draw_rectangle(locid1, frame, FRAME_PERIOD)
-            EUDEndIf()
-
-            # graphical set
-            DoActions(frame.AddNumber(1))
-            if EUDIf()(frame == FRAME_PERIOD):
-                DoActions(frame.SetNumber(0))
+                draw_rectangle(locid1)
             EUDEndIf()
         EUDEndIf()
 

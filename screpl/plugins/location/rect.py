@@ -7,10 +7,33 @@ from screpl.main import get_app_manager
 app_manager = get_app_manager()
 mapw = app_manager.get_map_width()
 maph = app_manager.get_map_height()
+su_id = app_manager.get_superuser_id()
+
+FRAME_PERIOD = 24
 
 @EUDFunc
-def draw_rectangle(location, frame, frame_period):
-    su_id = app_manager.get_superuser_id()
+def draw_rectangle(location):
+    prev_tick = EUDVariable()
+
+    # it needs to wait 1 tick for removal of previous sprite
+    cur_tick = f_getgametick()
+    if EUDIf()(cur_tick-prev_tick <= 1):
+        EUDReturn()
+    EUDEndIf()
+    prev_tick << cur_tick
+
+    if EUDExecuteOnce()():
+        DoActions([
+            # make enable to create "Scanner Sweep"
+            SetMemoryX(0x661558, SetTo, 1 << 17, 1 << 17),
+
+            # unit dimension to make visible on the side of the map
+            SetMemory(0x6617C8 + 33 * 8, SetTo, 0x00040004),
+            SetMemory(0x6617C8 + 33 * 8 + 4, SetTo, 0x00040004)
+        ])
+    EUDEndExecuteOnce()
+
+    frame = f_div(cur_tick//2, FRAME_PERIOD)[1]
 
     cur_epd = EPD(0x58DC60 - 0x14) + (0x14 // 4) * location
     le, te, re, de = cur_epd, cur_epd+1, cur_epd+2, cur_epd+3
@@ -31,6 +54,8 @@ def draw_rectangle(location, frame, frame_period):
 
     elevation = offset.unitsdat_ElevationLevel.read(EncodeUnit("Scanner Sweep"))
     DoActions([
+        SetMemoryEPD(le, Add, 5),
+        SetMemoryEPD(re, Add, 5),
         SetMemoryEPD(te, Add, elevation),
         SetMemoryEPD(de, Add, elevation),
     ])
@@ -66,7 +91,7 @@ def draw_rectangle(location, frame, frame_period):
                     f_dwwrite_epd(re, i)
                     mark()
                 EUDEndIf()
-                i += 2
+                i += 4
             EUDEndWhile()
 
             f_dwwrite_epd(le, lv)
@@ -80,7 +105,7 @@ def draw_rectangle(location, frame, frame_period):
                     f_dwwrite_epd(de, i)
                     mark()
                 EUDEndIf()
-                i += 2
+                i += 4
             EUDEndWhile()
         EUDEndIf()
         EUDJump(end_point)
@@ -120,7 +145,7 @@ def draw_rectangle(location, frame, frame_period):
     # horizontal lines
     if EUDIf()(lv < rv - 32):
         length << rv - lv
-        bias << (frame * length) // frame_period
+        bias << (frame * length) // FRAME_PERIOD
 
         f_dwwrite_epd(de, tv)
         plus(bias, length, lv, rv, le, re)
@@ -137,7 +162,7 @@ def draw_rectangle(location, frame, frame_period):
         mark()
     if EUDElseIf()(lv > rv + 32):
         length << lv - rv
-        bias << (frame * length) // frame_period
+        bias << (frame * length) // FRAME_PERIOD
 
         f_dwwrite_epd(de, tv)
         minus(bias, length, lv, rv, le, re)
@@ -170,7 +195,7 @@ def draw_rectangle(location, frame, frame_period):
     # verical lines
     if EUDIf()(tv < dv - 32):
         length << dv - tv
-        bias << (frame * length) // frame_period
+        bias << (frame * length) // FRAME_PERIOD
 
         f_dwwrite_epd(le, rv)
         plus(bias, length, tv, dv, te, de)
@@ -180,7 +205,7 @@ def draw_rectangle(location, frame, frame_period):
         minus(bias, length, dv, tv, te, de)
     if EUDElseIf()(tv > dv + 32):
         length << tv - dv
-        bias << (frame * length) // frame_period
+        bias << (frame * length) // FRAME_PERIOD
 
         f_dwwrite_epd(le, rv)
         minus(bias, length, tv, dv, te, de)
@@ -222,6 +247,8 @@ def draw_rectangle(location, frame, frame_period):
     # restore draw
     neg_elevation = -elevation
     DoActions([
+        SetMemoryEPD(le, Add, -5),
+        SetMemoryEPD(re, Add, -5),
         SetMemoryEPD(te, Add, neg_elevation),
         SetMemoryEPD(de, Add, neg_elevation),
     ])

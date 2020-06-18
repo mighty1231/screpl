@@ -10,7 +10,6 @@ from screpl.utils.string import f_memcmp_epd
 
 from screpl.main import get_app_manager
 
-from . import FRAME_PERIOD
 from .rect import draw_rectangle
 
 app_manager = get_app_manager()
@@ -44,8 +43,6 @@ py_editmodes = [ # py means it is python variable
 
 gridvalues = [1, 8, 16, 32]
 gridmasks = [0xFFFFFFFF, 0xFFFFFFF8, 0xFFFFFFF0, 0xFFFFFFE0]
-
-frame = EUDVariable()
 
 # available modes
 prev_available_editmodes = EUDArray(len(py_editmodes))
@@ -91,7 +88,6 @@ class LocationEditorApp(Application):
 
     def on_init(self):
         v_dispmode << DISPMODE_MAIN
-        frame << 0
         for i in range(len(py_editmodes)):
             prev_available_editmodes[i] = 0
         cur_editmode << -1
@@ -345,14 +341,8 @@ class LocationEditorApp(Application):
         #####################
 
         # draw location with "Scanner Sweep"
-        draw_rectangle(target, frame, FRAME_PERIOD)
+        draw_rectangle(target)
 
-        # graphical set
-        DoActions(frame.AddNumber(1))
-        Trigger(
-            conditions=frame.Exactly(FRAME_PERIOD),
-            actions=frame.SetNumber(0)
-        )
         app_manager.request_update()
 
     def print(self, writer):

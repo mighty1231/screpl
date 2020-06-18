@@ -5,7 +5,7 @@ from screpl.core.application import Application
 from screpl.resources.table.tables import get_locationname_epd
 from screpl.utils.conststring import EPDConstString
 
-from . import app_manager, FRAME_PERIOD
+from . import app_manager
 from .editor import LocationEditorApp
 from .rect import draw_rectangle
 
@@ -22,8 +22,6 @@ class LocationManagerApp(Application):
         "location", # 1 ~ 255
         "resultref_location_epd", # this app can make a result
 
-        "frame", # parameter used on draw rectangle as animation
-
         "centerview", # do centerview on every set_location() calles if 1
     ]
 
@@ -37,7 +35,6 @@ class LocationManagerApp(Application):
     def on_init(self):
         self.location = 0
         self.centerview = 1
-        self.frame = 0
         self.resultref_location_epd = _resultref_location_epd
 
         self.set_location(_location)
@@ -61,7 +58,6 @@ class LocationManagerApp(Application):
             actions=new_location.SetNumber(255)
         )
         if EUDIfNot()(new_location == self.location):
-            self.frame = 0
             self.location = new_location
 
             if EUDIfNot()(self.centerview == 0):
@@ -100,14 +96,8 @@ class LocationManagerApp(Application):
         EUDEndIf()
 
         # draw location with "Scanner Sweep"
-        draw_rectangle(self.location, self.frame, FRAME_PERIOD)
+        draw_rectangle(self.location)
 
-        frame = self.frame + 1
-        Trigger(
-            conditions=frame.Exactly(FRAME_PERIOD),
-            actions=frame.SetNumber(0)
-        )
-        self.frame = frame
         app_manager.request_update()
 
     @AppCommand([])
