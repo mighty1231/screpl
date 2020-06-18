@@ -76,33 +76,5 @@ class BoundManagerApp(Application):
         writer.write_f("LCTRL + T: Test\n")
         if is_bridge_mode():
             writer.write_f("LCTRL + E: Exporter\n")
-        writer.write_f("Chat maphack() to turn on maphack\n")
         writer.write_f("Press DELETE key to remove selected units\n")
         writer.write(0)
-
-    @AppCommand([])
-    def maphack(self):
-        le = EPD(0x58DC60)
-        te = EPD(0x58DC60) + 1
-        re = EPD(0x58DC60) + 2
-        be = EPD(0x58DC60) + 3
-
-        lv, tv, rv, bv = [f_dwread_epd(ee) for ee in [le, te, re, be]]
-
-        mapw = app_manager.get_map_width()
-        maph = app_manager.get_map_height()
-
-        actions = []
-        for y in range(256, maph * 32, 512):
-            actions.append(SetMemoryEPD(te, SetTo, y))
-            actions.append(SetMemoryEPD(be, SetTo, y))
-
-            for x in range(256, mapw * 32, 512):
-                actions.append(SetMemoryEPD(le, SetTo, x))
-                actions.append(SetMemoryEPD(re, SetTo, x))
-                actions.append(CreateUnit(1, "Map Revealer", 1, su_id))
-        DoActions(actions)
-
-        for ee, vv in zip([le, te, re, be], [lv, tv, rv, bv]):
-            f_dwwrite_epd(ee, vv)
-

@@ -109,6 +109,11 @@ class REPLArray(struct.REPLStruct):
         self.size = size + 1
 
     @EUDMethod
+    def clear(self):
+        self.size = 0
+        self.end = self.contents
+
+    @EUDMethod
     def pop(self):
         """Removes and returns item at last"""
         end = self.end

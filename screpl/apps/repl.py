@@ -5,7 +5,8 @@ from eudplib import *
 import screpl.core.application as application
 import screpl.core.appcommand as appcommand
 import screpl.main as main
-import screpl.utils.byterw as rw
+from screpl.utils.byterw import REPLByteRW
+from screpl.utils.array import REPLArray
 
 from . import static
 from . import logger
@@ -28,7 +29,7 @@ _repl_cur_page = EUDVariable()
 _repl_outputcolor = 0x16
 
 class REPL(application.Application):
-    _output_writer = rw.REPLByteRW()
+    _output_writer = REPLByteRW()
 
     @staticmethod
     def get_output_writer():
@@ -172,3 +173,57 @@ class REPL(application.Application):
     def log(self):
         """Start Logger application"""
         main.get_app_manager().start_application(logger.Logger)
+
+    @appcommand.AppCommand([])
+    def maphack(self):
+        """Toggle maphack of superuser"""
+        mapw = main.get_app_manager().get_map_width()
+        maph = main.get_app_manager().get_map_height()
+        su_id = main.get_app_manager().su_id
+        revealers = REPLArray.construct(len(range(256, maph * 32, 512))
+                                        * len(range(256, mapw * 32, 512)))
+
+        if EUDIf()(revealers.size == 0):
+            # completed unit table
+            cut_epd = (EPD(0x584DE4) + 12*EncodeUnit("Map Revealer") + su_id)
+
+            le = EPD(0x58DC60)
+            te = EPD(0x58DC60) + 1
+            re = EPD(0x58DC60) + 2
+            be = EPD(0x58DC60) + 3
+
+            lv, tv, rv, bv = [f_dwread_epd(ee) for ee in [le, te, re, be]]
+
+            for y in range(256, maph * 32, 512):
+                DoActions([SetMemoryEPD(te, SetTo, y),
+                           SetMemoryEPD(be, SetTo, y)])
+
+                for x in range(256, mapw * 32, 512):
+                    revealer_epd = f_cunitepdread_epd(EPD(0x628438))[1]
+                    cnt = f_dwread_epd(cut_epd)
+                    DoActions([SetMemoryEPD(le, SetTo, x),
+                               SetMemoryEPD(re, SetTo, x),
+                               CreateUnit(1, "Map Revealer", 1, su_id)])
+                    cnt2 = f_dwread_epd(cut_epd)
+
+                    if EUDIfNot()(cnt == cnt2):
+                        # create success
+                        revealers.append(revealer_epd)
+                    EUDEndIf()
+
+            for ee, vv in zip([le, te, re, be], [lv, tv, rv, bv]):
+                f_dwwrite_epd(ee, vv)
+
+            writer = REPL.get_output_writer()
+            writer.write_f("maphack \x07ON")
+            writer.write(0)
+        if EUDElse()():
+            # kill revealers
+            for revealer_epd in revealers.values():
+                DoActions(SetMemoryXEPD(revealer_epd + 0x4C//4,
+                                        SetTo, 0, 0xFF00))
+            revealers.clear()
+            writer = REPL.get_output_writer()
+            writer.write_f("maphack \x04OFF")
+            writer.write(0)
+        EUDEndIf()
