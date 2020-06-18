@@ -4,8 +4,6 @@ from screpl.apps.scroll import ScrollApp
 
 from . import condition_writer, watched_eud_vars
 
-total_size = watched_eud_vars.size() + condition_writer.funcptr_len
-
 class VariableApp(ScrollApp):
     fields = []
 
@@ -36,4 +34,4 @@ class VariableApp(ScrollApp):
         EUDEndIf()
 
     def get_line_count(self):
-        EUDReturn(total_size + 1)
+        EUDReturn(watched_eud_vars.size() + condition_writer.funcptr_len + 1)
