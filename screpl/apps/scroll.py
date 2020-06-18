@@ -65,14 +65,10 @@ class ScrollApp(application.Application):
 
         offset, linecount = self.offset, self.get_line_count()
 
-        cur, pageend, until = EUDCreateVariables(3)
+        cur, pageend = EUDCreateVariables(2)
         cur << offset
         pageend << offset + LINES_PER_PAGE
-        if EUDIf()(pageend >= linecount):
-            until << linecount
-        if EUDElse()():
-            until << pageend
-        EUDEndIf()
+        until = EUDTernary(pageend >= linecount)(linecount)(pageend)
 
         # fill with contents
         if EUDInfLoop()():
@@ -80,13 +76,6 @@ class ScrollApp(application.Application):
             self.write_line(cur)
             writer.write(ord('\n'))
 
-            DoActions(cur.AddNumber(1))
-        EUDEndInfLoop()
-
-        # fill with empty lines
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= pageend)
-            writer.write(ord('\n'))
             DoActions(cur.AddNumber(1))
         EUDEndInfLoop()
 

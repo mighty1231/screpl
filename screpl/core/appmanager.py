@@ -1,18 +1,22 @@
 from eudplib import *
 
-from screpl.utils.pool import DbPool, VarPool
-from screpl.utils.debug import f_raise_error, f_raise_warning, f_printf
+from screpl.utils.array import create_refarray
+from screpl.utils.conststring import EPDConstString
+from screpl.utils.debug import f_raise_error, f_raise_warning
 from screpl.utils.keycode import get_key_code
-from screpl.utils.string import f_strlen
-
-import screpl.main as main
+from screpl.utils.pool import DbPool, VarPool
+from screpl.utils.sync import SyncManager
 
 _KEYPRESS_DELAY = 8
 _APP_MAX_COUNT = 30
 
+_APP_STATUS_NORMAL = 0
+_APP_STATUS_INITIALIZE = 1
+_APP_STATUS_DESTRUCTING = 2
+
 class AppManager:
     def __init__(self, su_id, su_prefix, su_prefixlen):
-        from .application import ApplicationInstance
+        from .application import ApplicationInstance, ApplicationStruct
 
         self.su_id = su_id
         self.su_prefix = su_prefix
@@ -24,20 +28,12 @@ class AppManager:
 
         # variables that support several apps
         self._foreground_app_instance = ApplicationInstance(self)
-        self.app_cnt = EUDVariable(0)
-        self.cur_app_id = EUDVariable(-1)
-        self.app_method_stack = EUDArray(_APP_MAX_COUNT)
-        self.app_cmdtab_stack = EUDArray(_APP_MAX_COUNT)
-        self.app_member_stack = EUDArray(_APP_MAX_COUNT)
-        if EUDExecuteOnce()():
-            self.cur_methods = EUDVArray(12345)(_from=EUDVariable())
-            self.cur_members = EUDVArray(12345)(_from=EUDVariable())
-        EUDEndExecuteOnce()
-        self.cur_cmdtable_epd = EUDVariable()
-
-        # related to life cycle of app
-        self.is_starting_app = EUDVariable(0)
-        self.is_terminating_app = EUDVariable(0)
+        app_refarray = create_refarray(ApplicationStruct,
+                                       ApplicationStruct.construct)
+        self.app_stack = app_refarray.construct(_APP_MAX_COUNT)
+        self.app_status = EUDVariable(_APP_STATUS_NORMAL)
+        self.foreground_appstruct = ApplicationStruct.construct()
+        self.trig_loop_end = Forward()
 
         # text ui
         self.display_buffer = Db(4000)
@@ -49,6 +45,12 @@ class AppManager:
         self.mouse_prev_state = EUDVariable(0)
         self.mouse_state = EUDArray([1, 1, 1])
         self.mouse_pos = EUDCreateVariables(2)
+
+        # user interactions
+        self.sync_manager = SyncManager(self.su_id, self.is_multiplaying)
+        self.human_count = EUDVariable()
+        self._interactive_method = None
+        self._allocating_methods = []
 
         # 64, 96, 128, 192, 256
         # Multiply 32 to get pixel coordinate
@@ -63,7 +65,7 @@ class AppManager:
         self.varpool.free(ptr)
 
     def alloc_db_epd(self, sizequarter):
-        ''' allocate SIZEQUARTER*4 bytes '''
+        """allocate SIZEQUARTER*4 bytes"""
         return self.dbpool.alloc_epd(sizequarter)
 
     def free_db_epd(self, epd):
@@ -72,87 +74,63 @@ class AppManager:
     def get_foreground_app_instance(self):
         return self._foreground_app_instance
 
-    def start_application(self, app):
-        '''
-        It just reserve to start app.
-        The app is initialized at the start of the next loop.
-        '''
+    def start_application(self, app, jump=True):
+        """Queue to start app
+
+        It just records that the app should start. Actual start of the app is
+        at the next frame.
+        """
         from .application import Application
         assert issubclass(app, Application)
 
         app.allocate(self)
         self._start_application(len(app._fields_),
                                 app._methodarray_,
-                                EPD(app._cmdtable_))
+                                EPD(app._cmdtable_),
+                                EPDConstString(app.__name__))
+        if jump:
+            EUDJump(self.trig_loop_end)
 
     @EUDMethod
-    def _start_application(self, fieldsize, methods, table_epd):
-        if EUDIfNot()(self.is_terminating_app == 0):
-            f_raise_error("Conflict: start_application and request_destruct")
-        EUDEndIf()
+    def _start_application(self, fieldsize, methods, cmdtable_epd, name_epd):
+        new_appstruct = self.app_stack.push_and_getref()
 
-        if EUDIf()(self.app_cnt < _APP_MAX_COUNT):
-            self.app_member_stack[self.app_cnt] = self.alloc_variable(fieldsize)
-            self.app_method_stack[self.app_cnt] = methods
-            self.app_cmdtab_stack[self.app_cnt] = table_epd
-            self.app_cnt += 1
+        if EUDIfNot()(new_appstruct == 0):
+            new_appstruct.appfields = self.alloc_variable(fieldsize)
+            new_appstruct.appmethods = methods
+            new_appstruct.cmdtable_epd = cmdtable_epd
+            new_appstruct.name_epd = name_epd
+            self.foreground_appstruct << new_appstruct
 
-            self.is_starting_app << 1
+            self.app_status << _APP_STATUS_INITIALIZE
         if EUDElse()():
             f_raise_warning("APP COUNT reached MAX, No more spaces")
         EUDEndIf()
 
     def _update_app_stack(self):
-        # Terminate one
-        if EUDIfNot()(self.is_terminating_app == 0):
-            if EUDIf()(self.app_cnt == 1):
-                f_raise_error("FATAL ERROR: Excessive TerminateApplication")
-            EUDEndIf()
-
-            self._foreground_app_instance.on_destruct()
-            self.free_variable(self.cur_members)
-
-            self.app_cnt -= 1
-            self.cur_app_id << self.app_cnt - 1
-            members    = self.app_member_stack[self.cur_app_id]
-            methods    = self.app_method_stack[self.cur_app_id]
-            table_epd  = self.app_cmdtab_stack[self.cur_app_id]
-
-            self.cur_members      << members
-            self.cur_members._epd << EPD(members)
-            self.cur_methods      << methods
-            self.cur_methods._epd << EPD(methods)
-            self.cur_cmdtable_epd << table_epd
-
+        if EUDIf()(self.app_status == _APP_STATUS_DESTRUCTING):
             self._foreground_app_instance.on_resume()
-
-            self.is_terminating_app << 0
+            self.request_update()
+        if EUDElseIf()(self.app_status == _APP_STATUS_INITIALIZE):
+            self._foreground_app_instance.on_init()
+            self.request_update()
         EUDEndIf()
+        self.app_status << _APP_STATUS_NORMAL
 
-        # Initialize one or more
-        if EUDIfNot()(self.is_starting_app == 0):
-            if EUDInfLoop()():
-                self.cur_app_id += 1
-                members    = self.app_member_stack[self.cur_app_id]
-                methods    = self.app_method_stack[self.cur_app_id]
-                table_epd  = self.app_cmdtab_stack[self.cur_app_id]
+    def push_current_allocating_method(self, method):
+        if method.interactive:
+            self._interactive_method = method
+        self._allocating_methods.append(method)
 
-                self.cur_members      << members
-                self.cur_members._epd << EPD(members)
-                self.cur_methods      << methods
-                self.cur_methods._epd << EPD(methods)
-                self.cur_cmdtable_epd << table_epd
+    def pop_current_allocating_method(self):
+        last = self._allocating_methods.pop()
+        if last is self._interactive_method:
 
-                self._foreground_app_instance.on_init()
-
-                EUDBreakIf(self.cur_app_id >= self.app_cnt - 1)
-            EUDEndInfLoop()
-
-            self.is_starting_app << 0
-        EUDEndIf()
-
-        self.clean_text()
-        self.request_update()
+            self._interactive_method = None
+            for method in reversed(self._allocating_methods):
+                if method.interactive:
+                    self._interactive_method = method
+                    break
 
     def _update_key_state(self):
         # keystate
@@ -242,39 +220,6 @@ class AppManager:
         EUDEndLoopN()
         f_repmovsd_epd(prev_states, EPD(0x596A18), 0x100//4)
 
-    def key_down(self, key):
-        key = get_key_code(key)
-        ret = [
-            Memory(0x68C144, Exactly, 0), # chat status - not chatting
-            MemoryEPD(self.keystates + key, Exactly, 1)
-        ]
-        return ret
-
-    def key_up(self, key):
-        key = get_key_code(key)
-        ret = [
-            Memory(0x68C144, Exactly, 0), # chat status - not chatting
-            MemoryEPD(self.keystates + key, Exactly, 2**32-1)
-        ]
-        return ret
-
-    def key_press(self, key, hold=None):
-        """hold: list of keys, such as LCTRL, LSHIFT, LALT, etc..."""
-
-        if hold is None:
-            hold = []
-
-        key = get_key_code(key)
-        actions = [
-            Memory(0x68C144, Exactly, 0), # chat status - not chatting
-            MemoryEPD(self.keystates + key, AtLeast, 1),
-            MemoryEPD(self.keystates_sub + key, Exactly, 1)
-        ]
-        for holdkey in hold:
-            holdkey = get_key_code(holdkey)
-            actions.append(MemoryEPD(self.keystates + holdkey, AtLeast, 1))
-        return actions
-
     def _update_mouse_state(self):
         # up   -> up   : 1
         # up   -> down : 2
@@ -303,33 +248,105 @@ class AppManager:
                 actions=self.mouse_prev_state.SetNumberX(0, c)
             )
 
-        # mouse position
-        x, y = self.mouse_pos
-        x << f_dwread_epd(EPD(0x0062848C)) + f_dwread_epd(EPD(0x006CDDC4))
-        y << f_dwread_epd(EPD(0x006284A8)) + f_dwread_epd(EPD(0x006CDDC8))
+        self.mouse_pos[0] << (f_dwread_epd(EPD(0x0062848C))
+                              + f_dwread_epd(EPD(0x006CDDC4)))
+        self.mouse_pos[1] << (f_dwread_epd(EPD(0x006284A8))
+                              + f_dwread_epd(EPD(0x006CDDC8)))
 
-    def mouse_lclick(self):
-        return MemoryEPD(EPD(self.mouse_state), Exactly, 0)
-
-    def mouse_lpress(self):
-        return MemoryEPD(EPD(self.mouse_state), AtLeast, 2)
-
-    def mouse_rclick(self):
-        return MemoryEPD(EPD(self.mouse_state+1), Exactly, 0)
-
-    def mouse_rpress(self):
-        return MemoryEPD(EPD(self.mouse_state+1), AtLeast, 2)
-
-    def mouse_mclick(self):
-        return MemoryEPD(EPD(self.mouse_state+2), Exactly, 0)
-
-    def mouse_mpress(self):
-        return MemoryEPD(EPD(self.mouse_state+2), AtLeast, 2)
 
     @EUDMethod
     def get_mouse_position(self):
-        x, y = self.mouse_pos
-        EUDReturn([x, y])
+        """evaluate mouse position
+
+        This can cause desync
+        """
+        EUDReturn(self.mouse_pos[0], self.mouse_pos[1])
+
+    def synchronize(self, conditions, variables_to_sync=None):
+        return self.sync_manager.sync_and_check(
+            self._interactive_method,
+            conditions,
+            sync=variables_to_sync or [])
+
+    def key_down(self, key, sync=None):
+        key = get_key_code(key)
+        return self.sync_manager.sync_and_check(
+            self._interactive_method,
+            [(EPD(0x68C144), Exactly, 0),
+             (self.keystates + key, Exactly, 1)],
+            sync=sync or [])
+
+    def key_up(self, key, sync=None):
+        key = get_key_code(key)
+        return self.sync_manager.sync_and_check(
+            self._interactive_method,
+            [(EPD(0x68C144), Exactly, 0),
+             (self.keystates + key, Exactly, 2**32-1)],
+            sync=sync or [])
+
+    def key_holdcounter(self, key):
+        key = get_key_code(key)
+        return f_dwread_epd(self.keystates + key)
+
+    def key_press(self, key, hold=None, sync=None):
+        """hold: list of keys, such as LCTRL, LSHIFT, LALT, etc..."""
+        if not hold:
+            hold = []
+
+        key = get_key_code(key)
+        condition_pairs = [
+            (EPD(0x68C144), Exactly, 0),
+            (self.keystates + key, AtLeast, 1),
+            (self.keystates_sub + key, Exactly, 1),
+        ]
+        for holdkey in hold:
+            holdkey = get_key_code(holdkey)
+            condition_pairs.append((self.keystates + holdkey, AtLeast, 1))
+        return self.sync_manager.sync_and_check(
+            self._interactive_method, condition_pairs,
+            sync=sync or [])
+
+    def mouse_lclick(self, sync=None):
+        return self.sync_manager.sync_and_check(
+            self._interactive_method,
+            [(EPD(self.mouse_state), Exactly, 0)],
+            sync=sync or [])
+
+    def mouse_lpress(self, sync=None):
+        return self.sync_manager.sync_and_check(
+            self._interactive_method,
+            [(EPD(self.mouse_state), AtLeast, 2)],
+            sync=sync or [])
+
+    def mouse_ldrag(self, sync=None):
+        return self.sync_manager.sync_and_check(
+            self._interactive_method,
+            [(EPD(self.mouse_state), Exactly, 3)],
+            sync=sync or [])
+
+    def mouse_rclick(self, sync=None):
+        return self.sync_manager.sync_and_check(
+            self._interactive_method,
+            [(EPD(self.mouse_state+1), Exactly, 0)],
+            sync=sync or [])
+
+    def mouse_rpress(self, sync=None):
+        return self.sync_manager.sync_and_check(
+            self._interactive_method,
+            [(EPD(self.mouse_state+1), AtLeast, 2)],
+            sync=sync or [])
+
+    def mouse_mclick(self, sync=None):
+        return self.sync_manager.sync_and_check(
+            self._interactive_method,
+            [(EPD(self.mouse_state+2), Exactly, 0)],
+            sync=sync or [])
+
+    def mouse_mpress(self, sync=None):
+        return self.sync_manager.sync_and_check(
+            self._interactive_method,
+            [(EPD(self.mouse_state+2), AtLeast, 2)],
+            sync=sync or [])
 
     def get_map_width(self):
         # 64, 96, 128, 192, 256
@@ -341,39 +358,48 @@ class AppManager:
         # Multiply 32 to get pixel coordinate
         return self.map_height
 
+    def is_multiplaying(self):
+        """If current game have more than two humans, return true,
+        otherwise false
+        """
+        return self.human_count >= 2
+
     def request_update(self):
-        '''
-        Request update of application
-        Should be called under AppMethod or AppCommand
-        '''
+        """Request update of the display buffer.
+
+        This should be called under AppMethod or AppCommand
+        """
         self.update << 1
 
+    @EUDMethod
     def request_destruct(self):
-        '''
-        Request self-destruct of application
-        It should be called under AppMethod or AppCommand
+        """Request destruct of the application self, on foreground"""
+        self.app_status << _APP_STATUS_DESTRUCTING
+        self._foreground_app_instance.on_destruct()
+        self.free_variable(self.foreground_appstruct.appfields)
 
-        When a single app requested start_application,
-          destruction should not be requested at the same frame.
-        '''
-        if EUDIfNot()(self.is_starting_app == 0):
-            f_raise_error("Conflict: start_application and request_destruct")
-        EUDEndIf()
-        self.is_terminating_app << 1
+        self.app_stack.pop()
+        self.foreground_appstruct << self.app_stack.at(self.app_stack.size-1)
+        EUDJump(self.trig_loop_end)
 
     @EUDMethod
     def send_app_output_to_bridge(self, src_buffer, size):
         from screpl.bridge_server.blocks.appoutput import (
             APP_OUTPUT_MAXSIZE,
-            appOutputSize,
-            appOutputBuffer,
+            app_output_size,
+            app_output_buffer,
         )
         from screpl.main import is_bridge_mode
 
         if not is_bridge_mode():
             raise RuntimeError("Currently bridge is not activated")
 
-        if EUDIfNot()(appOutputSize == 0):
+        # only super user may get app output
+        if EUDIfNot()(Memory(0x512684, Exactly, self.su_id)):
+            EUDReturn(0)
+        EUDEndIf()
+
+        if EUDIfNot()(app_output_size == 0):
             EUDReturn(0)
         EUDEndIf()
 
@@ -384,78 +410,143 @@ class AppManager:
             written << size
         EUDEndIf()
 
-        f_memcpy(appOutputBuffer, src_buffer, written)
-        appOutputSize << written
+        f_memcpy(app_output_buffer, src_buffer, written)
+        app_output_size << written
 
         EUDReturn(written)
 
     def get_superuser_id(self):
         return self.su_id
 
-    def clean_text(self):
-        """Cleans text UI of previous app."""
-        EUDIfNot()(main.is_blind_mode())
-        f_printf("\n" * 12)
-        EUDEndIf()
-
     def run(self, writer):
+        from screpl.main import get_bridge_region
+
         # only super user may interact with apps
         if EUDIf()(Memory(0x512684, Exactly, self.su_id)):
             self._update_mouse_state()
             self._update_key_state()
         EUDEndIf()
 
+        # update human count
+        self.human_count << 0
+        for player_id in range(8):
+            if GetPlayerInfo(player_id).typestr == "Human":
+                if EUDIf()(f_playerexist(player_id)):
+                    self.human_count += 1
+                EUDEndIf()
+
         # update current application
-        if EUDIfNot()([self.is_terminating_app == 0,
-                       self.is_starting_app == 0]):
-            self._update_app_stack()
-        EUDEndIf()
+        self._update_app_stack()
 
         # process all new chats
-        prev_text_idx = EUDVariable(initval=10)
+        last_text_idx = EUDVariable(initval=10)
         lbl_after_chat = Forward()
-        if EUDIf()(Memory(0x640B58, Exactly, prev_text_idx)):
-            EUDJump(lbl_after_chat)
+        self.sync_manager.clear_recv()
+
+        # accept commands from bridge
+        bridge = get_bridge_region()
+        if bridge:
+            buf_command = bridge.buf_command
+            if EUDIf()([Memory(0x512684, Exactly, self.su_id),
+                        Memory(buf_command, AtLeast, 1)]):
+
+                if EUDIf()(self.is_multiplaying()):
+                    self.sync_manager.send_chat(buf_command)
+                    DoActions(SetMemory(buf_command, SetTo, 0))
+                if EUDElse()():
+                    temp = Db(300)
+                    f_repmovsd_epd(EPD(temp),
+                                   EPD(buf_command),
+                                   300 // 4)
+                    DoActions(SetMemory(buf_command, SetTo, 0))
+                    self._foreground_app_instance.on_chat(temp)
+                EUDEndIf()
+            EUDEndIf()
+
+        EUDJumpIf(Memory(0x640B58, Exactly, last_text_idx), lbl_after_chat)
+        cur_text_idx = f_dwread_epd(EPD(0x640B58))
+
+        # parse updated lines & sync things
+        # since on_chat may change text, temporary buffer is required
+        if EUDIf()(self.is_multiplaying()):
+            chat_off = 0x640B60 + 218 * last_text_idx
+            if EUDInfLoop()():
+                EUDBreakIf(last_text_idx == cur_text_idx)
+
+                # check it is synchronizinng message
+                self.sync_manager.parse_recv(chat_off)
+
+                # if it is superuser's chat, handle it and send buffer
+                if EUDIf()([Memory(0x512684, Exactly, self.su_id),
+                            f_memcmp(chat_off,
+                                     self.su_prefix,
+                                     self.su_prefixlen) == 0]):
+                    self.sync_manager.send_chat(chat_off + self.su_prefixlen)
+                EUDEndIf()
+
+                # search next updated lines
+                if EUDIf()(last_text_idx == 10):
+                    last_text_idx << 0
+                    chat_off << 0x640B60
+                if EUDElse()():
+                    last_text_idx += 1
+                    chat_off += 218
+                EUDEndIf()
+            EUDEndInfLoop()
+
+            # recv chat
+            if EUDIfNot()(Memory(self.sync_manager.recv_chat_buffer,
+                                 Exactly, 0)):
+                self._foreground_app_instance.on_chat(
+                    self.sync_manager.recv_chat_buffer)
+            EUDEndIf()
+        if EUDElse()(): # single play
+            db_gametext = Db(13*218+2)
+            f_repmovsd_epd(EPD(db_gametext), EPD(0x640B60), (13*218+2)//4)
+            chat_off = db_gametext + 218 * last_text_idx
+            if EUDInfLoop()():
+                EUDBreakIf(last_text_idx == cur_text_idx)
+
+                DoActions(last_text_idx.AddNumber(1))
+                Trigger(
+                    conditions=[last_text_idx == 11],
+                    actions=[last_text_idx.SetNumber(0)],
+                )
+                if EUDIf()(f_memcmp(chat_off,
+                                    self.su_prefix,
+                                    self.su_prefixlen) == 0):
+                    self._foreground_app_instance.on_chat(chat_off
+                                                          + self.su_prefixlen)
+                EUDEndIf()
+
+                # search next updated lines
+                DoActions(chat_off.AddNumber(218))
+                Trigger(
+                    conditions=[last_text_idx == 0],
+                    actions=[chat_off.SetNumber(db_gametext)],
+                )
+            EUDEndInfLoop()
         EUDEndIf()
 
-        # parse updated lines
-        # since on_chat may change text, temporary buffer is required
-        db_gametext = Db(13*218+2)
-        i = EUDVariable()
-        cur_text_idx = f_dwread_epd(EPD(0x640B58))
-        f_repmovsd_epd(EPD(db_gametext), EPD(0x640B60), (13*218+2)//4)
-
-        i << prev_text_idx
-        chat_off = db_gametext + 218 * i
-        if EUDInfLoop()():
-            EUDBreakIf(i == cur_text_idx)
-            if EUDIf()(f_memcmp(chat_off,
-                                self.su_prefix,
-                                self.su_prefixlen) == 0):
-                self._foreground_app_instance.on_chat(chat_off
-                                                      + self.su_prefixlen)
-            EUDEndIf()
-
-            # search next updated lines
-            if EUDIf()(i == 10):
-                i << 0
-                chat_off << db_gametext
-            if EUDElse()():
-                i += 1
-                chat_off += 218
-            EUDEndIf()
-        EUDEndInfLoop()
-        prev_text_idx << cur_text_idx
         lbl_after_chat << NextTrigger()
 
         # loop
         self._foreground_app_instance.loop()
 
-        # evaluate display buffer
-        if EUDIfNot()(self.update == 0):
+        self.trig_loop_end << NextTrigger()
+        if EUDIf()([self.app_status == 0, self.update >= 1]):
+            # evaluate display buffer
             writer.seekepd(EPD(self.display_buffer))
 
             # print() uses main writer internally
             self._foreground_app_instance.print()
             self.update << 0
+        if EUDElseIfNot()(self.app_status == _APP_STATUS_NORMAL):
+            writer.seekepd(EPD(self.display_buffer))
+            if EUDIf()(self.app_status == _APP_STATUS_DESTRUCTING):
+                writer.write_f("Destructing App...")
+            if EUDElse()():
+                writer.write_f("Starting App...")
+            EUDEndIf()
+            writer.write(0)
         EUDEndIf()

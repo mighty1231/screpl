@@ -355,7 +355,6 @@ class StringSearchApp(Application):
     def loop(self):
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press('F7')):
             _focus_result(v_focused-1)
         if EUDElseIf()(app_manager.key_press('F8')):
@@ -398,12 +397,6 @@ class StringSearchApp(Application):
                                v_search_strings[cur])
 
                 DoActions([cur.AddNumber(1)])
-            EUDEndInfLoop()
-
-            if EUDInfLoop()():
-                EUDBreakIf(cur >= pageend)
-                writer.write(ord('\n'))
-                cur += 1
             EUDEndInfLoop()
         EUDEndIf()
         writer.write(0)

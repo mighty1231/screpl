@@ -26,6 +26,9 @@ MainWindow::MainWindow(QWidget *parent)
                                                      << tr("Expected[ms]")
                                                      << tr("AvgCon[ms]")
                                                      << tr("AvgExp[ms]"));
+    appstack_model = new QStringListModel(this);
+    ui->appstacklistview->setModel(appstack_model);
+
     connect(ui->from_dumpbtn, SIGNAL(clicked()), this, SLOT(dumpOutput()));
 }
 
@@ -68,6 +71,41 @@ void MainWindow::updateAppOutput(QString app_output)
         ui->from_appoutput->moveCursor(QTextCursor::End);
     else
         ui->from_appoutput->setTextCursor(prev_cursor);
+}
+
+void MainWindow::updateAppStack(QStringList new_appnames)
+{
+    QStringList prev = appstack_model->stringList();
+    QStringList update;
+
+    // if differs, update model
+    bool changed = false;
+
+    QStringList::reverse_iterator new_it = new_appnames.rbegin();
+    while (new_it != new_appnames.crend()) {
+        update << *new_it;
+        new_it++;
+    }
+
+    if (prev.size() != update.size()) {
+        changed = true;
+    } else {
+        QStringList::iterator prev_it = prev.begin();
+        QStringList::iterator update_it = update.begin();
+        while (prev_it != prev.end()) {
+            if (prev_it->compare(*update_it)) {
+                changed = true;
+                break;
+            }
+
+            prev_it++;
+            update_it++;
+        }
+    }
+    if (changed) {
+        ui->appstacklistview->setCurrentIndex(appstack_model->index(0));
+        appstack_model->setStringList(update);
+    }
 }
 
 void MainWindow::updateLoggerLog(QString logger_log)

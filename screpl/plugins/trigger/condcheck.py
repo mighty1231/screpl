@@ -4,7 +4,7 @@ from eudplib import *
 from screpl.core.application import Application
 from screpl.main import get_app_manager
 from screpl.main import get_main_writer
-from screpl.resources.table.tables import Player
+from screpl.resources.table.tables import Player, ConditionType
 
 from . import cctm
 from .entry import MaximumCircularBuffer, ResultEntry
@@ -42,16 +42,23 @@ def write_entry(entry):
     cond_count = entry.cond_count
     cond_bools_epd = entry.cond_bools_epd
     cond_values_epd = entry.cond_values_epd
+    cond_types_epd = entry.cond_types_epd
 
     writer.write_f("\x16%D-%D: ", start_tick, end_tick)
     if EUDWhileNot()(cond_count == 0):
-        color = EUDTernary(MemoryEPD(cond_bools_epd, Exactly, 0))(6)(7)
-        writer.write_f("%C%D ", color, f_dwread_epd(cond_values_epd))
+        writer.write(EUDTernary(MemoryEPD(cond_bools_epd, Exactly, 0))(6)(7))
+        if EUDIfNot()(MemoryEPD(cond_types_epd, Exactly, 0)):
+            writer.write_constant(EPD(ConditionType),
+                                  f_dwread_epd(cond_types_epd))
+            writer.write(ord(':'))
+        EUDEndIf()
+        writer.write_f("%D ", f_dwread_epd(cond_values_epd))
 
         DoActions([
             cond_count.SubtractNumber(1),
             cond_bools_epd.AddNumber(1),
             cond_values_epd.AddNumber(1),
+            cond_types_epd.AddNumber(1),
         ])
     EUDEndWhile()
     writer.write_f("\n")
@@ -60,7 +67,6 @@ def _set_focus(new_focus):
     global v_focus
     if EUDIfNot()(new_focus >= arr_length):
         v_focus << new_focus
-        app_manager.clean_text()
     EUDEndIf()
 
 class CondCheckApp(Application):
@@ -70,17 +76,14 @@ class CondCheckApp(Application):
     def loop(self):
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press("F7")):
             _set_focus(v_focus-1)
         if EUDElseIf()(app_manager.key_press("F8")):
             _set_focus(v_focus+1)
         if EUDElseIf()(app_manager.key_down("F1")):
             v_mode << MODE_HELP
-            app_manager.clean_text()
         if EUDElseIf()(app_manager.key_up("F1")):
             v_mode << MODE_MAIN
-            app_manager.clean_text()
         if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
             TriggerEditorApp.set_trig_ptr(arr_trig_object[v_focus], nolink=True)
             app_manager.start_application(TriggerEditorApp)
@@ -100,19 +103,16 @@ class CondCheckApp(Application):
             mcb.iter(write_entry)
         if EUDElse()():
             writer.write_f(
-                "\x04Condition log - (Navigation: F7/F8, Edit trigger: CTRL+E)\n"
-                "\x17(start_tick)-(end_tick): \x0Fv0 v1 v2 ...\n"
-                "\x17tick\x04: the value of 0x57F23C (f_getgametick())\n"
-                "\x04During \x17start_tick \x04to \x17end_tick\x04, "
+                "\x04Condition check debugs trigger, logging conditions\n"
+                "Navigation: F7/F8, Open trigger manager: CTRL+E\n"
+                "Format: \x17(start_tick)-(end_tick): \x0Fv0 v1 v2 ...\n"
+                "\x17 - tick\x04: the value of 0x57F23C (f_getgametick())\n"
+                "\x04   During \x17start_tick \x04to \x17end_tick\x04, "
                     "all the conditions behaved as the same way\n"
-                "\x0Fcolor of v\x04: condition check result. "
+                "\x0F - color of v\x04: condition check result. "
                     "\x07pass \x06fail\n"
-                "\x0Fvalue of v\x04: The exact amount to satisfy "
+                "\x0F - value of v\x04: The exact amount to satisfy "
                     "the \x1Fcomparison conditions\n"
-                "\n"
-                "\x1F[Comparison conditions]\n"
-                "\x02CountdownTimer, Command, Bring, Accumulate, "
-                "Kills, ElapsedTime, Opponents, Deaths, Score\n"
             )
         EUDEndIf()
         writer.write(0)

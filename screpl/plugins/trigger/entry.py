@@ -101,16 +101,18 @@ class ResultEntry(REPLStruct):
         "cond_count",
         "cond_bools_epd", # EPD(EUDArray)
         "cond_values_epd", # EPD(EUDArray)
+        "cond_types_epd", # EPD(EUDArray)
     ]
 
     @staticmethod
     def construct():
         return ResultEntry.initialize_with(0, 0, 0,
                                            EPD(EUDArray(16)),
+                                           EPD(EUDArray(16)),
                                            EPD(EUDArray(16)))
 
     @EUDMethod
-    def update(self, count, bools_epd, values_epd):
+    def update(self, count, bools_epd, values_epd, types_epd):
         """Compare the entry with new data and update
 
         If they're different, return 1.
@@ -119,6 +121,7 @@ class ResultEntry(REPLStruct):
         s_count = self.cond_count
         s_bools_epd = self.cond_bools_epd
         s_values_epd = self.cond_values_epd
+        s_types_epd = self.cond_types_epd
 
         if EUDIfNot()(s_count == count):
             EUDReturn(1)
@@ -128,6 +131,9 @@ class ResultEntry(REPLStruct):
             EUDReturn(1)
         EUDEndIf()
         if EUDIfNot()(f_memcmp_epd(s_values_epd, values_epd, count) == 0):
+            EUDReturn(1)
+        EUDEndIf()
+        if EUDIfNot()(f_memcmp_epd(s_types_epd, types_epd, count) == 0):
             EUDReturn(1)
         EUDEndIf()
 

@@ -53,7 +53,6 @@ class TestPatternApp(Application):
         global timer, pattern_id, next_timer, v_turbomode
         if EUDIf()(app_manager.key_press('ESC')):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press('R')):
             DoActions([
                 timer.SetNumber(0),
@@ -64,15 +63,22 @@ class TestPatternApp(Application):
             v_turbomode += 1
             Trigger(
                 conditions=[v_turbomode.Exactly(TURBOMODE_END)],
-                actions = [v_turbomode.SetNumber(0)]
+                actions=[v_turbomode.SetNumber(0)]
             )
         EUDEndIf()
 
         # Create Tester Unit for every death
-        Trigger(
-            conditions=[Bring(su_id, Exactly, 0, g_runner_unit, g_start_location)],
-            actions=[CreateUnit(1, g_runner_unit, g_start_location, su_id)]
-        )
+        for player_id in range(8):
+            if GetPlayerInfo(player_id).typestr == "Human":
+                if EUDIf()(f_playerexist(player_id)):
+                    Trigger(
+                        conditions=[
+                            Bring(player_id, Exactly, 0, g_runner_unit,
+                                  g_start_location)],
+                        actions=[
+                            CreateUnit(1, g_runner_unit, g_start_location,
+                                       player_id)])
+                EUDEndIf()
 
         # Timer
         if EUDIf()(timer == next_timer):

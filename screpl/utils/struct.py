@@ -23,11 +23,11 @@ class _REPLStructMetaclass(type):
     def __new__(mcl, name, bases, dct):
         cls = super().__new__(mcl, name, bases, dct)
         fields = {}
-        for index, member in enumerate(dct['fields']):
-            if isinstance(member, str):
-                name, ty = member, None
+        for index, field in enumerate(dct['fields']):
+            if isinstance(field, str):
+                name, ty = field, None
             else:
-                name, ty = member
+                name, ty = field
                 if ty is selftype:
                     ty = cls
             assert name not in ['_epd', '_from', '_value'], \
@@ -100,10 +100,15 @@ class _REPLStructMetaclass(type):
 
     def cpy(cls, dest, src):
         """Copy field values, from dest to src"""
-        if type(src) is not type(dest):
+        if type(src) is type(dest):
+            src_epd = src._epd
+        elif IsEUDVariable(src):
+            src_epd = EPD(src)
+        else:
             raise ValueError("Type mismatch")
 
-        fieldn = len(type(src).fields)
+
+        fieldn = len(type(dest).fields)
         attrid = EUDVariable()
         vtproc = Forward()
         nptr = Forward()
@@ -112,8 +117,8 @@ class _REPLStructMetaclass(type):
         attrid << 0
         SeqCompute([
             (EPD(vtproc + 4), SetTo, src),
-            (EPD(a0 + 16), SetTo, src._epd + 344 // 4),
-            (EPD(a2 + 16), SetTo, src._epd + 1),
+            (EPD(a0 + 16), SetTo, src_epd + 344 // 4),
+            (EPD(a2 + 16), SetTo, src_epd + 1),
             (EPD(a0 + 20), SetTo, dest._epd + 348 // 4),
         ])
         if EUDInfLoop()():
@@ -157,3 +162,18 @@ class REPLStruct(ExprProxy, metaclass=_REPLStructMetaclass):
         except KeyError:
             assert name in ['_epd', '_value']
             super().__setattr__(name, value)
+
+    def __lshift__(self, other):
+        if IsEUDVariable(self):
+            # move pointer
+            if isinstance(other, REPLStruct):
+                self << unProxy(other)
+                self._epd << other._epd
+            elif IsEUDVariable(other):
+                self << other
+                self._epd << EPD(other)
+            else:
+                raise ValueError
+        else:
+            # copy
+            type(self).cpy(self, other)

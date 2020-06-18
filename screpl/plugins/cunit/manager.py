@@ -23,7 +23,6 @@ class CUnitManagerApp(Application):
     def loop(self):
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
             app_manager.start_application(CUnitDetailApp)
         if EUDElseIf()(app_manager.key_press("O", hold=["LCTRL"])):

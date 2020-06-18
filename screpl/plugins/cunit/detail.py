@@ -44,17 +44,13 @@ class CUnitDetailApp(Application):
 
     def loop(self):
         focused_memid = self.focused_memid
+        hold_ctrl = app_manager.key_holdcounter("LCTRL")
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
-        if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            self.focus_mem_id(focused_memid - 8)
-        if EUDElseIf()(app_manager.key_press("F7")):
-            self.focus_mem_id(focused_memid - 1)
-        if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            self.focus_mem_id(focused_memid + 8)
-        if EUDElseIf()(app_manager.key_press("F8")):
-            self.focus_mem_id(focused_memid + 1)
+        if EUDElseIf()(app_manager.key_press("F7", sync=[hold_ctrl])):
+            self.focus_mem_id(focused_memid - EUDTernary(hold_ctrl)(8)(1))
+        if EUDElseIf()(app_manager.key_press("F8", sync=[hold_ctrl])):
+            self.focus_mem_id(focused_memid + EUDTernary(hold_ctrl)(8)(1))
         if EUDElseIf()(app_manager.key_press("H", hold=["LCTRL"])):
             dw, epd = f_cunitepdread_epd(EPD(0x6284B8))
             self.cunit_epd = epd
@@ -100,12 +96,6 @@ class CUnitDetailApp(Application):
             writer.write(ord('\n'))
 
             DoActions(cur.AddNumber(1))
-        EUDEndInfLoop()
-
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= pageend)
-            writer.write(ord('\n'))
-            cur += 1
         EUDEndInfLoop()
 
         writer.write(0)

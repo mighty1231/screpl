@@ -5,12 +5,14 @@
 #include <QtDebug>
 
 #include "blocks/appoutput.h"
+#include "blocks/appstack.h"
 #include "blocks/blindmode.h"
 #include "blocks/gametext.h"
 #include "blocks/logger.h"
 #include "blocks/profile.h"
 
 static int BRIDGE_PROTOCOL_VER_1 = 0x20200604;
+static int BRIDGE_PROTOCOL_VER_2 = 0x20200616;
 
 static inline bool IsSTRSectionMBI(MEMORY_BASIC_INFORMATION *mbi) {
     return (mbi->State == MEM_COMMIT)
@@ -29,7 +31,7 @@ Worker::Worker(QObject *parent) : QThread(parent),
               "\x30\x6d\x0e\xd8\xf4\xe4\x06\x15\x25\xb1\x74\x0f\x44\x27\xa1\x6e"
               "\xfe\x1f\x23\xa4\xcd\x7b\xa7\x84\x67\xdb\xa5\x77\x9a\x81\xc0\x12"
               "\xeb\xc0\x54\xa2\x37\x1e\x9c\xc6\x64\x24\x64\xe2\x33\x3f\x71\xe2", 160),
-    available_protocol(BRIDGE_PROTOCOL_VER_1), status(0), hProcess(NULL), REPLRegion(0)
+    available_protocol(BRIDGE_PROTOCOL_VER_2), status(0), hProcess(NULL), REPLRegion(0)
 {
     SYSTEM_INFO info;
     GetSystemInfo(&info);
@@ -65,6 +67,13 @@ void Worker::setConnection(MainWindow *_window)
             window, SLOT(updateAppOutput(QString)),
             Qt::QueuedConnection);
     blocks.push_back(aob);
+
+    AppStackBlock *asb = new AppStackBlock();
+    asb->moveToThread(this);
+    connect(asb, SIGNAL(updateAppStack(QStringList)),
+            window, SLOT(updateAppStack(QStringList)),
+            Qt::QueuedConnection);
+    blocks.push_back(asb);
 
     BlindModeDisplayBlock *bmdb = new BlindModeDisplayBlock();
     bmdb->moveToThread(this);
@@ -296,7 +305,7 @@ void Worker::process()
         || header->region_size != regionSize ) {
         status = STATUS_PROCESS_FOUND;
         emit metREPL(false, REPLRegion);
-        makeError("ReadProcessMemory, read region");
+        makeError("ReadProcessMemory, read region pollution check");
         delete[] all_region;
         return;
     }

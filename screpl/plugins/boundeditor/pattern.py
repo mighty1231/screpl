@@ -55,7 +55,8 @@ from . import (
 MACRO_BOMB = 0
 MACRO_OBSTACLE = 1
 MACRO_OBSTACLEDESTRUCT = 2
-MACRO_UNDEFINED = 3
+MACRO_MOVEUNIT = 3
+MACRO_UNDEFINED = 4
 macro_mode = EUDVariable(0)
 
 cur_wait_value = EUDVariable()
@@ -63,14 +64,10 @@ cur_wait_value = EUDVariable()
 # choose location
 chosen_location = EUDVariable(0)
 
-# draw location
-frame = EUDVariable(0)
-FRAME_PERIOD = 24
+v_mouse_x, v_mouse_y = EUDVariable(), EUDVariable()
 
 @EUDFunc
 def evaluate_locations():
-    posX, posY = app_manager.get_mouse_position()
-
     cur = EUDVariable()
     cur << chosen_location
 
@@ -90,10 +87,10 @@ def evaluate_locations():
         (EPD(ba) + 1, SetTo, be),
 
         # value field of Memory
-        (EPD(la) + 2, SetTo, posX),
-        (EPD(ta) + 2, SetTo, posY),
-        (EPD(ra) + 2, SetTo, posX),
-        (EPD(ba) + 2, SetTo, posY),
+        (EPD(la) + 2, SetTo, v_mouse_x),
+        (EPD(ta) + 2, SetTo, v_mouse_y),
+        (EPD(ra) + 2, SetTo, v_mouse_x),
+        (EPD(ba) + 2, SetTo, v_mouse_y),
     ])
 
     if EUDInfLoop()():
@@ -225,9 +222,12 @@ class PatternApp(Application):
 
     def loop(self):
         global macro_mode
+        mouse_pos = app_manager.get_mouse_position()
+        v_mouse_x << mouse_pos[0]
+        v_mouse_y << mouse_pos[1]
+
         if EUDIf()(app_manager.key_press('ESC')):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press('Q')):
             focus_pattern_id(0)
         if EUDElseIf()(app_manager.key_press('W')):
@@ -264,7 +264,7 @@ class PatternApp(Application):
                 cur_wait_value.AddNumber(1),
                 SetMemoryEPD(EPD(p_wait_value) + focused_pattern_id, Add, 1),
             ])
-        if EUDElseIf()(app_manager.mouse_lclick()):
+        if EUDElseIf()(app_manager.mouse_lclick(sync=[v_mouse_x, v_mouse_y])):
             evaluate_locations()
         # if EUDElseIf()(app_manager.mouse_rclick()):
         if EUDElseIf()(app_manager.key_press('N')):
@@ -319,19 +319,15 @@ class PatternApp(Application):
                     if EUDElseIf()(g_obstacle_destructpattern.Exactly(OBSTACLE_DESTRUCTPATTERN_REMOVE)):
                         append_action(RemoveUnitAt(All, g_obstacle_unit, chosen_location, g_effectplayer))
                     EUDEndIf()
+                if EUDElseIf()(macro_mode.Exactly(MACRO_MOVEUNIT)):
+                    append_action(MoveUnit(All, "(men)", g_runner_force, 64, chosen_location))
                 EUDEndIf()
             EUDEndIf()
         EUDEndIf()
 
         # draw rectangle
         if EUDIfNot()(chosen_location.Exactly(0)):
-            draw_rectangle(chosen_location, frame, FRAME_PERIOD)
-
-            # graphical set
-            DoActions(frame.AddNumber(1))
-            if EUDIf()(frame == FRAME_PERIOD):
-                DoActions(frame.SetNumber(0))
-            EUDEndIf()
+            draw_rectangle(chosen_location)
         EUDEndIf()
         app_manager.request_update()
 
@@ -345,25 +341,13 @@ class PatternApp(Application):
 
         writer.write_f("\x04Total \x03%D\x04 actions, press \x07'P'\x04 to see detail\n",
             p_action_count[focused_pattern_id])
-        writer.write_f("Mode\x07(M)\x04: ")
-        if EUDIf()(macro_mode == MACRO_BOMB):
-            writer.write(0x11)
-        if EUDElse()():
-            writer.write(0x04)
-        EUDEndIf()
-        writer.write_f("Bomb ")
-        if EUDIf()(macro_mode == MACRO_OBSTACLE):
-            writer.write(0x11)
-        if EUDElse()():
-            writer.write(0x04)
-        EUDEndIf()
-        writer.write_f("Obstacle ")
-        if EUDIf()(macro_mode == MACRO_OBSTACLEDESTRUCT):
-            writer.write(0x11)
-        if EUDElse()():
-            writer.write(0x04)
-        EUDEndIf()
-        writer.write_f("ObstacleDestruct\n")
+        writer.write_f(
+            "Mode\x07(M)\x04: %CBomb %CObstacle %CObstacleDestruct %CMoveUnit\n",
+            EUDTernary(macro_mode == MACRO_BOMB)(0x11)(0x04),
+            EUDTernary(macro_mode == MACRO_OBSTACLE)(0x11)(0x04),
+            EUDTernary(macro_mode == MACRO_OBSTACLEDESTRUCT)(0x11)(0x04),
+            EUDTernary(macro_mode == MACRO_MOVEUNIT)(0x11)(0x04),
+        )
 
         writer.write_f("\x07LClick\x04 with mouse - choose location, "\
             "press \x07'N'\x04 to confirm it and insert actions\n")

@@ -29,9 +29,12 @@ def f_get_inversed_millis():
        EUDDoEvents should be called
     '''
     v_countdown_timer = f_dwread_epd(EPD(0x57F0F0 + 0xe604))
+    v_countdown_remaining = f_dwread_epd(EPD(0x59CC78))
     v_elapsed_time = f_dwread_epd(EPD(0x57F0F0 + 0xe608))
     v_trigger_timer = f_dwread_epd(EPD(0x6509A0))
     DoActions(SetMemory(0x6509A0, SetTo, 0))
+
+    # update tickcount
     EUDDoEvents()
 
     # restore timers
@@ -39,6 +42,7 @@ def f_get_inversed_millis():
         (EPD(0x57F0F0 + 0xe604), SetTo, v_countdown_timer),
         (EPD(0x57F0F0 + 0xe608), SetTo, v_elapsed_time),
         (EPD(0x6509A0), SetTo, v_trigger_timer),
+        (EPD(0x59CC78), SetTo, v_countdown_remaining),
     ])
     EUDReturn(f_dwread_epd(EPD(0x51CE8C)))
 

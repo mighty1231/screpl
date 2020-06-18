@@ -3,8 +3,9 @@ from eudplib import *
 from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
 from screpl.resources.table.tables import get_locationname_epd
+from screpl.utils.conststring import EPDConstString
 
-from . import app_manager, keymap, FRAME_PERIOD
+from . import app_manager
 from .editor import LocationEditorApp
 from .rect import draw_rectangle
 
@@ -12,12 +13,14 @@ from .rect import draw_rectangle
 _location = EUDVariable(1)
 _resultref_location_epd = EUDVariable(EPD(0))
 
+DISPMODE_MAIN = 0
+DISPMODE_MANUAL = 1
+v_display_mode = EUDVariable()
+
 class LocationManagerApp(Application):
     fields = [
         "location", # 1 ~ 255
         "resultref_location_epd", # this app can make a result
-
-        "frame", # parameter used on draw rectangle as animation
 
         "centerview", # do centerview on every set_location() calles if 1
     ]
@@ -32,10 +35,10 @@ class LocationManagerApp(Application):
     def on_init(self):
         self.location = 0
         self.centerview = 1
-        self.frame = 0
         self.resultref_location_epd = _resultref_location_epd
 
         self.set_location(_location)
+        v_display_mode << DISPMODE_MAIN
 
         # restore initializing arguments
         _location << 1
@@ -55,7 +58,6 @@ class LocationManagerApp(Application):
             actions=new_location.SetNumber(255)
         )
         if EUDIfNot()(new_location == self.location):
-            self.frame = 0
             self.location = new_location
 
             if EUDIfNot()(self.centerview == 0):
@@ -77,40 +79,31 @@ class LocationManagerApp(Application):
         # F7 - previous location
         # F8 - next location
         location = self.location
+        hold_ctrl = app_manager.key_holdcounter("LCTRL")
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
-        if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            self.set_location(location - 8)
-        if EUDElseIf()(app_manager.key_press("F7")):
-            self.set_location(location - 1)
-        if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            self.set_location(location + 8)
-        if EUDElseIf()(app_manager.key_press("F8")):
-            self.set_location(location + 1)
-        if EUDElseIf()(app_manager.key_press(keymap["manager"]["open_editor"])):
+        if EUDElseIf()(app_manager.key_press("F7", sync=[hold_ctrl])):
+            self.set_location(location - EUDTernary(hold_ctrl)(8)(1))
+        if EUDElseIf()(app_manager.key_press("F8", sync=[hold_ctrl])):
+            self.set_location(location + EUDTernary(hold_ctrl)(8)(1))
+        if EUDElseIf()(app_manager.key_down("F1")):
+            v_display_mode << DISPMODE_MANUAL
+        if EUDElseIf()(app_manager.key_up("F1")):
+            v_display_mode << DISPMODE_MAIN
+        if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
             LocationEditorApp.set_target(location)
             app_manager.start_application(LocationEditorApp)
-            EUDReturn()
         EUDEndIf()
 
         # draw location with "Scanner Sweep"
-        draw_rectangle(self.location, self.frame, FRAME_PERIOD)
+        draw_rectangle(self.location)
 
-        frame = self.frame + 1
-        Trigger(
-            conditions=frame.Exactly(FRAME_PERIOD),
-            actions=frame.SetNumber(0)
-        )
-        self.frame = frame
         app_manager.request_update()
 
     @AppCommand([])
     def cv(self):
-        '''
-        Toggle CenterView Effect
-        '''
-        if EUDIfNot()(self.centerview == 0):
+        """Toggle CenterView Effect"""
+        if EUDIf()(self.centerview):
             self.centerview = 0
         if EUDElse()():
             self.centerview = 1
@@ -118,75 +111,78 @@ class LocationManagerApp(Application):
         app_manager.request_update()
 
     def print(self, writer):
-        writer.write_f("\x16Location (sizeX, sizeY, flags) F7,F8 to navigate // press '{}' to edit " \
-            "// CenterView: ".format(keymap["manager"]["open_editor"]))
-        if EUDIfNot()(self.centerview == 0):
-            writer.write_f("\x07ON\n")
-        if EUDElse()():
-            writer.write_f("\x08OFF\n")
-        EUDEndIf()
+        if EUDIf()(v_display_mode == DISPMODE_MAIN):
+            writer.write_f(
+                "\x16Location Manager. Press F1 to get manual. "
+                "CenterView: %E",
+                EUDTernary(self.centerview)(EPDConstString("\x07ON\n"))
+                                           (EPDConstString("\x08OFF\n")))
 
-        target_location = self.location
+            target_location = self.location
 
-        quot, mod = f_div(target_location - 1, 8)
-        cur = quot * 8 + 1
-        until = cur + 8
-        if EUDIf()(until == 257):
-            until << 256
-        EUDEndIf()
-
-        # fill contents
-        cur_epd = EPD(0x58DC60 - 0x14) + (0x14 // 4) * cur
-        cur_ptr = (0x58DC60 - 0x14) + 0x14 * cur
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= until)
-
-            # +0x00: X1, +0x04: Y1, +0x08: X2, +0x0C: Y2, +0x10: StringID, +0x12: Flags
-            # flags
-            #   0x01: Low Ground
-            #   0x02: Med Ground
-            #   0x04: High Ground
-            #   0x08: Low Air
-            #   0x10: Med Air
-            #   0x20: High Air
-            left = f_dwread_epd(cur_epd)
-            top = f_dwread_epd(cur_epd + 1)
-            right = f_dwread_epd(cur_epd + 2)
-            bottom = f_dwread_epd(cur_epd + 3)
-            flag = f_wread_epd(cur_epd + 4, 2)
-
-            if EUDIf()(cur == target_location):
-                writer.write(0x11) # orange
-            if EUDElse()():
-                writer.write(0x02) # pale blue
+            quot, mod = f_div(target_location - 1, 8)
+            cur = quot * 8 + 1
+            until = cur + 8
+            if EUDIf()(until == 257):
+                until << 256
             EUDEndIf()
 
-            str_epd = get_locationname_epd(cur)
-            writer.write_f(" %D %E: %D x %D // ", cur, str_epd, right-left, bottom-top)
+            # fill contents
+            cur_epd = EPD(0x58DC60 - 0x14) + (0x14 // 4) * cur
+            cur_ptr = (0x58DC60 - 0x14) + 0x14 * cur
+            if EUDInfLoop()():
+                EUDBreakIf(cur >= until)
 
-            layers = ['Low Ground', 'Med Ground', 'High Ground',
-                      'Low Air', 'Med Air', 'High Air']
-            if EUDIf()(flag.Exactly(0)):
-                writer.write_f("All")
-            if EUDElse()():
-                cnt = EUDVariable()
-                cnt << 0
-                for i, layer in enumerate(layers):
-                    if EUDIf()(flag.ExactlyX(1 << i, 1 << i)):
-                        if EUDIf()(cnt >= 1):
-                            writer.write_f(", ")
+                # +0x00: X1, +0x04: Y1, +0x08: X2, +0x0C: Y2, +0x10: StringID, +0x12: Flags
+                # flags
+                #   0x01: Low Ground
+                #   0x02: Med Ground
+                #   0x04: High Ground
+                #   0x08: Low Air
+                #   0x10: Med Air
+                #   0x20: High Air
+                left = f_dwread_epd(cur_epd)
+                top = f_dwread_epd(cur_epd + 1)
+                right = f_dwread_epd(cur_epd + 2)
+                bottom = f_dwread_epd(cur_epd + 3)
+                flag = f_wread_epd(cur_epd + 4, 2)
+
+                if EUDIf()(cur == target_location):
+                    writer.write(0x11) # orange
+                if EUDElse()():
+                    writer.write(0x02) # pale blue
+                EUDEndIf()
+
+                str_epd = get_locationname_epd(cur)
+                writer.write_f(" %D %E: %D x %D // ", cur, str_epd, right-left, bottom-top)
+
+                layers = ['Low Ground', 'Med Ground', 'High Ground',
+                          'Low Air', 'Med Air', 'High Air']
+                if EUDIf()(flag.Exactly(0)):
+                    writer.write_f("All")
+                if EUDElse()():
+                    cnt = EUDVariable()
+                    cnt << 0
+                    for i, layer in enumerate(layers):
+                        if EUDIfNot()(flag.ExactlyX(1 << i, 1 << i)):
+                            if EUDIf()(cnt >= 1):
+                                writer.write_f(", ")
+                            EUDEndIf()
+                            writer.write_f(layer)
+                            cnt += 1
                         EUDEndIf()
-                        writer.write_f(layer)
-                        cnt += 1
-                    EUDEndIf()
-            EUDEndIf()
-            writer.write(ord('\n'))
+                EUDEndIf()
+                writer.write(ord('\n'))
 
-            DoActions([cur_ptr.AddNumber(0x14), cur.AddNumber(1), cur_epd.AddNumber(0x14//4)])
-        EUDEndInfLoop()
-
-        if EUDIf()(until == 256):
-            writer.write(ord('\n'))
+                DoActions([cur_ptr.AddNumber(0x14), cur.AddNumber(1), cur_epd.AddNumber(0x14//4)])
+            EUDEndInfLoop()
+        if EUDElse()():
+            writer.write_f(
+                "\x16LocationManager Manual\n"
+                " width x height // flags\n"
+                "Press F7, F8 to move cursor\n"
+                "Press CTRL+E to open LocationEditorApp with focused location\n"
+                "Chat cv() to toggle CenterView mode\n")
         EUDEndIf()
 
         writer.write(0)

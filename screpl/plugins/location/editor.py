@@ -1,24 +1,26 @@
+# -*- coding: utf-8 -*-
 from eudplib import *
 
 from screpl.apps.chatreader import ChatReaderApp
-from screpl.apps.repl import REPL
 from screpl.core.appcommand import AppCommand
 from screpl.core.application import Application
 from screpl.encoder.const import ArgEncNumber
 from screpl.resources.table.tables import get_locationname_epd
+from screpl.utils.string import f_memcmp_epd
+
 from screpl.main import get_app_manager
 
-from . import keymap, FRAME_PERIOD
 from .rect import draw_rectangle
 
 app_manager = get_app_manager()
 
-
-
 '''
 Option:
-    Grid 8 / 16 / 32 / 64
-Mode:
+    Grid 1 / 8 / 16 / 32
+Tool
+    Create tool
+    Edit tool
+Edit Mode:
     Point mode (LT, RT, RD, LD)
     Side mode (Left, Top, Right, Bottom)
     Move
@@ -34,33 +36,25 @@ _SIDE_T = 5
 _SIDE_R = 6
 _SIDE_B = 7
 _MOVE = 8
-py_modes = [ # py means it is python variable
+py_editmodes = [ # py means it is python variable
     _POINT_LT, _POINT_RT, _POINT_RB, _POINT_LB,
     _SIDE_L, _SIDE_T, _SIDE_R, _SIDE_B, _MOVE
 ]
-py_modes_string = [
-    "POINT_LT", "POINT_RT", "POINT_RB", "POINT_LB",
-    "SIDE_L", "SIDE_T", "SIDE_R", "SIDE_B", "MOVE",
-]
 
-_GRID_NO = 0
-_GRID_8 = 1
-_GRID_16 = 2
-_GRID_32 = 3
-py_grid_modes = [_GRID_NO, _GRID_8, _GRID_16, _GRID_32]
-py_grid_values = [1, 8, 16, 32]
-
-frame = EUDVariable()
+gridvalues = [1, 8, 16, 32]
+gridmasks = [0xFFFFFFFF, 0xFFFFFFF8, 0xFFFFFFF0, 0xFFFFFFE0]
 
 # available modes
-prev_available_modes = EUDArray(len(py_modes))
-cur_available_modes = EUDArray(len(py_modes))
+prev_available_editmodes = EUDArray(len(py_editmodes))
+cur_available_editmodes = EUDArray(len(py_editmodes))
 
 # modes
-cur_mode = EUDVariable(-1)
+cur_editmode = EUDVariable(-1)
 is_holding = EUDVariable(0)
 
-cur_grid_mode = EUDVariable(0)
+cur_gridmode = EUDVariable(0)
+cur_gridval = EUDVariable(1)
+cur_gridmask = EUDVariable(0xFFFFFFFF)
 
 # mouse pointers
 prev_mX, prev_mY = EUDCreateVariables(2)
@@ -76,6 +70,10 @@ DISPMODE_MAIN = 0
 DISPMODE_MANUAL = 1
 v_dispmode = EUDVariable()
 
+TOOL_CREATE = 0
+TOOL_EDIT = 1
+v_tool = EUDVariable()
+
 class LocationEditorApp(Application):
     fields = []
 
@@ -90,27 +88,15 @@ class LocationEditorApp(Application):
 
     def on_init(self):
         v_dispmode << DISPMODE_MAIN
-        frame << 0
-        for i in range(len(py_modes)):
-            prev_available_modes[i] = 0
-        cur_mode << -1
+        for i in range(len(py_editmodes)):
+            prev_available_editmodes[i] = 0
+        cur_editmode << -1
         is_holding << 0
 
-    def evaluate_available_modes(self):
-        '''
-        _POINT_LT
-        _POINT_RT
-        _POINT_RB
-        _POINT_LB
-        _SIDE_L
-        _SIDE_T
-        _SIDE_R
-        _SIDE_B
-        _MOVE
-        '''
+    def evaluate_available_editmodes(self):
         DoActions([
-            SetMemoryEPD(EPD(cur_available_modes) + i, SetTo, 0)
-                for i in range(len(py_modes))
+            SetMemoryEPD(EPD(cur_available_editmodes) + i, SetTo, 0)
+                for i in range(len(py_editmodes))
         ])
 
         # point
@@ -125,16 +111,16 @@ class LocationEditorApp(Application):
             EUDEndIf()
 
         if EUDIf()([dlx <= limit, dty <= limit]):
-            DoActions(SetMemoryEPD(EPD(cur_available_modes), SetTo, 1))
+            DoActions(SetMemoryEPD(EPD(cur_available_editmodes), SetTo, 1))
         EUDEndIf()
         if EUDIf()([drx <= limit, dty <= limit]):
-            DoActions(SetMemoryEPD(EPD(cur_available_modes)+1, SetTo, 1))
+            DoActions(SetMemoryEPD(EPD(cur_available_editmodes)+1, SetTo, 1))
         EUDEndIf()
         if EUDIf()([drx <= limit, dby <= limit]):
-            DoActions(SetMemoryEPD(EPD(cur_available_modes)+2, SetTo, 1))
+            DoActions(SetMemoryEPD(EPD(cur_available_editmodes)+2, SetTo, 1))
         EUDEndIf()
         if EUDIf()([dlx <= limit, dby <= limit]):
-            DoActions(SetMemoryEPD(EPD(cur_available_modes)+3, SetTo, 1))
+            DoActions(SetMemoryEPD(EPD(cur_available_editmodes)+3, SetTo, 1))
         EUDEndIf()
 
         is_l_x_r = EUDVariable()
@@ -151,42 +137,25 @@ class LocationEditorApp(Application):
         EUDEndIf()
 
         if EUDIf()([is_t_y_b.Exactly(1), dlx <= limit]):
-            DoActions(SetMemoryEPD(EPD(cur_available_modes)+4, SetTo, 1))
+            DoActions(SetMemoryEPD(EPD(cur_available_editmodes)+4, SetTo, 1))
         EUDEndIf()
         if EUDIf()([is_l_x_r.Exactly(1), dty <= limit]):
-            DoActions(SetMemoryEPD(EPD(cur_available_modes)+5, SetTo, 1))
+            DoActions(SetMemoryEPD(EPD(cur_available_editmodes)+5, SetTo, 1))
         EUDEndIf()
         if EUDIf()([is_t_y_b.Exactly(1), drx <= limit]):
-            DoActions(SetMemoryEPD(EPD(cur_available_modes)+6, SetTo, 1))
+            DoActions(SetMemoryEPD(EPD(cur_available_editmodes)+6, SetTo, 1))
         EUDEndIf()
         if EUDIf()([is_l_x_r.Exactly(1), dby <= limit]):
-            DoActions(SetMemoryEPD(EPD(cur_available_modes)+7, SetTo, 1))
+            DoActions(SetMemoryEPD(EPD(cur_available_editmodes)+7, SetTo, 1))
         EUDEndIf()
 
         if EUDIf()([is_t_y_b.Exactly(1), is_l_x_r.Exactly(1)]):
-            DoActions(SetMemoryEPD(EPD(cur_available_modes)+8, SetTo, 1))
+            DoActions(SetMemoryEPD(EPD(cur_available_editmodes)+8, SetTo, 1))
         EUDEndIf()
 
 
     def loop(self):
-        global cur_mode, cur_grid_mode
-
-        if EUDIf()(app_manager.key_press("ESC")):
-            app_manager.request_destruct()
-            EUDReturn()
-        if EUDElseIf()(app_manager.key_press(keymap["editor"]["change_grid_mode"])):
-            cur_grid_mode += 1
-            Trigger(
-                conditions=[cur_grid_mode == len(py_grid_modes)],
-                actions=[cur_grid_mode.SetNumber(0)]
-            )
-        if EUDElseIf()(app_manager.key_down("F1")):
-            v_dispmode << DISPMODE_MANUAL
-            app_manager.clean_text()
-        if EUDElseIf()(app_manager.key_up("F1")):
-            v_dispmode << DISPMODE_MAIN
-            app_manager.clean_text()
-        EUDEndIf()
+        global cur_editmode, cur_gridmode
 
         # new mouse values and location
         pos = app_manager.get_mouse_position()
@@ -196,201 +165,225 @@ class LocationEditorApp(Application):
         cur_tv << f_dwread_epd(te)
         cur_rv << f_dwread_epd(re)
         cur_bv << f_dwread_epd(be)
+        is_holding << 0
 
-        # set modes!
-        if EUDIf()(app_manager.mouse_lclick()):
-            '''
-            evaluate available modes
-            if available modes not changed,
-                set next mode, find available starts from the previous mode
-            else:
-                set next mode, find available starts from mode = 0
-            '''
-            self.evaluate_available_modes()
-
-            if EUDIf()(f_memcmp(prev_available_modes, cur_available_modes, 4*len(py_modes)) == 0):
-                cur_mode += 1
-            if EUDElse()():
-                cur_mode << 0
-            EUDEndIf()
-
-            if EUDIf()([MemoryEPD(EPD(cur_available_modes)+i, Exactly, 0) \
-                    for i in range(len(py_modes))]):
-                # not available
-                cur_mode << -1
-            if EUDElse()():
-                # choose available
-                if EUDLoopN()(len(py_modes)):
-                    Trigger(
-                        conditions=cur_mode.Exactly(len(py_modes)),
-                        actions=cur_mode.SetNumber(0)
-                    )
-                    if EUDIf()(cur_available_modes[cur_mode] == 1):
-                        EUDBreak()
-                    EUDEndIf()
-                    cur_mode += 1
-                EUDEndLoopN()
-            EUDEndIf()
-
-            f_repmovsd_epd(EPD(prev_available_modes), EPD(cur_available_modes), len(py_modes))
+        if EUDIf()(app_manager.key_press("ESC")):
+            app_manager.request_destruct()
+        if EUDElseIf()(app_manager.key_press("G", hold=["LCTRL"])):
+            cur_gridmode += 1
+            Trigger(
+                conditions=[cur_gridmode == len(gridvalues)],
+                actions=[cur_gridmode.SetNumber(0)]
+            )
+            EUDSwitch(cur_gridmode)
+            for i, (v, m) in enumerate(zip(gridvalues, gridmasks)):
+                EUDSwitchCase()(i)
+                DoActions([cur_gridval.SetNumber(v),
+                           cur_gridmask.SetNumber(m)])
+                EUDBreak()
+            EUDEndSwitch()
+        if EUDElseIf()(app_manager.key_down("F1")):
+            v_dispmode << DISPMODE_MANUAL
+        if EUDElseIf()(app_manager.key_up("F1")):
+            v_dispmode << DISPMODE_MAIN
+        if EUDElseIf()(app_manager.key_press("E", hold=["LCTRL"])):
+            v_tool << 1 - v_tool
         EUDEndIf()
 
-        # get new mode
-        if EUDIf()(app_manager.key_down(keymap["editor"]["hold"])):
-            is_holding << 1
-            prev_mX << cur_mX
-            prev_mY << cur_mY
-        if EUDElseIf()(app_manager.key_up(keymap["editor"]["hold"])):
-            is_holding << 0
-        EUDEndIf()
-
-        # functions
-        if EUDIf()(is_holding == 1):
-            dX = cur_mX - prev_mX
-            dY = cur_mY - prev_mY
-            if EUDIf()([dX == 0, dY == 0]):
-                # nothing to make change
-                pass
-            if EUDElse()():
-                # If values are preserved among frames, make a change.
-                # Otherwise, make mode clear.
-                #    It may due to a trigger that handles the location.
-                if EUDIf()([
-                            prev_lv == cur_lv,
-                            prev_tv == cur_tv,
-                            prev_rv == cur_rv,
-                            prev_bv == cur_bv,
-                        ]):
-
-                    # @TODO other modes...
-                    grid_X, grid_Y = EUDCreateVariables(2)
-                    if EUDIf()(cur_grid_mode == _GRID_NO):
-                        grid_X << cur_mX
-                        grid_Y << cur_mY
-                    if EUDElseIf()(cur_grid_mode == _GRID_8):
-                        grid_X << ((cur_mX // 8) * 8)
-                        grid_Y << ((cur_mY // 8) * 8)
-                    if EUDElseIf()(cur_grid_mode == _GRID_16):
-                        grid_X << ((cur_mX // 16) * 16)
-                        grid_Y << ((cur_mY // 16) * 16)
-                    if EUDElseIf()(cur_grid_mode == _GRID_32):
-                        grid_X << ((cur_mX // 32) * 32)
-                        grid_Y << ((cur_mY // 32) * 32)
-                    EUDEndIf()
-
-                    if EUDIf()(cur_mode == _POINT_LT):
-                        DoActions([
-                            SetMemoryEPD(le, SetTo, grid_X),
-                            SetMemoryEPD(te, SetTo, grid_Y),
-                        ])
-                    if EUDElseIf()(cur_mode == _POINT_RT):
-                        DoActions([
-                            SetMemoryEPD(re, SetTo, grid_X),
-                            SetMemoryEPD(te, SetTo, grid_Y),
-                        ])
-                    if EUDElseIf()(cur_mode == _POINT_RB):
-                        DoActions([
-                            SetMemoryEPD(re, SetTo, grid_X),
-                            SetMemoryEPD(be, SetTo, grid_Y),
-                        ])
-                    if EUDElseIf()(cur_mode == _POINT_LB):
-                        DoActions([
-                            SetMemoryEPD(le, SetTo, grid_X),
-                            SetMemoryEPD(be, SetTo, grid_Y),
-                        ])
-                    if EUDElseIf()(cur_mode == _SIDE_L):
-                        DoActions([SetMemoryEPD(le, SetTo, grid_X)])
-                    if EUDElseIf()(cur_mode == _SIDE_T):
-                        DoActions([SetMemoryEPD(te, SetTo, grid_Y)])
-                    if EUDElseIf()(cur_mode == _SIDE_R):
-                        DoActions([SetMemoryEPD(re, SetTo, grid_X)])
-                    if EUDElseIf()(cur_mode == _SIDE_B):
-                        DoActions([SetMemoryEPD(be, SetTo, grid_Y)])
-                    if EUDElseIf()(cur_mode == _MOVE):
-                        DoActions([
-                            SetMemoryEPD(ee, Add, vv) for ee, vv in zip(
-                                [le, te, re, be],
-                                [dX, dY, dX, dY]
-                            )
-                        ])
-                    EUDEndIf()
+        if EUDIf()(v_tool == TOOL_CREATE):
+            if EUDIf()(app_manager.mouse_ldrag(sync=[cur_mX, cur_mY])):
+                if EUDIf()(cur_gridval == 1):
+                    cur_lv << prev_mX
+                    cur_tv << prev_mY
+                    cur_rv << cur_mX
+                    cur_bv << cur_mY
                 if EUDElse()():
-                    # value changed!
-                    # other trigger may handled the location
-                    is_holding << 0
+                    cur_lv << f_bitand(prev_mX + (cur_gridval // 2), cur_gridmask)
+                    cur_tv << f_bitand(prev_mY + (cur_gridval // 2), cur_gridmask)
+                    cur_rv << f_bitand(cur_mX + (cur_gridval // 2), cur_gridmask)
+                    cur_bv << f_bitand(cur_mY + (cur_gridval // 2), cur_gridmask)
+                EUDEndIf()
+                f_dwwrite_epd(le, cur_lv)
+                f_dwwrite_epd(te, cur_tv)
+                f_dwwrite_epd(re, cur_rv)
+                f_dwwrite_epd(be, cur_bv)
+            if EUDElseIf()(app_manager.mouse_lpress(sync=[cur_mX, cur_mY])):
+                prev_mX << cur_mX
+                prev_mY << cur_mY
+            EUDEndIf()
+        if EUDElse()():
+            if EUDIf()(app_manager.mouse_lclick(sync=[cur_mX, cur_mY])):
+                '''
+                evaluate available modes
+                if available modes not changed,
+                    set next mode, find available starts from the previous mode
+                else:
+                    set next mode, find available starts from mode = 0
+                '''
+                self.evaluate_available_editmodes()
 
-                    # @TODO report
+                if EUDIf()(f_memcmp_epd(EPD(prev_available_editmodes),
+                                        EPD(cur_available_editmodes),
+                                        len(py_editmodes)) == 0):
+                    cur_editmode += 1
+                if EUDElse()():
+                    cur_editmode << 0
+                EUDEndIf()
+
+                if EUDIf()([MemoryEPD(EPD(cur_available_editmodes)+i, Exactly, 0) \
+                        for i in range(len(py_editmodes))]):
+                    # not available
+                    cur_editmode << -1
+                if EUDElse()():
+                    # choose available
+                    if EUDLoopN()(len(py_editmodes)):
+                        Trigger(
+                            conditions=cur_editmode.Exactly(len(py_editmodes)),
+                            actions=cur_editmode.SetNumber(0)
+                        )
+                        if EUDIf()(cur_available_editmodes[cur_editmode] == 1):
+                            EUDBreak()
+                        EUDEndIf()
+                        cur_editmode += 1
+                    EUDEndLoopN()
+                EUDEndIf()
+
+                f_repmovsd_epd(EPD(prev_available_editmodes),
+                               EPD(cur_available_editmodes),
+                               len(py_editmodes))
+            if EUDElseIf()(app_manager.key_down("H",
+                                                sync=[cur_mX, cur_mY])):
+                is_holding << 1
+                prev_mX << cur_mX
+                prev_mY << cur_mY
+            if EUDElseIf()(app_manager.key_press("H",
+                                                 sync=[cur_mX, cur_mY])):
+                is_holding << 1
+            EUDEndIf()
+
+            # functions
+            if EUDIf()(is_holding == 1):
+                dX = cur_mX - prev_mX
+                dY = cur_mY - prev_mY
+                if EUDIf()([dX == 0, dY == 0]):
+                    # nothing to make change
+                    pass
+                if EUDElse()():
+                    # If values are preserved among frames, make a change.
+                    # Otherwise, make mode clear.
+                    #    It may due to a trigger that handles the location.
+                    if EUDIf()([prev_lv == cur_lv,
+                                prev_tv == cur_tv,
+                                prev_rv == cur_rv,
+                                prev_bv == cur_bv]):
+
+                        # @TODO other modes...
+                        grid_X, grid_Y = EUDCreateVariables(2)
+                        grid_X << (cur_mX // cur_gridval) * cur_gridval
+                        grid_Y << (cur_mY // cur_gridval) * cur_gridval
+
+                        if EUDIf()(cur_editmode == _POINT_LT):
+                            DoActions([
+                                SetMemoryEPD(le, SetTo, grid_X),
+                                SetMemoryEPD(te, SetTo, grid_Y),
+                            ])
+                        if EUDElseIf()(cur_editmode == _POINT_RT):
+                            DoActions([
+                                SetMemoryEPD(re, SetTo, grid_X),
+                                SetMemoryEPD(te, SetTo, grid_Y),
+                            ])
+                        if EUDElseIf()(cur_editmode == _POINT_RB):
+                            DoActions([
+                                SetMemoryEPD(re, SetTo, grid_X),
+                                SetMemoryEPD(be, SetTo, grid_Y),
+                            ])
+                        if EUDElseIf()(cur_editmode == _POINT_LB):
+                            DoActions([
+                                SetMemoryEPD(le, SetTo, grid_X),
+                                SetMemoryEPD(be, SetTo, grid_Y),
+                            ])
+                        if EUDElseIf()(cur_editmode == _SIDE_L):
+                            DoActions([SetMemoryEPD(le, SetTo, grid_X)])
+                        if EUDElseIf()(cur_editmode == _SIDE_T):
+                            DoActions([SetMemoryEPD(te, SetTo, grid_Y)])
+                        if EUDElseIf()(cur_editmode == _SIDE_R):
+                            DoActions([SetMemoryEPD(re, SetTo, grid_X)])
+                        if EUDElseIf()(cur_editmode == _SIDE_B):
+                            DoActions([SetMemoryEPD(be, SetTo, grid_Y)])
+                        if EUDElseIf()(cur_editmode == _MOVE):
+                            DoActions([
+                                SetMemoryEPD(ee, Add, vv) for ee, vv in zip(
+                                    [le, te, re, be],
+                                    [dX, dY, dX, dY]
+                                )
+                            ])
+                        EUDEndIf()
+                    if EUDElse()():
+                        # value changed!
+                        # other trigger may handled the location
+                        is_holding << 0
+
+                        # @TODO report
+                    EUDEndIf()
                 EUDEndIf()
             EUDEndIf()
+
+            # update new value
+            for vv, ee in zip([prev_lv, prev_tv, prev_rv, prev_bv],
+                              [le, te, re, be]):
+                vv << f_dwread_epd(ee)
+            prev_mX << cur_mX
+            prev_mY << cur_mY
         EUDEndIf()
-
-        # update new value
-        for vv, ee in zip(                            \
-                [prev_lv, prev_tv, prev_rv, prev_bv], \
-                [le, te, re, be]):
-            vv << f_dwread_epd(ee)
-        prev_mX << cur_mX
-        prev_mY << cur_mY
-
 
         #####################
         #   Draw Location   #
         #####################
 
         # draw location with "Scanner Sweep"
-        draw_rectangle(target, frame, FRAME_PERIOD)
+        draw_rectangle(target)
 
-        # graphical set
-        DoActions(frame.AddNumber(1))
-        Trigger(
-            conditions=frame.Exactly(FRAME_PERIOD),
-            actions=frame.SetNumber(0)
-        )
         app_manager.request_update()
 
     def print(self, writer):
         if EUDIf()(v_dispmode == DISPMODE_MAIN):
-            # Title, tells its editing mode
-            writer.write_f("Location Editor #%D ", target)
+            writer.write_f("\x16Location Editor #%D %:location; Grid: %D / "
+                           "Press F1 to get manual\n",
+                           target, (target, ), cur_gridval)
 
-            writer.write_f("'%E' ", get_locationname_epd(target))
+            if EUDIf()(v_tool == TOOL_CREATE):
+                writer.write_f("Create tool - update location with just drag\n")
+            if EUDElseIf()(v_tool == TOOL_EDIT):
+                writer.write_f("Edit tool")
+                if EUDIf()(is_holding == 1):
+                    writer.write_f(" Holding...\n")
+                if EUDElse()():
+                    writer.write_f(" Move mouse cursor with holding 'H'\n")
+                EUDEndIf()
 
-            writer.write_f("Mode: ")
-            to_pass = Forward()
-            if EUDIf()(cur_mode == -1):
-                writer.write_f("--")
-                EUDJump(to_pass)
+                # note: without \x0D, some of those characters are handled
+                #       as color code in SC
+                writer.write_f(
+                    "%C\x0D┎%C\x0D━%C\x0D┒\n"
+                    "%C\x0D┃%C\x0D╋%C\x0D┃\n"
+                    "%C\x0D┖%C\x0D━%C\x0D┚\n",
+                    EUDTernary(cur_editmode==_POINT_LT)(0x11)(0x16),
+                    EUDTernary(cur_editmode==_SIDE_T)(0x11)(0x16),
+                    EUDTernary(cur_editmode==_POINT_RT)(0x11)(0x16),
+                    EUDTernary(cur_editmode==_SIDE_L)(0x11)(0x16),
+                    EUDTernary(cur_editmode==_MOVE)(0x11)(0x16),
+                    EUDTernary(cur_editmode==_SIDE_R)(0x11)(0x16),
+                    EUDTernary(cur_editmode==_POINT_LB)(0x11)(0x16),
+                    EUDTernary(cur_editmode==_SIDE_B)(0x11)(0x16),
+                    EUDTernary(cur_editmode==_POINT_RB)(0x11)(0x16))
             EUDEndIf()
-            for i in range(len(py_modes)):
-                if EUDIf()(cur_mode == i):
-                    writer.write_f(py_modes_string[i])
-                EUDEndIf()
-            if EUDIf()(is_holding == 1):
-                writer.write_f(" Holding...")
-            if EUDElse()():
-                writer.write_f(" Press '%s' to hold" % keymap["editor"]["hold"])
-            EUDEndIf()
 
-            to_pass << NextTrigger()
-
-            for gi in range(len(py_grid_modes)):
-                if EUDIf()(cur_grid_mode == gi):
-                    writer.write_f("\nGrid (Press '{}' to change): %D" \
-                        .format(keymap["editor"]["change_grid_mode"])
-                        , py_grid_values[gi])
-                EUDEndIf()
-
-            writer.write_f("\nAvailable modes (LClick with mouse on the map to change): ")
-            for i in range(len(py_modes)):
-                if EUDIf()(cur_available_modes[i]):
-                    writer.write_f(py_modes_string[i] + " ")
-                EUDEndIf()
-            writer.write_f("\n")
-
-            writer.write_f("Left %D\n", cur_lv)
-            writer.write_f("Right %D\n", cur_rv)
-            writer.write_f("Top %D\n", cur_tv)
-            writer.write_f("Bottom %D\n", cur_bv)
+            writer.write_f(
+                "\x16Left %D\n"
+                "Right %D\n"
+                "Top %D\n"
+                "Bottom %D\n",
+                cur_lv, cur_rv, cur_tv, cur_bv)
 
             if EUDIf()([cur_lv <= 0x80000000, cur_rv <= 0x80000000]):
                 if EUDIfNot()(cur_lv <= cur_rv):
@@ -402,12 +395,15 @@ class LocationEditorApp(Application):
             EUDEndIf()
         if EUDElse()():
             writer.write_f(
-                "Location Editor Manual\n"
+                "\x16Location Editor Manual\n"
+                "Press CTRL+G to change grid size (1, 8, 16, 32)\n"
+                "Press CTRL+E to change tool\n"
+                "Creator tool creates small location with dragging\n"
+                "Editor tool updates specific component of location\n"
                 "Chat sw(##) to set width with given number\n"
                 "Chat sh(##) to set height with given number\n"
                 "Chat sf(##) to set flag with given number\n"
-                "Chat cn() to update the name\n"
-            )
+                "Chat cn() to update the name of location\n")
         EUDEndIf()
 
         writer.write(0)

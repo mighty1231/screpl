@@ -28,13 +28,19 @@ DISPMODE_MAIN = 0
 DISPMODE_MANUAL = 1
 v_dispmode = EUDVariable()
 
+v_manual_once = EUDVariable(0)
+
+db_scrollspeeds = Db(49)
+db_0 = Db(49)
+
 class StringEditorApp(Application):
     def on_init(self):
         v_mode << MODE_INSERT
         string_offset_epd = STRSection_epd + cur_string_id
         v_oldbuf_offset << f_dwread_epd(string_offset_epd)
         string_ptr = STRSection + v_oldbuf_offset
-        if EUDIf()([string_ptr >= string_buffer, string_ptr <= (string_buffer_end - 1)]):
+        if EUDIf()([string_ptr >= string_buffer,
+                    string_ptr <= (string_buffer_end - 1)]):
             # already allocated
             v_changed << 1
             v_string_epd << EPD(string_ptr)
@@ -45,6 +51,10 @@ class StringEditorApp(Application):
         EUDEndIf()
         v_cursor_epd << v_string_epd
         v_dispmode << DISPMODE_MAIN
+
+        # set keyboard scroll to 0
+        f_memcpy(db_scrollspeeds, 0x513B68, 49)
+        f_memcpy(0x513B68, db_0, 49)
 
     def on_destruct(self):
         if EUDIf()(v_changed == 0):
@@ -60,7 +70,8 @@ class StringEditorApp(Application):
                 (EPD(act + 16), SetTo, v_previous_alloc_epd),
             ])
             if EUDInfLoop()():
-                EUDBreakIf(cond << Memory(0, AtLeast, 0)) # Memory(cur_epd, AtLeast, new_alloc_epd)
+                # Memory(cur_epd, AtLeast, new_alloc_epd)
+                EUDBreakIf(cond << Memory(0, AtLeast, 0))
 
                 DoActions([
                     act << SetMemory(0, SetTo, 0), # SetMemory(cur_epd, Add, 1)
@@ -72,6 +83,9 @@ class StringEditorApp(Application):
             f_dwwrite_epd(STRSection_epd + cur_string_id, v_oldbuf_offset)
             new_alloc_epd << v_previous_alloc_epd
         EUDEndIf()
+
+        # restore scroll
+        f_memcpy(0x513B68, db_scrollspeeds, 49)
 
     def on_chat(self, address):
         global v_cursor_epd
@@ -313,19 +327,17 @@ class StringEditorApp(Application):
             v_mode << 1 - v_mode
         if EUDElseIf()(app_manager.key_press("DELETE")):
             f_strcpy_epd(v_cursor_epd, v_cursor_epd + 1)
-            app_manager.clean_text()
         if EUDElseIf()(app_manager.key_press("BACK")):
             if EUDIfNot()(v_cursor_epd == v_string_epd):
                 v_cursor_epd -= 1
                 f_strcpy_epd(v_cursor_epd, v_cursor_epd + 1)
             EUDEndIf()
-            app_manager.clean_text()
-        if EUDElseIf()(app_manager.key_press("F7")):
+        if EUDElseIf()(app_manager.key_press("LEFT")):
             if EUDIfNot()(v_cursor_epd == v_string_epd):
                 v_cursor_epd -= 1
                 v_frame << BLINK_PERIOD * 2 - 1
             EUDEndIf()
-        if EUDElseIf()(app_manager.key_press("F8")):
+        if EUDElseIf()(app_manager.key_press("RIGHT")):
             if EUDIfNot()(MemoryEPD(v_cursor_epd, Exactly, 0)):
                 v_cursor_epd += 1
                 v_frame << BLINK_PERIOD * 2 - 1
@@ -349,10 +361,9 @@ class StringEditorApp(Application):
             v_frame << BLINK_PERIOD * 2 - 1
         if EUDElseIf()(app_manager.key_down("F1")):
             v_dispmode << DISPMODE_MANUAL
-            app_manager.clean_text()
+            v_manual_once << 1
         if EUDElseIf()(app_manager.key_up("F1")):
             v_dispmode << DISPMODE_MAIN
-            app_manager.clean_text()
         EUDEndIf()
         app_manager.request_update()
 
@@ -367,6 +378,10 @@ class StringEditorApp(Application):
         color_code : 0x01 - 0x1F
         except for 0x09 - 0x0D, 0x12, 0x13
         '''
+        if EUDIfNot()(v_manual_once):
+            writer.write_f("String Editor: press F1 to get manual\n")
+        EUDEndIf()
+
         if EUDIf()(v_dispmode == DISPMODE_MAIN):
             global v_cursor_epd
 
@@ -419,7 +434,7 @@ class StringEditorApp(Application):
                 "String Editor\n"
                 "Chat any string to insert/overwrite on the cursor. "
                 "Press BACKSPACE/DELETE to remove a character on the cursor.\n"
-                "Press F7, F8, HOME, or END to move the cursor. "
+                "Press LEFT, RIGHT, HOME, or END to move the cursor. "
                 "Press INSERT to toggle insert/overwrite mode.\n"
                 "Chat \\n (newline) \\t (tab) \\x## (bytecode) \\u#### (unicode) to insert special characters\n"
                 "\\x12 Right Align \\x13 Center Align \\x0B \\x14 Invisible \\x0C Remove Beyond\n"

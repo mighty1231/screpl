@@ -8,11 +8,28 @@ from screpl.utils.referencetable import ReferenceTable
 
 # initialize global variables
 manager = get_app_manager()
-accessed_resources = set()
-death_units = []
 watched_eud_vars = ReferenceTable(key_f=EPDConstString)
 
-def explore_triggers():
+def watch_variable(name, var):
+    """Add EUDVariable on watch list, with given name"""
+    assert IsEUDVariable(var)
+    watched_eud_vars.add_pair(name, EPD(var.getValueAddr()))
+
+condition_writer = None
+
+def plugin_get_dependency():
+    """Returns list of required plugins"""
+    return []
+
+def plugin_setup():
+    global condition_writer
+
+    # make commands
+    from .condition import VariableConditionManager
+
+    condition_writer = VariableConditionManager()
+
+    # explore conditions
     orig_triggers = GetChkTokenized().getsection(b'TRIG')
     assert len(orig_triggers) % 2400 == 0
 
@@ -21,71 +38,24 @@ def explore_triggers():
         trig = orig_triggers[offset:offset+2400]
 
         # parse triggers
-        conditions = []
         for i in range(16):
             condition = trig[20*i:20*(i+1)]
-            conditions.append(condition)
-
-        # parse actions
-        actions = []
-        for i in range(64):
-            action = trig[16*20+32*i:16*20+32*(i+1)]
-            actions.append(action)
-
-        for condition in conditions:
             condtype = condition[15]
             player = b2i4(condition, 4)
             unitid = b2i2(condition, 12)
             restype = condition[16]
 
-            # search Accumulate
-            if condtype == 4 and player <= 26:
-                if restype == EncodeResource(Ore):
-                    accessed_resources.add(Ore)
-                elif restype == EncodeResource(Gas):
-                    accessed_resources.add(Gas)
-                elif restype == EncodeResource(OreAndGas):
-                    accessed_resources.add(Ore)
-                    accessed_resources.add(Gas)
-                else:
-                    raise RuntimeError("Unknown restype on Accumulate, %d" % restype)
-
-            # search Deaths
-            if condtype == 15 and     \
-                    player <= 26 and  \
-                    unitid not in death_units:
-                death_units.append(unitid)
-
-        # search SetDeaths
-        for action in actions:
-            acttype = action[26]
-            player = b2i4(action, 16)
-            unitid = b2i2(action, 24)
-
-            if acttype == 45 and      \
-                    player <= 26 and  \
-                    unitid not in death_units:
-                death_units.append(unitid)
+            if condtype == 0:
+                break
+            condition_writer.add_entry(condition)
 
         offset += 2400
-
-explore_triggers()
-
-def watch_variable(name, var):
-    assert IsEUDVariable(var)
-    watched_eud_vars.add_pair(name, EPD(var.getValueAddr()))
-
-def plugin_get_dependency():
-    """Returns list of required plugins"""
-    return []
-
-def plugin_setup():
-    # make commands
-    from .varapp import VariableApp
+    condition_writer.make_funcptrs()
 
     @AppCommand([])
     def start_command(self):
         """Start VariableApp"""
+        from .varapp import VariableApp
         manager.start_application(VariableApp)
 
     REPL.add_command('var', start_command)

@@ -124,7 +124,6 @@ class ReadStructApp(Application):
 
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         EUDEndIf()
 
         if EUDIf()(v_state == STATE_CONFIG):
@@ -145,7 +144,8 @@ class ReadStructApp(Application):
 
             v_remaining_bytes -= v_new_written
             v_written += v_new_written
-            if EUDIf()(v_remaining_bytes == 0):
+            if EUDIf()(app_manager.synchronize([
+                    (EPD(v_remaining_bytes.getValueAddr()), Exactly, 0)])):
                 v_state << STATE_CONFIG
             EUDEndIf()
         EUDEndIf()

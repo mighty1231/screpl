@@ -68,7 +68,6 @@ class MyApp(Application):
         """
         if EUDIf()(manager.key_press("ESC")):
             manager.request_destruct()
-            EUDReturn()
         EUDEndIf()
 
         self.var1 += 1

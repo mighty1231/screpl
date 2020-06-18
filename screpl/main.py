@@ -46,6 +46,9 @@ def is_bridge_mode():
     """Returns bool that indicates bridge is active"""
     return _bridge_region is not None
 
+def get_bridge_region():
+    return _bridge_region
+
 def is_blind_mode():
     """Returns bool that indicates blind mode is active"""
     if is_bridge_mode():
@@ -76,14 +79,7 @@ def initialize_with_id(su_id):
     su_prefix = Db(40)
     writer = get_main_writer()
     writer.seekepd(EPD(su_prefix))
-    writer.write_str(0x57EEEB + 36*su_id) # player structure
-    writer.write(ord(':'))
-    if EUDIf()(f_getuserplayerid() == su_id):
-        writer.write(7)
-    if EUDElse()():
-        writer.write(2)
-    EUDEndIf()
-    writer.write(ord(' '))
+    writer.write_f("%S:\x07 ", 0x57EEEB + 36*su_id)
     writer.write(0)
     su_prefixlen = f_strlen(su_prefix)
 
@@ -106,15 +102,9 @@ def initialize_with_name(su_name):
     # build prefix for super user's chat
     # since game text uses different color code whether some chat is
     # mine or not, it should be differentiated recognizing user player id
-    su_prefix, su_id = EUDCreateVariables(2)
+    su_id = EUDVariable()
     su_name = su_name.encode('utf-8')
-    prefix_su = Db(su_name + bytes([58, 7, 32, 0]))
-    prefix_ot = Db(su_name + bytes([58, 2, 32, 0]))
-    if EUDIf()(f_getuserplayerid() == su_id):
-        su_prefix << prefix_su
-    if EUDElse()():
-        su_prefix << prefix_ot
-    EUDEndIf()
+    su_prefix = Db(su_name + bytes([58, 7, 32, 0]))
     su_prefixlen = len(su_name) + 3
 
     # find superuser id
@@ -223,13 +213,50 @@ def _cmd_eudturbo(self):
         writer.write_f("eudturbo \x04OFF")
     EUDEndIf()
 
+def print_ui():
+    """print display buffer from manager
+
+    It temporary saves line counts. If line count is decreased, additionally
+    print empty lines
+    """
+    prev_ln = EUDVariable()
+    empty_lines = Db(13)
+
+    text_ptr = f_dwread_epd(EPD(0x640B58))
+    f_printf("%E", EPD(_manager.display_buffer))
+    cur_ln = f_dwread_epd(EPD(0x640B58)) - text_ptr
+    Trigger(
+        conditions=cur_ln.AtLeast(0x80000000),
+        actions=cur_ln.AddNumber(11),
+    )
+    Trigger(
+        conditions=cur_ln.Exactly(0),
+        actions=cur_ln.AddNumber(11),
+    )
+
+    # now cur_ln is one of 1, 2, ..., 11
+    if EUDIfNot()(prev_ln <= cur_ln):
+        diff = prev_ln - cur_ln
+        _main_writer.seekepd(EPD(empty_lines))
+        if EUDInfLoop()():
+            EUDBreakIf(diff == 0)
+            _main_writer.write(ord("\n"))
+            diff -= 1
+        EUDEndInfLoop()
+        _main_writer.write(0)
+        f_printf("%E", EPD(empty_lines))
+    EUDEndIf()
+    prev_ln << cur_ln
+
+    SeqCompute([(EPD(0x640B58), SetTo, text_ptr)])
+
 def run():
     """Run main loop of SC-REPL"""
     global _loop_count
 
     if EUDExecuteOnce()():
         # REPL is the application on the base
-        _manager.start_application(repl.REPL)
+        _manager.start_application(repl.REPL, jump=False)
     EUDEndExecuteOnce()
 
     if EUDIfNot()(_trigger_timer.Exactly(-1)):
@@ -243,15 +270,11 @@ def run():
     if _bridge_region:
         # in blind mode case, display buffer is managed in BlindModeBlock
         if EUDIf()(_is_blind_mode == 0):
-            text_ptr = f_dwread_epd(EPD(0x640B58))
-            f_printf("%E", EPD(_manager.display_buffer))
-            SeqCompute([(EPD(0x640B58), SetTo, text_ptr)])
+            print_ui()
         EUDEndIf()
         _bridge_region.run()
     else:
-        text_ptr = f_dwread_epd(EPD(0x640B58))
-        f_printf("%E", EPD(_manager.display_buffer))
-        SeqCompute([(EPD(0x640B58), SetTo, text_ptr)])
+        print_ui()
 
     # update loop count
     _loop_count += 1

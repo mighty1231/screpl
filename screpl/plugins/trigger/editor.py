@@ -263,17 +263,17 @@ class TriggerEditorApp(Application):
         cond_epd = self.cond_epd
         act_epd = self.act_epd
 
+        hold_ctrl = app_manager.key_holdcounter("LCTRL")
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
-        if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            self.update_index(index - ENTRY_COUNT_PER_PAGE)
-        if EUDElseIf()(app_manager.key_press("F7")):
-            self.update_index(index - 1)
-        if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            self.update_index(index + ENTRY_COUNT_PER_PAGE)
-        if EUDElseIf()(app_manager.key_press("F8")):
-            self.update_index(index + 1)
+        if EUDElseIf()(app_manager.key_press("F7", sync=[hold_ctrl])):
+            self.update_index(index - EUDTernary(hold_ctrl)
+                                                (ENTRY_COUNT_PER_PAGE)
+                                                (1))
+        if EUDElseIf()(app_manager.key_press("F8", sync=[hold_ctrl])):
+            self.update_index(index + EUDTernary(hold_ctrl)
+                                                (ENTRY_COUNT_PER_PAGE)
+                                                (1))
         if EUDElseIf()(app_manager.key_press("R")):
             self.update_text()
         if EUDElseIf()(app_manager.key_press("T", hold=["LCTRL"])):
@@ -316,11 +316,9 @@ class TriggerEditorApp(Application):
             EUDEndIf()
         if EUDElseIf()(app_manager.key_down("F1")):
             v_mode << MODE_HELP
-            app_manager.clean_text()
             app_manager.request_update()
         if EUDElseIf()(app_manager.key_up("F1")):
             v_mode << MODE_MAIN
-            app_manager.clean_text()
             app_manager.request_update()
         EUDEndIf()
         olddb_epd = self.olddb_epd
@@ -422,21 +420,17 @@ class TriggerEditorApp(Application):
                     text_table_epd.AddNumber(ENTRY_LINE_LENGTH // 4),
                 ])
             EUDEndInfLoop()
-
-            if EUDInfLoop()():
-                EUDBreakIf(cur >= pageend)
-                writer.write(ord('\n'))
-                cur += 1
-            EUDEndInfLoop()
         if EUDElse()():
             writer.write_f(
                 "\x04Trigger Editor Manual\n"
                 "Press CTRL+T to switch tab (Condition/Action)\n"
-                "Press F7, F8 to change focus on trigger entry\n"
-                "  - F7, F8 may be combined with CTRL key\n"
-                "Press CTRL+E to edit focused trigger entry\n"
+                "Press F7, F8 to change focus on trigger entry"
+                " - F7, F8 may be combined with CTRL key\n"
+                "Press CTRL+E to edit focused trigger entry / "
                 "Press CTRL+N to add a new trigger entry\n"
-                "Press R to update trigger text forcefully\n"
+                "\x08Warning: adding a new entry on eudplib RawTrigger may cause unintended consequences\n"
+                "\x17Adding an entry on condcheck triggers or IntactTrigger is safe\n"
+                "\x04Press R to update trigger text on display forcefully\n"
                 "Chat 'setp(##)' updates current trigger pointer, "
                 "'setflag(##) updates current trigger flag'\n"
                 "Chat 'next()' updates current trigger pointer to next trigger\n"

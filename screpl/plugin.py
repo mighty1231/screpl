@@ -33,7 +33,7 @@ The contents on __init__.py may be::
 
     @AppCommand
     def cmd2(self):
-        CUnitDetailApp.setFocus_epd(EPD(0x59CCA8))
+        CUnitDetailApp.set_focus_epd(EPD(0x59CCA8))
         get_app_manager().start_application(CUnitDetailApp)
 
     def plugin_get_dependency():
@@ -72,6 +72,9 @@ class PluginManager:
 
     def load_plugin(self, plname):
         """Load screpl plugin"""
+        if plname == '':
+            return
+
         trig = NextTrigger()
         mod = import_module(plname)
         if trig.IsSet():

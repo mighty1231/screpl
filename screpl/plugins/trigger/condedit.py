@@ -82,7 +82,7 @@ class TrigConditionEditorApp(Application):
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         entry name: amount
 
-        [ Save (CTRL+Y) ] [ CANCEL (CTRL+N) ]
+        [ Save (CTRL+Y) ] [ Cancel (CTRL+N) ]
     """
     @staticmethod
     def set_cond_epd(cond_epd):
@@ -176,24 +176,19 @@ class TrigConditionEditorApp(Application):
     def loop(self):
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press("N", hold=["LCTRL"])):
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press("Y", hold=["LCTRL"])):
             f_repmovsd_epd(_cond_epd, EPD(db_storage), 20//4)
             app_manager.request_destruct()
-            EUDReturn()
         if EUDElseIf()(app_manager.key_press("F7")):
             set_focus(v_focus - 1)
         if EUDElseIf()(app_manager.key_press("F8")):
             set_focus(v_focus + 1)
         if EUDElseIf()(app_manager.key_down("F1")):
             v_mode << MODE_HELP
-            app_manager.clean_text()
         if EUDElseIf()(app_manager.key_up("F1")):
             v_mode << MODE_MAIN
-            app_manager.clean_text()
         EUDEndIf()
         app_manager.request_update()
 
@@ -217,7 +212,7 @@ class TrigConditionEditorApp(Application):
 
             writer.write_f("\n\x04entry: \x11%E\n"
                            "\n"
-                           "\x04[ Save (CTRL+Y) ] [ CANCEL (CTRL+N) ]\n",
+                           "\x04[ Save (CTRL+Y) ] [ Cancel (CTRL+N) ]\n",
                            TrigEntry.cast(v_focused_entry).name_epd)
         if EUDElse()():
             writer.write_f(

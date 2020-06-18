@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
     blocks/appoutput.cpp \
+    blocks/appstack.cpp \
     blocks/blindmode.cpp \
     blocks/gametext.cpp \
     blocks/logger.cpp \
@@ -33,6 +34,7 @@ LIBS += \
 
 HEADERS += \
     blocks/appoutput.h \
+    blocks/appstack.h \
     blocks/blindmode.h \
     blocks/gametext.h \
     blocks/logger.h \

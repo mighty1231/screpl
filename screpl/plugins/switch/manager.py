@@ -45,17 +45,13 @@ class SwitchManagerApp(Application):
         _result_epd << EPD(0)
 
     def loop(self):
+        hold_ctrl = app_manager.key_holdcounter("LCTRL")
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
-        if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            _focus_index(_index - 8)
-        if EUDElseIf()(app_manager.key_press("F7")):
-            _focus_index(_index - 1)
-        if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            _focus_index(_index + 8)
-        if EUDElseIf()(app_manager.key_press("F8")):
-            _focus_index(_index + 1)
+        if EUDElseIf()(app_manager.key_press("F7", sync=[hold_ctrl])):
+            _focus_index(_index - EUDTernary(hold_ctrl)(8)(1))
+        if EUDElseIf()(app_manager.key_press("F8", sync=[hold_ctrl])):
+            _focus_index(_index + EUDTernary(hold_ctrl)(8)(1))
         EUDEndIf()
         app_manager.request_update()
 
@@ -88,13 +84,6 @@ class SwitchManagerApp(Application):
             EUDEndIf()
 
             DoActions(cur.AddNumber(1))
-        EUDEndInfLoop()
-
-        # print spaces
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= pageend)
-            writer.write(ord('\n'))
-            cur += 1
         EUDEndInfLoop()
 
         writer.write(0)

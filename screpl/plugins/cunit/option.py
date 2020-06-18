@@ -31,17 +31,13 @@ class CUnitOptionApp(Application):
         v_mode << MODE_MAIN
 
     def loop(self):
+        hold_ctrl = app_manager.key_holdcounter("LCTRL")
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-            EUDReturn()
-        if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            set_focus(v_focused - 8)
-        if EUDElseIf()(app_manager.key_press("F7")):
-            set_focus(v_focused - 1)
-        if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            set_focus(v_focused + 8)
-        if EUDElseIf()(app_manager.key_press("F8")):
-            set_focus(v_focused + 1)
+        if EUDElseIf()(app_manager.key_press("F7", sync=[hold_ctrl])):
+            set_focus(v_focused - EUDTernary(hold_ctrl)(8)(1))
+        if EUDElseIf()(app_manager.key_press("F8", sync=[hold_ctrl])):
+            set_focus(v_focused + EUDTernary(hold_ctrl)(8)(1))
         if EUDElseIf()(app_manager.key_press("H")):
             member = CUnitMemberEntry.cast(cu_members[v_focused])
             if EUDIf()(member.activated == 1):
@@ -77,11 +73,9 @@ class CUnitOptionApp(Application):
             EUDEndIf()
         if EUDElseIf()(app_manager.key_down("F1")):
             v_mode << MODE_HELP
-            app_manager.clean_text()
             app_manager.request_update()
         if EUDElseIf()(app_manager.key_up("F1")):
             v_mode << MODE_MAIN
-            app_manager.clean_text()
             app_manager.request_update()
         EUDEndIf()
 
@@ -142,11 +136,6 @@ class CUnitOptionApp(Application):
                 DoActions([cur.AddNumber(1)])
             EUDEndInfLoop()
 
-            if EUDInfLoop()():
-                EUDBreakIf(cur >= pageend)
-                writer.write(ord('\n'))
-                cur += 1
-            EUDEndInfLoop()
         if EUDElse()():
             focused_entry = CUnitMemberEntry(cu_members[v_focused])
             writer.write_f("\x04CUnitMemberEntry \x11%E\x04\n", focused_entry.name_epd)

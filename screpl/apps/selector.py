@@ -77,16 +77,13 @@ class SelectorApp(application.Application):
 
     def loop(self):
         app_manager = main.get_app_manager()
+        hold_ctrl = app_manager.key_holdcounter("LCTRL")
         if EUDIf()(app_manager.key_press("ESC")):
             app_manager.request_destruct()
-        if EUDElseIf()(app_manager.key_press("F7", hold=["LCTRL"])):
-            _focus_index(_index - ENTRY_COUNT_PER_PAGE)
-        if EUDElseIf()(app_manager.key_press("F7")):
-            _focus_index(_index - 1)
-        if EUDElseIf()(app_manager.key_press("F8", hold=["LCTRL"])):
-            _focus_index(_index + ENTRY_COUNT_PER_PAGE)
-        if EUDElseIf()(app_manager.key_press("F8")):
-            _focus_index(_index + 1)
+        if EUDElseIf()(app_manager.key_press("F7", sync=[hold_ctrl])):
+            _focus_index(_index - EUDTernary(hold_ctrl)(ENTRY_COUNT_PER_PAGE)(1))
+        if EUDElseIf()(app_manager.key_press("F8", sync=[hold_ctrl])):
+            _focus_index(_index + EUDTernary(hold_ctrl)(ENTRY_COUNT_PER_PAGE)(1))
         if EUDElseIf()(app_manager.key_down("F1")):
             _dispmode << DISPMODE_MANUAL
             app_manager.request_update()
@@ -136,13 +133,6 @@ class SelectorApp(application.Application):
                 key_epd.AddNumber(2),
                 value_epd.AddNumber(2),
             ])
-        EUDEndInfLoop()
-
-        # print spaces
-        if EUDInfLoop()():
-            EUDBreakIf(cur >= pageend)
-            writer.write(ord('\n'))
-            cur += 1
         EUDEndInfLoop()
 
         writer.write(0)

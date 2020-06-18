@@ -51,6 +51,16 @@ def f_printf(*args):
     _get_writer().write(0)
     _print_buf()
 
+def f_sprintf(address, *args):
+    _get_writer().seekoffset(address)
+    _get_writer().write_f(*args)
+    _get_writer().write(0)
+
+def f_epdsprintf(epd, *args):
+    _get_writer().seekepd(epd)
+    _get_writer().write_f(*args)
+    _get_writer().write(0)
+
 class DisplayWriter:
     r"""Helps to display text, preserving bottom part of chat
 

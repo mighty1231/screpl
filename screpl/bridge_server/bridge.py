@@ -45,12 +45,14 @@ from .blocks import (
     gametext,
     logger,
     profile,
+    appstack,
 )
 from screpl.bridge_server.signature import dead_signature, restore_signature
 import screpl.main as main
 
 # protocol versions
 BRIDGE_PROTOCOL_VER_1 = 0x20200604
+BRIDGE_PROTOCOL_VER_2 = 0x20200616
 
 class BridgeRegion(EUDObject):
     def __init__(self):
@@ -69,6 +71,9 @@ class BridgeRegion(EUDObject):
         self.blocks.append(gametext.GameTextBlock(self))
         self.blocks.append(logger.LoggerBlock(self))
         self.blocks.append(profile.ProfileBlock(self))
+        self.blocks.append(appstack.AppStackBlock(self))
+
+        self.buf_command = Db(300)
 
         # region_size is on region+160+4+4
         Logger.format("Bridge region ptr = %H, size = %D",
@@ -101,7 +106,7 @@ class BridgeRegion(EUDObject):
         emitbuffer.WriteBytes(dead_signature)
         emitbuffer.WriteDword(0)
         emitbuffer.WriteDword(0)
-        emitbuffer.WriteDword(BRIDGE_PROTOCOL_VER_1)
+        emitbuffer.WriteDword(BRIDGE_PROTOCOL_VER_2)
         emitbuffer.WriteDword(self.GetDataSize())
 
         emitbuffer.WriteBytes(bytes(300))
@@ -112,7 +117,6 @@ class BridgeRegion(EUDObject):
 
     def run(self):
         """Maintains the instance"""
-        buf_command = Db(300)
 
         # Too-much milk solution #3
         # attach note
@@ -123,7 +127,8 @@ class BridgeRegion(EUDObject):
             ############# from bridge ###############
             # read command
             if EUDIfNot()(Memory(self._command, Exactly, 0)):
-                f_repmovsd_epd(EPD(buf_command), EPD(self._command), 300//4)
+                f_repmovsd_epd(EPD(self.buf_command),
+                               EPD(self._command), 300//4)
 
                 # notify command is read
                 DoActions(SetMemory(self._command, SetTo, 0))
@@ -145,11 +150,3 @@ class BridgeRegion(EUDObject):
 
         # keep signature (make bridge to know REPL is alive)
         restore_signature(self)
-
-        # command from bridge client
-        if EUDIfNot()(Memory(buf_command, Exactly, 0)):
-            main.get_app_manager()              \
-                .get_foreground_app_instance()  \
-                .on_chat(buf_command)
-            DoActions(SetMemory(buf_command, SetTo, 0))
-        EUDEndIf()
