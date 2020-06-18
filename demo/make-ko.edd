@@ -1,0 +1,11 @@
+[main]
+input: base-ko.scx
+output: result-ko.scx
+
+[prepl]
+superuser: P1
+plugins: screpl.plugins.boundeditor screpl.plugins.cunit screpl.plugins.display screpl.plugins.dump screpl.plugins.location screpl.plugins.memory screpl.plugins.string screpl.plugins.switch screpl.plugins.test screpl.plugins.trigger screpl.plugins.unit screpl.plugins.variable
+bridge_mode: on
+
+[freeze]
+freeze: 0
