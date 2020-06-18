@@ -1,3 +1,35 @@
+# Release 1.1.5
+
+## Major Features and Improvements
+* supports multiplay games
+  * `AppManager` shares keyboard, mouse, and chat of `superuser` inside `loop`
+  * `bridge`: `superuser` inject command, receives application output on multiplay games
+  * synchronizes additional private variables
+* new block on `bridge` - application stack
+  * shows names of apps in the application stack of `AppManager`
+* new demo maps to practice SC-REPL use
+* `REPL` supports new `AppCommand` - `maphack()` - to toggle map vision state
+* plugin `boundeditor` supports new macro, `MoveUnit`, that adds MoveUnit action which moves runner unit on anywhere to specified location.
+* plugin `location`
+  * `LocationEditor` in supports `Creator` mode to update location easily
+  * `draw_rectangle` draws location to be more accurate
+* plugin `memory` supports to edit values on the memory
+* plugin `string`: `StringEditorApp` uses arrow key to move cursor, instead of `F7` and `F8`
+* plugin `trigger`: `CondCheckApp` shows condition type for each value
+* plugin `unit` supports create or delete units
+* plugin `variable` logs all the values used on comparison conditions
+
+## Bug Fixes and Other Changes
+* simplified application stack on `AppManager`
+* flexible UI
+  * cleans bigger UI of previous display, evaluating the number of new line characters
+  * removed `clean_text`
+* package `utils`
+  * `utils.byterw.REPLByteRW.write_f` supports function-formatting
+  * `utils.debug.f_sprintf`, `utils.debug.f_epdsprintf`
+  * new module `sync` and `uuencode` to support synchronization
+
+
 # Release 1.1.4
 
 ## Bug Fixes and Other Changes

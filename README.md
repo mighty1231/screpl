@@ -76,7 +76,7 @@ euddraft0.*.*.*
 ```
 [prepl]
 superuser: P1
-plugins: screpl.plugins.location screpl.plugins.string screpl.plugins.cunit
+plugins: screpl.plugins.location screpl.plugins.string screpl.plugins.unit
 ```
 * Check [how to write edd file](https://github.com/mighty1231/screpl/wiki/How-to-write-edd-file)
 
