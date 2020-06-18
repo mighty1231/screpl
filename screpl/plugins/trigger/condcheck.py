@@ -103,19 +103,16 @@ class CondCheckApp(Application):
             mcb.iter(write_entry)
         if EUDElse()():
             writer.write_f(
-                "\x04Condition check Manual - (Navigation: F7/F8, Edit trigger: CTRL+E)\n"
-                "\x17(start_tick)-(end_tick): \x0Fv0 v1 v2 ...\n"
-                "\x17tick\x04: the value of 0x57F23C (f_getgametick())\n"
-                "\x04During \x17start_tick \x04to \x17end_tick\x04, "
+                "\x04Condition check debugs trigger, logging conditions\n"
+                "Navigation: F7/F8, Open trigger manager: CTRL+E\n"
+                "Format: \x17(start_tick)-(end_tick): \x0Fv0 v1 v2 ...\n"
+                "\x17 - tick\x04: the value of 0x57F23C (f_getgametick())\n"
+                "\x04   During \x17start_tick \x04to \x17end_tick\x04, "
                     "all the conditions behaved as the same way\n"
-                "\x0Fcolor of v\x04: condition check result. "
+                "\x0F - color of v\x04: condition check result. "
                     "\x07pass \x06fail\n"
-                "\x0Fvalue of v\x04: The exact amount to satisfy "
+                "\x0F - value of v\x04: The exact amount to satisfy "
                     "the \x1Fcomparison conditions\n"
-                "\n"
-                "\x1F[Comparison conditions]\n"
-                "\x02CountdownTimer, Command, Bring, Accumulate, "
-                "Kills, ElapsedTime, Opponents, Deaths, Score\n"
             )
         EUDEndIf()
         writer.write(0)

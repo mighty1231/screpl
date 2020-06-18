@@ -11,13 +11,12 @@ class VariableApp(ScrollApp):
 
     def write_title(self, writer):
         writer.write_f(
-            "Variable App. press F7/F8. %D / conditions(%D) + EUDVariables(%D)",
-            self.offset,
-            condition_writer.funcptr_len,
-            watched_eud_vars.size())
+            "Variable App. Shows exact values of P1~P8. "
+            "press F7 or F8 to navigate")
 
     def write_line(self, writer, line):
         if EUDIf()(line <= condition_writer.funcptr_len-1):
+            writer.write_f("\x16 %D: ", line + 1)
             EUDFuncPtr(0, 0)(condition_writer.funcptr_arr[line])()
         if EUDElse()():
             if EUDIf()(line == condition_writer.funcptr_len):

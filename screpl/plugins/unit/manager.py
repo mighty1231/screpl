@@ -163,7 +163,7 @@ class UnitManagerApp(Application):
                 "Press ESC to destroy the unit manager\n"
                 "Press F7/F8 to change focus\n"
                 "Press F7/F8 with holding CTRL key to move focus at page level\n"
-                "Press 1, 2, ..., 8 to create focused unit on mouse cursor\n"
+                "Press 1~8 on keyboard to create P1~P8 unit on mouse cursor\n"
                 "Press DELETE to kill selected unit\n")
         EUDEndIf()
         writer.write(0)
