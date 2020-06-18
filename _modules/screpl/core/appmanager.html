@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.core.appmanager — SC-REPL 1.1.4 documentation
+   screpl.core.appmanager — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -224,19 +224,23 @@
         <pre>
 <span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 
-<span class="kn">from</span> <span class="nn">screpl.utils.pool</span> <span class="kn">import</span> <span class="n">DbPool</span><span class="p">,</span> <span class="n">VarPool</span>
-<span class="kn">from</span> <span class="nn">screpl.utils.debug</span> <span class="kn">import</span> <span class="n">f_raise_error</span><span class="p">,</span> <span class="n">f_raise_warning</span><span class="p">,</span> <span class="n">f_printf</span>
+<span class="kn">from</span> <span class="nn">screpl.utils.array</span> <span class="kn">import</span> <span class="n">create_refarray</span>
+<span class="kn">from</span> <span class="nn">screpl.utils.conststring</span> <span class="kn">import</span> <span class="n">EPDConstString</span>
+<span class="kn">from</span> <span class="nn">screpl.utils.debug</span> <span class="kn">import</span> <span class="n">f_raise_error</span><span class="p">,</span> <span class="n">f_raise_warning</span>
 <span class="kn">from</span> <span class="nn">screpl.utils.keycode</span> <span class="kn">import</span> <span class="n">get_key_code</span>
-<span class="kn">from</span> <span class="nn">screpl.utils.string</span> <span class="kn">import</span> <span class="n">f_strlen</span>
-
-<span class="kn">import</span> <span class="nn">screpl.main</span> <span class="k">as</span> <span class="nn">main</span>
+<span class="kn">from</span> <span class="nn">screpl.utils.pool</span> <span class="kn">import</span> <span class="n">DbPool</span><span class="p">,</span> <span class="n">VarPool</span>
+<span class="kn">from</span> <span class="nn">screpl.utils.sync</span> <span class="kn">import</span> <span class="n">SyncManager</span>
 
 <span class="n">_KEYPRESS_DELAY</span> <span class="o">=</span> <span class="mi">8</span>
 <span class="n">_APP_MAX_COUNT</span> <span class="o">=</span> <span class="mi">30</span>
 
+<span class="n">_APP_STATUS_NORMAL</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">_APP_STATUS_INITIALIZE</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">_APP_STATUS_DESTRUCTING</span> <span class="o">=</span> <span class="mi">2</span>
+
 <div class="viewcode-block" id="AppManager"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager">[docs]</a><span class="k">class</span> <span class="nc">AppManager</span><span class="p">:</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">su_id</span><span class="p">,</span> <span class="n">su_prefix</span><span class="p">,</span> <span class="n">su_prefixlen</span><span class="p">):</span>
-        <span class="kn">from</span> <span class="nn">.application</span> <span class="kn">import</span> <span class="n">ApplicationInstance</span>
+        <span class="kn">from</span> <span class="nn">.application</span> <span class="kn">import</span> <span class="n">ApplicationInstance</span><span class="p">,</span> <span class="n">ApplicationStruct</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">su_id</span> <span class="o">=</span> <span class="n">su_id</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">su_prefix</span> <span class="o">=</span> <span class="n">su_prefix</span>
@@ -248,20 +252,12 @@
 
         <span class="c1"># variables that support several apps</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_foreground_app_instance</span> <span class="o">=</span> <span class="n">ApplicationInstance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">app_method_stack</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="n">_APP_MAX_COUNT</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">app_cmdtab_stack</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="n">_APP_MAX_COUNT</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">app_member_stack</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="n">_APP_MAX_COUNT</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDExecuteOnce</span><span class="p">()():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cur_methods</span> <span class="o">=</span> <span class="n">EUDVArray</span><span class="p">(</span><span class="mi">12345</span><span class="p">)(</span><span class="n">_from</span><span class="o">=</span><span class="n">EUDVariable</span><span class="p">())</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cur_members</span> <span class="o">=</span> <span class="n">EUDVArray</span><span class="p">(</span><span class="mi">12345</span><span class="p">)(</span><span class="n">_from</span><span class="o">=</span><span class="n">EUDVariable</span><span class="p">())</span>
-        <span class="n">EUDEndExecuteOnce</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cur_cmdtable_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
-
-        <span class="c1"># related to life cycle of app</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_starting_app</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_terminating_app</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">app_refarray</span> <span class="o">=</span> <span class="n">create_refarray</span><span class="p">(</span><span class="n">ApplicationStruct</span><span class="p">,</span>
+                                       <span class="n">ApplicationStruct</span><span class="o">.</span><span class="n">construct</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app_stack</span> <span class="o">=</span> <span class="n">app_refarray</span><span class="o">.</span><span class="n">construct</span><span class="p">(</span><span class="n">_APP_MAX_COUNT</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app_status</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="n">_APP_STATUS_NORMAL</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">foreground_appstruct</span> <span class="o">=</span> <span class="n">ApplicationStruct</span><span class="o">.</span><span class="n">construct</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trig_loop_end</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">()</span>
 
         <span class="c1"># text ui</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">display_buffer</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">4000</span><span class="p">)</span>
@@ -273,6 +269,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">mouse_prev_state</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mouse_pos</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="c1"># user interactions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span> <span class="o">=</span> <span class="n">SyncManager</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">su_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_multiplaying</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">human_count</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_allocating_methods</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># 64, 96, 128, 192, 256</span>
         <span class="c1"># Multiply 32 to get pixel coordinate</span>
@@ -287,7 +289,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">varpool</span><span class="o">.</span><span class="n">free</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AppManager.alloc_db_epd"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.alloc_db_epd">[docs]</a>    <span class="k">def</span> <span class="nf">alloc_db_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sizequarter</span><span class="p">):</span>
-        <span class="sd">''' allocate SIZEQUARTER*4 bytes '''</span>
+        <span class="sd">"""allocate SIZEQUARTER*4 bytes"""</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">dbpool</span><span class="o">.</span><span class="n">alloc_epd</span><span class="p">(</span><span class="n">sizequarter</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AppManager.free_db_epd"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.free_db_epd">[docs]</a>    <span class="k">def</span> <span class="nf">free_db_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
@@ -296,87 +298,63 @@
 <div class="viewcode-block" id="AppManager.get_foreground_app_instance"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.get_foreground_app_instance">[docs]</a>    <span class="k">def</span> <span class="nf">get_foreground_app_instance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_foreground_app_instance</span></div>
 
-<div class="viewcode-block" id="AppManager.start_application"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.start_application">[docs]</a>    <span class="k">def</span> <span class="nf">start_application</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">):</span>
-        <span class="sd">'''</span>
-<span class="sd">        It just reserve to start app.</span>
-<span class="sd">        The app is initialized at the start of the next loop.</span>
-<span class="sd">        '''</span>
+<div class="viewcode-block" id="AppManager.start_application"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.start_application">[docs]</a>    <span class="k">def</span> <span class="nf">start_application</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app</span><span class="p">,</span> <span class="n">jump</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">"""Queue to start app</span>
+
+<span class="sd">        It just records that the app should start. Actual start of the app is</span>
+<span class="sd">        at the next frame.</span>
+<span class="sd">        """</span>
         <span class="kn">from</span> <span class="nn">.application</span> <span class="kn">import</span> <span class="n">Application</span>
         <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">app</span><span class="p">,</span> <span class="n">Application</span><span class="p">)</span>
 
         <span class="n">app</span><span class="o">.</span><span class="n">allocate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_start_application</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">_fields_</span><span class="p">),</span>
                                 <span class="n">app</span><span class="o">.</span><span class="n">_methodarray_</span><span class="p">,</span>
-                                <span class="n">EPD</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">_cmdtable_</span><span class="p">))</span></div>
+                                <span class="n">EPD</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="n">_cmdtable_</span><span class="p">),</span>
+                                <span class="n">EPDConstString</span><span class="p">(</span><span class="n">app</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">jump</span><span class="p">:</span>
+            <span class="n">EUDJump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trig_loop_end</span><span class="p">)</span></div>
 
     <span class="nd">@EUDMethod</span>
-    <span class="k">def</span> <span class="nf">_start_application</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fieldsize</span><span class="p">,</span> <span class="n">methods</span><span class="p">,</span> <span class="n">table_epd</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_terminating_app</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="n">f_raise_error</span><span class="p">(</span><span class="s2">"Conflict: start_application and request_destruct"</span><span class="p">)</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">_start_application</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fieldsize</span><span class="p">,</span> <span class="n">methods</span><span class="p">,</span> <span class="n">cmdtable_epd</span><span class="p">,</span> <span class="n">name_epd</span><span class="p">):</span>
+        <span class="n">new_appstruct</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_stack</span><span class="o">.</span><span class="n">push_and_getref</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span> <span class="o">&lt;</span> <span class="n">_APP_MAX_COUNT</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">app_member_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alloc_variable</span><span class="p">(</span><span class="n">fieldsize</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">app_method_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span><span class="p">]</span> <span class="o">=</span> <span class="n">methods</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">app_cmdtab_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span><span class="p">]</span> <span class="o">=</span> <span class="n">table_epd</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">new_appstruct</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">new_appstruct</span><span class="o">.</span><span class="n">appfields</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">alloc_variable</span><span class="p">(</span><span class="n">fieldsize</span><span class="p">)</span>
+            <span class="n">new_appstruct</span><span class="o">.</span><span class="n">appmethods</span> <span class="o">=</span> <span class="n">methods</span>
+            <span class="n">new_appstruct</span><span class="o">.</span><span class="n">cmdtable_epd</span> <span class="o">=</span> <span class="n">cmdtable_epd</span>
+            <span class="n">new_appstruct</span><span class="o">.</span><span class="n">name_epd</span> <span class="o">=</span> <span class="n">name_epd</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">foreground_appstruct</span> <span class="o">&lt;&lt;</span> <span class="n">new_appstruct</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">is_starting_app</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">app_status</span> <span class="o">&lt;&lt;</span> <span class="n">_APP_STATUS_INITIALIZE</span>
         <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
             <span class="n">f_raise_warning</span><span class="p">(</span><span class="s2">"APP COUNT reached MAX, No more spaces"</span><span class="p">)</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_update_app_stack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="c1"># Terminate one</span>
-        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_terminating_app</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="n">f_raise_error</span><span class="p">(</span><span class="s2">"FATAL ERROR: Excessive TerminateApplication"</span><span class="p">)</span>
-            <span class="n">EUDEndIf</span><span class="p">()</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_foreground_app_instance</span><span class="o">.</span><span class="n">on_destruct</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">free_variable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_members</span><span class="p">)</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span> <span class="o">-=</span> <span class="mi">1</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span> <span class="o">-</span> <span class="mi">1</span>
-            <span class="n">members</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_member_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span><span class="p">]</span>
-            <span class="n">methods</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_method_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span><span class="p">]</span>
-            <span class="n">table_epd</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_cmdtab_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span><span class="p">]</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">cur_members</span>      <span class="o">&lt;&lt;</span> <span class="n">members</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cur_members</span><span class="o">.</span><span class="n">_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="n">members</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cur_methods</span>      <span class="o">&lt;&lt;</span> <span class="n">methods</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cur_methods</span><span class="o">.</span><span class="n">_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="n">methods</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">cur_cmdtable_epd</span> <span class="o">&lt;&lt;</span> <span class="n">table_epd</span>
-
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">app_status</span> <span class="o">==</span> <span class="n">_APP_STATUS_DESTRUCTING</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_foreground_app_instance</span><span class="o">.</span><span class="n">on_resume</span><span class="p">()</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">is_terminating_app</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">app_status</span> <span class="o">==</span> <span class="n">_APP_STATUS_INITIALIZE</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_foreground_app_instance</span><span class="o">.</span><span class="n">on_init</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app_status</span> <span class="o">&lt;&lt;</span> <span class="n">_APP_STATUS_NORMAL</span>
 
-        <span class="c1"># Initialize one or more</span>
-        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_starting_app</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">members</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_member_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span><span class="p">]</span>
-                <span class="n">methods</span>    <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_method_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span><span class="p">]</span>
-                <span class="n">table_epd</span>  <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_cmdtab_stack</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span><span class="p">]</span>
+<div class="viewcode-block" id="AppManager.push_current_allocating_method"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.push_current_allocating_method">[docs]</a>    <span class="k">def</span> <span class="nf">push_current_allocating_method</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_allocating_methods</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">method</span><span class="p">)</span></div>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">cur_members</span>      <span class="o">&lt;&lt;</span> <span class="n">members</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">cur_members</span><span class="o">.</span><span class="n">_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="n">members</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">cur_methods</span>      <span class="o">&lt;&lt;</span> <span class="n">methods</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">cur_methods</span><span class="o">.</span><span class="n">_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="n">methods</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">cur_cmdtable_epd</span> <span class="o">&lt;&lt;</span> <span class="n">table_epd</span>
+<div class="viewcode-block" id="AppManager.pop_current_allocating_method"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.pop_current_allocating_method">[docs]</a>    <span class="k">def</span> <span class="nf">pop_current_allocating_method</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">last</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_allocating_methods</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">last</span> <span class="ow">is</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span><span class="p">:</span>
 
-                <span class="bp">self</span><span class="o">.</span><span class="n">_foreground_app_instance</span><span class="o">.</span><span class="n">on_init</span><span class="p">()</span>
-
-                <span class="n">EUDBreakIf</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_app_id</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_cnt</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="n">EUDEndInfLoop</span><span class="p">()</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">is_starting_app</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">clean_text</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">method</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_allocating_methods</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">method</span><span class="o">.</span><span class="n">interactive</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span> <span class="o">=</span> <span class="n">method</span>
+                    <span class="k">break</span></div>
 
     <span class="k">def</span> <span class="nf">_update_key_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># keystate</span>
@@ -466,39 +444,6 @@
         <span class="n">EUDEndLoopN</span><span class="p">()</span>
         <span class="n">f_repmovsd_epd</span><span class="p">(</span><span class="n">prev_states</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="mh">0x596A18</span><span class="p">),</span> <span class="mh">0x100</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span>
 
-<div class="viewcode-block" id="AppManager.key_down"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.key_down">[docs]</a>    <span class="k">def</span> <span class="nf">key_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="n">get_key_code</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Memory</span><span class="p">(</span><span class="mh">0x68C144</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="c1"># chat status - not chatting</span>
-            <span class="n">MemoryEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="p">]</span>
-        <span class="k">return</span> <span class="n">ret</span></div>
-
-<div class="viewcode-block" id="AppManager.key_up"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.key_up">[docs]</a>    <span class="k">def</span> <span class="nf">key_up</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
-        <span class="n">key</span> <span class="o">=</span> <span class="n">get_key_code</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Memory</span><span class="p">(</span><span class="mh">0x68C144</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="c1"># chat status - not chatting</span>
-            <span class="n">MemoryEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">32</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="p">]</span>
-        <span class="k">return</span> <span class="n">ret</span></div>
-
-<div class="viewcode-block" id="AppManager.key_press"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.key_press">[docs]</a>    <span class="k">def</span> <span class="nf">key_press</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">"""hold: list of keys, such as LCTRL, LSHIFT, LALT, etc..."""</span>
-
-        <span class="k">if</span> <span class="n">hold</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">hold</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="n">key</span> <span class="o">=</span> <span class="n">get_key_code</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-        <span class="n">actions</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">Memory</span><span class="p">(</span><span class="mh">0x68C144</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="c1"># chat status - not chatting</span>
-            <span class="n">MemoryEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
-            <span class="n">MemoryEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates_sub</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="p">]</span>
-        <span class="k">for</span> <span class="n">holdkey</span> <span class="ow">in</span> <span class="n">hold</span><span class="p">:</span>
-            <span class="n">holdkey</span> <span class="o">=</span> <span class="n">get_key_code</span><span class="p">(</span><span class="n">holdkey</span><span class="p">)</span>
-            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MemoryEPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">+</span> <span class="n">holdkey</span><span class="p">,</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">actions</span></div>
-
     <span class="k">def</span> <span class="nf">_update_mouse_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># up   -&gt; up   : 1</span>
         <span class="c1"># up   -&gt; down : 2</span>
@@ -527,33 +472,105 @@
                 <span class="n">actions</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_prev_state</span><span class="o">.</span><span class="n">SetNumberX</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
             <span class="p">)</span>
 
-        <span class="c1"># mouse position</span>
-        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mouse_pos</span>
-        <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x0062848C</span><span class="p">))</span> <span class="o">+</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x006CDDC4</span><span class="p">))</span>
-        <span class="n">y</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x006284A8</span><span class="p">))</span> <span class="o">+</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x006CDDC8</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mouse_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x0062848C</span><span class="p">))</span>
+                              <span class="o">+</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x006CDDC4</span><span class="p">)))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mouse_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x006284A8</span><span class="p">))</span>
+                              <span class="o">+</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x006CDDC8</span><span class="p">)))</span>
 
-<div class="viewcode-block" id="AppManager.mouse_lclick"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.mouse_lclick">[docs]</a>    <span class="k">def</span> <span class="nf">mouse_lclick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">MemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="p">),</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="AppManager.mouse_lpress"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.mouse_lpress">[docs]</a>    <span class="k">def</span> <span class="nf">mouse_lpress</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">MemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="p">),</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="AppManager.mouse_rclick"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.mouse_rclick">[docs]</a>    <span class="k">def</span> <span class="nf">mouse_rclick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">MemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="AppManager.mouse_rpress"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.mouse_rpress">[docs]</a>    <span class="k">def</span> <span class="nf">mouse_rpress</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">MemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="AppManager.mouse_mclick"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.mouse_mclick">[docs]</a>    <span class="k">def</span> <span class="nf">mouse_mclick</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">MemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="o">+</span><span class="mi">2</span><span class="p">),</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="AppManager.mouse_mpress"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.mouse_mpress">[docs]</a>    <span class="k">def</span> <span class="nf">mouse_mpress</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">MemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="o">+</span><span class="mi">2</span><span class="p">),</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AppManager.get_mouse_position"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.get_mouse_position">[docs]</a>    <span class="nd">@EUDMethod</span>
     <span class="k">def</span> <span class="nf">get_mouse_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mouse_pos</span>
-        <span class="n">EUDReturn</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">])</span></div>
+        <span class="sd">"""evaluate mouse position</span>
+
+<span class="sd">        This can cause desync</span>
+<span class="sd">        """</span>
+        <span class="n">EUDReturn</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">mouse_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="AppManager.synchronize"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.synchronize">[docs]</a>    <span class="k">def</span> <span class="nf">synchronize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">conditions</span><span class="p">,</span> <span class="n">variables_to_sync</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">sync_and_check</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span><span class="p">,</span>
+            <span class="n">conditions</span><span class="p">,</span>
+            <span class="n">sync</span><span class="o">=</span><span class="n">variables_to_sync</span> <span class="ow">or</span> <span class="p">[])</span></div>
+
+<div class="viewcode-block" id="AppManager.key_down"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.key_down">[docs]</a>    <span class="k">def</span> <span class="nf">key_down</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">get_key_code</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">sync_and_check</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span><span class="p">,</span>
+            <span class="p">[(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x68C144</span><span class="p">),</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">1</span><span class="p">)],</span>
+            <span class="n">sync</span><span class="o">=</span><span class="n">sync</span> <span class="ow">or</span> <span class="p">[])</span></div>
+
+<div class="viewcode-block" id="AppManager.key_up"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.key_up">[docs]</a>    <span class="k">def</span> <span class="nf">key_up</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">get_key_code</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">sync_and_check</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span><span class="p">,</span>
+            <span class="p">[(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x68C144</span><span class="p">),</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">2</span><span class="o">**</span><span class="mi">32</span><span class="o">-</span><span class="mi">1</span><span class="p">)],</span>
+            <span class="n">sync</span><span class="o">=</span><span class="n">sync</span> <span class="ow">or</span> <span class="p">[])</span></div>
+
+<div class="viewcode-block" id="AppManager.key_holdcounter"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.key_holdcounter">[docs]</a>    <span class="k">def</span> <span class="nf">key_holdcounter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">get_key_code</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">+</span> <span class="n">key</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="AppManager.key_press"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.key_press">[docs]</a>    <span class="k">def</span> <span class="nf">key_press</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">"""hold: list of keys, such as LCTRL, LSHIFT, LALT, etc..."""</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">hold</span><span class="p">:</span>
+            <span class="n">hold</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">key</span> <span class="o">=</span> <span class="n">get_key_code</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">condition_pairs</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x68C144</span><span class="p">),</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates_sub</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="p">]</span>
+        <span class="k">for</span> <span class="n">holdkey</span> <span class="ow">in</span> <span class="n">hold</span><span class="p">:</span>
+            <span class="n">holdkey</span> <span class="o">=</span> <span class="n">get_key_code</span><span class="p">(</span><span class="n">holdkey</span><span class="p">)</span>
+            <span class="n">condition_pairs</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">keystates</span> <span class="o">+</span> <span class="n">holdkey</span><span class="p">,</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">sync_and_check</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span><span class="p">,</span> <span class="n">condition_pairs</span><span class="p">,</span>
+            <span class="n">sync</span><span class="o">=</span><span class="n">sync</span> <span class="ow">or</span> <span class="p">[])</span></div>
+
+<div class="viewcode-block" id="AppManager.mouse_lclick"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.mouse_lclick">[docs]</a>    <span class="k">def</span> <span class="nf">mouse_lclick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">sync_and_check</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span><span class="p">,</span>
+            <span class="p">[(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="p">),</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span>
+            <span class="n">sync</span><span class="o">=</span><span class="n">sync</span> <span class="ow">or</span> <span class="p">[])</span></div>
+
+<div class="viewcode-block" id="AppManager.mouse_lpress"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.mouse_lpress">[docs]</a>    <span class="k">def</span> <span class="nf">mouse_lpress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">sync_and_check</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span><span class="p">,</span>
+            <span class="p">[(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="p">),</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span>
+            <span class="n">sync</span><span class="o">=</span><span class="n">sync</span> <span class="ow">or</span> <span class="p">[])</span></div>
+
+<div class="viewcode-block" id="AppManager.mouse_ldrag"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.mouse_ldrag">[docs]</a>    <span class="k">def</span> <span class="nf">mouse_ldrag</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">sync_and_check</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span><span class="p">,</span>
+            <span class="p">[(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="p">),</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">3</span><span class="p">)],</span>
+            <span class="n">sync</span><span class="o">=</span><span class="n">sync</span> <span class="ow">or</span> <span class="p">[])</span></div>
+
+<div class="viewcode-block" id="AppManager.mouse_rclick"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.mouse_rclick">[docs]</a>    <span class="k">def</span> <span class="nf">mouse_rclick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">sync_and_check</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span><span class="p">,</span>
+            <span class="p">[(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span>
+            <span class="n">sync</span><span class="o">=</span><span class="n">sync</span> <span class="ow">or</span> <span class="p">[])</span></div>
+
+<div class="viewcode-block" id="AppManager.mouse_rpress"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.mouse_rpress">[docs]</a>    <span class="k">def</span> <span class="nf">mouse_rpress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">sync_and_check</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span><span class="p">,</span>
+            <span class="p">[(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span>
+            <span class="n">sync</span><span class="o">=</span><span class="n">sync</span> <span class="ow">or</span> <span class="p">[])</span></div>
+
+<div class="viewcode-block" id="AppManager.mouse_mclick"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.mouse_mclick">[docs]</a>    <span class="k">def</span> <span class="nf">mouse_mclick</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">sync_and_check</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span><span class="p">,</span>
+            <span class="p">[(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="o">+</span><span class="mi">2</span><span class="p">),</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)],</span>
+            <span class="n">sync</span><span class="o">=</span><span class="n">sync</span> <span class="ow">or</span> <span class="p">[])</span></div>
+
+<div class="viewcode-block" id="AppManager.mouse_mpress"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.mouse_mpress">[docs]</a>    <span class="k">def</span> <span class="nf">mouse_mpress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">sync_and_check</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_interactive_method</span><span class="p">,</span>
+            <span class="p">[(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">mouse_state</span><span class="o">+</span><span class="mi">2</span><span class="p">),</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">2</span><span class="p">)],</span>
+            <span class="n">sync</span><span class="o">=</span><span class="n">sync</span> <span class="ow">or</span> <span class="p">[])</span></div>
 
 <div class="viewcode-block" id="AppManager.get_map_width"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.get_map_width">[docs]</a>    <span class="k">def</span> <span class="nf">get_map_width</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># 64, 96, 128, 192, 256</span>
@@ -565,39 +582,48 @@
         <span class="c1"># Multiply 32 to get pixel coordinate</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">map_height</span></div>
 
+<div class="viewcode-block" id="AppManager.is_multiplaying"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.is_multiplaying">[docs]</a>    <span class="k">def</span> <span class="nf">is_multiplaying</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""If current game have more than two humans, return true,</span>
+<span class="sd">        otherwise false</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">human_count</span> <span class="o">&gt;=</span> <span class="mi">2</span></div>
+
 <div class="viewcode-block" id="AppManager.request_update"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.request_update">[docs]</a>    <span class="k">def</span> <span class="nf">request_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">'''</span>
-<span class="sd">        Request update of application</span>
-<span class="sd">        Should be called under AppMethod or AppCommand</span>
-<span class="sd">        '''</span>
+        <span class="sd">"""Request update of the display buffer.</span>
+
+<span class="sd">        This should be called under AppMethod or AppCommand</span>
+<span class="sd">        """</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span></div>
 
-<div class="viewcode-block" id="AppManager.request_destruct"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.request_destruct">[docs]</a>    <span class="k">def</span> <span class="nf">request_destruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">'''</span>
-<span class="sd">        Request self-destruct of application</span>
-<span class="sd">        It should be called under AppMethod or AppCommand</span>
+<div class="viewcode-block" id="AppManager.request_destruct"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.request_destruct">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">request_destruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">"""Request destruct of the application self, on foreground"""</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app_status</span> <span class="o">&lt;&lt;</span> <span class="n">_APP_STATUS_DESTRUCTING</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_foreground_app_instance</span><span class="o">.</span><span class="n">on_destruct</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">free_variable</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">foreground_appstruct</span><span class="o">.</span><span class="n">appfields</span><span class="p">)</span>
 
-<span class="sd">        When a single app requested start_application,</span>
-<span class="sd">          destruction should not be requested at the same frame.</span>
-<span class="sd">        '''</span>
-        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_starting_app</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="n">f_raise_error</span><span class="p">(</span><span class="s2">"Conflict: start_application and request_destruct"</span><span class="p">)</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">is_terminating_app</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">app_stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">foreground_appstruct</span> <span class="o">&lt;&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">app_stack</span><span class="o">.</span><span class="n">at</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">app_stack</span><span class="o">.</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">EUDJump</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">trig_loop_end</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AppManager.send_app_output_to_bridge"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.send_app_output_to_bridge">[docs]</a>    <span class="nd">@EUDMethod</span>
     <span class="k">def</span> <span class="nf">send_app_output_to_bridge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">src_buffer</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">screpl.bridge_server.blocks.appoutput</span> <span class="kn">import</span> <span class="p">(</span>
             <span class="n">APP_OUTPUT_MAXSIZE</span><span class="p">,</span>
-            <span class="n">appOutputSize</span><span class="p">,</span>
-            <span class="n">appOutputBuffer</span><span class="p">,</span>
+            <span class="n">app_output_size</span><span class="p">,</span>
+            <span class="n">app_output_buffer</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="kn">from</span> <span class="nn">screpl.main</span> <span class="kn">import</span> <span class="n">is_bridge_mode</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">is_bridge_mode</span><span class="p">():</span>
             <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Currently bridge is not activated"</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">appOutputSize</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="c1"># only super user may get app output</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">Memory</span><span class="p">(</span><span class="mh">0x512684</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">su_id</span><span class="p">)):</span>
+            <span class="n">EUDReturn</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">app_output_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
             <span class="n">EUDReturn</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
@@ -608,80 +634,145 @@
             <span class="n">written</span> <span class="o">&lt;&lt;</span> <span class="n">size</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
-        <span class="n">f_memcpy</span><span class="p">(</span><span class="n">appOutputBuffer</span><span class="p">,</span> <span class="n">src_buffer</span><span class="p">,</span> <span class="n">written</span><span class="p">)</span>
-        <span class="n">appOutputSize</span> <span class="o">&lt;&lt;</span> <span class="n">written</span>
+        <span class="n">f_memcpy</span><span class="p">(</span><span class="n">app_output_buffer</span><span class="p">,</span> <span class="n">src_buffer</span><span class="p">,</span> <span class="n">written</span><span class="p">)</span>
+        <span class="n">app_output_size</span> <span class="o">&lt;&lt;</span> <span class="n">written</span>
 
         <span class="n">EUDReturn</span><span class="p">(</span><span class="n">written</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="AppManager.get_superuser_id"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.get_superuser_id">[docs]</a>    <span class="k">def</span> <span class="nf">get_superuser_id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">su_id</span></div>
 
-<div class="viewcode-block" id="AppManager.clean_text"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.clean_text">[docs]</a>    <span class="k">def</span> <span class="nf">clean_text</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">"""Cleans text UI of previous app."""</span>
-        <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">main</span><span class="o">.</span><span class="n">is_blind_mode</span><span class="p">())</span>
-        <span class="n">f_printf</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">*</span> <span class="mi">12</span><span class="p">)</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span></div>
-
 <div class="viewcode-block" id="AppManager.run"><a class="viewcode-back" href="../../../screpl.core.appmanager.html#screpl.core.appmanager.AppManager.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">screpl.main</span> <span class="kn">import</span> <span class="n">get_bridge_region</span>
+
         <span class="c1"># only super user may interact with apps</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">Memory</span><span class="p">(</span><span class="mh">0x512684</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">su_id</span><span class="p">)):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_mouse_state</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_update_key_state</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
+        <span class="c1"># update human count</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">human_count</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">player_id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">GetPlayerInfo</span><span class="p">(</span><span class="n">player_id</span><span class="p">)</span><span class="o">.</span><span class="n">typestr</span> <span class="o">==</span> <span class="s2">"Human"</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">f_playerexist</span><span class="p">(</span><span class="n">player_id</span><span class="p">)):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">human_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
+
         <span class="c1"># update current application</span>
-        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()([</span><span class="bp">self</span><span class="o">.</span><span class="n">is_terminating_app</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span>
-                       <span class="bp">self</span><span class="o">.</span><span class="n">is_starting_app</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_update_app_stack</span><span class="p">()</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_app_stack</span><span class="p">()</span>
 
         <span class="c1"># process all new chats</span>
-        <span class="n">prev_text_idx</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="n">initval</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">last_text_idx</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="n">initval</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
         <span class="n">lbl_after_chat</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">Memory</span><span class="p">(</span><span class="mh">0x640B58</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="n">prev_text_idx</span><span class="p">)):</span>
-            <span class="n">EUDJump</span><span class="p">(</span><span class="n">lbl_after_chat</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">clear_recv</span><span class="p">()</span>
+
+        <span class="c1"># accept commands from bridge</span>
+        <span class="n">bridge</span> <span class="o">=</span> <span class="n">get_bridge_region</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">bridge</span><span class="p">:</span>
+            <span class="n">buf_command</span> <span class="o">=</span> <span class="n">bridge</span><span class="o">.</span><span class="n">buf_command</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">Memory</span><span class="p">(</span><span class="mh">0x512684</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">su_id</span><span class="p">),</span>
+                        <span class="n">Memory</span><span class="p">(</span><span class="n">buf_command</span><span class="p">,</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]):</span>
+
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_multiplaying</span><span class="p">()):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">send_chat</span><span class="p">(</span><span class="n">buf_command</span><span class="p">)</span>
+                    <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">buf_command</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                    <span class="n">temp</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">300</span><span class="p">)</span>
+                    <span class="n">f_repmovsd_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">temp</span><span class="p">),</span>
+                                   <span class="n">EPD</span><span class="p">(</span><span class="n">buf_command</span><span class="p">),</span>
+                                   <span class="mi">300</span> <span class="o">//</span> <span class="mi">4</span><span class="p">)</span>
+                    <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">buf_command</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_foreground_app_instance</span><span class="o">.</span><span class="n">on_chat</span><span class="p">(</span><span class="n">temp</span><span class="p">)</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="n">EUDJumpIf</span><span class="p">(</span><span class="n">Memory</span><span class="p">(</span><span class="mh">0x640B58</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="n">last_text_idx</span><span class="p">),</span> <span class="n">lbl_after_chat</span><span class="p">)</span>
+        <span class="n">cur_text_idx</span> <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x640B58</span><span class="p">))</span>
+
+        <span class="c1"># parse updated lines &amp; sync things</span>
+        <span class="c1"># since on_chat may change text, temporary buffer is required</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">is_multiplaying</span><span class="p">()):</span>
+            <span class="n">chat_off</span> <span class="o">=</span> <span class="mh">0x640B60</span> <span class="o">+</span> <span class="mi">218</span> <span class="o">*</span> <span class="n">last_text_idx</span>
+            <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+                <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">last_text_idx</span> <span class="o">==</span> <span class="n">cur_text_idx</span><span class="p">)</span>
+
+                <span class="c1"># check it is synchronizinng message</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">parse_recv</span><span class="p">(</span><span class="n">chat_off</span><span class="p">)</span>
+
+                <span class="c1"># if it is superuser's chat, handle it and send buffer</span>
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">Memory</span><span class="p">(</span><span class="mh">0x512684</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">su_id</span><span class="p">),</span>
+                            <span class="n">f_memcmp</span><span class="p">(</span><span class="n">chat_off</span><span class="p">,</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">su_prefix</span><span class="p">,</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">su_prefixlen</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">send_chat</span><span class="p">(</span><span class="n">chat_off</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">su_prefixlen</span><span class="p">)</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
+
+                <span class="c1"># search next updated lines</span>
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">last_text_idx</span> <span class="o">==</span> <span class="mi">10</span><span class="p">):</span>
+                    <span class="n">last_text_idx</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+                    <span class="n">chat_off</span> <span class="o">&lt;&lt;</span> <span class="mh">0x640B60</span>
+                <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                    <span class="n">last_text_idx</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">chat_off</span> <span class="o">+=</span> <span class="mi">218</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
+            <span class="n">EUDEndInfLoop</span><span class="p">()</span>
+
+            <span class="c1"># recv chat</span>
+            <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">Memory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">recv_chat_buffer</span><span class="p">,</span>
+                                 <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_foreground_app_instance</span><span class="o">.</span><span class="n">on_chat</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">sync_manager</span><span class="o">.</span><span class="n">recv_chat_buffer</span><span class="p">)</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span> <span class="c1"># single play</span>
+            <span class="n">db_gametext</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">13</span><span class="o">*</span><span class="mi">218</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">f_repmovsd_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">db_gametext</span><span class="p">),</span> <span class="n">EPD</span><span class="p">(</span><span class="mh">0x640B60</span><span class="p">),</span> <span class="p">(</span><span class="mi">13</span><span class="o">*</span><span class="mi">218</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span>
+            <span class="n">chat_off</span> <span class="o">=</span> <span class="n">db_gametext</span> <span class="o">+</span> <span class="mi">218</span> <span class="o">*</span> <span class="n">last_text_idx</span>
+            <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+                <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">last_text_idx</span> <span class="o">==</span> <span class="n">cur_text_idx</span><span class="p">)</span>
+
+                <span class="n">DoActions</span><span class="p">(</span><span class="n">last_text_idx</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+                <span class="n">Trigger</span><span class="p">(</span>
+                    <span class="n">conditions</span><span class="o">=</span><span class="p">[</span><span class="n">last_text_idx</span> <span class="o">==</span> <span class="mi">11</span><span class="p">],</span>
+                    <span class="n">actions</span><span class="o">=</span><span class="p">[</span><span class="n">last_text_idx</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)],</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">f_memcmp</span><span class="p">(</span><span class="n">chat_off</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">su_prefix</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">su_prefixlen</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_foreground_app_instance</span><span class="o">.</span><span class="n">on_chat</span><span class="p">(</span><span class="n">chat_off</span>
+                                                          <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">su_prefixlen</span><span class="p">)</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
+
+                <span class="c1"># search next updated lines</span>
+                <span class="n">DoActions</span><span class="p">(</span><span class="n">chat_off</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">218</span><span class="p">))</span>
+                <span class="n">Trigger</span><span class="p">(</span>
+                    <span class="n">conditions</span><span class="o">=</span><span class="p">[</span><span class="n">last_text_idx</span> <span class="o">==</span> <span class="mi">0</span><span class="p">],</span>
+                    <span class="n">actions</span><span class="o">=</span><span class="p">[</span><span class="n">chat_off</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="n">db_gametext</span><span class="p">)],</span>
+                <span class="p">)</span>
+            <span class="n">EUDEndInfLoop</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
-        <span class="c1"># parse updated lines</span>
-        <span class="c1"># since on_chat may change text, temporary buffer is required</span>
-        <span class="n">db_gametext</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">13</span><span class="o">*</span><span class="mi">218</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">i</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
-        <span class="n">cur_text_idx</span> <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x640B58</span><span class="p">))</span>
-        <span class="n">f_repmovsd_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">db_gametext</span><span class="p">),</span> <span class="n">EPD</span><span class="p">(</span><span class="mh">0x640B60</span><span class="p">),</span> <span class="p">(</span><span class="mi">13</span><span class="o">*</span><span class="mi">218</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span>
-
-        <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="n">prev_text_idx</span>
-        <span class="n">chat_off</span> <span class="o">=</span> <span class="n">db_gametext</span> <span class="o">+</span> <span class="mi">218</span> <span class="o">*</span> <span class="n">i</span>
-        <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
-            <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">i</span> <span class="o">==</span> <span class="n">cur_text_idx</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">f_memcmp</span><span class="p">(</span><span class="n">chat_off</span><span class="p">,</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">su_prefix</span><span class="p">,</span>
-                                <span class="bp">self</span><span class="o">.</span><span class="n">su_prefixlen</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_foreground_app_instance</span><span class="o">.</span><span class="n">on_chat</span><span class="p">(</span><span class="n">chat_off</span>
-                                                      <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">su_prefixlen</span><span class="p">)</span>
-            <span class="n">EUDEndIf</span><span class="p">()</span>
-
-            <span class="c1"># search next updated lines</span>
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">i</span> <span class="o">==</span> <span class="mi">10</span><span class="p">):</span>
-                <span class="n">i</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
-                <span class="n">chat_off</span> <span class="o">&lt;&lt;</span> <span class="n">db_gametext</span>
-            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">chat_off</span> <span class="o">+=</span> <span class="mi">218</span>
-            <span class="n">EUDEndIf</span><span class="p">()</span>
-        <span class="n">EUDEndInfLoop</span><span class="p">()</span>
-        <span class="n">prev_text_idx</span> <span class="o">&lt;&lt;</span> <span class="n">cur_text_idx</span>
         <span class="n">lbl_after_chat</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
 
         <span class="c1"># loop</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_foreground_app_instance</span><span class="o">.</span><span class="n">loop</span><span class="p">()</span>
 
-        <span class="c1"># evaluate display buffer</span>
-        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">trig_loop_end</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="bp">self</span><span class="o">.</span><span class="n">app_status</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">]):</span>
+            <span class="c1"># evaluate display buffer</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">display_buffer</span><span class="p">))</span>
 
             <span class="c1"># print() uses main writer internally</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_foreground_app_instance</span><span class="o">.</span><span class="n">print</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">update</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">EUDElseIfNot</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">app_status</span> <span class="o">==</span> <span class="n">_APP_STATUS_NORMAL</span><span class="p">):</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">display_buffer</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">app_status</span> <span class="o">==</span> <span class="n">_APP_STATUS_DESTRUCTING</span><span class="p">):</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Destructing App..."</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Starting App..."</span><span class="p">)</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">EUDEndIf</span><span class="p">()</span></div></div>
 </pre>
        </div>

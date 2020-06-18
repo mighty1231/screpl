@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.string.editor — SC-REPL 1.1.4 documentation
+   screpl.plugins.string.editor — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -257,13 +257,19 @@
 <span class="n">DISPMODE_MANUAL</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">v_dispmode</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
 
+<span class="n">v_manual_once</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="n">db_scrollspeeds</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">49</span><span class="p">)</span>
+<span class="n">db_0</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="mi">49</span><span class="p">)</span>
+
 <div class="viewcode-block" id="StringEditorApp"><a class="viewcode-back" href="../../../../screpl.plugins.string.editor.html#screpl.plugins.string.editor.StringEditorApp">[docs]</a><span class="k">class</span> <span class="nc">StringEditorApp</span><span class="p">(</span><span class="n">Application</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">on_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">v_mode</span> <span class="o">&lt;&lt;</span> <span class="n">MODE_INSERT</span>
         <span class="n">string_offset_epd</span> <span class="o">=</span> <span class="n">STRSection_epd</span> <span class="o">+</span> <span class="n">cur_string_id</span>
         <span class="n">v_oldbuf_offset</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">string_offset_epd</span><span class="p">)</span>
         <span class="n">string_ptr</span> <span class="o">=</span> <span class="n">STRSection</span> <span class="o">+</span> <span class="n">v_oldbuf_offset</span>
-        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">string_ptr</span> <span class="o">&gt;=</span> <span class="n">string_buffer</span><span class="p">,</span> <span class="n">string_ptr</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">string_buffer_end</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]):</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">string_ptr</span> <span class="o">&gt;=</span> <span class="n">string_buffer</span><span class="p">,</span>
+                    <span class="n">string_ptr</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">string_buffer_end</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]):</span>
             <span class="c1"># already allocated</span>
             <span class="n">v_changed</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
             <span class="n">v_string_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="n">string_ptr</span><span class="p">)</span>
@@ -274,6 +280,10 @@
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">v_cursor_epd</span> <span class="o">&lt;&lt;</span> <span class="n">v_string_epd</span>
         <span class="n">v_dispmode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MAIN</span>
+
+        <span class="c1"># set keyboard scroll to 0</span>
+        <span class="n">f_memcpy</span><span class="p">(</span><span class="n">db_scrollspeeds</span><span class="p">,</span> <span class="mh">0x513B68</span><span class="p">,</span> <span class="mi">49</span><span class="p">)</span>
+        <span class="n">f_memcpy</span><span class="p">(</span><span class="mh">0x513B68</span><span class="p">,</span> <span class="n">db_0</span><span class="p">,</span> <span class="mi">49</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">on_destruct</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_changed</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
@@ -289,7 +299,8 @@
                 <span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">act</span> <span class="o">+</span> <span class="mi">16</span><span class="p">),</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">v_previous_alloc_epd</span><span class="p">),</span>
             <span class="p">])</span>
             <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
-                <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cond</span> <span class="o">&lt;&lt;</span> <span class="n">Memory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="c1"># Memory(cur_epd, AtLeast, new_alloc_epd)</span>
+                <span class="c1"># Memory(cur_epd, AtLeast, new_alloc_epd)</span>
+                <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cond</span> <span class="o">&lt;&lt;</span> <span class="n">Memory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">AtLeast</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
 
                 <span class="n">DoActions</span><span class="p">([</span>
                     <span class="n">act</span> <span class="o">&lt;&lt;</span> <span class="n">SetMemory</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="c1"># SetMemory(cur_epd, Add, 1)</span>
@@ -301,6 +312,9 @@
             <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">STRSection_epd</span> <span class="o">+</span> <span class="n">cur_string_id</span><span class="p">,</span> <span class="n">v_oldbuf_offset</span><span class="p">)</span>
             <span class="n">new_alloc_epd</span> <span class="o">&lt;&lt;</span> <span class="n">v_previous_alloc_epd</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
+
+        <span class="c1"># restore scroll</span>
+        <span class="n">f_memcpy</span><span class="p">(</span><span class="mh">0x513B68</span><span class="p">,</span> <span class="n">db_scrollspeeds</span><span class="p">,</span> <span class="mi">49</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">on_chat</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
         <span class="k">global</span> <span class="n">v_cursor_epd</span>
@@ -542,19 +556,17 @@
             <span class="n">v_mode</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">v_mode</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"DELETE"</span><span class="p">)):</span>
             <span class="n">f_strcpy_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="n">v_cursor_epd</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-            <span class="n">app_manager</span><span class="o">.</span><span class="n">clean_text</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"BACK"</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">v_cursor_epd</span> <span class="o">==</span> <span class="n">v_string_epd</span><span class="p">):</span>
                 <span class="n">v_cursor_epd</span> <span class="o">-=</span> <span class="mi">1</span>
                 <span class="n">f_strcpy_epd</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="n">v_cursor_epd</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
-            <span class="n">app_manager</span><span class="o">.</span><span class="n">clean_text</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"LEFT"</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">v_cursor_epd</span> <span class="o">==</span> <span class="n">v_string_epd</span><span class="p">):</span>
                 <span class="n">v_cursor_epd</span> <span class="o">-=</span> <span class="mi">1</span>
                 <span class="n">v_frame</span> <span class="o">&lt;&lt;</span> <span class="n">BLINK_PERIOD</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"RIGHT"</span><span class="p">)):</span>
             <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">MemoryEPD</span><span class="p">(</span><span class="n">v_cursor_epd</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
                 <span class="n">v_cursor_epd</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">v_frame</span> <span class="o">&lt;&lt;</span> <span class="n">BLINK_PERIOD</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span>
@@ -578,10 +590,9 @@
             <span class="n">v_frame</span> <span class="o">&lt;&lt;</span> <span class="n">BLINK_PERIOD</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_down</span><span class="p">(</span><span class="s2">"F1"</span><span class="p">)):</span>
             <span class="n">v_dispmode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MANUAL</span>
-            <span class="n">app_manager</span><span class="o">.</span><span class="n">clean_text</span><span class="p">()</span>
+            <span class="n">v_manual_once</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_up</span><span class="p">(</span><span class="s2">"F1"</span><span class="p">)):</span>
             <span class="n">v_dispmode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MAIN</span>
-            <span class="n">app_manager</span><span class="o">.</span><span class="n">clean_text</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">app_manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
 
@@ -596,6 +607,10 @@
 <span class="sd">        color_code : 0x01 - 0x1F</span>
 <span class="sd">        except for 0x09 - 0x0D, 0x12, 0x13</span>
 <span class="sd">        '''</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">v_manual_once</span><span class="p">):</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"String Editor: press F1 to get manual</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_dispmode</span> <span class="o">==</span> <span class="n">DISPMODE_MAIN</span><span class="p">):</span>
             <span class="k">global</span> <span class="n">v_cursor_epd</span>
 
@@ -648,7 +663,7 @@
                 <span class="s2">"String Editor</span><span class="se">\n</span><span class="s2">"</span>
                 <span class="s2">"Chat any string to insert/overwrite on the cursor. "</span>
                 <span class="s2">"Press BACKSPACE/DELETE to remove a character on the cursor.</span><span class="se">\n</span><span class="s2">"</span>
-                <span class="s2">"Press F7, F8, HOME, or END to move the cursor. "</span>
+                <span class="s2">"Press LEFT, RIGHT, HOME, or END to move the cursor. "</span>
                 <span class="s2">"Press INSERT to toggle insert/overwrite mode.</span><span class="se">\n</span><span class="s2">"</span>
                 <span class="s2">"Chat </span><span class="se">\\</span><span class="s2">n (newline) </span><span class="se">\\</span><span class="s2">t (tab) </span><span class="se">\\</span><span class="s2">x## (bytecode) </span><span class="se">\\</span><span class="s2">u#### (unicode) to insert special characters</span><span class="se">\n</span><span class="s2">"</span>
                 <span class="s2">"</span><span class="se">\\</span><span class="s2">x12 Right Align </span><span class="se">\\</span><span class="s2">x13 Center Align </span><span class="se">\\</span><span class="s2">x0B </span><span class="se">\\</span><span class="s2">x14 Invisible </span><span class="se">\\</span><span class="s2">x0C Remove Beyond</span><span class="se">\n</span><span class="s2">"</span>

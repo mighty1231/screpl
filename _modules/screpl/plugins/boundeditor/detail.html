@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.boundeditor.detail — SC-REPL 1.1.4 documentation
+   screpl.plugins.boundeditor.detail — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -254,9 +254,10 @@
 <span class="n">action_id</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">action_count</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">action_array_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">frame</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="n">FRAME_PERIOD</span> <span class="o">=</span> <span class="mi">24</span>
+<span class="n">DISP_MAIN</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">DISP_MANUAL</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">v_display_mode</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
 
 <div class="viewcode-block" id="focus_action_id"><a class="viewcode-back" href="../../../../screpl.plugins.boundeditor.detail.html#screpl.plugins.boundeditor.detail.focus_action_id">[docs]</a><span class="nd">@EUDFunc</span>
 <span class="k">def</span> <span class="nf">focus_action_id</span><span class="p">(</span><span class="n">new_actionid</span><span class="p">):</span>
@@ -303,17 +304,24 @@
         <span class="n">action_count</span> <span class="o">&lt;&lt;</span> <span class="n">p_action_count</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">]</span>
         <span class="n">action_id</span> <span class="o">&lt;&lt;</span> <span class="n">action_count</span> <span class="o">-</span> <span class="mi">1</span>
         <span class="n">action_array_epd</span> <span class="o">&lt;&lt;</span> <span class="n">p_action_array_epd</span><span class="p">[</span><span class="n">focused_pattern_id</span><span class="p">]</span>
+        <span class="n">v_display_mode</span> <span class="o">&lt;&lt;</span> <span class="n">DISP_MAIN</span>
 
     <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">hold_ctrl</span> <span class="o">=</span> <span class="n">app_manager</span><span class="o">.</span><span class="n">key_holdcounter</span><span class="p">(</span><span class="s2">"LCTRL"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'ESC'</span><span class="p">)):</span>
             <span class="n">app_manager</span><span class="o">.</span><span class="n">request_destruct</span><span class="p">()</span>
-            <span class="n">EUDReturn</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'f7'</span><span class="p">)):</span>
-            <span class="n">focus_action_id</span><span class="p">(</span><span class="n">action_id</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'f8'</span><span class="p">)):</span>
-            <span class="n">focus_action_id</span><span class="p">(</span><span class="n">action_id</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'delete'</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="p">[</span><span class="n">hold_ctrl</span><span class="p">])):</span>
+            <span class="n">focus_action_id</span><span class="p">(</span><span class="n">action_id</span> <span class="o">-</span> <span class="n">EUDTernary</span><span class="p">(</span><span class="n">hold_ctrl</span><span class="p">)(</span><span class="mi">8</span><span class="p">)(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="p">[</span><span class="n">hold_ctrl</span><span class="p">])):</span>
+            <span class="n">focus_action_id</span><span class="p">(</span><span class="n">action_id</span> <span class="o">+</span> <span class="n">EUDTernary</span><span class="p">(</span><span class="n">hold_ctrl</span><span class="p">)(</span><span class="mi">8</span><span class="p">)(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'DELETE'</span><span class="p">)):</span>
             <span class="n">delete_action</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_down</span><span class="p">(</span><span class="s1">'F1'</span><span class="p">)):</span>
+            <span class="n">v_display_mode</span> <span class="o">&lt;&lt;</span> <span class="n">DISP_MANUAL</span>
+            <span class="n">app_manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_up</span><span class="p">(</span><span class="s1">'F1'</span><span class="p">)):</span>
+            <span class="n">v_display_mode</span> <span class="o">&lt;&lt;</span> <span class="n">DISP_MAIN</span>
+            <span class="n">app_manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s1">'E'</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s1">'LCTRL'</span><span class="p">])):</span>
             <span class="n">TrigActionEditorApp</span><span class="o">.</span><span class="n">set_act_epd</span><span class="p">(</span>
                 <span class="n">action_array_epd</span> <span class="o">+</span> <span class="p">(</span><span class="mi">32</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span><span class="o">*</span><span class="n">action_id</span><span class="p">)</span>
@@ -325,58 +333,55 @@
 
             <span class="n">locid1</span> <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">action_epd</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">locid1</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="n">draw_rectangle</span><span class="p">(</span><span class="n">locid1</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">FRAME_PERIOD</span><span class="p">)</span>
-            <span class="n">EUDEndIf</span><span class="p">()</span>
-
-            <span class="c1"># graphical set</span>
-            <span class="n">DoActions</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">frame</span> <span class="o">==</span> <span class="n">FRAME_PERIOD</span><span class="p">):</span>
-                <span class="n">DoActions</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+                <span class="n">draw_rectangle</span><span class="p">(</span><span class="n">locid1</span><span class="p">)</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Pattern %D action editor, "</span>\
-                <span class="s2">"press 'ESC' to go back (F7, F8, Delete)</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">focused_pattern_id</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_display_mode</span> <span class="o">==</span> <span class="n">DISP_MAIN</span><span class="p">):</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Pattern %D action editor, press F1 to get manual</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
+                           <span class="n">focused_pattern_id</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">action_id</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-            <span class="n">EUDReturn</span><span class="p">()</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
-
-        <span class="n">quot</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">action_id</span><span class="p">,</span> <span class="mi">8</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">cur</span> <span class="o">=</span> <span class="n">quot</span> <span class="o">*</span> <span class="mi">8</span>
-        <span class="n">pageend</span> <span class="o">=</span> <span class="n">cur</span> <span class="o">+</span> <span class="mi">8</span>
-        <span class="n">until</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">pageend</span> <span class="o">&lt;=</span> <span class="n">action_count</span><span class="p">):</span>
-            <span class="n">until</span> <span class="o">&lt;&lt;</span> <span class="n">pageend</span>
-        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-            <span class="n">until</span> <span class="o">&lt;&lt;</span> <span class="n">action_count</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
-
-        <span class="c1"># fill contents</span>
-        <span class="n">action_epd</span> <span class="o">=</span> <span class="n">action_array_epd</span> <span class="o">+</span> <span class="p">(</span><span class="mi">32</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="n">cur</span>
-        <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
-            <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cur</span> <span class="o">&gt;=</span> <span class="n">until</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur</span> <span class="o">==</span> <span class="n">action_id</span><span class="p">):</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x11</span><span class="p">)</span> <span class="c1"># orange</span>
-            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x02</span><span class="p">)</span> <span class="c1"># pale blue</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">action_id</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">EUDReturn</span><span class="p">()</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
 
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">" %D: "</span><span class="p">,</span> <span class="n">cur</span><span class="p">)</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_action_epd</span><span class="p">(</span><span class="n">action_epd</span><span class="p">)</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">))</span>
+            <span class="n">quot</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">action_id</span><span class="p">,</span> <span class="mi">8</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">cur</span> <span class="o">=</span> <span class="n">quot</span> <span class="o">*</span> <span class="mi">8</span>
+            <span class="n">pageend</span> <span class="o">=</span> <span class="n">cur</span> <span class="o">+</span> <span class="mi">8</span>
+            <span class="n">until</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">pageend</span> <span class="o">&lt;=</span> <span class="n">action_count</span><span class="p">):</span>
+                <span class="n">until</span> <span class="o">&lt;&lt;</span> <span class="n">pageend</span>
+            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                <span class="n">until</span> <span class="o">&lt;&lt;</span> <span class="n">action_count</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
 
-            <span class="n">DoActions</span><span class="p">([</span><span class="n">cur</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">action_epd</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">32</span><span class="o">//</span><span class="mi">4</span><span class="p">)])</span>
-        <span class="n">EUDEndInfLoop</span><span class="p">()</span>
+            <span class="c1"># fill contents</span>
+            <span class="n">action_epd</span> <span class="o">=</span> <span class="n">action_array_epd</span> <span class="o">+</span> <span class="p">(</span><span class="mi">32</span><span class="o">//</span><span class="mi">4</span><span class="p">)</span> <span class="o">*</span> <span class="n">cur</span>
+            <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+                <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cur</span> <span class="o">&gt;=</span> <span class="n">until</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
-            <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cur</span> <span class="o">&gt;=</span> <span class="n">pageend</span><span class="p">)</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">))</span>
-            <span class="n">cur</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="n">EUDEndInfLoop</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur</span> <span class="o">==</span> <span class="n">action_id</span><span class="p">):</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x11</span><span class="p">)</span> <span class="c1"># orange</span>
+                <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x02</span><span class="p">)</span> <span class="c1"># pale blue</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
+
+                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">" %D: "</span><span class="p">,</span> <span class="n">cur</span><span class="p">)</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write_action_epd</span><span class="p">(</span><span class="n">action_epd</span><span class="p">)</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">))</span>
+
+                <span class="n">DoActions</span><span class="p">([</span><span class="n">cur</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">action_epd</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">32</span><span class="o">//</span><span class="mi">4</span><span class="p">)])</span>
+            <span class="n">EUDEndInfLoop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span>
+                <span class="s2">"Pattern action editor</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Press F7/F8 to move focus</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Press F7/F8 with holding CTRL key to move focus at page level</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Press CTRL+E to modify the chosen action</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Press ESC to get back to pattern editor</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
 
         <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 </pre>

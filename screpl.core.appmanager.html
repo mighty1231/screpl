@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.core.appmanager module — SC-REPL 1.1.4 documentation
+   screpl.core.appmanager module — SC-REPL 1.1.5 documentation
   </title>
   <link href="_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -85,7 +85,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -163,7 +163,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -186,10 +186,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="_static/" width="48"/>
           </a>
-          <a href="index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -351,32 +351,6 @@
           </dd>
          </dl>
          <dl class="py method">
-          <dt id="screpl.core.appmanager.AppManager.clean_text">
-           <code class="sig-name descname">
-            clean_text
-           </code>
-           <span class="sig-paren">
-            (
-           </span>
-           <span class="sig-paren">
-            )
-           </span>
-           <a class="reference internal" href="_modules/screpl/core/appmanager.html#AppManager.clean_text">
-            <span class="viewcode-link">
-             [source]
-            </span>
-           </a>
-           <a class="headerlink" href="#screpl.core.appmanager.AppManager.clean_text" title="Permalink to this definition">
-            ¶
-           </a>
-          </dt>
-          <dd>
-           <p>
-            Cleans text UI of previous app.
-           </p>
-          </dd>
-         </dl>
-         <dl class="py method">
           <dt id="screpl.core.appmanager.AppManager.free_db_epd">
            <code class="sig-name descname">
             free_db_epd
@@ -522,6 +496,12 @@
            </a>
           </dt>
           <dd>
+           <p>
+            evaluate mouse position
+           </p>
+           <p>
+            This can cause desync
+           </p>
           </dd>
          </dl>
          <dl class="py method">
@@ -548,6 +528,33 @@
           </dd>
          </dl>
          <dl class="py method">
+          <dt id="screpl.core.appmanager.AppManager.is_multiplaying">
+           <code class="sig-name descname">
+            is_multiplaying
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="reference internal" href="_modules/screpl/core/appmanager.html#AppManager.is_multiplaying">
+            <span class="viewcode-link">
+             [source]
+            </span>
+           </a>
+           <a class="headerlink" href="#screpl.core.appmanager.AppManager.is_multiplaying" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+           <p>
+            If current game have more than two humans, return true,
+otherwise false
+           </p>
+          </dd>
+         </dl>
+         <dl class="py method">
           <dt id="screpl.core.appmanager.AppManager.key_down">
            <code class="sig-name descname">
             key_down
@@ -560,6 +567,18 @@
              key
             </span>
            </em>
+           ,
+           <em class="sig-param">
+            <span class="n">
+             sync
+            </span>
+            <span class="o">
+             =
+            </span>
+            <span class="default_value">
+             None
+            </span>
+           </em>
            <span class="sig-paren">
             )
            </span>
@@ -569,6 +588,34 @@
             </span>
            </a>
            <a class="headerlink" href="#screpl.core.appmanager.AppManager.key_down" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+          </dd>
+         </dl>
+         <dl class="py method">
+          <dt id="screpl.core.appmanager.AppManager.key_holdcounter">
+           <code class="sig-name descname">
+            key_holdcounter
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             key
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="reference internal" href="_modules/screpl/core/appmanager.html#AppManager.key_holdcounter">
+            <span class="viewcode-link">
+             [source]
+            </span>
+           </a>
+           <a class="headerlink" href="#screpl.core.appmanager.AppManager.key_holdcounter" title="Permalink to this definition">
             ¶
            </a>
           </dt>
@@ -592,6 +639,18 @@
            <em class="sig-param">
             <span class="n">
              hold
+            </span>
+            <span class="o">
+             =
+            </span>
+            <span class="default_value">
+             None
+            </span>
+           </em>
+           ,
+           <em class="sig-param">
+            <span class="n">
+             sync
             </span>
             <span class="o">
              =
@@ -631,6 +690,18 @@
              key
             </span>
            </em>
+           ,
+           <em class="sig-param">
+            <span class="n">
+             sync
+            </span>
+            <span class="o">
+             =
+            </span>
+            <span class="default_value">
+             None
+            </span>
+           </em>
            <span class="sig-paren">
             )
            </span>
@@ -654,6 +725,17 @@
            <span class="sig-paren">
             (
            </span>
+           <em class="sig-param">
+            <span class="n">
+             sync
+            </span>
+            <span class="o">
+             =
+            </span>
+            <span class="default_value">
+             None
+            </span>
+           </em>
            <span class="sig-paren">
             )
            </span>
@@ -670,6 +752,40 @@
           </dd>
          </dl>
          <dl class="py method">
+          <dt id="screpl.core.appmanager.AppManager.mouse_ldrag">
+           <code class="sig-name descname">
+            mouse_ldrag
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             sync
+            </span>
+            <span class="o">
+             =
+            </span>
+            <span class="default_value">
+             None
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="reference internal" href="_modules/screpl/core/appmanager.html#AppManager.mouse_ldrag">
+            <span class="viewcode-link">
+             [source]
+            </span>
+           </a>
+           <a class="headerlink" href="#screpl.core.appmanager.AppManager.mouse_ldrag" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+          </dd>
+         </dl>
+         <dl class="py method">
           <dt id="screpl.core.appmanager.AppManager.mouse_lpress">
            <code class="sig-name descname">
             mouse_lpress
@@ -677,6 +793,17 @@
            <span class="sig-paren">
             (
            </span>
+           <em class="sig-param">
+            <span class="n">
+             sync
+            </span>
+            <span class="o">
+             =
+            </span>
+            <span class="default_value">
+             None
+            </span>
+           </em>
            <span class="sig-paren">
             )
            </span>
@@ -700,6 +827,17 @@
            <span class="sig-paren">
             (
            </span>
+           <em class="sig-param">
+            <span class="n">
+             sync
+            </span>
+            <span class="o">
+             =
+            </span>
+            <span class="default_value">
+             None
+            </span>
+           </em>
            <span class="sig-paren">
             )
            </span>
@@ -723,6 +861,17 @@
            <span class="sig-paren">
             (
            </span>
+           <em class="sig-param">
+            <span class="n">
+             sync
+            </span>
+            <span class="o">
+             =
+            </span>
+            <span class="default_value">
+             None
+            </span>
+           </em>
            <span class="sig-paren">
             )
            </span>
@@ -746,6 +895,17 @@
            <span class="sig-paren">
             (
            </span>
+           <em class="sig-param">
+            <span class="n">
+             sync
+            </span>
+            <span class="o">
+             =
+            </span>
+            <span class="default_value">
+             None
+            </span>
+           </em>
            <span class="sig-paren">
             )
            </span>
@@ -769,6 +929,17 @@
            <span class="sig-paren">
             (
            </span>
+           <em class="sig-param">
+            <span class="n">
+             sync
+            </span>
+            <span class="o">
+             =
+            </span>
+            <span class="default_value">
+             None
+            </span>
+           </em>
            <span class="sig-paren">
             )
            </span>
@@ -778,6 +949,57 @@
             </span>
            </a>
            <a class="headerlink" href="#screpl.core.appmanager.AppManager.mouse_rpress" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+          </dd>
+         </dl>
+         <dl class="py method">
+          <dt id="screpl.core.appmanager.AppManager.pop_current_allocating_method">
+           <code class="sig-name descname">
+            pop_current_allocating_method
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="reference internal" href="_modules/screpl/core/appmanager.html#AppManager.pop_current_allocating_method">
+            <span class="viewcode-link">
+             [source]
+            </span>
+           </a>
+           <a class="headerlink" href="#screpl.core.appmanager.AppManager.pop_current_allocating_method" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+          </dd>
+         </dl>
+         <dl class="py method">
+          <dt id="screpl.core.appmanager.AppManager.push_current_allocating_method">
+           <code class="sig-name descname">
+            push_current_allocating_method
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             method
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="reference internal" href="_modules/screpl/core/appmanager.html#AppManager.push_current_allocating_method">
+            <span class="viewcode-link">
+             [source]
+            </span>
+           </a>
+           <a class="headerlink" href="#screpl.core.appmanager.AppManager.push_current_allocating_method" title="Permalink to this definition">
             ¶
            </a>
           </dt>
@@ -806,19 +1028,8 @@
           </dt>
           <dd>
            <p>
-            Request self-destruct of application
-It should be called under AppMethod or AppCommand
+            Request destruct of the application self, on foreground
            </p>
-           <dl class="simple">
-            <dt>
-             When a single app requested start_application,
-            </dt>
-            <dd>
-             <p>
-              destruction should not be requested at the same frame.
-             </p>
-            </dd>
-           </dl>
           </dd>
          </dl>
          <dl class="py method">
@@ -843,8 +1054,10 @@ It should be called under AppMethod or AppCommand
           </dt>
           <dd>
            <p>
-            Request update of application
-Should be called under AppMethod or AppCommand
+            Request update of the display buffer.
+           </p>
+           <p>
+            This should be called under AppMethod or AppCommand
            </p>
           </dd>
          </dl>
@@ -923,6 +1136,18 @@ Should be called under AppMethod or AppCommand
              app
             </span>
            </em>
+           ,
+           <em class="sig-param">
+            <span class="n">
+             jump
+            </span>
+            <span class="o">
+             =
+            </span>
+            <span class="default_value">
+             True
+            </span>
+           </em>
            <span class="sig-paren">
             )
            </span>
@@ -937,9 +1162,52 @@ Should be called under AppMethod or AppCommand
           </dt>
           <dd>
            <p>
-            It just reserve to start app.
-The app is initialized at the start of the next loop.
+            Queue to start app
            </p>
+           <p>
+            It just records that the app should start. Actual start of the app is
+at the next frame.
+           </p>
+          </dd>
+         </dl>
+         <dl class="py method">
+          <dt id="screpl.core.appmanager.AppManager.synchronize">
+           <code class="sig-name descname">
+            synchronize
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <em class="sig-param">
+            <span class="n">
+             conditions
+            </span>
+           </em>
+           ,
+           <em class="sig-param">
+            <span class="n">
+             variables_to_sync
+            </span>
+            <span class="o">
+             =
+            </span>
+            <span class="default_value">
+             None
+            </span>
+           </em>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="reference internal" href="_modules/screpl/core/appmanager.html#AppManager.synchronize">
+            <span class="viewcode-link">
+             [source]
+            </span>
+           </a>
+           <a class="headerlink" href="#screpl.core.appmanager.AppManager.synchronize" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
           </dd>
          </dl>
         </dd>

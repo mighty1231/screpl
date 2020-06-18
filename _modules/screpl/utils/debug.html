@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.utils.debug — SC-REPL 1.1.4 documentation
+   screpl.utils.debug — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -274,6 +274,16 @@
     <span class="n">_get_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
     <span class="n">_get_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">_print_buf</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="f_sprintf"><a class="viewcode-back" href="../../../screpl.utils.debug.html#screpl.utils.debug.f_sprintf">[docs]</a><span class="k">def</span> <span class="nf">f_sprintf</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">_get_writer</span><span class="p">()</span><span class="o">.</span><span class="n">seekoffset</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+    <span class="n">_get_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">_get_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="f_epdsprintf"><a class="viewcode-back" href="../../../screpl.utils.debug.html#screpl.utils.debug.f_epdsprintf">[docs]</a><span class="k">def</span> <span class="nf">f_epdsprintf</span><span class="p">(</span><span class="n">epd</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+    <span class="n">_get_writer</span><span class="p">()</span><span class="o">.</span><span class="n">seekepd</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="n">_get_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span>
+    <span class="n">_get_writer</span><span class="p">()</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="DisplayWriter"><a class="viewcode-back" href="../../../screpl.utils.debug.html#screpl.utils.debug.DisplayWriter">[docs]</a><span class="k">class</span> <span class="nc">DisplayWriter</span><span class="p">:</span>
     <span class="sa">r</span><span class="sd">"""Helps to display text, preserving bottom part of chat</span>

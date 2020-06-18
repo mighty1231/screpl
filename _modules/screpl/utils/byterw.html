@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.utils.byterw — SC-REPL 1.1.4 documentation
+   screpl.utils.byterw — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -420,24 +420,25 @@
         <span class="n">EUDReturn</span><span class="p">(</span><span class="n">written</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="REPLByteRW.write_decimal"><a class="viewcode-back" href="../../../screpl.utils.byterw.html#screpl.utils.byterw.REPLByteRW.write_decimal">[docs]</a>    <span class="k">def</span> <span class="nf">write_decimal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_write_decimal</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">number</span><span class="p">)))</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_decimal</span><span class="p">(</span><span class="n">number</span><span class="p">)</span></div>
+
 
 <div class="viewcode-block" id="REPLByteRW.write_hex"><a class="viewcode-back" href="../../../screpl.utils.byterw.html#screpl.utils.byterw.REPLByteRW.write_hex">[docs]</a>    <span class="k">def</span> <span class="nf">write_hex</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_write_hex</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"0x</span><span class="si">%08X</span><span class="s2">"</span> <span class="o">%</span> <span class="n">number</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"0x</span><span class="si">%08X</span><span class="s2">"</span> <span class="o">%</span> <span class="n">number</span><span class="p">))</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_hex</span><span class="p">(</span><span class="n">number</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="REPLByteRW.write_binary"><a class="viewcode-back" href="../../../screpl.utils.byterw.html#screpl.utils.byterw.REPLByteRW.write_binary">[docs]</a>    <span class="k">def</span> <span class="nf">write_binary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">number</span><span class="p">):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_write_binary</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">number</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="n">chars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'1'</span> <span class="k">if</span> <span class="p">(</span><span class="n">number</span> <span class="o">&amp;</span> <span class="p">(</span><span class="mi">1</span><span class="o">&lt;&lt;</span><span class="n">t</span><span class="p">))</span> <span class="k">else</span> <span class="s1">'0'</span>
                      <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">31</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"0b"</span> <span class="o">+</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chars</span><span class="p">)))</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s2">"0b"</span> <span class="o">+</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chars</span><span class="p">)))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_write_binary</span><span class="p">(</span><span class="n">number</span><span class="p">)</span></div>
 
     <span class="nd">@EUDMethod</span>
     <span class="k">def</span> <span class="nf">_write_decimal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="p">):</span>
@@ -649,6 +650,20 @@
 <span class="sd">         - %S: string with ptr</span>
 <span class="sd">         - %E: string with epd</span>
 <span class="sd">         - %C: single character</span>
+<span class="sd">         - %:{funcname};: function call with given arguments</span>
+
+<span class="sd">        For example::</span>
+
+<span class="sd">            writer.write_f("Val%D - %:strn;...", 10, (0x57EEEB, 5))</span>
+
+<span class="sd">        is same to::</span>
+
+<span class="sd">            writer.write_strepd(EPDConstString("Val"))</span>
+<span class="sd">            writer.write_decimal(10)</span>
+<span class="sd">            writer.write_strepd(EPDConstString(" - "))</span>
+<span class="sd">            writer.write_strn(0x57EEEB, 5)</span>
+<span class="sd">            writer.write_strepd(EPDConstString("..."))</span>
+
 
 <span class="sd">        Write %% to represent %</span>
 <span class="sd">        '''</span>
@@ -741,6 +756,11 @@
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">'C'</span><span class="p">,</span> <span class="n">curarg</span><span class="p">))</span>
                 <span class="n">argidx</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="s1">':'</span><span class="p">:</span>
+                <span class="n">idx</span> <span class="o">=</span> <span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="mi">1</span><span class="p">:]</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">';'</span><span class="p">)</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s1">'mtd'</span><span class="p">,</span> <span class="p">(</span><span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="o">+</span><span class="mi">2</span><span class="p">:</span><span class="n">pos</span><span class="o">+</span><span class="mi">1</span><span class="o">+</span><span class="n">idx</span><span class="p">],</span> <span class="n">curarg</span><span class="p">)))</span>
+                <span class="n">pos</span> <span class="o">+=</span> <span class="n">idx</span>
+                <span class="n">argidx</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">fmt</span><span class="p">[</span><span class="n">pos</span><span class="p">:])</span>
                 <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Unable to parse </span><span class="si">{}</span><span class="s2">"</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fmt</span><span class="p">))</span>
@@ -784,6 +804,9 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
             <span class="k">elif</span> <span class="n">fm</span> <span class="o">==</span> <span class="s1">'C'</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">fm</span> <span class="o">==</span> <span class="s1">'mtd'</span><span class="p">:</span>
+                <span class="n">funcname</span><span class="p">,</span> <span class="n">arg</span> <span class="o">=</span> <span class="n">arg</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'write_</span><span class="si">{</span><span class="n">funcname</span><span class="si">}</span><span class="s1">'</span><span class="p">)(</span><span class="o">*</span><span class="n">arg</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">func_matches</span><span class="p">[</span><span class="n">fm</span><span class="p">](</span><span class="n">arg</span><span class="p">)</span></div></div>
 </pre>

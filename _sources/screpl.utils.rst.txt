@@ -17,6 +17,8 @@ Submodules
    screpl.utils.referencetable
    screpl.utils.string
    screpl.utils.struct
+   screpl.utils.sync
+   screpl.utils.uuencode
 
 Module contents
 ---------------

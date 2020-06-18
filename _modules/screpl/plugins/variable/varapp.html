@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.variable.varapp — SC-REPL 1.1.4 documentation
+   screpl.plugins.variable.varapp — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -230,112 +230,40 @@
 <span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="kn">from</span> <span class="nn">screpl.apps.scroll</span> <span class="kn">import</span> <span class="n">ScrollApp</span>
-<span class="kn">from</span> <span class="nn">screpl.utils.referencetable</span> <span class="kn">import</span> <span class="n">ReferenceTable</span>
-<span class="kn">from</span> <span class="nn">screpl.core.appcommand</span> <span class="kn">import</span> <span class="n">AppCommand</span>
-<span class="kn">from</span> <span class="nn">screpl.core.appmethod</span> <span class="kn">import</span> <span class="n">AppTypedMethod</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">death_units</span><span class="p">,</span> <span class="n">watched_eud_vars</span><span class="p">,</span> <span class="n">accessed_resources</span>
-
-<span class="n">watched_eud_vars_size</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">condition_writer</span><span class="p">,</span> <span class="n">watched_eud_vars</span>
 
 <div class="viewcode-block" id="VariableApp"><a class="viewcode-back" href="../../../../screpl.plugins.variable.varapp.html#screpl.plugins.variable.varapp.VariableApp">[docs]</a><span class="k">class</span> <span class="nc">VariableApp</span><span class="p">(</span><span class="n">ScrollApp</span><span class="p">):</span>
     <span class="n">fields</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="nf">on_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ScrollApp</span><span class="o">.</span><span class="n">on_init</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="n">watched_eud_vars_size</span> <span class="o">&lt;&lt;</span> <span class="n">ReferenceTable</span><span class="o">.</span><span class="n">get_size</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">watched_eud_vars</span><span class="p">))</span>
-
     <span class="k">def</span> <span class="nf">write_title</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Variable App. press F7 or F8. ( Offset = %D )"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span>
+            <span class="s2">"Variable App. Shows exact values of P1~P8. "</span>
+            <span class="s2">"press F7 or F8 to navigate"</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">write_line</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">,</span> <span class="n">line</span><span class="p">):</span>
-        <span class="c1"># Ore / Gas</span>
-        <span class="k">if</span> <span class="n">accessed_resources</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">line</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1e</span><span class="s2">[Resource]"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">line</span> <span class="o">&lt;=</span> <span class="n">condition_writer</span><span class="o">.</span><span class="n">funcptr_len</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x16</span><span class="s2"> %D: "</span><span class="p">,</span> <span class="n">line</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)(</span><span class="n">condition_writer</span><span class="o">.</span><span class="n">funcptr_arr</span><span class="p">[</span><span class="n">line</span><span class="p">])()</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">line</span> <span class="o">==</span> <span class="n">condition_writer</span><span class="o">.</span><span class="n">funcptr_len</span><span class="p">):</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1E</span><span class="s2">-----------------"</span><span class="p">)</span>
                 <span class="n">EUDReturn</span><span class="p">()</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
-            <span class="n">line</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">line</span> <span class="o">-=</span> <span class="p">(</span><span class="n">condition_writer</span><span class="o">.</span><span class="n">funcptr_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">Ore</span> <span class="ow">in</span> <span class="n">accessed_resources</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">line</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-                    <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1e</span><span class="s2"> * Ore"</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">write_pvar_from_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x57F0F0</span><span class="p">))</span>
-                <span class="n">EUDEndIf</span><span class="p">()</span>
-                <span class="n">line</span> <span class="o">-=</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="n">Gas</span> <span class="ow">in</span> <span class="n">accessed_resources</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">line</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-                    <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1e</span><span class="s2"> * Gas"</span><span class="p">)</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">write_pvar_from_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x57F120</span><span class="p">))</span>
-                <span class="n">EUDEndIf</span><span class="p">()</span>
-                <span class="n">line</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">tmp</span> <span class="o">=</span> <span class="n">line</span> <span class="o">*</span> <span class="mi">2</span>
+            <span class="n">varaddr_epd</span> <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">((</span><span class="n">EPD</span><span class="p">(</span><span class="n">watched_eud_vars</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">tmp</span><span class="p">)</span>
+            <span class="n">var_value</span> <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">((</span><span class="n">EPD</span><span class="p">(</span><span class="n">watched_eud_vars</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">tmp</span><span class="p">)</span>
 
-        <span class="c1"># Death units</span>
-        <span class="k">if</span> <span class="n">death_units</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">line</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1e</span><span class="s2">[Deaths]"</span><span class="p">)</span>
-                <span class="n">EUDReturn</span><span class="p">()</span>
-            <span class="n">EUDEndIf</span><span class="p">()</span>
-            <span class="n">line</span> <span class="o">-=</span> <span class="mi">1</span>
-
-            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">unitID</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">death_units</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">line</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-                    <span class="c1"># write number</span>
-                    <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1e</span><span class="s2"> # </span><span class="si">{}</span><span class="s2"> "</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
-
-                    <span class="c1"># write unit name</span>
-                    <span class="n">writer</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">unitID</span><span class="p">)</span>
-
-                    <span class="c1"># write death values</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">write_pvar_from_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x58A364</span> <span class="o">+</span> <span class="mi">48</span><span class="o">*</span><span class="n">unitID</span><span class="p">))</span>
-                    <span class="n">EUDReturn</span><span class="p">()</span>
-                <span class="n">EUDEndIf</span><span class="p">()</span>
-                <span class="n">line</span> <span class="o">-=</span> <span class="mi">1</span>
-
-        <span class="c1"># EUDVariables</span>
-        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">line</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1e</span><span class="s2">[EUDVariable]"</span><span class="p">)</span>
-            <span class="n">EUDReturn</span><span class="p">()</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1E</span><span class="s2"> * </span><span class="si">%E</span><span class="s2">: %H = %D"</span><span class="p">,</span>
+                           <span class="n">varaddr_epd</span><span class="p">,</span>
+                           <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">var_value</span><span class="p">),</span>
+                           <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">var_value</span><span class="p">))</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
-        <span class="n">line</span> <span class="o">-=</span> <span class="mi">1</span>
-
-        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">line</span> <span class="o">&gt;=</span> <span class="n">watched_eud_vars_size</span><span class="p">):</span>
-            <span class="n">EUDReturn</span><span class="p">()</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
-
-        <span class="n">tmp</span> <span class="o">=</span> <span class="n">line</span> <span class="o">*</span> <span class="mi">2</span>
-        <span class="n">varaddr_epd</span> <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">((</span><span class="n">EPD</span><span class="p">(</span><span class="n">watched_eud_vars</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">tmp</span><span class="p">)</span>
-        <span class="n">var_value</span> <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">((</span><span class="n">EPD</span><span class="p">(</span><span class="n">watched_eud_vars</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">)</span> <span class="o">+</span> <span class="n">tmp</span><span class="p">)</span>
-
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1e</span><span class="s2"> * </span><span class="si">%E</span><span class="s2">: %H = %D"</span><span class="p">,</span>
-                       <span class="n">varaddr_epd</span><span class="p">,</span>
-                       <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">var_value</span><span class="p">),</span>
-                       <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">var_value</span><span class="p">))</span>
-
-    <span class="nd">@AppTypedMethod</span><span class="p">([</span><span class="kc">None</span><span class="p">],</span> <span class="p">[],</span> <span class="n">with_main_writer</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-    <span class="k">def</span> <span class="nf">write_pvar_from_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">" : </span><span class="se">\x08</span><span class="s2">%D"</span><span class="p">,</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">epd</span><span class="p">))</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1e</span><span class="s2"> / </span><span class="se">\x0e</span><span class="s2">%D"</span><span class="p">,</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">epd</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1e</span><span class="s2"> / </span><span class="se">\x0f</span><span class="s2">%D"</span><span class="p">,</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">epd</span> <span class="o">+</span> <span class="mi">2</span><span class="p">))</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1e</span><span class="s2"> / </span><span class="se">\x10</span><span class="s2">%D"</span><span class="p">,</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">epd</span> <span class="o">+</span> <span class="mi">3</span><span class="p">))</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1e</span><span class="s2"> / </span><span class="se">\x11</span><span class="s2">%D"</span><span class="p">,</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">epd</span> <span class="o">+</span> <span class="mi">4</span><span class="p">))</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1e</span><span class="s2"> / </span><span class="se">\x15</span><span class="s2">%D"</span><span class="p">,</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">epd</span> <span class="o">+</span> <span class="mi">5</span><span class="p">))</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1e</span><span class="s2"> / </span><span class="se">\x16</span><span class="s2">%D"</span><span class="p">,</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">epd</span> <span class="o">+</span> <span class="mi">6</span><span class="p">))</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x1e</span><span class="s2"> / </span><span class="se">\x17</span><span class="s2">%D"</span><span class="p">,</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">epd</span> <span class="o">+</span> <span class="mi">7</span><span class="p">))</span>
-
 
     <span class="k">def</span> <span class="nf">get_line_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">ret</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="k">if</span> <span class="n">accessed_resources</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">+=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">accessed_resources</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">death_units</span><span class="p">:</span>
-            <span class="n">ret</span> <span class="o">+=</span> <span class="mi">1</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">death_units</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">watched_eud_vars_size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-            <span class="n">EUDReturn</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-            <span class="n">ret</span> <span class="o">+=</span> <span class="mi">1</span> <span class="o">+</span> <span class="n">watched_eud_vars_size</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
-        <span class="n">EUDReturn</span><span class="p">(</span><span class="n">ret</span><span class="p">)</span></div>
+        <span class="n">EUDReturn</span><span class="p">(</span><span class="n">watched_eud_vars</span><span class="o">.</span><span class="n">size</span><span class="p">()</span> <span class="o">+</span> <span class="n">condition_writer</span><span class="o">.</span><span class="n">funcptr_len</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span></div>
 </pre>
        </div>
       </article>

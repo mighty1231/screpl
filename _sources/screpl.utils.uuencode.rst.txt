@@ -1,0 +1,7 @@
+screpl.utils.uuencode module
+============================
+
+.. automodule:: screpl.utils.uuencode
+   :members:
+   :undoc-members:
+   :show-inheritance:

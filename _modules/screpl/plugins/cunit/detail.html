@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.cunit.detail — SC-REPL 1.1.4 documentation
+   screpl.plugins.cunit.detail — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -273,17 +273,13 @@
 
     <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">focused_memid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">focused_memid</span>
+        <span class="n">hold_ctrl</span> <span class="o">=</span> <span class="n">app_manager</span><span class="o">.</span><span class="n">key_holdcounter</span><span class="p">(</span><span class="s2">"LCTRL"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"ESC"</span><span class="p">)):</span>
             <span class="n">app_manager</span><span class="o">.</span><span class="n">request_destruct</span><span class="p">()</span>
-            <span class="n">EUDReturn</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">focus_mem_id</span><span class="p">(</span><span class="n">focused_memid</span> <span class="o">-</span> <span class="mi">8</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">)):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">focus_mem_id</span><span class="p">(</span><span class="n">focused_memid</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">focus_mem_id</span><span class="p">(</span><span class="n">focused_memid</span> <span class="o">+</span> <span class="mi">8</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">)):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">focus_mem_id</span><span class="p">(</span><span class="n">focused_memid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="p">[</span><span class="n">hold_ctrl</span><span class="p">])):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">focus_mem_id</span><span class="p">(</span><span class="n">focused_memid</span> <span class="o">-</span> <span class="n">EUDTernary</span><span class="p">(</span><span class="n">hold_ctrl</span><span class="p">)(</span><span class="mi">8</span><span class="p">)(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="p">[</span><span class="n">hold_ctrl</span><span class="p">])):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">focus_mem_id</span><span class="p">(</span><span class="n">focused_memid</span> <span class="o">+</span> <span class="n">EUDTernary</span><span class="p">(</span><span class="n">hold_ctrl</span><span class="p">)(</span><span class="mi">8</span><span class="p">)(</span><span class="mi">1</span><span class="p">))</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"H"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
             <span class="n">dw</span><span class="p">,</span> <span class="n">epd</span> <span class="o">=</span> <span class="n">f_cunitepdread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x6284B8</span><span class="p">))</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">cunit_epd</span> <span class="o">=</span> <span class="n">epd</span>
@@ -329,12 +325,6 @@
             <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">))</span>
 
             <span class="n">DoActions</span><span class="p">(</span><span class="n">cur</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-        <span class="n">EUDEndInfLoop</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
-            <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cur</span> <span class="o">&gt;=</span> <span class="n">pageend</span><span class="p">)</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">))</span>
-            <span class="n">cur</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="n">EUDEndInfLoop</span><span class="p">()</span>
 
         <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>

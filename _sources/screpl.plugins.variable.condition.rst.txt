@@ -1,0 +1,7 @@
+screpl.plugins.variable.condition module
+========================================
+
+.. automodule:: screpl.plugins.variable.condition
+   :members:
+   :undoc-members:
+   :show-inheritance:

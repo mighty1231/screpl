@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.core.appcommand — SC-REPL 1.1.4 documentation
+   screpl.core.appcommand — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -230,9 +230,8 @@
 <span class="kn">from</span> <span class="nn">eudplib.core.eudfunc.eudfptr</span> <span class="kn">import</span> <span class="n">createIndirectCaller</span>
 
 <span class="kn">from</span> <span class="nn">screpl.encoder.encoder</span> <span class="kn">import</span> <span class="n">ArgEncoderPtr</span><span class="p">,</span> <span class="n">read_name</span><span class="p">,</span> <span class="n">_read_until_delimiter</span>
-<span class="kn">from</span> <span class="nn">screpl.utils.byterw</span> <span class="kn">import</span> <span class="n">REPLByteRW</span>
+<span class="kn">from</span> <span class="nn">screpl.utils.debug</span> <span class="kn">import</span> <span class="n">f_epdsprintf</span>
 <span class="kn">from</span> <span class="nn">screpl.utils.referencetable</span> <span class="kn">import</span> <span class="n">search_table</span>
-<span class="kn">from</span> <span class="nn">screpl.utils.conststring</span> <span class="kn">import</span> <span class="n">EPDConstString</span>
 <span class="kn">from</span> <span class="nn">screpl.utils.string</span> <span class="kn">import</span> <span class="n">f_strcmp_ptrepd</span>
 
 <span class="n">_MAXARGCNT</span> <span class="o">=</span> <span class="mi">8</span>
@@ -248,11 +247,17 @@
 
 <span class="n">AppCommandPtr</span> <span class="o">=</span> <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
-<div class="viewcode-block" id="run_app_command"><a class="viewcode-back" href="../../../screpl.core.appcommand.html#screpl.apps.repl.run_app_command">[docs]</a><span class="k">def</span> <span class="nf">run_app_command</span><span class="p">(</span><span class="n">manager</span><span class="p">,</span> <span class="n">txtptr</span><span class="p">):</span>
+<span class="n">_logbuf_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<div class="viewcode-block" id="run_app_command"><a class="viewcode-back" href="../../../screpl.core.appcommand.html#screpl.apps.repl.run_app_command">[docs]</a><span class="k">def</span> <span class="nf">run_app_command</span><span class="p">(</span><span class="n">manager</span><span class="p">,</span> <span class="n">txtptr</span><span class="p">,</span> <span class="n">logbuf_epd</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="n">_offset</span> <span class="o">&lt;&lt;</span> <span class="n">txtptr</span>
+    <span class="k">if</span> <span class="n">logbuf_epd</span><span class="p">:</span>
+        <span class="n">_logbuf_epd</span> <span class="o">&lt;&lt;</span> <span class="n">logbuf_epd</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">_logbuf_epd</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
 
     <span class="c1"># get current AppCommand table</span>
-    <span class="n">_run_app_command</span><span class="p">(</span><span class="n">manager</span><span class="o">.</span><span class="n">cur_cmdtable_epd</span><span class="p">)</span></div>
+    <span class="n">_run_app_command</span><span class="p">(</span><span class="n">manager</span><span class="o">.</span><span class="n">foreground_appstruct</span><span class="o">.</span><span class="n">cmdtable_epd</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="_run_app_command"><a class="viewcode-back" href="../../../screpl.core.appcommand.html#screpl.apps.repl._run_app_command">[docs]</a><span class="nd">@EUDFunc</span>
 <span class="k">def</span> <span class="nf">_run_app_command</span><span class="p">(</span><span class="n">cmdtable_epd</span><span class="p">):</span>
@@ -273,12 +278,24 @@
             <span class="n">func</span><span class="o">.</span><span class="n">setFunc</span><span class="p">(</span><span class="n">AppCommandPtr</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">ret</span><span class="p">))</span>
             <span class="n">func</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">Logger</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                <span class="s2">"run_app_command(): Failed to search function </span><span class="si">%E</span><span class="s2">"</span><span class="p">,</span>
-                <span class="n">EPD</span><span class="p">(</span><span class="n">funcname</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">_logbuf_epd</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">Logger</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="s2">"run_app_command(): failed to search function </span><span class="si">%E</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="n">EPD</span><span class="p">(</span><span class="n">funcname</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                <span class="n">f_epdsprintf</span><span class="p">(</span>
+                    <span class="n">_logbuf_epd</span><span class="p">,</span>
+                    <span class="s2">"run_app_command(): failed to search function </span><span class="si">%E</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="n">EPD</span><span class="p">(</span><span class="n">funcname</span><span class="p">))</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">Logger</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">"run_app_command(): Failed to read command"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">_logbuf_epd</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">Logger</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">"run_app_command(): failed to read command"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="n">f_epdsprintf</span><span class="p">(</span><span class="n">_logbuf_epd</span><span class="p">,</span>
+                         <span class="s2">"run_app_command(): failed to read command"</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
     <span class="n">EUDEndIf</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="encode_arguments"><a class="viewcode-back" href="../../../screpl.core.appcommand.html#screpl.apps.repl.encode_arguments">[docs]</a><span class="nd">@EUDFunc</span>
@@ -290,6 +307,13 @@
     <span class="n">_encode_success</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
     <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">_argn</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
         <span class="n">_encode_success</span> <span class="o">&lt;&lt;</span> <span class="n">_read_until_delimiter</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">' '</span><span class="p">),</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">')'</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">_encode_success</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">_logbuf_epd</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">Logger</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s2">"SyntaxError"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                <span class="n">f_epdsprintf</span><span class="p">(</span><span class="n">_logbuf_epd</span><span class="p">,</span> <span class="s2">"SyntaxError"</span><span class="p">)</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
         <span class="n">delim</span> <span class="o">&lt;&lt;</span> <span class="nb">ord</span><span class="p">(</span><span class="s1">','</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
@@ -302,14 +326,17 @@
                     <span class="n">EPD</span><span class="p">(</span><span class="n">_offset</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()),</span> \
                     <span class="n">EPD</span><span class="p">(</span><span class="n">_arg_storage</span><span class="p">)</span><span class="o">+</span><span class="n">i</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
                 <span class="n">_encode_success</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span> <span class="c1"># failed to encode argument</span>
-                <span class="n">writer</span> <span class="o">=</span> <span class="n">logger</span><span class="o">.</span><span class="n">Logger</span><span class="o">.</span><span class="n">get_writer</span><span class="p">()</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">(</span>\
-                        <span class="s1">'</span><span class="se">\x06</span><span class="s1">Syntax Error: during encoding argument ['</span><span class="p">))</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s1">'] </span><span class="se">\x16</span><span class="s1">'</span><span class="p">))</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write_strn</span><span class="p">(</span><span class="n">_offset</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write_strepd</span><span class="p">(</span><span class="n">EPDConstString</span><span class="p">(</span><span class="s1">'...'</span><span class="p">))</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">_logbuf_epd</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">Logger</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="s2">"SyntaxError: during encoding argument[%D] </span><span class="se">\x16</span><span class="s2">%:strn;..."</span><span class="p">,</span>
+                        <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">_offset</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+                <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                    <span class="n">f_epdsprintf</span><span class="p">(</span>
+                        <span class="n">_logbuf_epd</span><span class="p">,</span>
+                        <span class="s2">"SyntaxError: during encoding argument[%D] </span><span class="se">\x16</span><span class="s2">%:strn;..."</span><span class="p">,</span>
+                        <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">_offset</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
                 <span class="n">EUDBreak</span><span class="p">()</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
             <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>

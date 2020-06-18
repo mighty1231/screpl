@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.cunit.cunitrw — SC-REPL 1.1.4 documentation
+   screpl.plugins.cunit.cunitrw — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -227,29 +227,31 @@
        </h1>
        <div class="highlight">
         <pre>
-<span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+<span></span><span class="sd">"""CUnit entries</span>
+
+<span class="sd">types::</span>
+
+<span class="sd">    CUnit, CSprite</span>
+<span class="sd">    bool, u8, u16, s16, u32, s32</span>
+<span class="sd">    Target, Position, point</span>
+<span class="sd">    UnitMovementState</span>
+<span class="sd">    rect</span>
+
+<span class="sd">    Point&lt;T, int scale&gt;: T x, y;</span>
+
+<span class="sd">    Target: Position pt; CUnit *pUnit;</span>
+<span class="sd">    Position: Point&lt;s16, 1&gt;</span>
+<span class="sd">    point: s32 x, y;</span>
+<span class="sd">    rect: s16 l, t, r, b;</span>
+<span class="sd">    points: s16 x, y;</span>
+<span class="sd">"""</span>
+<span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">screpl.main</span> <span class="kn">import</span> <span class="n">get_app_manager</span><span class="p">,</span> <span class="n">get_main_writer</span>
 <span class="kn">from</span> <span class="nn">screpl.utils.conststring</span> <span class="kn">import</span> <span class="n">EPDConstString</span>
 <span class="kn">from</span> <span class="nn">screpl.utils.struct</span> <span class="kn">import</span> <span class="n">REPLStruct</span>
 
 <span class="n">app_manager</span> <span class="o">=</span> <span class="n">get_app_manager</span><span class="p">()</span>
 
-<span class="sd">"""</span>
-<span class="sd">type</span>
-<span class="sd">CUnit, CSprite</span>
-<span class="sd">bool, u8, u16, s16, u32, s32</span>
-<span class="sd">Target, Position, point</span>
-<span class="sd">UnitMovementState</span>
-<span class="sd">rect</span>
-
-<span class="sd">Point&lt;T, int scale&gt;: T x, y;</span>
-
-<span class="sd">Target: Position pt; CUnit *pUnit;</span>
-<span class="sd">Position: Point&lt;s16, 1&gt;</span>
-<span class="sd">point: s32 x, y;</span>
-<span class="sd">rect: s16 l, t, r, b;</span>
-<span class="sd">points: s16 x, y;</span>
-<span class="sd">"""</span>
 <span class="n">writer</span> <span class="o">=</span> <span class="n">get_main_writer</span><span class="p">()</span>
 
 <div class="viewcode-block" id="cw_bool"><a class="viewcode-back" href="../../../../screpl.plugins.cunit.cunitrw.html#screpl.plugins.cunit.cunitrw.cw_bool">[docs]</a><span class="nd">@EUDFunc</span>

@@ -1,0 +1,7 @@
+screpl.bridge\_server.blocks.appstack module
+============================================
+
+.. automodule:: screpl.bridge_server.blocks.appstack
+   :members:
+   :undoc-members:
+   :show-inheritance:

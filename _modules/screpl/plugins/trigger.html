@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.trigger — SC-REPL 1.1.4 documentation
+   screpl.plugins.trigger — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -307,12 +307,14 @@
     <span class="n">cond_count</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
     <span class="n">cond_bools</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
     <span class="n">cond_values</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
+    <span class="n">cond_types</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>
 
     <span class="c1"># initialize</span>
     <span class="n">DoActions</span><span class="p">(</span>
         <span class="p">[</span><span class="n">cond_count</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
         <span class="o">+</span> <span class="p">[</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">cond_bools</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">)]</span>
         <span class="o">+</span> <span class="p">[</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">cond_values</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">)]</span>
+        <span class="o">+</span> <span class="p">[</span><span class="n">SetMemory</span><span class="p">(</span><span class="n">cond_types</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">)]</span>
     <span class="p">)</span>
 
     <span class="c1"># disassemble trigger - conditions</span>
@@ -360,6 +362,7 @@
         <span class="n">EUDEndSwitch</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">is_comparison</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span> <span class="c1"># cond check</span>
             <span class="n">cond_values</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_get_exact_amount</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">trig_conditions</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+            <span class="n">cond_types</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">cond_type</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">cond_count</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -375,7 +378,8 @@
         <span class="n">last_entry</span> <span class="o">=</span> <span class="n">entry_table</span><span class="o">.</span><span class="n">last</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">last_entry</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">cond_count</span><span class="p">,</span>
                                      <span class="n">EPD</span><span class="p">(</span><span class="n">cond_bools</span><span class="p">),</span>
-                                     <span class="n">EPD</span><span class="p">(</span><span class="n">cond_values</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                                     <span class="n">EPD</span><span class="p">(</span><span class="n">cond_values</span><span class="p">),</span>
+                                     <span class="n">EPD</span><span class="p">(</span><span class="n">cond_types</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
 
             <span class="c1"># update complete</span>
             <span class="n">EUDJump</span><span class="p">(</span><span class="n">trig_end</span><span class="p">)</span>
@@ -391,6 +395,7 @@
     <span class="n">new_entry</span><span class="o">.</span><span class="n">cond_count</span> <span class="o">=</span> <span class="n">cond_count</span>
     <span class="n">f_repmovsd_epd</span><span class="p">(</span><span class="n">new_entry</span><span class="o">.</span><span class="n">cond_bools_epd</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">cond_bools</span><span class="p">),</span> <span class="n">cond_count</span><span class="p">)</span>
     <span class="n">f_repmovsd_epd</span><span class="p">(</span><span class="n">new_entry</span><span class="o">.</span><span class="n">cond_values_epd</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">cond_values</span><span class="p">),</span> <span class="n">cond_count</span><span class="p">)</span>
+    <span class="n">f_repmovsd_epd</span><span class="p">(</span><span class="n">new_entry</span><span class="o">.</span><span class="n">cond_types_epd</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">cond_types</span><span class="p">),</span> <span class="n">cond_count</span><span class="p">)</span>
 
     <span class="n">trig_end</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span></div>
 

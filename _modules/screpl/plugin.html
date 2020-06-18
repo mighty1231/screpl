@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugin — SC-REPL 1.1.4 documentation
+   screpl.plugin — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../_static/" width="48"/>
           </a>
-          <a href="../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -257,7 +257,7 @@
 
 <span class="sd">    @AppCommand</span>
 <span class="sd">    def cmd2(self):</span>
-<span class="sd">        CUnitDetailApp.setFocus_epd(EPD(0x59CCA8))</span>
+<span class="sd">        CUnitDetailApp.set_focus_epd(EPD(0x59CCA8))</span>
 <span class="sd">        get_app_manager().start_application(CUnitDetailApp)</span>
 
 <span class="sd">    def plugin_get_dependency():</span>
@@ -296,6 +296,9 @@
 
 <div class="viewcode-block" id="PluginManager.load_plugin"><a class="viewcode-back" href="../../screpl.plugin.html#screpl.plugin.PluginManager.load_plugin">[docs]</a>    <span class="k">def</span> <span class="nf">load_plugin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">plname</span><span class="p">):</span>
         <span class="sd">"""Load screpl plugin"""</span>
+        <span class="k">if</span> <span class="n">plname</span> <span class="o">==</span> <span class="s1">''</span><span class="p">:</span>
+            <span class="k">return</span>
+
         <span class="n">trig</span> <span class="o">=</span> <span class="n">NextTrigger</span><span class="p">()</span>
         <span class="n">mod</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="n">plname</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">trig</span><span class="o">.</span><span class="n">IsSet</span><span class="p">():</span>

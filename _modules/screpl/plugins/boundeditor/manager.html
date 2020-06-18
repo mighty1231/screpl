@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.boundeditor.manager — SC-REPL 1.1.4 documentation
+   screpl.plugins.boundeditor.manager — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -285,7 +285,6 @@
     <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"ESC"</span><span class="p">)):</span>
             <span class="n">app_manager</span><span class="o">.</span><span class="n">request_destruct</span><span class="p">()</span>
-            <span class="n">EUDReturn</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"O"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
             <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">OptionApp</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"P"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
@@ -306,36 +305,8 @@
         <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"LCTRL + T: Test</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">is_bridge_mode</span><span class="p">():</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"LCTRL + E: Exporter</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Chat maphack() to turn on maphack</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Press DELETE key to remove selected units</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-
-    <span class="nd">@AppCommand</span><span class="p">([])</span>
-    <span class="k">def</span> <span class="nf">maphack</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">le</span> <span class="o">=</span> <span class="n">EPD</span><span class="p">(</span><span class="mh">0x58DC60</span><span class="p">)</span>
-        <span class="n">te</span> <span class="o">=</span> <span class="n">EPD</span><span class="p">(</span><span class="mh">0x58DC60</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
-        <span class="n">re</span> <span class="o">=</span> <span class="n">EPD</span><span class="p">(</span><span class="mh">0x58DC60</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span>
-        <span class="n">be</span> <span class="o">=</span> <span class="n">EPD</span><span class="p">(</span><span class="mh">0x58DC60</span><span class="p">)</span> <span class="o">+</span> <span class="mi">3</span>
-
-        <span class="n">lv</span><span class="p">,</span> <span class="n">tv</span><span class="p">,</span> <span class="n">rv</span><span class="p">,</span> <span class="n">bv</span> <span class="o">=</span> <span class="p">[</span><span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">ee</span><span class="p">)</span> <span class="k">for</span> <span class="n">ee</span> <span class="ow">in</span> <span class="p">[</span><span class="n">le</span><span class="p">,</span> <span class="n">te</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">be</span><span class="p">]]</span>
-
-        <span class="n">mapw</span> <span class="o">=</span> <span class="n">app_manager</span><span class="o">.</span><span class="n">get_map_width</span><span class="p">()</span>
-        <span class="n">maph</span> <span class="o">=</span> <span class="n">app_manager</span><span class="o">.</span><span class="n">get_map_height</span><span class="p">()</span>
-
-        <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="n">maph</span> <span class="o">*</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">512</span><span class="p">):</span>
-            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">te</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
-            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">be</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">y</span><span class="p">))</span>
-
-            <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="n">mapw</span> <span class="o">*</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">512</span><span class="p">):</span>
-                <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">le</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
-                <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">re</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
-                <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">CreateUnit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"Map Revealer"</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">su_id</span><span class="p">))</span>
-        <span class="n">DoActions</span><span class="p">(</span><span class="n">actions</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">ee</span><span class="p">,</span> <span class="n">vv</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">le</span><span class="p">,</span> <span class="n">te</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">be</span><span class="p">],</span> <span class="p">[</span><span class="n">lv</span><span class="p">,</span> <span class="n">tv</span><span class="p">,</span> <span class="n">rv</span><span class="p">,</span> <span class="n">bv</span><span class="p">]):</span>
-            <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">ee</span><span class="p">,</span> <span class="n">vv</span><span class="p">)</span></div>
-
+        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 </pre>
        </div>
       </article>

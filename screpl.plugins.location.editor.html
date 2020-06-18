@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.location.editor module — SC-REPL 1.1.4 documentation
+   screpl.plugins.location.editor module — SC-REPL 1.1.5 documentation
   </title>
   <link href="_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -85,7 +85,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -163,7 +163,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -191,10 +191,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="_static/" width="48"/>
           </a>
-          <a href="index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -285,8 +285,8 @@
          </p>
          <table>
           <colgroup>
-           <col style="width: 8%"/>
-           <col style="width: 92%"/>
+           <col style="width: 7%"/>
+           <col style="width: 93%"/>
           </colgroup>
           <thead>
            <tr class="row-odd">
@@ -419,10 +419,10 @@
             </td>
             <td>
              <p>
-              <a class="reference internal" href="#screpl.plugins.location.editor.LocationEditorApp.evaluate_available_modes" title="screpl.plugins.location.editor.LocationEditorApp.evaluate_available_modes">
+              <a class="reference internal" href="#screpl.plugins.location.editor.LocationEditorApp.evaluate_available_editmodes" title="screpl.plugins.location.editor.LocationEditorApp.evaluate_available_editmodes">
                <code class="xref py py-meth docutils literal notranslate">
                 <span class="pre">
-                 screpl.plugins.location.editor.LocationEditorApp.evaluate_available_modes()
+                 screpl.plugins.location.editor.LocationEditorApp.evaluate_available_editmodes()
                 </span>
                </code>
               </a>
@@ -537,9 +537,9 @@
           </dd>
          </dl>
          <dl class="py method">
-          <dt id="screpl.plugins.location.editor.LocationEditorApp.evaluate_available_modes">
+          <dt id="screpl.plugins.location.editor.LocationEditorApp.evaluate_available_editmodes">
            <code class="sig-name descname">
-            evaluate_available_modes
+            evaluate_available_editmodes
            </code>
            <span class="sig-paren">
             (
@@ -552,7 +552,7 @@
            <span class="sig-paren">
             )
            </span>
-           <a class="headerlink" href="#screpl.plugins.location.editor.LocationEditorApp.evaluate_available_modes" title="Permalink to this definition">
+           <a class="headerlink" href="#screpl.plugins.location.editor.LocationEditorApp.evaluate_available_editmodes" title="Permalink to this definition">
             ¶
            </a>
           </dt>
@@ -565,15 +565,7 @@
               </span>
              </code>
             </a>
-            (index=6) - _POINT_LT
-_POINT_RT
-_POINT_RB
-_POINT_LB
-_SIDE_L
-_SIDE_T
-_SIDE_R
-_SIDE_B
-_MOVE
+            (index=6)
            </p>
           </dd>
          </dl>
@@ -778,11 +770,20 @@ _MOVE
           </dt>
           <dd>
            <p>
-            Grid 8 / 16 / 32 / 64
+            Grid 1 / 8 / 16 / 32
            </p>
           </dd>
           <dt>
-           Mode:
+           Tool
+          </dt>
+          <dd>
+           <p>
+            Create tool
+Edit tool
+           </p>
+          </dd>
+          <dt>
+           Edit Mode:
           </dt>
           <dd>
            <p>

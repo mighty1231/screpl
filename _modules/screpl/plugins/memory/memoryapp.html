@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.memory.memoryapp — SC-REPL 1.1.4 documentation
+   screpl.plugins.memory.memoryapp — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -232,85 +232,167 @@
 <span class="kn">from</span> <span class="nn">screpl.core.application</span> <span class="kn">import</span> <span class="n">Application</span>
 <span class="kn">from</span> <span class="nn">screpl.encoder.const</span> <span class="kn">import</span> <span class="n">ArgEncNumber</span>
 <span class="kn">from</span> <span class="nn">screpl.main</span> <span class="kn">import</span> <span class="n">get_app_manager</span>
+<span class="kn">from</span> <span class="nn">screpl.utils.byterw</span> <span class="kn">import</span> <span class="n">REPLByteRW</span>
 
 <span class="n">manager</span> <span class="o">=</span> <span class="n">get_app_manager</span><span class="p">()</span>
 
 <span class="n">_ptr</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-<span class="n">_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">_size</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+
+<span class="n">DISPMODE_MAIN</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">DISPMODE_MANUAL</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">v_display_mode</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+
+<span class="n">COLOR_DEFAULT</span> <span class="o">=</span> <span class="mh">0x16</span>
+<span class="n">COLOR_BYTE</span> <span class="o">=</span> <span class="mh">0x08</span>
+<span class="n">COLOR_WORD</span> <span class="o">=</span> <span class="mh">0x11</span>
+<span class="n">COLOR_DWORD</span> <span class="o">=</span> <span class="mh">0x17</span>
 
 <div class="viewcode-block" id="MemoryApp"><a class="viewcode-back" href="../../../../screpl.plugins.memory.memoryapp.html#screpl.plugins.memory.memoryapp.MemoryApp">[docs]</a><span class="k">class</span> <span class="nc">MemoryApp</span><span class="p">(</span><span class="n">Application</span><span class="p">):</span>
     <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">"ptr"</span><span class="p">,</span> <span class="s2">"epd"</span><span class="p">,</span>
+        <span class="s2">"_ptr"</span><span class="p">,</span> <span class="s2">"epd"</span><span class="p">,</span>
+        <span class="s2">"size"</span><span class="p">,</span>
 
-        <span class="s2">"size"</span><span class="p">,</span> 
+        <span class="s2">"cursor"</span><span class="p">,</span>
         <span class="s2">"autorefresh"</span>
     <span class="p">]</span>
 
 <div class="viewcode-block" id="MemoryApp.set_content_ptr"><a class="viewcode-back" href="../../../../screpl.plugins.memory.memoryapp.html#screpl.plugins.memory.memoryapp.MemoryApp.set_content_ptr">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">set_content_ptr</span><span class="p">(</span><span class="n">ptr</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
         <span class="n">_ptr</span> <span class="o">&lt;&lt;</span> <span class="n">ptr</span>
-        <span class="n">_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span>
         <span class="n">_size</span> <span class="o">&lt;&lt;</span> <span class="n">size</span></div>
 
 <div class="viewcode-block" id="MemoryApp.set_content_epd"><a class="viewcode-back" href="../../../../screpl.plugins.memory.memoryapp.html#screpl.plugins.memory.memoryapp.MemoryApp.set_content_epd">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">set_content_epd</span><span class="p">(</span><span class="n">epd</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
         <span class="n">_ptr</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="n">epd</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="mh">0x58A364</span><span class="p">)</span>
-        <span class="n">_epd</span> <span class="o">&lt;&lt;</span> <span class="n">epd</span>
         <span class="n">_size</span> <span class="o">&lt;&lt;</span> <span class="n">size</span></div>
 
     <span class="k">def</span> <span class="nf">on_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ptr</span> <span class="o">=</span> <span class="n">_ptr</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">epd</span> <span class="o">=</span> <span class="n">_epd</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span> <span class="o">=</span> <span class="n">_ptr</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">_ptr</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">autorefresh</span> <span class="o">=</span> <span class="mi">1</span>
+
+        <span class="n">v_display_mode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MAIN</span>
 
         <span class="n">_size</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
 
     <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"ESC"</span><span class="p">)):</span>
             <span class="n">manager</span><span class="o">.</span><span class="n">request_destruct</span><span class="p">()</span>
-            <span class="n">EUDReturn</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">manager</span><span class="o">.</span><span class="n">key_down</span><span class="p">(</span><span class="s2">"F1"</span><span class="p">)):</span>
+            <span class="n">v_display_mode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MANUAL</span>
+            <span class="n">manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">manager</span><span class="o">.</span><span class="n">key_up</span><span class="p">(</span><span class="s2">"F1"</span><span class="p">)):</span>
+            <span class="n">v_display_mode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MAIN</span>
+            <span class="n">manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="bp">self</span><span class="o">.</span><span class="n">autorefresh</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
             <span class="n">manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
-        <span class="n">ptr</span><span class="p">,</span> <span class="n">epd</span><span class="p">,</span> <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">epd</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_display_mode</span> <span class="o">==</span> <span class="n">DISPMODE_MAIN</span><span class="p">):</span>
+            <span class="n">ptr</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">cursor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span>
+            <span class="n">reader</span> <span class="o">=</span> <span class="n">REPLByteRW</span><span class="p">()</span>
 
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Memory (ptr = %H, epd = %D, size = %D)</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
-                       <span class="n">ptr</span><span class="p">,</span> <span class="n">epd</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span>
+                <span class="s2">"%CMemoryApp (ptr = %H, cursor = %H, size = %D) "</span>
+                <span class="s2">"Press F1 to get manual</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
+                <span class="n">COLOR_DEFAULT</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">cursor</span><span class="p">,</span> <span class="n">size</span><span class="p">)</span>
 
-        <span class="n">cur_ptr</span><span class="p">,</span> <span class="n">endp</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-        <span class="n">cur_ptr</span> <span class="o">&lt;&lt;</span> <span class="n">ptr</span>
-        <span class="n">endp</span> <span class="o">&lt;&lt;</span> <span class="n">ptr</span> <span class="o">+</span> <span class="n">size</span>
+            <span class="n">cur_ptr</span><span class="p">,</span> <span class="n">endp</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="n">cur_ptr</span> <span class="o">&lt;&lt;</span> <span class="n">ptr</span>
+            <span class="n">endp</span> <span class="o">&lt;&lt;</span> <span class="n">ptr</span> <span class="o">+</span> <span class="n">size</span>
+            <span class="n">reader</span><span class="o">.</span><span class="n">seekoffset</span><span class="p">(</span><span class="n">cur_ptr</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">EUDWhileNot</span><span class="p">()(</span><span class="n">cur_ptr</span> <span class="o">&gt;=</span> <span class="n">endp</span><span class="p">):</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"%H :  "</span><span class="p">,</span> <span class="n">cur_ptr</span><span class="p">)</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_memory_table</span><span class="p">(</span><span class="n">cur_ptr</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-            <span class="n">cur_ptr</span> <span class="o">+=</span> <span class="mi">4</span>
+            <span class="k">if</span> <span class="n">EUDWhileNot</span><span class="p">()(</span><span class="n">cur_ptr</span> <span class="o">&gt;=</span> <span class="n">endp</span><span class="p">):</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"%C%H : "</span><span class="p">,</span> <span class="n">COLOR_DEFAULT</span><span class="p">,</span> <span class="n">cur_ptr</span><span class="p">)</span>
 
-            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
-                <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cur_ptr</span> <span class="o">&gt;=</span> <span class="n">endp</span><span class="p">)</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">" | "</span><span class="p">)</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write_memory_table</span><span class="p">(</span><span class="n">cur_ptr</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
-                <span class="n">cur_ptr</span> <span class="o">+=</span> <span class="mi">4</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">))</span>
-        <span class="n">EUDEndWhile</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">EUDLoopN</span><span class="p">()(</span><span class="mi">16</span><span class="p">):</span>
+                    <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cur_ptr</span> <span class="o">==</span> <span class="n">endp</span><span class="p">)</span>
+
+                    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">reader</span><span class="o">.</span><span class="n">off</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"%C | "</span><span class="p">,</span> <span class="n">COLOR_DEFAULT</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">" "</span><span class="p">)</span>
+                    <span class="n">EUDEndIf</span><span class="p">()</span>
+
+                    <span class="n">diff</span> <span class="o">=</span> <span class="n">cur_ptr</span> <span class="o">-</span> <span class="n">cursor</span>
+                    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">diff</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">COLOR_BYTE</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">diff</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+                        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">COLOR_WORD</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()([</span><span class="n">diff</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="n">diff</span> <span class="o">&lt;=</span> <span class="mi">3</span><span class="p">]):</span>
+                        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">COLOR_DWORD</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">COLOR_DEFAULT</span><span class="p">)</span>
+                    <span class="n">EUDEndIf</span><span class="p">()</span>
+
+                    <span class="n">ch</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+                    <span class="n">cur_ptr</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">write_bytehex</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
+                <span class="n">EUDEndLoopN</span><span class="p">()</span>
+
+                <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">))</span>
+            <span class="n">EUDEndWhile</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span>
+                <span class="s2">"%CMemoryApp Manual</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Press F7, F8 to move %Ccursor%C</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Chat ptr(PTR) to change pointer</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Chat ptrsz(PTR, SIZE) to change pointer and size</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Chat b(BYTE) to change byte value on %Ccursor%C</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Chat w(WORD) to change word value on %Ccur%Csor%C</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Chat dw(DWORD) to change dword value on %Cc%Cur%Csor</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
+                <span class="n">COLOR_DEFAULT</span><span class="p">,</span>
+                <span class="n">COLOR_BYTE</span><span class="p">,</span>
+                <span class="n">COLOR_DEFAULT</span><span class="p">,</span>
+                <span class="n">COLOR_BYTE</span><span class="p">,</span>
+                <span class="n">COLOR_DEFAULT</span><span class="p">,</span>
+                <span class="n">COLOR_BYTE</span><span class="p">,</span>
+                <span class="n">COLOR_WORD</span><span class="p">,</span>
+                <span class="n">COLOR_DEFAULT</span><span class="p">,</span>
+                <span class="n">COLOR_BYTE</span><span class="p">,</span>
+                <span class="n">COLOR_WORD</span><span class="p">,</span>
+                <span class="n">COLOR_DWORD</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
     <span class="nd">@AppCommand</span><span class="p">([</span><span class="n">ArgEncNumber</span><span class="p">])</span>
-    <span class="k">def</span> <span class="nf">setptr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ptr</span> <span class="o">=</span> <span class="n">ptr</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">epd</span> <span class="o">=</span> <span class="n">EPD</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">ptr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span> <span class="o">=</span> <span class="n">ptr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">ptr</span>
         <span class="n">manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
 
     <span class="nd">@AppCommand</span><span class="p">([</span><span class="n">ArgEncNumber</span><span class="p">,</span> <span class="n">ArgEncNumber</span><span class="p">])</span>
-    <span class="k">def</span> <span class="nf">setptrsz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ptr</span> <span class="o">=</span> <span class="n">ptr</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">epd</span> <span class="o">=</span> <span class="n">EPD</span><span class="p">(</span><span class="n">ptr</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">ptrsz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ptr</span><span class="p">,</span> <span class="n">size</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ptr</span> <span class="o">=</span> <span class="n">ptr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">=</span> <span class="n">ptr</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span>
+        <span class="n">manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
+
+    <span class="nd">@AppCommand</span><span class="p">([</span><span class="n">ArgEncNumber</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">b</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">f_bwrite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
+
+    <span class="nd">@AppCommand</span><span class="p">([</span><span class="n">ArgEncNumber</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">w</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">f_wwrite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
+
+    <span class="nd">@AppCommand</span><span class="p">([</span><span class="n">ArgEncNumber</span><span class="p">])</span>
+    <span class="k">def</span> <span class="nf">dw</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">f_dwwrite</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="n">manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span></div>
 </pre>
        </div>

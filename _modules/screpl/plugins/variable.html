@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.variable — SC-REPL 1.1.4 documentation
+   screpl.plugins.variable — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -232,11 +232,28 @@
 
 <span class="c1"># initialize global variables</span>
 <span class="n">manager</span> <span class="o">=</span> <span class="n">get_app_manager</span><span class="p">()</span>
-<span class="n">accessed_resources</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-<span class="n">death_units</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">watched_eud_vars</span> <span class="o">=</span> <span class="n">ReferenceTable</span><span class="p">(</span><span class="n">key_f</span><span class="o">=</span><span class="n">EPDConstString</span><span class="p">)</span>
 
-<div class="viewcode-block" id="explore_triggers"><a class="viewcode-back" href="../../../screpl.plugins.variable.html#screpl.plugins.variable.explore_triggers">[docs]</a><span class="k">def</span> <span class="nf">explore_triggers</span><span class="p">():</span>
+<div class="viewcode-block" id="watch_variable"><a class="viewcode-back" href="../../../screpl.plugins.variable.html#screpl.plugins.variable.watch_variable">[docs]</a><span class="k">def</span> <span class="nf">watch_variable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
+    <span class="sd">"""Add EUDVariable on watch list, with given name"""</span>
+    <span class="k">assert</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
+    <span class="n">watched_eud_vars</span><span class="o">.</span><span class="n">add_pair</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span></div>
+
+<span class="n">condition_writer</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="plugin_get_dependency"><a class="viewcode-back" href="../../../screpl.plugins.variable.html#screpl.plugins.variable.plugin_get_dependency">[docs]</a><span class="k">def</span> <span class="nf">plugin_get_dependency</span><span class="p">():</span>
+    <span class="sd">"""Returns list of required plugins"""</span>
+    <span class="k">return</span> <span class="p">[]</span></div>
+
+<div class="viewcode-block" id="plugin_setup"><a class="viewcode-back" href="../../../screpl.plugins.variable.html#screpl.plugins.variable.plugin_setup">[docs]</a><span class="k">def</span> <span class="nf">plugin_setup</span><span class="p">():</span>
+    <span class="k">global</span> <span class="n">condition_writer</span>
+
+    <span class="c1"># make commands</span>
+    <span class="kn">from</span> <span class="nn">.condition</span> <span class="kn">import</span> <span class="n">VariableConditionManager</span>
+
+    <span class="n">condition_writer</span> <span class="o">=</span> <span class="n">VariableConditionManager</span><span class="p">()</span>
+
+    <span class="c1"># explore conditions</span>
     <span class="n">orig_triggers</span> <span class="o">=</span> <span class="n">GetChkTokenized</span><span class="p">()</span><span class="o">.</span><span class="n">getsection</span><span class="p">(</span><span class="sa">b</span><span class="s1">'TRIG'</span><span class="p">)</span>
     <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">orig_triggers</span><span class="p">)</span> <span class="o">%</span> <span class="mi">2400</span> <span class="o">==</span> <span class="mi">0</span>
 
@@ -245,71 +262,24 @@
         <span class="n">trig</span> <span class="o">=</span> <span class="n">orig_triggers</span><span class="p">[</span><span class="n">offset</span><span class="p">:</span><span class="n">offset</span><span class="o">+</span><span class="mi">2400</span><span class="p">]</span>
 
         <span class="c1"># parse triggers</span>
-        <span class="n">conditions</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">16</span><span class="p">):</span>
             <span class="n">condition</span> <span class="o">=</span> <span class="n">trig</span><span class="p">[</span><span class="mi">20</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="mi">20</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
-            <span class="n">conditions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span>
-
-        <span class="c1"># parse actions</span>
-        <span class="n">actions</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">64</span><span class="p">):</span>
-            <span class="n">action</span> <span class="o">=</span> <span class="n">trig</span><span class="p">[</span><span class="mi">16</span><span class="o">*</span><span class="mi">20</span><span class="o">+</span><span class="mi">32</span><span class="o">*</span><span class="n">i</span><span class="p">:</span><span class="mi">16</span><span class="o">*</span><span class="mi">20</span><span class="o">+</span><span class="mi">32</span><span class="o">*</span><span class="p">(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)]</span>
-            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">action</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">condition</span> <span class="ow">in</span> <span class="n">conditions</span><span class="p">:</span>
             <span class="n">condtype</span> <span class="o">=</span> <span class="n">condition</span><span class="p">[</span><span class="mi">15</span><span class="p">]</span>
             <span class="n">player</span> <span class="o">=</span> <span class="n">b2i4</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
             <span class="n">unitid</span> <span class="o">=</span> <span class="n">b2i2</span><span class="p">(</span><span class="n">condition</span><span class="p">,</span> <span class="mi">12</span><span class="p">)</span>
             <span class="n">restype</span> <span class="o">=</span> <span class="n">condition</span><span class="p">[</span><span class="mi">16</span><span class="p">]</span>
 
-            <span class="c1"># search Accumulate</span>
-            <span class="k">if</span> <span class="n">condtype</span> <span class="o">==</span> <span class="mi">4</span> <span class="ow">and</span> <span class="n">player</span> <span class="o">&lt;=</span> <span class="mi">26</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">restype</span> <span class="o">==</span> <span class="n">EncodeResource</span><span class="p">(</span><span class="n">Ore</span><span class="p">):</span>
-                    <span class="n">accessed_resources</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Ore</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">restype</span> <span class="o">==</span> <span class="n">EncodeResource</span><span class="p">(</span><span class="n">Gas</span><span class="p">):</span>
-                    <span class="n">accessed_resources</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Gas</span><span class="p">)</span>
-                <span class="k">elif</span> <span class="n">restype</span> <span class="o">==</span> <span class="n">EncodeResource</span><span class="p">(</span><span class="n">OreAndGas</span><span class="p">):</span>
-                    <span class="n">accessed_resources</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Ore</span><span class="p">)</span>
-                    <span class="n">accessed_resources</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">Gas</span><span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">"Unknown restype on Accumulate, </span><span class="si">%d</span><span class="s2">"</span> <span class="o">%</span> <span class="n">restype</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">condtype</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">condition_writer</span><span class="o">.</span><span class="n">add_entry</span><span class="p">(</span><span class="n">condition</span><span class="p">)</span>
 
-            <span class="c1"># search Deaths</span>
-            <span class="k">if</span> <span class="n">condtype</span> <span class="o">==</span> <span class="mi">15</span> <span class="ow">and</span>     \
-                    <span class="n">player</span> <span class="o">&lt;=</span> <span class="mi">26</span> <span class="ow">and</span>  \
-                    <span class="n">unitid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">death_units</span><span class="p">:</span>
-                <span class="n">death_units</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">unitid</span><span class="p">)</span>
-
-        <span class="c1"># search SetDeaths</span>
-        <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">:</span>
-            <span class="n">acttype</span> <span class="o">=</span> <span class="n">action</span><span class="p">[</span><span class="mi">26</span><span class="p">]</span>
-            <span class="n">player</span> <span class="o">=</span> <span class="n">b2i4</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
-            <span class="n">unitid</span> <span class="o">=</span> <span class="n">b2i2</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="mi">24</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">acttype</span> <span class="o">==</span> <span class="mi">45</span> <span class="ow">and</span>      \
-                    <span class="n">player</span> <span class="o">&lt;=</span> <span class="mi">26</span> <span class="ow">and</span>  \
-                    <span class="n">unitid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">death_units</span><span class="p">:</span>
-                <span class="n">death_units</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">unitid</span><span class="p">)</span>
-
-        <span class="n">offset</span> <span class="o">+=</span> <span class="mi">2400</span></div>
-
-<span class="n">explore_triggers</span><span class="p">()</span>
-
-<div class="viewcode-block" id="watch_variable"><a class="viewcode-back" href="../../../screpl.plugins.variable.html#screpl.plugins.variable.watch_variable">[docs]</a><span class="k">def</span> <span class="nf">watch_variable</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">var</span><span class="p">):</span>
-    <span class="k">assert</span> <span class="n">IsEUDVariable</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
-    <span class="n">watched_eud_vars</span><span class="o">.</span><span class="n">add_pair</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span></div>
-
-<div class="viewcode-block" id="plugin_get_dependency"><a class="viewcode-back" href="../../../screpl.plugins.variable.html#screpl.plugins.variable.plugin_get_dependency">[docs]</a><span class="k">def</span> <span class="nf">plugin_get_dependency</span><span class="p">():</span>
-    <span class="sd">"""Returns list of required plugins"""</span>
-    <span class="k">return</span> <span class="p">[]</span></div>
-
-<div class="viewcode-block" id="plugin_setup"><a class="viewcode-back" href="../../../screpl.plugins.variable.html#screpl.plugins.variable.plugin_setup">[docs]</a><span class="k">def</span> <span class="nf">plugin_setup</span><span class="p">():</span>
-    <span class="c1"># make commands</span>
-    <span class="kn">from</span> <span class="nn">.varapp</span> <span class="kn">import</span> <span class="n">VariableApp</span>
+        <span class="n">offset</span> <span class="o">+=</span> <span class="mi">2400</span>
+    <span class="n">condition_writer</span><span class="o">.</span><span class="n">make_funcptrs</span><span class="p">()</span>
 
     <span class="nd">@AppCommand</span><span class="p">([])</span>
     <span class="k">def</span> <span class="nf">start_command</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">"""Start VariableApp"""</span>
+        <span class="kn">from</span> <span class="nn">.varapp</span> <span class="kn">import</span> <span class="n">VariableApp</span>
         <span class="n">manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">VariableApp</span><span class="p">)</span>
 
     <span class="n">REPL</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="s1">'var'</span><span class="p">,</span> <span class="n">start_command</span><span class="p">)</span></div>

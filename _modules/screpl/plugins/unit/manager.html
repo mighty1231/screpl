@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.unit.manager — SC-REPL 1.1.4 documentation
+   screpl.plugins.unit.manager — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -237,6 +237,10 @@
 <span class="n">_unitid</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">_resultref_unitid_epd</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
 
+<span class="n">DISP_MAIN</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">DISP_MANUAL</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">v_display_mode</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+
 <span class="sd">'''</span>
 <span class="sd">unitid</span>
 <span class="sd">0-227 (normal units)</span>
@@ -246,6 +250,21 @@
 <span class="sd">231 (buildings)</span>
 <span class="sd">232 (factories)</span>
 <span class="sd">'''</span>
+
+<div class="viewcode-block" id="_create_unit"><a class="viewcode-back" href="../../../../screpl.plugins.unit.manager.html#screpl.plugins.unit.manager._create_unit">[docs]</a><span class="nd">@EUDTypedFunc</span><span class="p">([</span><span class="n">TrgPlayer</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">_create_unit</span><span class="p">(</span><span class="n">playerid</span><span class="p">,</span> <span class="n">unitid</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="n">epds</span> <span class="o">=</span> <span class="p">[</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x58DC60</span><span class="p">)</span><span class="o">+</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">4</span><span class="p">)]</span>
+    <span class="n">orig_values</span> <span class="o">=</span> <span class="p">[</span><span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span> <span class="k">for</span> <span class="n">epd</span> <span class="ow">in</span> <span class="n">epds</span><span class="p">]</span>
+
+    <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">epds</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">epds</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">y</span><span class="p">)</span>
+    <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">epds</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">x</span><span class="p">)</span>
+    <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">epds</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="n">y</span><span class="p">)</span>
+
+    <span class="n">DoActions</span><span class="p">(</span><span class="n">CreateUnit</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">unitid</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">playerid</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">epd</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">epds</span><span class="p">,</span> <span class="n">orig_values</span><span class="p">):</span>
+        <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">epd</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="UnitManagerApp"><a class="viewcode-back" href="../../../../screpl.plugins.unit.manager.html#screpl.plugins.unit.manager.UnitManagerApp">[docs]</a><span class="k">class</span> <span class="nc">UnitManagerApp</span><span class="p">(</span><span class="n">Application</span><span class="p">):</span>
     <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
@@ -265,6 +284,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">resultref_unitid_epd</span> <span class="o">=</span> <span class="n">_resultref_unitid_epd</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">focus_unit_id</span><span class="p">(</span><span class="n">_unitid</span><span class="p">)</span>
+
+        <span class="n">v_display_mode</span> <span class="o">&lt;&lt;</span> <span class="n">DISP_MAIN</span>
 
         <span class="c1"># restore initializing arguments</span>
         <span class="n">_resultref_unitid_epd</span> <span class="o">&lt;&lt;</span> <span class="n">EPD</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -293,60 +314,87 @@
 
     <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">unitid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unitid</span>
+        <span class="n">hold_ctrl</span> <span class="o">=</span> <span class="n">app_manager</span><span class="o">.</span><span class="n">key_holdcounter</span><span class="p">(</span><span class="s2">"LCTRL"</span><span class="p">)</span>
+        <span class="n">mouse_pos</span> <span class="o">=</span> <span class="n">app_manager</span><span class="o">.</span><span class="n">get_mouse_position</span><span class="p">()</span>
+        <span class="n">selunit_epd</span> <span class="o">=</span> <span class="n">f_epdread_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x6284B8</span><span class="p">))</span>
+
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"ESC"</span><span class="p">)):</span>
             <span class="n">app_manager</span><span class="o">.</span><span class="n">request_destruct</span><span class="p">()</span>
-            <span class="n">EUDReturn</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">focus_unit_id</span><span class="p">(</span><span class="n">unitid</span> <span class="o">-</span> <span class="mi">8</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">)):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">focus_unit_id</span><span class="p">(</span><span class="n">unitid</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">focus_unit_id</span><span class="p">(</span><span class="n">unitid</span> <span class="o">+</span> <span class="mi">8</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">)):</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">focus_unit_id</span><span class="p">(</span><span class="n">unitid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_down</span><span class="p">(</span><span class="s2">"F1"</span><span class="p">)):</span>
+            <span class="n">v_display_mode</span> <span class="o">&lt;&lt;</span> <span class="n">DISP_MANUAL</span>
+            <span class="n">app_manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_up</span><span class="p">(</span><span class="s2">"F1"</span><span class="p">)):</span>
+            <span class="n">v_display_mode</span> <span class="o">&lt;&lt;</span> <span class="n">DISP_MAIN</span>
+            <span class="n">app_manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F7"</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="p">[</span><span class="n">hold_ctrl</span><span class="p">])):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">focus_unit_id</span><span class="p">(</span><span class="n">unitid</span> <span class="o">-</span> <span class="n">EUDTernary</span><span class="p">(</span><span class="n">hold_ctrl</span><span class="p">)(</span><span class="mi">8</span><span class="p">)(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"F8"</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="p">[</span><span class="n">hold_ctrl</span><span class="p">])):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">focus_unit_id</span><span class="p">(</span><span class="n">unitid</span> <span class="o">+</span> <span class="n">EUDTernary</span><span class="p">(</span><span class="n">hold_ctrl</span><span class="p">)(</span><span class="mi">8</span><span class="p">)(</span><span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"1"</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="n">mouse_pos</span><span class="p">)):</span>
+            <span class="n">_create_unit</span><span class="p">(</span><span class="n">P1</span><span class="p">,</span> <span class="n">unitid</span><span class="p">,</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"2"</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="n">mouse_pos</span><span class="p">)):</span>
+            <span class="n">_create_unit</span><span class="p">(</span><span class="n">P2</span><span class="p">,</span> <span class="n">unitid</span><span class="p">,</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"3"</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="n">mouse_pos</span><span class="p">)):</span>
+            <span class="n">_create_unit</span><span class="p">(</span><span class="n">P3</span><span class="p">,</span> <span class="n">unitid</span><span class="p">,</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"4"</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="n">mouse_pos</span><span class="p">)):</span>
+            <span class="n">_create_unit</span><span class="p">(</span><span class="n">P4</span><span class="p">,</span> <span class="n">unitid</span><span class="p">,</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"5"</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="n">mouse_pos</span><span class="p">)):</span>
+            <span class="n">_create_unit</span><span class="p">(</span><span class="n">P5</span><span class="p">,</span> <span class="n">unitid</span><span class="p">,</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"6"</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="n">mouse_pos</span><span class="p">)):</span>
+            <span class="n">_create_unit</span><span class="p">(</span><span class="n">P6</span><span class="p">,</span> <span class="n">unitid</span><span class="p">,</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"7"</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="n">mouse_pos</span><span class="p">)):</span>
+            <span class="n">_create_unit</span><span class="p">(</span><span class="n">P7</span><span class="p">,</span> <span class="n">unitid</span><span class="p">,</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"8"</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="n">mouse_pos</span><span class="p">)):</span>
+            <span class="n">_create_unit</span><span class="p">(</span><span class="n">P8</span><span class="p">,</span> <span class="n">unitid</span><span class="p">,</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">mouse_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"DELETE"</span><span class="p">,</span> <span class="n">sync</span><span class="o">=</span><span class="p">[</span><span class="n">selunit_epd</span><span class="p">])):</span>
+            <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">selunit_epd</span> <span class="o">==</span> <span class="n">EPD</span><span class="p">(</span><span class="mi">0</span><span class="p">)):</span>
+                <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryXEPD</span><span class="p">(</span><span class="n">selunit_epd</span> <span class="o">+</span> <span class="mh">0x4C</span><span class="o">//</span><span class="mi">4</span><span class="p">,</span>
+                                        <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mh">0xFF00</span><span class="p">))</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x16</span><span class="s2">Unit Manager</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_display_mode</span> <span class="o">==</span> <span class="n">DISP_MAIN</span><span class="p">):</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x16</span><span class="s2">Unit Manager. Press F1 to get manual</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="n">target_unitid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unitid</span>
+            <span class="n">target_unitid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">unitid</span>
 
-        <span class="n">branch</span><span class="p">,</span> <span class="n">branch_common</span><span class="p">,</span> <span class="n">branch_last</span> <span class="o">=</span> <span class="p">[</span><span class="n">Forward</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
-        <span class="n">cur</span><span class="p">,</span> <span class="n">until</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">target_unitid</span> <span class="o">==</span> <span class="mi">232</span><span class="p">):</span>
-            <span class="n">cur</span> <span class="o">&lt;&lt;</span> <span class="mi">232</span>
-            <span class="n">until</span> <span class="o">&lt;&lt;</span> <span class="mi">232</span> <span class="o">+</span> <span class="mi">1</span>
-            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetNextPtr</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="n">branch_last</span><span class="p">))</span>
-        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-            <span class="n">quot</span><span class="p">,</span> <span class="n">mod</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">target_unitid</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
-            <span class="n">cur</span> <span class="o">&lt;&lt;</span> <span class="n">quot</span> <span class="o">*</span> <span class="mi">8</span>
-            <span class="n">until</span> <span class="o">&lt;&lt;</span> <span class="n">cur</span> <span class="o">+</span> <span class="mi">8</span>
-            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetNextPtr</span><span class="p">(</span><span class="n">branch</span><span class="p">,</span> <span class="n">branch_common</span><span class="p">))</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
-
-        <span class="c1"># fill contents</span>
-        <span class="n">written_point</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
-            <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cur</span> <span class="o">&gt;=</span> <span class="n">until</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur</span> <span class="o">==</span> <span class="n">target_unitid</span><span class="p">):</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x11</span><span class="p">)</span> <span class="c1"># orange</span>
+            <span class="n">cur</span><span class="p">,</span> <span class="n">until</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">target_unitid</span> <span class="o">==</span> <span class="mi">232</span><span class="p">):</span>
+                <span class="n">cur</span> <span class="o">&lt;&lt;</span> <span class="mi">232</span>
+                <span class="n">until</span> <span class="o">&lt;&lt;</span> <span class="mi">232</span> <span class="o">+</span> <span class="mi">1</span>
             <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x02</span><span class="p">)</span> <span class="c1"># pale blue</span>
+                <span class="n">quot</span><span class="p">,</span> <span class="n">mod</span> <span class="o">=</span> <span class="n">f_div</span><span class="p">(</span><span class="n">target_unitid</span><span class="p">,</span> <span class="mi">8</span><span class="p">)</span>
+                <span class="n">cur</span> <span class="o">&lt;&lt;</span> <span class="n">quot</span> <span class="o">*</span> <span class="mi">8</span>
+                <span class="n">until</span> <span class="o">&lt;&lt;</span> <span class="n">cur</span> <span class="o">+</span> <span class="mi">8</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
 
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">" %D: "</span><span class="p">,</span> <span class="n">cur</span><span class="p">)</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">))</span>
+            <span class="c1"># fill contents</span>
+            <span class="n">written_point</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">EUDInfLoop</span><span class="p">()():</span>
+                <span class="n">EUDBreakIf</span><span class="p">(</span><span class="n">cur</span> <span class="o">&gt;=</span> <span class="n">until</span><span class="p">)</span>
 
-            <span class="n">DoActions</span><span class="p">(</span><span class="n">cur</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-        <span class="n">EUDEndInfLoop</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur</span> <span class="o">==</span> <span class="n">target_unitid</span><span class="p">):</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x11</span><span class="p">)</span> <span class="c1"># orange</span>
+                <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x02</span><span class="p">)</span> <span class="c1"># pale blue</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
 
-        <span class="n">branch</span> <span class="o">&lt;&lt;</span> <span class="n">RawTrigger</span><span class="p">()</span>
-        <span class="n">branch_last</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">*</span> <span class="mi">7</span><span class="p">)</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">" %D: "</span><span class="p">,</span> <span class="n">cur</span><span class="p">)</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">cur</span><span class="p">)</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">))</span>
 
-        <span class="n">branch_common</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
+                <span class="n">DoActions</span><span class="p">(</span><span class="n">cur</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
+            <span class="n">EUDEndInfLoop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span>
+                <span class="s2">"</span><span class="se">\x16</span><span class="s2">Unit Manager Manual</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Press ESC to destroy the unit manager</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Press F7/F8 to change focus</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Press F7/F8 with holding CTRL key to move focus at page level</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Press 1~8 on keyboard to create P1~P8 unit on mouse cursor</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Press DELETE to kill selected unit</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+        <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 </pre>
        </div>

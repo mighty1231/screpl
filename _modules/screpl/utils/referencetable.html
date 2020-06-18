@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.utils.referencetable — SC-REPL 1.1.4 documentation
+   screpl.utils.referencetable — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -360,6 +360,9 @@
             <span class="n">pbuffer</span><span class="o">.</span><span class="n">WriteDword</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
             <span class="n">pbuffer</span><span class="o">.</span><span class="n">WriteDword</span><span class="p">(</span><span class="n">value</span><span class="p">)</span></div>
 
+<div class="viewcode-block" id="ReferenceTable.size"><a class="viewcode-back" href="../../../screpl.utils.referencetable.html#screpl.utils.referencetable.ReferenceTable.size">[docs]</a>    <span class="k">def</span> <span class="nf">size</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">LengthForward</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_dict</span><span class="p">)</span></div>
+
 <div class="viewcode-block" id="ReferenceTable.iter_table"><a class="viewcode-back" href="../../../screpl.utils.referencetable.html#screpl.utils.referencetable.ReferenceTable.iter_table">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">iter_table</span><span class="p">(</span><span class="n">table_epd</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
         <span class="sd">'''</span>
@@ -387,6 +390,29 @@
 <div class="viewcode-block" id="ReferenceTable.get_size"><a class="viewcode-back" href="../../../screpl.utils.referencetable.html#screpl.utils.referencetable.ReferenceTable.get_size">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_size</span><span class="p">(</span><span class="n">table_epd</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">table_epd</span><span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="LengthForward"><a class="viewcode-back" href="../../../screpl.utils.referencetable.html#screpl.utils.referencetable.LengthForward">[docs]</a><span class="k">class</span> <span class="nc">LengthForward</span><span class="p">(</span><span class="n">ConstExpr</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iterable</span><span class="p">,</span> <span class="n">offset</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">offset</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iterable</span> <span class="o">=</span> <span class="n">iterable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="LengthForward.Evaluate"><a class="viewcode-back" href="../../../screpl.utils.referencetable.html#screpl.utils.referencetable.LengthForward.Evaluate">[docs]</a>    <span class="k">def</span> <span class="nf">Evaluate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">RlocInt_C</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iterable</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span></div>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+
+        <span class="k">return</span> <span class="n">LengthForward</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iterable</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">+</span> <span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span>
+
+        <span class="k">return</span> <span class="n">LengthForward</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iterable</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">offset</span> <span class="o">-</span> <span class="n">value</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="search_table"><a class="viewcode-back" href="../../../screpl.utils.referencetable.html#screpl.utils.referencetable.search_table">[docs]</a><span class="nd">@EUDTypedFunc</span><span class="p">([</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">EUDFuncPtr</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="kc">None</span><span class="p">],</span> <span class="p">[</span><span class="kc">None</span><span class="p">])</span>
 <span class="k">def</span> <span class="nf">search_table</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">table_epd</span><span class="p">,</span> <span class="n">compare_func</span><span class="p">,</span> <span class="n">retval_epd</span><span class="p">):</span>

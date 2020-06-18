@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.boundeditor.option — SC-REPL 1.1.4 documentation
+   screpl.plugins.boundeditor.option — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -321,104 +321,102 @@
                 <span class="n">conditions</span><span class="o">=</span><span class="n">focus</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">FOCUS_END</span><span class="p">),</span>
                 <span class="n">actions</span><span class="o">=</span><span class="n">focus</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
             <span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"insert"</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"E"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
             <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">focus</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">FOCUS_EFFECTPLAYER</span><span class="p">)):</span>
                 <span class="n">SelectorApp</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">,</span> <span class="n">g_effectplayer</span><span class="p">)</span>
                 <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">SelectorApp</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">focus</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">FOCUS_EFFECTUNIT1</span><span class="p">)):</span>
-                <span class="n">UnitManagerApp</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">g_effectunit_1</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">g_effectunit_1</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span>
+                <span class="n">UnitManagerApp</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span>
+                    <span class="n">g_effectunit_1</span><span class="p">,</span>
+                    <span class="n">EPD</span><span class="p">(</span><span class="n">g_effectunit_1</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span>
                 <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">UnitManagerApp</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">focus</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">FOCUS_EFFECTUNIT2</span><span class="p">)):</span>
-                <span class="n">UnitManagerApp</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">g_effectunit_2</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">g_effectunit_2</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span>
+                <span class="n">UnitManagerApp</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span>
+                    <span class="n">g_effectunit_2</span><span class="p">,</span>
+                    <span class="n">EPD</span><span class="p">(</span><span class="n">g_effectunit_2</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span>
                 <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">UnitManagerApp</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">focus</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">FOCUS_EFFECTUNIT3</span><span class="p">)):</span>
-                <span class="n">UnitManagerApp</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">g_effectunit_3</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">g_effectunit_3</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span>
+                <span class="n">UnitManagerApp</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span>
+                    <span class="n">g_effectunit_3</span><span class="p">,</span>
+                    <span class="n">EPD</span><span class="p">(</span><span class="n">g_effectunit_3</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span>
                 <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">UnitManagerApp</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">focus</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">FOCUS_OBSTACLEUNIT</span><span class="p">)):</span>
-                <span class="n">UnitManagerApp</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">g_obstacle_unit</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">g_obstacle_unit</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span>
+                <span class="n">UnitManagerApp</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span>
+                    <span class="n">g_obstacle_unit</span><span class="p">,</span>
+                    <span class="n">EPD</span><span class="p">(</span><span class="n">g_obstacle_unit</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span>
                 <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">UnitManagerApp</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">focus</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">FOCUS_RUNNER_FORCE</span><span class="p">)):</span>
                 <span class="n">SelectorApp</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">,</span> <span class="n">g_runner_force</span><span class="p">)</span>
                 <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">SelectorApp</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">focus</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">FOCUS_RUNNER_UNIT</span><span class="p">)):</span>
-                <span class="n">UnitManagerApp</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">g_runner_unit</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">g_runner_unit</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span>
+                <span class="n">UnitManagerApp</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span>
+                    <span class="n">g_runner_unit</span><span class="p">,</span>
+                    <span class="n">EPD</span><span class="p">(</span><span class="n">g_runner_unit</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span>
                 <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">UnitManagerApp</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">focus</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">FOCUS_START_LOCATION</span><span class="p">)):</span>
-                <span class="n">LocationManagerApp</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span><span class="n">g_start_location</span><span class="p">,</span> <span class="n">EPD</span><span class="p">(</span><span class="n">g_start_location</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span>
+                <span class="n">LocationManagerApp</span><span class="o">.</span><span class="n">set_content</span><span class="p">(</span>
+                    <span class="n">g_start_location</span><span class="p">,</span>
+                    <span class="n">EPD</span><span class="p">(</span><span class="n">g_start_location</span><span class="o">.</span><span class="n">getValueAddr</span><span class="p">()))</span>
                 <span class="n">app_manager</span><span class="o">.</span><span class="n">start_application</span><span class="p">(</span><span class="n">LocationManagerApp</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">focus</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">FOCUS_OBSCREATE_PATTERN</span><span class="p">)):</span>
                 <span class="n">DoActions</span><span class="p">(</span><span class="n">g_obstacle_createpattern</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
                 <span class="n">Trigger</span><span class="p">(</span>
-                    <span class="n">conditions</span><span class="o">=</span><span class="n">g_obstacle_createpattern</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">OBSTACLE_CREATEPATTERN_END</span><span class="p">),</span>
-                    <span class="n">actions</span><span class="o">=</span><span class="n">g_obstacle_createpattern</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-                <span class="p">)</span>
+                    <span class="n">conditions</span><span class="o">=</span><span class="n">g_obstacle_createpattern</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span>
+                        <span class="n">OBSTACLE_CREATEPATTERN_END</span><span class="p">),</span>
+                    <span class="n">actions</span><span class="o">=</span><span class="n">g_obstacle_createpattern</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
             <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">focus</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">FOCUS_OBSDESTRUCT_PATTERN</span><span class="p">)):</span>
                 <span class="n">DoActions</span><span class="p">(</span><span class="n">g_obstacle_destructpattern</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
                 <span class="n">Trigger</span><span class="p">(</span>
-                    <span class="n">conditions</span><span class="o">=</span><span class="n">g_obstacle_destructpattern</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">OBSTACLE_DESTRUCTPATTERN_END</span><span class="p">),</span>
-                    <span class="n">actions</span><span class="o">=</span><span class="n">g_obstacle_destructpattern</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-                <span class="p">)</span>
+                    <span class="n">conditions</span><span class="o">=</span><span class="n">g_obstacle_destructpattern</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span>
+                        <span class="n">OBSTACLE_DESTRUCTPATTERN_END</span><span class="p">),</span>
+                    <span class="n">actions</span><span class="o">=</span><span class="n">g_obstacle_destructpattern</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="n">app_manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">_emphasize</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">focus</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">val</span><span class="p">)):</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x11</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mh">0x2</span><span class="p">)</span>
-            <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span>
+            <span class="s2">"</span><span class="se">\x16</span><span class="s2">Bound Editor Options - F7, F8 to navigate, CTRL+E to modify</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"Effect player: %C%:constant;</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"</span><span class="se">\x16</span><span class="s2">Effect unit 1/2/3: %C%:unit;</span><span class="se">\x16</span><span class="s2"> / %C%:unit;</span><span class="se">\x16</span><span class="s2"> / %C%:unit;</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"</span><span class="se">\x16</span><span class="s2">Obstacle unit: %C%:unit;</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"</span><span class="se">\x16</span><span class="s2">Runner force: %C%:constant;</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"</span><span class="se">\x16</span><span class="s2">Runner unit: %C%:unit;</span><span class="se">\n</span><span class="s2">"</span>
+            <span class="s2">"</span><span class="se">\x16</span><span class="s2">Start location: %C%:location;</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
+            <span class="n">EUDTernary</span><span class="p">(</span><span class="n">focus</span><span class="o">==</span><span class="n">FOCUS_EFFECTPLAYER</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">g_effectplayer</span><span class="p">),</span>
+            <span class="n">EUDTernary</span><span class="p">(</span><span class="n">focus</span><span class="o">==</span><span class="n">FOCUS_EFFECTUNIT1</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">g_effectunit_1</span><span class="p">,</span> <span class="p">),</span>
+            <span class="n">EUDTernary</span><span class="p">(</span><span class="n">focus</span><span class="o">==</span><span class="n">FOCUS_EFFECTUNIT2</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">g_effectunit_2</span><span class="p">,</span> <span class="p">),</span>
+            <span class="n">EUDTernary</span><span class="p">(</span><span class="n">focus</span><span class="o">==</span><span class="n">FOCUS_EFFECTUNIT3</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">g_effectunit_3</span><span class="p">,</span> <span class="p">),</span>
+            <span class="n">EUDTernary</span><span class="p">(</span><span class="n">focus</span><span class="o">==</span><span class="n">FOCUS_OBSTACLEUNIT</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">g_obstacle_unit</span><span class="p">,</span> <span class="p">),</span>
+            <span class="n">EUDTernary</span><span class="p">(</span><span class="n">focus</span><span class="o">==</span><span class="n">FOCUS_RUNNER_FORCE</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">tb</span><span class="o">.</span><span class="n">Player</span><span class="p">),</span> <span class="n">g_runner_force</span><span class="p">),</span>
+            <span class="n">EUDTernary</span><span class="p">(</span><span class="n">focus</span><span class="o">==</span><span class="n">FOCUS_RUNNER_UNIT</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">g_runner_unit</span><span class="p">,</span> <span class="p">),</span>
+            <span class="n">EUDTernary</span><span class="p">(</span><span class="n">focus</span><span class="o">==</span><span class="n">FOCUS_START_LOCATION</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+            <span class="p">(</span><span class="n">g_start_location</span><span class="p">,</span> <span class="p">))</span>
 
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Bound Editor Options - F7, F8 to navigate, INSERT to modify</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Effect player: "</span><span class="p">)</span>
-        <span class="n">_emphasize</span><span class="p">(</span><span class="n">FOCUS_EFFECTPLAYER</span><span class="p">)</span>
-        <span class="n">write_player</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="n">g_effectplayer</span><span class="p">)</span>
-
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x02\n</span><span class="s2">Effect unit 1/2/3: "</span><span class="p">)</span>
-        <span class="n">_emphasize</span><span class="p">(</span><span class="n">FOCUS_EFFECTUNIT1</span><span class="p">)</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">g_effectunit_1</span><span class="p">)</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x02</span><span class="s2">, "</span><span class="p">)</span>
-        <span class="n">_emphasize</span><span class="p">(</span><span class="n">FOCUS_EFFECTUNIT2</span><span class="p">)</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">g_effectunit_2</span><span class="p">)</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x02</span><span class="s2">, "</span><span class="p">)</span>
-        <span class="n">_emphasize</span><span class="p">(</span><span class="n">FOCUS_EFFECTUNIT3</span><span class="p">)</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">g_effectunit_3</span><span class="p">)</span>
-
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x02\n</span><span class="s2">obstacle unit: "</span><span class="p">)</span>
-        <span class="n">_emphasize</span><span class="p">(</span><span class="n">FOCUS_OBSTACLEUNIT</span><span class="p">)</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">g_obstacle_unit</span><span class="p">)</span>
-
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x02\n</span><span class="s2">Runner Force: "</span><span class="p">)</span>
-        <span class="n">_emphasize</span><span class="p">(</span><span class="n">FOCUS_RUNNER_FORCE</span><span class="p">)</span>
-        <span class="n">write_player</span><span class="p">(</span><span class="n">writer</span><span class="p">,</span> <span class="n">g_runner_force</span><span class="p">)</span>
-
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x02\n</span><span class="s2">Runner unit: "</span><span class="p">)</span>
-        <span class="n">_emphasize</span><span class="p">(</span><span class="n">FOCUS_RUNNER_UNIT</span><span class="p">)</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_unit</span><span class="p">(</span><span class="n">g_runner_unit</span><span class="p">)</span>
-
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x02\n</span><span class="s2">Start location: "</span><span class="p">)</span>
-        <span class="n">_emphasize</span><span class="p">(</span><span class="n">FOCUS_START_LOCATION</span><span class="p">)</span>
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_location</span><span class="p">(</span><span class="n">g_start_location</span><span class="p">)</span>
-
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x02\n</span><span class="s2">On obstacle be created, runner be "</span><span class="p">)</span>
-        <span class="n">_emphasize</span><span class="p">(</span><span class="n">FOCUS_OBSCREATE_PATTERN</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">OBSTACLE_CREATEPATTERN_KILL</span><span class="p">,</span> <span class="s2">"killed"</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">OBSTACLE_CREATEPATTERN_REMOVE</span><span class="p">,</span> <span class="s2">"removed"</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">OBSTACLE_CREATEPATTERN_ALIVE</span><span class="p">,</span> <span class="s2">"alive"</span><span class="p">)]:</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x16</span><span class="s2">On obstacle be created, runner be "</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">EUDTernary</span><span class="p">(</span><span class="n">focus</span><span class="o">==</span><span class="n">FOCUS_OBSCREATE_PATTERN</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">OBSTACLE_CREATEPATTERN_KILL</span><span class="p">,</span> <span class="s2">"killed</span><span class="se">\n</span><span class="s2">"</span><span class="p">),</span>
+                     <span class="p">(</span><span class="n">OBSTACLE_CREATEPATTERN_REMOVE</span><span class="p">,</span> <span class="s2">"removed</span><span class="se">\n</span><span class="s2">"</span><span class="p">),</span>
+                     <span class="p">(</span><span class="n">OBSTACLE_CREATEPATTERN_ALIVE</span><span class="p">,</span> <span class="s2">"alive</span><span class="se">\n</span><span class="s2">"</span><span class="p">)]:</span>
             <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">g_obstacle_createpattern</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">v</span><span class="p">)):</span>
                 <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
 
-        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x02\n</span><span class="s2">On obstacle be destructed, obstacle be "</span><span class="p">)</span>
-        <span class="n">_emphasize</span><span class="p">(</span><span class="n">FOCUS_OBSDESTRUCT_PATTERN</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">OBSTACLE_DESTRUCTPATTERN_KILL</span><span class="p">,</span> <span class="s2">"killed"</span><span class="p">),</span>
-                <span class="p">(</span><span class="n">OBSTACLE_DESTRUCTPATTERN_REMOVE</span><span class="p">,</span> <span class="s2">"removed"</span><span class="p">)]:</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x16</span><span class="s2">On obstacle be destructed, obstacle be "</span><span class="p">)</span>
+        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">EUDTernary</span><span class="p">(</span><span class="n">focus</span><span class="o">==</span><span class="n">FOCUS_OBSDESTRUCT_PATTERN</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">v</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">[(</span><span class="n">OBSTACLE_DESTRUCTPATTERN_KILL</span><span class="p">,</span> <span class="s2">"killed</span><span class="se">\n</span><span class="s2">"</span><span class="p">),</span>
+                     <span class="p">(</span><span class="n">OBSTACLE_DESTRUCTPATTERN_REMOVE</span><span class="p">,</span> <span class="s2">"removed</span><span class="se">\n</span><span class="s2">"</span><span class="p">)]:</span>
             <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">g_obstacle_destructpattern</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">v</span><span class="p">)):</span>
                 <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
 
-        <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s1">'</span><span class="se">\n</span><span class="s1">'</span><span class="p">))</span>
         <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span></div>
 </pre>
        </div>

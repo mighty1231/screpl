@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.writer.scmd.action — SC-REPL 1.1.4 documentation
+   screpl.writer.scmd.action — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -189,10 +189,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -267,6 +267,8 @@
         <span class="n">_write_scmd__KillUnitAt_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">acttype</span> <span class="o">==</span> <span class="mi">25</span><span class="p">):</span>
         <span class="n">_write_scmd__RemoveUnitAt_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">acttype</span> <span class="o">==</span> <span class="mi">39</span><span class="p">):</span>
+        <span class="n">_write_scmd__MoveUnit_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"UNKNOWN_ACTION_TYPE_%D</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">acttype</span><span class="p">)</span>
     <span class="n">EUDEndIf</span><span class="p">()</span></div>
@@ -348,6 +350,22 @@
     <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">write_location</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">locid1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="nd">@EUDMethod</span>
+<span class="k">def</span> <span class="nf">_write_scmd__MoveUnit_epd</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">epd</span><span class="p">):</span>
+    <span class="c1"># Move Unit("Players", "Unit Name", Unit Amount(#), "Source", "Destination");</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">action_epd_offset_map</span><span class="p">(</span><span class="n">epd</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Move Unit("</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_const</span><span class="p">(</span><span class="n">tb_scmd_player</span><span class="p">,</span> <span class="n">m</span><span class="o">.</span><span class="n">player1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_scmd_unit</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">unitid</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_decimal</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">amount</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_location</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">locid1</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">", "</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">write_location</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">player2</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">");</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
 </pre>
        </div>

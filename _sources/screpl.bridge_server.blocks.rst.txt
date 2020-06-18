@@ -8,6 +8,7 @@ Submodules
    :maxdepth: 4
 
    screpl.bridge_server.blocks.appoutput
+   screpl.bridge_server.blocks.appstack
    screpl.bridge_server.blocks.blindmode
    screpl.bridge_server.blocks.gametext
    screpl.bridge_server.blocks.logger

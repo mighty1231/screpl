@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.cunit.cunitrw module — SC-REPL 1.1.4 documentation
+   screpl.plugins.cunit.cunitrw module — SC-REPL 1.1.5 documentation
   </title>
   <link href="_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -85,7 +85,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -163,7 +163,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -191,10 +191,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="_static/" width="48"/>
           </a>
-          <a href="index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -242,6 +242,30 @@
          ¶
         </a>
        </h1>
+       <p>
+        CUnit entries
+       </p>
+       <p>
+        types:
+       </p>
+       <div class="highlight-default notranslate">
+        <div class="highlight">
+         <pre><span></span><span class="n">CUnit</span><span class="p">,</span> <span class="n">CSprite</span>
+<span class="nb">bool</span><span class="p">,</span> <span class="n">u8</span><span class="p">,</span> <span class="n">u16</span><span class="p">,</span> <span class="n">s16</span><span class="p">,</span> <span class="n">u32</span><span class="p">,</span> <span class="n">s32</span>
+<span class="n">Target</span><span class="p">,</span> <span class="n">Position</span><span class="p">,</span> <span class="n">point</span>
+<span class="n">UnitMovementState</span>
+<span class="n">rect</span>
+
+<span class="n">Point</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="nb">int</span> <span class="n">scale</span><span class="o">&gt;</span><span class="p">:</span> <span class="n">T</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+
+<span class="n">Target</span><span class="p">:</span> <span class="n">Position</span> <span class="n">pt</span><span class="p">;</span> <span class="n">CUnit</span> <span class="o">*</span><span class="n">pUnit</span><span class="p">;</span>
+<span class="n">Position</span><span class="p">:</span> <span class="n">Point</span><span class="o">&lt;</span><span class="n">s16</span><span class="p">,</span> <span class="mi">1</span><span class="o">&gt;</span>
+<span class="n">point</span><span class="p">:</span> <span class="n">s32</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+<span class="n">rect</span><span class="p">:</span> <span class="n">s16</span> <span class="n">l</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">r</span><span class="p">,</span> <span class="n">b</span><span class="p">;</span>
+<span class="n">points</span><span class="p">:</span> <span class="n">s16</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">;</span>
+</pre>
+        </div>
+       </div>
        <dl class="py function">
         <dt id="screpl.plugins.cunit.cunitrw.cw_CSprite">
          <code class="sig-prename descclassname">
@@ -926,48 +950,6 @@
           <dd>
           </dd>
          </dl>
-        </dd>
-       </dl>
-       <dl class="py data">
-        <dt id="screpl.plugins.cunit.cunitrw.app_manager">
-         <code class="sig-prename descclassname">
-          screpl.plugins.cunit.cunitrw.
-         </code>
-         <code class="sig-name descname">
-          app_manager
-         </code>
-         <em class="property">
-          = &lt;screpl.core.appmanager.AppManager object&gt;
-         </em>
-         <a class="headerlink" href="#screpl.plugins.cunit.cunitrw.app_manager" title="Permalink to this definition">
-          ¶
-         </a>
-        </dt>
-        <dd>
-         <p>
-          type
-CUnit, CSprite
-bool, u8, u16, s16, u32, s32
-Target, Position, point
-UnitMovementState
-rect
-         </p>
-         <p>
-          Point&lt;T, int scale&gt;: T x, y;
-         </p>
-         <p>
-          Target: Position pt; CUnit
-          <a href="#id1">
-           <span class="problematic" id="id2">
-            *
-           </span>
-          </a>
-          pUnit;
-Position: Point&lt;s16, 1&gt;
-point: s32 x, y;
-rect: s16 l, t, r, b;
-points: s16 x, y;
-         </p>
         </dd>
        </dl>
       </article>

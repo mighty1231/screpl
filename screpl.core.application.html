@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.core.application module — SC-REPL 1.1.4 documentation
+   screpl.core.application module — SC-REPL 1.1.5 documentation
   </title>
   <link href="_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -85,7 +85,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -163,7 +163,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -186,10 +186,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="_static/" width="48"/>
           </a>
-          <a href="index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -440,7 +440,10 @@
               </span>
              </code>
             </a>
-            (index=0) - Called exactly once in every frame
+            (index=0) - Called exactly once in every frame.
+           </p>
+           <p>
+            All UI-functions of superuser should be handled on here.
            </p>
           </dd>
          </dl>
@@ -813,7 +816,7 @@ and the app became to be foreground again
           </a>
          </p>
          <p>
-          Mimic object for application instance.
+          Class to handle application on python side
          </p>
          <p>
           ApplicationInstance is a pure python object to manage attributes of
@@ -884,7 +887,7 @@ Otherwise, using _cls attribute, their absolute functions are referenced.
            </span>
            <em class="sig-param">
             <span class="n">
-             member
+             field
             </span>
            </em>
            <span class="sig-paren">
@@ -901,7 +904,7 @@ Otherwise, using _cls attribute, their absolute functions are referenced.
           </dt>
           <dd>
            <p>
-            Returns address for current foreground app instance member
+            Returns address for current foreground app instance field
            </p>
            <p>
             For example:
@@ -940,6 +943,18 @@ Otherwise, using _cls attribute, their absolute functions are referenced.
              address
             </span>
            </em>
+           ,
+           <em class="sig-param">
+            <span class="n">
+             logbuf_epd
+            </span>
+            <span class="o">
+             =
+            </span>
+            <span class="default_value">
+             None
+            </span>
+           </em>
            <span class="sig-paren">
             )
            </span>
@@ -949,6 +964,79 @@ Otherwise, using _cls attribute, their absolute functions are referenced.
             </span>
            </a>
            <a class="headerlink" href="#screpl.core.application.ApplicationInstance.run_command" title="Permalink to this definition">
+            ¶
+           </a>
+          </dt>
+          <dd>
+          </dd>
+         </dl>
+        </dd>
+       </dl>
+       <dl class="py class">
+        <dt id="screpl.core.application.ApplicationStruct">
+         <em class="property">
+          class
+         </em>
+         <code class="sig-prename descclassname">
+          screpl.core.application.
+         </code>
+         <code class="sig-name descname">
+          ApplicationStruct
+         </code>
+         <span class="sig-paren">
+          (
+         </span>
+         <em class="sig-param">
+          <span class="n">
+           initval
+          </span>
+         </em>
+         <span class="sig-paren">
+          )
+         </span>
+         <a class="reference internal" href="_modules/screpl/core/application.html#ApplicationStruct">
+          <span class="viewcode-link">
+           [source]
+          </span>
+         </a>
+         <a class="headerlink" href="#screpl.core.application.ApplicationStruct" title="Permalink to this definition">
+          ¶
+         </a>
+        </dt>
+        <dd>
+         <p>
+          Bases:
+          <a class="reference internal" href="screpl.utils.struct.html#screpl.utils.struct.REPLStruct" title="screpl.utils.struct.REPLStruct">
+           <code class="xref py py-class docutils literal notranslate">
+            <span class="pre">
+             screpl.utils.struct.REPLStruct
+            </span>
+           </code>
+          </a>
+         </p>
+         <p>
+          Class to handle application on eudplib side
+         </p>
+         <dl class="py method">
+          <dt id="screpl.core.application.ApplicationStruct.construct">
+           <em class="property">
+            static
+           </em>
+           <code class="sig-name descname">
+            construct
+           </code>
+           <span class="sig-paren">
+            (
+           </span>
+           <span class="sig-paren">
+            )
+           </span>
+           <a class="reference internal" href="_modules/screpl/core/application.html#ApplicationStruct.construct">
+            <span class="viewcode-link">
+             [source]
+            </span>
+           </a>
+           <a class="headerlink" href="#screpl.core.application.ApplicationStruct.construct" title="Permalink to this definition">
             ¶
            </a>
           </dt>

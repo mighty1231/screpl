@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.bridge_server.blocks.appoutput — SC-REPL 1.1.4 documentation
+   screpl.bridge_server.blocks.appoutput — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -228,8 +228,8 @@
 
 <span class="n">APP_OUTPUT_MAXSIZE</span> <span class="o">=</span> <span class="mi">2000</span>
 
-<span class="n">appOutputSize</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
-<span class="n">appOutputBuffer</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="n">APP_OUTPUT_MAXSIZE</span><span class="p">)</span>
+<span class="n">app_output_size</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+<span class="n">app_output_buffer</span> <span class="o">=</span> <span class="n">Db</span><span class="p">(</span><span class="n">APP_OUTPUT_MAXSIZE</span><span class="p">)</span>
 
 <div class="viewcode-block" id="AppOutputBlock"><a class="viewcode-back" href="../../../../screpl.bridge_server.blocks.appoutput.html#screpl.bridge_server.blocks.appoutput.AppOutputBlock">[docs]</a><span class="k">class</span> <span class="nc">AppOutputBlock</span><span class="p">(</span><span class="n">block</span><span class="o">.</span><span class="n">BridgeBlock</span><span class="p">):</span>
     <span class="sd">"""Provides utf-8 based text from applications</span>
@@ -237,8 +237,8 @@
 <span class="sd">    .. code-block:: C</span>
 
 <span class="sd">        struct AppOutputBlock {</span>
-<span class="sd">            int app_output_sz;</span>
-<span class="sd">            char app_output[2000];</span>
+<span class="sd">            int app_output_size;</span>
+<span class="sd">            char app_output_buffer[2000];</span>
 <span class="sd">        };</span>
 <span class="sd">    """</span>
 
@@ -250,15 +250,15 @@
 <div class="viewcode-block" id="AppOutputBlock.update_content"><a class="viewcode-back" href="../../../../screpl.bridge_server.blocks.appoutput.html#screpl.bridge_server.blocks.appoutput.AppOutputBlock.update_content">[docs]</a>    <span class="k">def</span> <span class="nf">update_content</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># Check for flushed to client</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">Memory</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
-            <span class="n">SeqCompute</span><span class="p">([(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">appOutputSize</span><span class="p">)])</span>
+            <span class="n">SeqCompute</span><span class="p">([(</span><span class="n">EPD</span><span class="p">(</span><span class="bp">self</span><span class="p">),</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">app_output_size</span><span class="p">)])</span>
             <span class="n">f_repmovsd_epd</span><span class="p">(</span>
                 <span class="n">EPD</span><span class="p">(</span><span class="bp">self</span> <span class="o">+</span> <span class="mi">4</span><span class="p">),</span>
-                <span class="n">EPD</span><span class="p">(</span><span class="n">appOutputBuffer</span><span class="p">),</span>
+                <span class="n">EPD</span><span class="p">(</span><span class="n">app_output_buffer</span><span class="p">),</span>
                 <span class="n">APP_OUTPUT_MAXSIZE</span><span class="o">//</span><span class="mi">4</span>
             <span class="p">)</span>
 
             <span class="c1"># Notify buffer is flushed</span>
-            <span class="n">appOutputSize</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+            <span class="n">app_output_size</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
         <span class="n">EUDEndIf</span><span class="p">()</span></div></div>
 </pre>
        </div>

@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.utils.array — SC-REPL 1.1.4 documentation
+   screpl.utils.array — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -179,10 +179,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../_static/" width="48"/>
           </a>
-          <a href="../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -331,6 +331,11 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span> <span class="o">+</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="REPLArray.clear"><a class="viewcode-back" href="../../../screpl.utils.array.html#screpl.utils.array.REPLArray.clear">[docs]</a>    <span class="nd">@EUDMethod</span>
+    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span></div>
 
 <div class="viewcode-block" id="REPLArray.pop"><a class="viewcode-back" href="../../../screpl.utils.array.html#screpl.utils.array.REPLArray.pop">[docs]</a>    <span class="nd">@EUDMethod</span>
     <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -546,6 +551,207 @@
             <span class="n">EUDPopBlock</span><span class="p">(</span><span class="n">blockname</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">,</span>
             <span class="s1">'arrayloop mismatch'</span>
         <span class="p">)</span></div></div>
+
+<div class="viewcode-block" id="create_refarray"><a class="viewcode-back" href="../../../screpl.utils.array.html#screpl.utils.array.create_refarray">[docs]</a><span class="nd">@cachedfunc</span>
+<span class="k">def</span> <span class="nf">create_refarray</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">empty_constructor</span><span class="p">):</span>
+    <span class="sd">"""Create a reference array class"""</span>
+    <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">struct</span><span class="o">.</span><span class="n">REPLStruct</span><span class="p">)</span>
+
+    <span class="k">class</span> <span class="nc">_</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">REPLStruct</span><span class="p">):</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">'max_size'</span><span class="p">,</span>
+            <span class="s1">'size'</span><span class="p">,</span>
+            <span class="s1">'contents'</span><span class="p">,</span> <span class="c1"># EPD(EUDArray())</span>
+            <span class="s1">'end'</span>
+        <span class="p">]</span>
+
+        <span class="nd">@staticmethod</span>
+        <span class="k">def</span> <span class="nf">construct</span><span class="p">(</span><span class="n">max_size</span><span class="p">,</span> <span class="n">initvals</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">initvals</span><span class="p">:</span>
+                <span class="n">initvals</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">initvals</span><span class="p">)</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">initvals</span> <span class="o">+</span> <span class="p">[</span><span class="n">empty_constructor</span><span class="p">()</span>
+                                 <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_size</span> <span class="o">-</span> <span class="n">size</span><span class="p">)]</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="n">EPD</span><span class="p">(</span><span class="n">EUDArray</span><span class="p">(</span><span class="n">values</span><span class="p">))</span>
+
+            <span class="k">return</span> <span class="n">_</span><span class="o">.</span><span class="n">initialize_with</span><span class="p">(</span><span class="n">max_size</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">contents</span><span class="p">,</span>
+                                             <span class="n">contents</span> <span class="o">+</span> <span class="n">size</span><span class="p">)</span>
+
+        <span class="nd">@EUDTypedMethod</span><span class="p">([</span><span class="kc">None</span><span class="p">],</span> <span class="p">[</span><span class="bp">cls</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">at</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">):</span>
+                <span class="n">debug</span><span class="o">.</span><span class="n">f_raise_error</span><span class="p">(</span><span class="s2">"IndexError: array index out of range"</span><span class="p">)</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contents</span> <span class="o">+</span> <span class="n">index</span><span class="p">)</span>
+
+        <span class="nd">@EUDTypedMethod</span><span class="p">([],</span> <span class="p">[</span><span class="bp">cls</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">push_and_getref</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">size</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_size</span><span class="p">):</span>
+                <span class="n">debug</span><span class="o">.</span><span class="n">f_raise_warning</span><span class="p">(</span>
+                    <span class="s2">"BufferOverflowError: array size exceeds max_size"</span><span class="p">)</span>
+                <span class="n">EUDReturn</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="n">EUDReturn</span><span class="p">(</span><span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">end</span><span class="p">))</span>
+
+        <span class="nd">@EUDTypedMethod</span><span class="p">([],</span> <span class="p">[</span><span class="bp">cls</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">"""Removes and returns item at last"""</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">debug</span><span class="o">.</span><span class="n">f_raise_error</span><span class="p">(</span><span class="s2">"IndexError: pop from empty array"</span><span class="p">)</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+
+            <span class="n">end</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="n">ret</span> <span class="o">=</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">end</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">end</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span><span class="o">-</span><span class="mi">1</span>
+            <span class="k">return</span> <span class="n">ret</span>
+
+        <span class="nd">@EUDTypedMethod</span><span class="p">([</span><span class="kc">None</span><span class="p">],</span> <span class="p">[</span><span class="bp">cls</span><span class="p">])</span>
+        <span class="k">def</span> <span class="nf">insert_and_getref</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+            <span class="sd">"""Inserts item on index</span>
+
+<span class="sd">            ====== ===== ======= ======= === ========= ======== ======</span>
+<span class="sd">            insert index index+1 index+2 ... size-1    size     size+1</span>
+<span class="sd">            ------ ----- ------- ------- --- --------- -------- ------</span>
+<span class="sd">            before v_i   v_(i+1) v_(i+2) ... v_(s-1)   (end)</span>
+<span class="sd">            after  value v_i     v_(i+1) ... v_(s-2)   v_(s-1)  (end)</span>
+<span class="sd">            ====== ===== ======= ======= === ========= ======== ======</span>
+<span class="sd">            """</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span>
+
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">size</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_size</span><span class="p">):</span>
+                <span class="n">debug</span><span class="o">.</span><span class="n">f_raise_warning</span><span class="p">(</span>
+                    <span class="s2">"BufferOverflowError: array size exceeds max_size"</span><span class="p">)</span>
+                <span class="n">EUDReturn</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">index</span> <span class="o">&lt;=</span> <span class="n">size</span><span class="p">):</span>
+                <span class="n">debug</span><span class="o">.</span><span class="n">f_raise_warning</span><span class="p">(</span><span class="s2">"IndexError: array index out of range"</span><span class="p">)</span>
+                <span class="n">EUDReturn</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+
+            <span class="n">cpmoda</span><span class="p">,</span> <span class="n">loopc</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">(),</span> <span class="n">Forward</span><span class="p">()</span>
+            <span class="n">dstepdp</span> <span class="o">=</span> <span class="n">end</span>
+            <span class="n">srcepdp</span> <span class="o">=</span> <span class="n">end</span><span class="o">-</span><span class="mi">1</span>
+            <span class="n">VProc</span><span class="p">([</span><span class="n">dstepdp</span><span class="p">,</span> <span class="n">srcepdp</span><span class="p">,</span> <span class="n">contents</span><span class="p">,</span> <span class="n">index</span><span class="p">],</span> <span class="p">[</span>
+                <span class="n">SetMemory</span><span class="p">(</span><span class="n">cpmoda</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="n">dstepdp</span><span class="o">.</span><span class="n">QueueAddTo</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cpmoda</span><span class="p">)),</span>
+                <span class="n">srcepdp</span><span class="o">.</span><span class="n">QueueAssignTo</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="mh">0x6509B0</span><span class="p">)),</span>
+                <span class="n">contents</span><span class="o">.</span><span class="n">QueueAssignTo</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">loopc</span><span class="o">+</span><span class="mi">8</span><span class="p">)),</span>
+                <span class="n">index</span><span class="o">.</span><span class="n">QueueAddTo</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">loopc</span><span class="o">+</span><span class="mi">8</span><span class="p">))</span>
+            <span class="p">])</span>
+
+            <span class="c1"># while (src != &amp;(contents+index))</span>
+            <span class="k">if</span> <span class="n">EUDWhileNot</span><span class="p">()(</span><span class="n">loopc</span> <span class="o">&lt;&lt;</span> <span class="n">Memory</span><span class="p">(</span><span class="n">cpmoda</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)):</span>
+                <span class="c1"># cpmod = *src</span>
+                <span class="n">cpmod</span> <span class="o">=</span> <span class="n">f_dwread_cp</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                <span class="n">cpmoda</span> <span class="o">&lt;&lt;</span> <span class="n">cpmod</span><span class="o">.</span><span class="n">getDestAddr</span><span class="p">()</span>
+
+                <span class="c1"># *(--dst) = --cpmod</span>
+                <span class="n">VProc</span><span class="p">(</span><span class="n">cpmod</span><span class="p">,</span> <span class="p">[</span>
+                    <span class="n">SetMemory</span><span class="p">(</span><span class="n">cpmoda</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">),</span>
+                    <span class="n">SetMemory</span><span class="p">(</span><span class="mh">0x6509B0</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="p">])</span>
+            <span class="n">EUDEndWhile</span><span class="p">()</span>
+
+            <span class="n">f_setcurpl2cpcache</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">end</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="n">EUDReturn</span><span class="p">(</span><span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">contents</span> <span class="o">+</span> <span class="n">index</span><span class="p">))</span>
+
+        <span class="nd">@EUDMethod</span>
+        <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+            <span class="sd">"""Deletes item with index</span>
+
+<span class="sd">            ====== ======= ======= === ====== ======</span>
+<span class="sd">            before index   index+1 ... size-2 size-1</span>
+<span class="sd">            after  index+1 index+2 ... size-1 (empty)</span>
+<span class="sd">            ====== ======= ======= === ====== ======</span>
+<span class="sd">            """</span>
+            <span class="n">contents</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span>
+
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="n">size</span><span class="p">):</span>
+                <span class="n">debug</span><span class="o">.</span><span class="n">f_raise_error</span><span class="p">(</span><span class="s2">"IndexError: array index out of range"</span><span class="p">)</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+
+            <span class="n">dst</span> <span class="o">=</span> <span class="n">contents</span> <span class="o">+</span> <span class="n">index</span>
+            <span class="n">src</span> <span class="o">=</span> <span class="n">dst</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">f_repmovsd_epd</span><span class="p">(</span><span class="n">dst</span><span class="p">,</span> <span class="n">src</span><span class="p">,</span> <span class="n">size</span><span class="o">-</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span> <span class="o">-</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">end</span> <span class="o">-</span> <span class="mi">1</span>
+
+        <span class="nd">@EUDTypedMethod</span><span class="p">([</span><span class="n">EUDTypedFuncPtr</span><span class="p">([</span><span class="bp">cls</span><span class="p">,</span> <span class="bp">cls</span><span class="p">],</span> <span class="p">[</span><span class="kc">None</span><span class="p">])],</span> <span class="p">[])</span>
+        <span class="k">def</span> <span class="nf">sort</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">comp</span><span class="p">):</span>
+            <span class="sd">'''</span>
+<span class="sd">            comp: EUDFuncN that accepts two elements in the range as arguments,</span>
+<span class="sd">            and returns a value convertible to bool. The value returned indicates</span>
+<span class="sd">            whether the element passed as first argument is considered to go</span>
+<span class="sd">            before the second in the specific strict weak ordering it defines.</span>
+<span class="sd">            The function shall not modify any of its arguments.</span>
+<span class="sd">            This can either be a function pointer or a function object.</span>
+<span class="sd">            '''</span>
+            <span class="n">size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+
+            <span class="c1"># non-recursive quicksort</span>
+            <span class="n">stack</span> <span class="o">=</span> <span class="n">_</span><span class="o">.</span><span class="n">allocate</span><span class="p">(</span><span class="n">size</span> <span class="o">*</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">size</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">EUDWhileNot</span><span class="p">()(</span><span class="n">stack</span><span class="o">.</span><span class="n">size</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="n">right</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+                <span class="n">left</span> <span class="o">=</span> <span class="n">stack</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+                <span class="c1"># unsigned comparison</span>
+                <span class="n">EUDContinueIf</span><span class="p">(</span><span class="n">left</span> <span class="o">&gt;=</span> <span class="n">right</span><span class="p">)</span>
+
+                <span class="n">index</span> <span class="o">=</span> <span class="n">_partition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">comp</span><span class="p">)</span>
+
+                <span class="c1"># left part</span>
+                <span class="c1"># prevent index be -1, due to unsigned comparison</span>
+                <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">left</span><span class="p">)</span>
+                    <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
+
+                <span class="c1"># right part</span>
+                <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+                <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">right</span><span class="p">)</span>
+            <span class="n">EUDEndWhile</span><span class="p">()</span>
+            <span class="n">stack</span><span class="o">.</span><span class="n">free</span><span class="p">()</span>
+
+        <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="sd">"""iterate over values in array"""</span>
+            <span class="n">blockname</span> <span class="o">=</span> <span class="s1">'arrayloop'</span>
+            <span class="n">EUDCreateBlock</span><span class="p">(</span><span class="n">blockname</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+            <span class="n">epd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">contents</span>
+            <span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span>
+            <span class="n">cond</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">()</span>
+            <span class="n">SeqCompute</span><span class="p">([(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cond</span> <span class="o">+</span> <span class="mi">8</span><span class="p">),</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">end</span><span class="p">)])</span>
+            <span class="n">EUDWhileNot</span><span class="p">()(</span><span class="n">cond</span> <span class="o">&lt;&lt;</span> <span class="n">epd</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+            <span class="k">yield</span> <span class="bp">cls</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">epd</span><span class="p">))</span>
+            <span class="n">EUDSetContinuePoint</span><span class="p">()</span>
+            <span class="n">epd</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">EUDEndWhile</span><span class="p">()</span>
+
+            <span class="n">ep_assert</span><span class="p">(</span>
+                <span class="n">EUDPopBlock</span><span class="p">(</span><span class="n">blockname</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">self</span><span class="p">,</span>
+                <span class="s1">'arrayloop mismatch'</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_</span></div>
 </pre>
        </div>
       </article>

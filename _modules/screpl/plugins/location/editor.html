@@ -45,7 +45,7 @@
   <script async="" src="https://www.google-analytics.com/analytics.js">
   </script>
   <title>
-   screpl.plugins.location.editor — SC-REPL 1.1.4 documentation
+   screpl.plugins.location.editor — SC-REPL 1.1.5 documentation
   </title>
   <link href="../../../../_static/material.css" rel="stylesheet" type="text/css"/>
   <link href="../../../../_static/pygments.css" rel="stylesheet" type="text/css"/>
@@ -83,7 +83,7 @@
    <nav class="md-header-nav md-grid">
     <div class="md-flex navheader">
      <div class="md-flex__cell md-flex__cell--shrink">
-      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+      <a class="md-header-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
       </a>
      </div>
      <div class="md-flex__cell md-flex__cell--shrink">
@@ -161,7 +161,7 @@
      <ul class="md-tabs__list">
       <li class="md-tabs__item">
        <a class="md-tabs__link" href="../../../../index.html">
-        SC-REPL 1.1.4 documentation
+        SC-REPL 1.1.5 documentation
        </a>
       </li>
       <li class="md-tabs__item">
@@ -184,10 +184,10 @@
        <div class="md-sidebar__inner">
         <nav class="md-nav md-nav--primary" data-md-level="0">
          <label class="md-nav__title md-nav__title--site" for="__drawer">
-          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a class="md-nav__button md-logo" href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            <img alt=" logo" height="48" src="../../../../_static/" width="48"/>
           </a>
-          <a href="../../../../index.html" title="SC-REPL 1.1.4 documentation">
+          <a href="../../../../index.html" title="SC-REPL 1.1.5 documentation">
            SC-REPL
           </a>
          </label>
@@ -227,27 +227,29 @@
        </h1>
        <div class="highlight">
         <pre>
-<span></span><span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="kn">from</span> <span class="nn">eudplib</span> <span class="kn">import</span> <span class="o">*</span>
 
 <span class="kn">from</span> <span class="nn">screpl.apps.chatreader</span> <span class="kn">import</span> <span class="n">ChatReaderApp</span>
-<span class="kn">from</span> <span class="nn">screpl.apps.repl</span> <span class="kn">import</span> <span class="n">REPL</span>
 <span class="kn">from</span> <span class="nn">screpl.core.appcommand</span> <span class="kn">import</span> <span class="n">AppCommand</span>
 <span class="kn">from</span> <span class="nn">screpl.core.application</span> <span class="kn">import</span> <span class="n">Application</span>
 <span class="kn">from</span> <span class="nn">screpl.encoder.const</span> <span class="kn">import</span> <span class="n">ArgEncNumber</span>
 <span class="kn">from</span> <span class="nn">screpl.resources.table.tables</span> <span class="kn">import</span> <span class="n">get_locationname_epd</span>
+<span class="kn">from</span> <span class="nn">screpl.utils.string</span> <span class="kn">import</span> <span class="n">f_memcmp_epd</span>
+
 <span class="kn">from</span> <span class="nn">screpl.main</span> <span class="kn">import</span> <span class="n">get_app_manager</span>
 
-<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">keymap</span><span class="p">,</span> <span class="n">FRAME_PERIOD</span>
 <span class="kn">from</span> <span class="nn">.rect</span> <span class="kn">import</span> <span class="n">draw_rectangle</span>
 
 <span class="n">app_manager</span> <span class="o">=</span> <span class="n">get_app_manager</span><span class="p">()</span>
 
-
-
 <span class="sd">'''</span>
 <span class="sd">Option:</span>
-<span class="sd">    Grid 8 / 16 / 32 / 64</span>
-<span class="sd">Mode:</span>
+<span class="sd">    Grid 1 / 8 / 16 / 32</span>
+<span class="sd">Tool</span>
+<span class="sd">    Create tool</span>
+<span class="sd">    Edit tool</span>
+<span class="sd">Edit Mode:</span>
 <span class="sd">    Point mode (LT, RT, RD, LD)</span>
 <span class="sd">    Side mode (Left, Top, Right, Bottom)</span>
 <span class="sd">    Move</span>
@@ -263,33 +265,25 @@
 <span class="n">_SIDE_R</span> <span class="o">=</span> <span class="mi">6</span>
 <span class="n">_SIDE_B</span> <span class="o">=</span> <span class="mi">7</span>
 <span class="n">_MOVE</span> <span class="o">=</span> <span class="mi">8</span>
-<span class="n">py_modes</span> <span class="o">=</span> <span class="p">[</span> <span class="c1"># py means it is python variable</span>
+<span class="n">py_editmodes</span> <span class="o">=</span> <span class="p">[</span> <span class="c1"># py means it is python variable</span>
     <span class="n">_POINT_LT</span><span class="p">,</span> <span class="n">_POINT_RT</span><span class="p">,</span> <span class="n">_POINT_RB</span><span class="p">,</span> <span class="n">_POINT_LB</span><span class="p">,</span>
     <span class="n">_SIDE_L</span><span class="p">,</span> <span class="n">_SIDE_T</span><span class="p">,</span> <span class="n">_SIDE_R</span><span class="p">,</span> <span class="n">_SIDE_B</span><span class="p">,</span> <span class="n">_MOVE</span>
 <span class="p">]</span>
-<span class="n">py_modes_string</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"POINT_LT"</span><span class="p">,</span> <span class="s2">"POINT_RT"</span><span class="p">,</span> <span class="s2">"POINT_RB"</span><span class="p">,</span> <span class="s2">"POINT_LB"</span><span class="p">,</span>
-    <span class="s2">"SIDE_L"</span><span class="p">,</span> <span class="s2">"SIDE_T"</span><span class="p">,</span> <span class="s2">"SIDE_R"</span><span class="p">,</span> <span class="s2">"SIDE_B"</span><span class="p">,</span> <span class="s2">"MOVE"</span><span class="p">,</span>
-<span class="p">]</span>
 
-<span class="n">_GRID_NO</span> <span class="o">=</span> <span class="mi">0</span>
-<span class="n">_GRID_8</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">_GRID_16</span> <span class="o">=</span> <span class="mi">2</span>
-<span class="n">_GRID_32</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="n">py_grid_modes</span> <span class="o">=</span> <span class="p">[</span><span class="n">_GRID_NO</span><span class="p">,</span> <span class="n">_GRID_8</span><span class="p">,</span> <span class="n">_GRID_16</span><span class="p">,</span> <span class="n">_GRID_32</span><span class="p">]</span>
-<span class="n">py_grid_values</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">]</span>
-
-<span class="n">frame</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+<span class="n">gridvalues</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">32</span><span class="p">]</span>
+<span class="n">gridmasks</span> <span class="o">=</span> <span class="p">[</span><span class="mh">0xFFFFFFFF</span><span class="p">,</span> <span class="mh">0xFFFFFFF8</span><span class="p">,</span> <span class="mh">0xFFFFFFF0</span><span class="p">,</span> <span class="mh">0xFFFFFFE0</span><span class="p">]</span>
 
 <span class="c1"># available modes</span>
-<span class="n">prev_available_modes</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_modes</span><span class="p">))</span>
-<span class="n">cur_available_modes</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_modes</span><span class="p">))</span>
+<span class="n">prev_available_editmodes</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_editmodes</span><span class="p">))</span>
+<span class="n">cur_available_editmodes</span> <span class="o">=</span> <span class="n">EUDArray</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_editmodes</span><span class="p">))</span>
 
 <span class="c1"># modes</span>
-<span class="n">cur_mode</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">cur_editmode</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">is_holding</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
-<span class="n">cur_grid_mode</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">cur_gridmode</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">cur_gridval</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">cur_gridmask</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">(</span><span class="mh">0xFFFFFFFF</span><span class="p">)</span>
 
 <span class="c1"># mouse pointers</span>
 <span class="n">prev_mX</span><span class="p">,</span> <span class="n">prev_mY</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
@@ -305,6 +299,10 @@
 <span class="n">DISPMODE_MANUAL</span> <span class="o">=</span> <span class="mi">1</span>
 <span class="n">v_dispmode</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
 
+<span class="n">TOOL_CREATE</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">TOOL_EDIT</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">v_tool</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
+
 <div class="viewcode-block" id="LocationEditorApp"><a class="viewcode-back" href="../../../../screpl.plugins.location.editor.html#screpl.plugins.location.editor.LocationEditorApp">[docs]</a><span class="k">class</span> <span class="nc">LocationEditorApp</span><span class="p">(</span><span class="n">Application</span><span class="p">):</span>
     <span class="n">fields</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -319,27 +317,15 @@
 
     <span class="k">def</span> <span class="nf">on_init</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">v_dispmode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MAIN</span>
-        <span class="n">frame</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_modes</span><span class="p">)):</span>
-            <span class="n">prev_available_modes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">cur_mode</span> <span class="o">&lt;&lt;</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_editmodes</span><span class="p">)):</span>
+            <span class="n">prev_available_editmodes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">cur_editmode</span> <span class="o">&lt;&lt;</span> <span class="o">-</span><span class="mi">1</span>
         <span class="n">is_holding</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
 
-    <span class="k">def</span> <span class="nf">evaluate_available_modes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">'''</span>
-<span class="sd">        _POINT_LT</span>
-<span class="sd">        _POINT_RT</span>
-<span class="sd">        _POINT_RB</span>
-<span class="sd">        _POINT_LB</span>
-<span class="sd">        _SIDE_L</span>
-<span class="sd">        _SIDE_T</span>
-<span class="sd">        _SIDE_R</span>
-<span class="sd">        _SIDE_B</span>
-<span class="sd">        _MOVE</span>
-<span class="sd">        '''</span>
+    <span class="k">def</span> <span class="nf">evaluate_available_editmodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">DoActions</span><span class="p">([</span>
-            <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_modes</span><span class="p">)</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_modes</span><span class="p">))</span>
+            <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_editmodes</span><span class="p">)</span> <span class="o">+</span> <span class="n">i</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_editmodes</span><span class="p">))</span>
         <span class="p">])</span>
 
         <span class="c1"># point</span>
@@ -354,16 +340,16 @@
             <span class="n">EUDEndIf</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">dlx</span> <span class="o">&lt;=</span> <span class="n">limit</span><span class="p">,</span> <span class="n">dty</span> <span class="o">&lt;=</span> <span class="n">limit</span><span class="p">]):</span>
-            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_modes</span><span class="p">),</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_editmodes</span><span class="p">),</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">drx</span> <span class="o">&lt;=</span> <span class="n">limit</span><span class="p">,</span> <span class="n">dty</span> <span class="o">&lt;=</span> <span class="n">limit</span><span class="p">]):</span>
-            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_modes</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_editmodes</span><span class="p">)</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">drx</span> <span class="o">&lt;=</span> <span class="n">limit</span><span class="p">,</span> <span class="n">dby</span> <span class="o">&lt;=</span> <span class="n">limit</span><span class="p">]):</span>
-            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_modes</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_editmodes</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">dlx</span> <span class="o">&lt;=</span> <span class="n">limit</span><span class="p">,</span> <span class="n">dby</span> <span class="o">&lt;=</span> <span class="n">limit</span><span class="p">]):</span>
-            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_modes</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_editmodes</span><span class="p">)</span><span class="o">+</span><span class="mi">3</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
         <span class="n">is_l_x_r</span> <span class="o">=</span> <span class="n">EUDVariable</span><span class="p">()</span>
@@ -380,42 +366,25 @@
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">is_t_y_b</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">dlx</span> <span class="o">&lt;=</span> <span class="n">limit</span><span class="p">]):</span>
-            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_modes</span><span class="p">)</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_editmodes</span><span class="p">)</span><span class="o">+</span><span class="mi">4</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">is_l_x_r</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">dty</span> <span class="o">&lt;=</span> <span class="n">limit</span><span class="p">]):</span>
-            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_modes</span><span class="p">)</span><span class="o">+</span><span class="mi">5</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_editmodes</span><span class="p">)</span><span class="o">+</span><span class="mi">5</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">is_t_y_b</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">drx</span> <span class="o">&lt;=</span> <span class="n">limit</span><span class="p">]):</span>
-            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_modes</span><span class="p">)</span><span class="o">+</span><span class="mi">6</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_editmodes</span><span class="p">)</span><span class="o">+</span><span class="mi">6</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">is_l_x_r</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">dby</span> <span class="o">&lt;=</span> <span class="n">limit</span><span class="p">]):</span>
-            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_modes</span><span class="p">)</span><span class="o">+</span><span class="mi">7</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_editmodes</span><span class="p">)</span><span class="o">+</span><span class="mi">7</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">is_t_y_b</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">is_l_x_r</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="mi">1</span><span class="p">)]):</span>
-            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_modes</span><span class="p">)</span><span class="o">+</span><span class="mi">8</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+            <span class="n">DoActions</span><span class="p">(</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_editmodes</span><span class="p">)</span><span class="o">+</span><span class="mi">8</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
 
     <span class="k">def</span> <span class="nf">loop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">global</span> <span class="n">cur_mode</span><span class="p">,</span> <span class="n">cur_grid_mode</span>
-
-        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"ESC"</span><span class="p">)):</span>
-            <span class="n">app_manager</span><span class="o">.</span><span class="n">request_destruct</span><span class="p">()</span>
-            <span class="n">EUDReturn</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="n">keymap</span><span class="p">[</span><span class="s2">"editor"</span><span class="p">][</span><span class="s2">"change_grid_mode"</span><span class="p">])):</span>
-            <span class="n">cur_grid_mode</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">Trigger</span><span class="p">(</span>
-                <span class="n">conditions</span><span class="o">=</span><span class="p">[</span><span class="n">cur_grid_mode</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">py_grid_modes</span><span class="p">)],</span>
-                <span class="n">actions</span><span class="o">=</span><span class="p">[</span><span class="n">cur_grid_mode</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
-            <span class="p">)</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_down</span><span class="p">(</span><span class="s2">"F1"</span><span class="p">)):</span>
-            <span class="n">v_dispmode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MANUAL</span>
-            <span class="n">app_manager</span><span class="o">.</span><span class="n">clean_text</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_up</span><span class="p">(</span><span class="s2">"F1"</span><span class="p">)):</span>
-            <span class="n">v_dispmode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MAIN</span>
-            <span class="n">app_manager</span><span class="o">.</span><span class="n">clean_text</span><span class="p">()</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="k">global</span> <span class="n">cur_editmode</span><span class="p">,</span> <span class="n">cur_gridmode</span>
 
         <span class="c1"># new mouse values and location</span>
         <span class="n">pos</span> <span class="o">=</span> <span class="n">app_manager</span><span class="o">.</span><span class="n">get_mouse_position</span><span class="p">()</span>
@@ -425,201 +394,225 @@
         <span class="n">cur_tv</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">te</span><span class="p">)</span>
         <span class="n">cur_rv</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">re</span><span class="p">)</span>
         <span class="n">cur_bv</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">be</span><span class="p">)</span>
+        <span class="n">is_holding</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
 
-        <span class="c1"># set modes!</span>
-        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">mouse_lclick</span><span class="p">()):</span>
-            <span class="sd">'''</span>
-<span class="sd">            evaluate available modes</span>
-<span class="sd">            if available modes not changed,</span>
-<span class="sd">                set next mode, find available starts from the previous mode</span>
-<span class="sd">            else:</span>
-<span class="sd">                set next mode, find available starts from mode = 0</span>
-<span class="sd">            '''</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_available_modes</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">f_memcmp</span><span class="p">(</span><span class="n">prev_available_modes</span><span class="p">,</span> <span class="n">cur_available_modes</span><span class="p">,</span> <span class="mi">4</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">py_modes</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
-                <span class="n">cur_mode</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                <span class="n">cur_mode</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
-            <span class="n">EUDEndIf</span><span class="p">()</span>
-
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">MemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_modes</span><span class="p">)</span><span class="o">+</span><span class="n">i</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> \
-                    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_modes</span><span class="p">))]):</span>
-                <span class="c1"># not available</span>
-                <span class="n">cur_mode</span> <span class="o">&lt;&lt;</span> <span class="o">-</span><span class="mi">1</span>
-            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                <span class="c1"># choose available</span>
-                <span class="k">if</span> <span class="n">EUDLoopN</span><span class="p">()(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_modes</span><span class="p">)):</span>
-                    <span class="n">Trigger</span><span class="p">(</span>
-                        <span class="n">conditions</span><span class="o">=</span><span class="n">cur_mode</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_modes</span><span class="p">)),</span>
-                        <span class="n">actions</span><span class="o">=</span><span class="n">cur_mode</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-                    <span class="p">)</span>
-                    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur_available_modes</span><span class="p">[</span><span class="n">cur_mode</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
-                        <span class="n">EUDBreak</span><span class="p">()</span>
-                    <span class="n">EUDEndIf</span><span class="p">()</span>
-                    <span class="n">cur_mode</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">EUDEndLoopN</span><span class="p">()</span>
-            <span class="n">EUDEndIf</span><span class="p">()</span>
-
-            <span class="n">f_repmovsd_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">prev_available_modes</span><span class="p">),</span> <span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_modes</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">py_modes</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"ESC"</span><span class="p">)):</span>
+            <span class="n">app_manager</span><span class="o">.</span><span class="n">request_destruct</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"G"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
+            <span class="n">cur_gridmode</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">Trigger</span><span class="p">(</span>
+                <span class="n">conditions</span><span class="o">=</span><span class="p">[</span><span class="n">cur_gridmode</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">gridvalues</span><span class="p">)],</span>
+                <span class="n">actions</span><span class="o">=</span><span class="p">[</span><span class="n">cur_gridmode</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)]</span>
+            <span class="p">)</span>
+            <span class="n">EUDSwitch</span><span class="p">(</span><span class="n">cur_gridmode</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">m</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">gridvalues</span><span class="p">,</span> <span class="n">gridmasks</span><span class="p">)):</span>
+                <span class="n">EUDSwitchCase</span><span class="p">()(</span><span class="n">i</span><span class="p">)</span>
+                <span class="n">DoActions</span><span class="p">([</span><span class="n">cur_gridval</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="n">v</span><span class="p">),</span>
+                           <span class="n">cur_gridmask</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="n">m</span><span class="p">)])</span>
+                <span class="n">EUDBreak</span><span class="p">()</span>
+            <span class="n">EUDEndSwitch</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_down</span><span class="p">(</span><span class="s2">"F1"</span><span class="p">)):</span>
+            <span class="n">v_dispmode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MANUAL</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_up</span><span class="p">(</span><span class="s2">"F1"</span><span class="p">)):</span>
+            <span class="n">v_dispmode</span> <span class="o">&lt;&lt;</span> <span class="n">DISPMODE_MAIN</span>
+        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"E"</span><span class="p">,</span> <span class="n">hold</span><span class="o">=</span><span class="p">[</span><span class="s2">"LCTRL"</span><span class="p">])):</span>
+            <span class="n">v_tool</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">v_tool</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
-        <span class="c1"># get new mode</span>
-        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_down</span><span class="p">(</span><span class="n">keymap</span><span class="p">[</span><span class="s2">"editor"</span><span class="p">][</span><span class="s2">"hold"</span><span class="p">])):</span>
-            <span class="n">is_holding</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
-            <span class="n">prev_mX</span> <span class="o">&lt;&lt;</span> <span class="n">cur_mX</span>
-            <span class="n">prev_mY</span> <span class="o">&lt;&lt;</span> <span class="n">cur_mY</span>
-        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_up</span><span class="p">(</span><span class="n">keymap</span><span class="p">[</span><span class="s2">"editor"</span><span class="p">][</span><span class="s2">"hold"</span><span class="p">])):</span>
-            <span class="n">is_holding</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
-        <span class="n">EUDEndIf</span><span class="p">()</span>
-
-        <span class="c1"># functions</span>
-        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">is_holding</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">dX</span> <span class="o">=</span> <span class="n">cur_mX</span> <span class="o">-</span> <span class="n">prev_mX</span>
-            <span class="n">dY</span> <span class="o">=</span> <span class="n">cur_mY</span> <span class="o">-</span> <span class="n">prev_mY</span>
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">dX</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dY</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]):</span>
-                <span class="c1"># nothing to make change</span>
-                <span class="k">pass</span>
-            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                <span class="c1"># If values are preserved among frames, make a change.</span>
-                <span class="c1"># Otherwise, make mode clear.</span>
-                <span class="c1">#    It may due to a trigger that handles the location.</span>
-                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span>
-                            <span class="n">prev_lv</span> <span class="o">==</span> <span class="n">cur_lv</span><span class="p">,</span>
-                            <span class="n">prev_tv</span> <span class="o">==</span> <span class="n">cur_tv</span><span class="p">,</span>
-                            <span class="n">prev_rv</span> <span class="o">==</span> <span class="n">cur_rv</span><span class="p">,</span>
-                            <span class="n">prev_bv</span> <span class="o">==</span> <span class="n">cur_bv</span><span class="p">,</span>
-                        <span class="p">]):</span>
-
-                    <span class="c1"># @TODO other modes...</span>
-                    <span class="n">grid_X</span><span class="p">,</span> <span class="n">grid_Y</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur_grid_mode</span> <span class="o">==</span> <span class="n">_GRID_NO</span><span class="p">):</span>
-                        <span class="n">grid_X</span> <span class="o">&lt;&lt;</span> <span class="n">cur_mX</span>
-                        <span class="n">grid_Y</span> <span class="o">&lt;&lt;</span> <span class="n">cur_mY</span>
-                    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_grid_mode</span> <span class="o">==</span> <span class="n">_GRID_8</span><span class="p">):</span>
-                        <span class="n">grid_X</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="n">cur_mX</span> <span class="o">//</span> <span class="mi">8</span><span class="p">)</span> <span class="o">*</span> <span class="mi">8</span><span class="p">)</span>
-                        <span class="n">grid_Y</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="n">cur_mY</span> <span class="o">//</span> <span class="mi">8</span><span class="p">)</span> <span class="o">*</span> <span class="mi">8</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_grid_mode</span> <span class="o">==</span> <span class="n">_GRID_16</span><span class="p">):</span>
-                        <span class="n">grid_X</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="n">cur_mX</span> <span class="o">//</span> <span class="mi">16</span><span class="p">)</span> <span class="o">*</span> <span class="mi">16</span><span class="p">)</span>
-                        <span class="n">grid_Y</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="n">cur_mY</span> <span class="o">//</span> <span class="mi">16</span><span class="p">)</span> <span class="o">*</span> <span class="mi">16</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_grid_mode</span> <span class="o">==</span> <span class="n">_GRID_32</span><span class="p">):</span>
-                        <span class="n">grid_X</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="n">cur_mX</span> <span class="o">//</span> <span class="mi">32</span><span class="p">)</span> <span class="o">*</span> <span class="mi">32</span><span class="p">)</span>
-                        <span class="n">grid_Y</span> <span class="o">&lt;&lt;</span> <span class="p">((</span><span class="n">cur_mY</span> <span class="o">//</span> <span class="mi">32</span><span class="p">)</span> <span class="o">*</span> <span class="mi">32</span><span class="p">)</span>
-                    <span class="n">EUDEndIf</span><span class="p">()</span>
-
-                    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur_mode</span> <span class="o">==</span> <span class="n">_POINT_LT</span><span class="p">):</span>
-                        <span class="n">DoActions</span><span class="p">([</span>
-                            <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">le</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_X</span><span class="p">),</span>
-                            <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">te</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_Y</span><span class="p">),</span>
-                        <span class="p">])</span>
-                    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_mode</span> <span class="o">==</span> <span class="n">_POINT_RT</span><span class="p">):</span>
-                        <span class="n">DoActions</span><span class="p">([</span>
-                            <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">re</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_X</span><span class="p">),</span>
-                            <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">te</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_Y</span><span class="p">),</span>
-                        <span class="p">])</span>
-                    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_mode</span> <span class="o">==</span> <span class="n">_POINT_RB</span><span class="p">):</span>
-                        <span class="n">DoActions</span><span class="p">([</span>
-                            <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">re</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_X</span><span class="p">),</span>
-                            <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">be</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_Y</span><span class="p">),</span>
-                        <span class="p">])</span>
-                    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_mode</span> <span class="o">==</span> <span class="n">_POINT_LB</span><span class="p">):</span>
-                        <span class="n">DoActions</span><span class="p">([</span>
-                            <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">le</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_X</span><span class="p">),</span>
-                            <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">be</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_Y</span><span class="p">),</span>
-                        <span class="p">])</span>
-                    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_mode</span> <span class="o">==</span> <span class="n">_SIDE_L</span><span class="p">):</span>
-                        <span class="n">DoActions</span><span class="p">([</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">le</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_X</span><span class="p">)])</span>
-                    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_mode</span> <span class="o">==</span> <span class="n">_SIDE_T</span><span class="p">):</span>
-                        <span class="n">DoActions</span><span class="p">([</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">te</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_Y</span><span class="p">)])</span>
-                    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_mode</span> <span class="o">==</span> <span class="n">_SIDE_R</span><span class="p">):</span>
-                        <span class="n">DoActions</span><span class="p">([</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">re</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_X</span><span class="p">)])</span>
-                    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_mode</span> <span class="o">==</span> <span class="n">_SIDE_B</span><span class="p">):</span>
-                        <span class="n">DoActions</span><span class="p">([</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">be</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_Y</span><span class="p">)])</span>
-                    <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_mode</span> <span class="o">==</span> <span class="n">_MOVE</span><span class="p">):</span>
-                        <span class="n">DoActions</span><span class="p">([</span>
-                            <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">ee</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="n">vv</span><span class="p">)</span> <span class="k">for</span> <span class="n">ee</span><span class="p">,</span> <span class="n">vv</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-                                <span class="p">[</span><span class="n">le</span><span class="p">,</span> <span class="n">te</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">be</span><span class="p">],</span>
-                                <span class="p">[</span><span class="n">dX</span><span class="p">,</span> <span class="n">dY</span><span class="p">,</span> <span class="n">dX</span><span class="p">,</span> <span class="n">dY</span><span class="p">]</span>
-                            <span class="p">)</span>
-                        <span class="p">])</span>
-                    <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_tool</span> <span class="o">==</span> <span class="n">TOOL_CREATE</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">mouse_ldrag</span><span class="p">(</span><span class="n">sync</span><span class="o">=</span><span class="p">[</span><span class="n">cur_mX</span><span class="p">,</span> <span class="n">cur_mY</span><span class="p">])):</span>
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur_gridval</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">cur_lv</span> <span class="o">&lt;&lt;</span> <span class="n">prev_mX</span>
+                    <span class="n">cur_tv</span> <span class="o">&lt;&lt;</span> <span class="n">prev_mY</span>
+                    <span class="n">cur_rv</span> <span class="o">&lt;&lt;</span> <span class="n">cur_mX</span>
+                    <span class="n">cur_bv</span> <span class="o">&lt;&lt;</span> <span class="n">cur_mY</span>
                 <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                    <span class="c1"># value changed!</span>
-                    <span class="c1"># other trigger may handled the location</span>
-                    <span class="n">is_holding</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+                    <span class="n">cur_lv</span> <span class="o">&lt;&lt;</span> <span class="n">f_bitand</span><span class="p">(</span><span class="n">prev_mX</span> <span class="o">+</span> <span class="p">(</span><span class="n">cur_gridval</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="n">cur_gridmask</span><span class="p">)</span>
+                    <span class="n">cur_tv</span> <span class="o">&lt;&lt;</span> <span class="n">f_bitand</span><span class="p">(</span><span class="n">prev_mY</span> <span class="o">+</span> <span class="p">(</span><span class="n">cur_gridval</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="n">cur_gridmask</span><span class="p">)</span>
+                    <span class="n">cur_rv</span> <span class="o">&lt;&lt;</span> <span class="n">f_bitand</span><span class="p">(</span><span class="n">cur_mX</span> <span class="o">+</span> <span class="p">(</span><span class="n">cur_gridval</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="n">cur_gridmask</span><span class="p">)</span>
+                    <span class="n">cur_bv</span> <span class="o">&lt;&lt;</span> <span class="n">f_bitand</span><span class="p">(</span><span class="n">cur_mY</span> <span class="o">+</span> <span class="p">(</span><span class="n">cur_gridval</span> <span class="o">//</span> <span class="mi">2</span><span class="p">),</span> <span class="n">cur_gridmask</span><span class="p">)</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
+                <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">le</span><span class="p">,</span> <span class="n">cur_lv</span><span class="p">)</span>
+                <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">te</span><span class="p">,</span> <span class="n">cur_tv</span><span class="p">)</span>
+                <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">re</span><span class="p">,</span> <span class="n">cur_rv</span><span class="p">)</span>
+                <span class="n">f_dwwrite_epd</span><span class="p">(</span><span class="n">be</span><span class="p">,</span> <span class="n">cur_bv</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">mouse_lpress</span><span class="p">(</span><span class="n">sync</span><span class="o">=</span><span class="p">[</span><span class="n">cur_mX</span><span class="p">,</span> <span class="n">cur_mY</span><span class="p">])):</span>
+                <span class="n">prev_mX</span> <span class="o">&lt;&lt;</span> <span class="n">cur_mX</span>
+                <span class="n">prev_mY</span> <span class="o">&lt;&lt;</span> <span class="n">cur_mY</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">mouse_lclick</span><span class="p">(</span><span class="n">sync</span><span class="o">=</span><span class="p">[</span><span class="n">cur_mX</span><span class="p">,</span> <span class="n">cur_mY</span><span class="p">])):</span>
+                <span class="sd">'''</span>
+<span class="sd">                evaluate available modes</span>
+<span class="sd">                if available modes not changed,</span>
+<span class="sd">                    set next mode, find available starts from the previous mode</span>
+<span class="sd">                else:</span>
+<span class="sd">                    set next mode, find available starts from mode = 0</span>
+<span class="sd">                '''</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">evaluate_available_editmodes</span><span class="p">()</span>
 
-                    <span class="c1"># @TODO report</span>
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">f_memcmp_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">prev_available_editmodes</span><span class="p">),</span>
+                                        <span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_editmodes</span><span class="p">),</span>
+                                        <span class="nb">len</span><span class="p">(</span><span class="n">py_editmodes</span><span class="p">))</span> <span class="o">==</span> <span class="mi">0</span><span class="p">):</span>
+                    <span class="n">cur_editmode</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                    <span class="n">cur_editmode</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">MemoryEPD</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_editmodes</span><span class="p">)</span><span class="o">+</span><span class="n">i</span><span class="p">,</span> <span class="n">Exactly</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> \
+                        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_editmodes</span><span class="p">))]):</span>
+                    <span class="c1"># not available</span>
+                    <span class="n">cur_editmode</span> <span class="o">&lt;&lt;</span> <span class="o">-</span><span class="mi">1</span>
+                <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                    <span class="c1"># choose available</span>
+                    <span class="k">if</span> <span class="n">EUDLoopN</span><span class="p">()(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_editmodes</span><span class="p">)):</span>
+                        <span class="n">Trigger</span><span class="p">(</span>
+                            <span class="n">conditions</span><span class="o">=</span><span class="n">cur_editmode</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_editmodes</span><span class="p">)),</span>
+                            <span class="n">actions</span><span class="o">=</span><span class="n">cur_editmode</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur_available_editmodes</span><span class="p">[</span><span class="n">cur_editmode</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+                            <span class="n">EUDBreak</span><span class="p">()</span>
+                        <span class="n">EUDEndIf</span><span class="p">()</span>
+                        <span class="n">cur_editmode</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">EUDEndLoopN</span><span class="p">()</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
+
+                <span class="n">f_repmovsd_epd</span><span class="p">(</span><span class="n">EPD</span><span class="p">(</span><span class="n">prev_available_editmodes</span><span class="p">),</span>
+                               <span class="n">EPD</span><span class="p">(</span><span class="n">cur_available_editmodes</span><span class="p">),</span>
+                               <span class="nb">len</span><span class="p">(</span><span class="n">py_editmodes</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_down</span><span class="p">(</span><span class="s2">"H"</span><span class="p">,</span>
+                                                <span class="n">sync</span><span class="o">=</span><span class="p">[</span><span class="n">cur_mX</span><span class="p">,</span> <span class="n">cur_mY</span><span class="p">])):</span>
+                <span class="n">is_holding</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
+                <span class="n">prev_mX</span> <span class="o">&lt;&lt;</span> <span class="n">cur_mX</span>
+                <span class="n">prev_mY</span> <span class="o">&lt;&lt;</span> <span class="n">cur_mY</span>
+            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">app_manager</span><span class="o">.</span><span class="n">key_press</span><span class="p">(</span><span class="s2">"H"</span><span class="p">,</span>
+                                                 <span class="n">sync</span><span class="o">=</span><span class="p">[</span><span class="n">cur_mX</span><span class="p">,</span> <span class="n">cur_mY</span><span class="p">])):</span>
+                <span class="n">is_holding</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span>
+            <span class="n">EUDEndIf</span><span class="p">()</span>
+
+            <span class="c1"># functions</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">is_holding</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">dX</span> <span class="o">=</span> <span class="n">cur_mX</span> <span class="o">-</span> <span class="n">prev_mX</span>
+                <span class="n">dY</span> <span class="o">=</span> <span class="n">cur_mY</span> <span class="o">-</span> <span class="n">prev_mY</span>
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">dX</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">dY</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]):</span>
+                    <span class="c1"># nothing to make change</span>
+                    <span class="k">pass</span>
+                <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                    <span class="c1"># If values are preserved among frames, make a change.</span>
+                    <span class="c1"># Otherwise, make mode clear.</span>
+                    <span class="c1">#    It may due to a trigger that handles the location.</span>
+                    <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">prev_lv</span> <span class="o">==</span> <span class="n">cur_lv</span><span class="p">,</span>
+                                <span class="n">prev_tv</span> <span class="o">==</span> <span class="n">cur_tv</span><span class="p">,</span>
+                                <span class="n">prev_rv</span> <span class="o">==</span> <span class="n">cur_rv</span><span class="p">,</span>
+                                <span class="n">prev_bv</span> <span class="o">==</span> <span class="n">cur_bv</span><span class="p">]):</span>
+
+                        <span class="c1"># @TODO other modes...</span>
+                        <span class="n">grid_X</span><span class="p">,</span> <span class="n">grid_Y</span> <span class="o">=</span> <span class="n">EUDCreateVariables</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+                        <span class="n">grid_X</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">cur_mX</span> <span class="o">//</span> <span class="n">cur_gridval</span><span class="p">)</span> <span class="o">*</span> <span class="n">cur_gridval</span>
+                        <span class="n">grid_Y</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">cur_mY</span> <span class="o">//</span> <span class="n">cur_gridval</span><span class="p">)</span> <span class="o">*</span> <span class="n">cur_gridval</span>
+
+                        <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur_editmode</span> <span class="o">==</span> <span class="n">_POINT_LT</span><span class="p">):</span>
+                            <span class="n">DoActions</span><span class="p">([</span>
+                                <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">le</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_X</span><span class="p">),</span>
+                                <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">te</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_Y</span><span class="p">),</span>
+                            <span class="p">])</span>
+                        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_editmode</span> <span class="o">==</span> <span class="n">_POINT_RT</span><span class="p">):</span>
+                            <span class="n">DoActions</span><span class="p">([</span>
+                                <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">re</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_X</span><span class="p">),</span>
+                                <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">te</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_Y</span><span class="p">),</span>
+                            <span class="p">])</span>
+                        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_editmode</span> <span class="o">==</span> <span class="n">_POINT_RB</span><span class="p">):</span>
+                            <span class="n">DoActions</span><span class="p">([</span>
+                                <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">re</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_X</span><span class="p">),</span>
+                                <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">be</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_Y</span><span class="p">),</span>
+                            <span class="p">])</span>
+                        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_editmode</span> <span class="o">==</span> <span class="n">_POINT_LB</span><span class="p">):</span>
+                            <span class="n">DoActions</span><span class="p">([</span>
+                                <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">le</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_X</span><span class="p">),</span>
+                                <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">be</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_Y</span><span class="p">),</span>
+                            <span class="p">])</span>
+                        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_editmode</span> <span class="o">==</span> <span class="n">_SIDE_L</span><span class="p">):</span>
+                            <span class="n">DoActions</span><span class="p">([</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">le</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_X</span><span class="p">)])</span>
+                        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_editmode</span> <span class="o">==</span> <span class="n">_SIDE_T</span><span class="p">):</span>
+                            <span class="n">DoActions</span><span class="p">([</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">te</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_Y</span><span class="p">)])</span>
+                        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_editmode</span> <span class="o">==</span> <span class="n">_SIDE_R</span><span class="p">):</span>
+                            <span class="n">DoActions</span><span class="p">([</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">re</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_X</span><span class="p">)])</span>
+                        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_editmode</span> <span class="o">==</span> <span class="n">_SIDE_B</span><span class="p">):</span>
+                            <span class="n">DoActions</span><span class="p">([</span><span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">be</span><span class="p">,</span> <span class="n">SetTo</span><span class="p">,</span> <span class="n">grid_Y</span><span class="p">)])</span>
+                        <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">cur_editmode</span> <span class="o">==</span> <span class="n">_MOVE</span><span class="p">):</span>
+                            <span class="n">DoActions</span><span class="p">([</span>
+                                <span class="n">SetMemoryEPD</span><span class="p">(</span><span class="n">ee</span><span class="p">,</span> <span class="n">Add</span><span class="p">,</span> <span class="n">vv</span><span class="p">)</span> <span class="k">for</span> <span class="n">ee</span><span class="p">,</span> <span class="n">vv</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                                    <span class="p">[</span><span class="n">le</span><span class="p">,</span> <span class="n">te</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">be</span><span class="p">],</span>
+                                    <span class="p">[</span><span class="n">dX</span><span class="p">,</span> <span class="n">dY</span><span class="p">,</span> <span class="n">dX</span><span class="p">,</span> <span class="n">dY</span><span class="p">]</span>
+                                <span class="p">)</span>
+                            <span class="p">])</span>
+                        <span class="n">EUDEndIf</span><span class="p">()</span>
+                    <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                        <span class="c1"># value changed!</span>
+                        <span class="c1"># other trigger may handled the location</span>
+                        <span class="n">is_holding</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span>
+
+                        <span class="c1"># @TODO report</span>
+                    <span class="n">EUDEndIf</span><span class="p">()</span>
                 <span class="n">EUDEndIf</span><span class="p">()</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
+
+            <span class="c1"># update new value</span>
+            <span class="k">for</span> <span class="n">vv</span><span class="p">,</span> <span class="n">ee</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">([</span><span class="n">prev_lv</span><span class="p">,</span> <span class="n">prev_tv</span><span class="p">,</span> <span class="n">prev_rv</span><span class="p">,</span> <span class="n">prev_bv</span><span class="p">],</span>
+                              <span class="p">[</span><span class="n">le</span><span class="p">,</span> <span class="n">te</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">be</span><span class="p">]):</span>
+                <span class="n">vv</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">ee</span><span class="p">)</span>
+            <span class="n">prev_mX</span> <span class="o">&lt;&lt;</span> <span class="n">cur_mX</span>
+            <span class="n">prev_mY</span> <span class="o">&lt;&lt;</span> <span class="n">cur_mY</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
-
-        <span class="c1"># update new value</span>
-        <span class="k">for</span> <span class="n">vv</span><span class="p">,</span> <span class="n">ee</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>                            \
-                <span class="p">[</span><span class="n">prev_lv</span><span class="p">,</span> <span class="n">prev_tv</span><span class="p">,</span> <span class="n">prev_rv</span><span class="p">,</span> <span class="n">prev_bv</span><span class="p">],</span> \
-                <span class="p">[</span><span class="n">le</span><span class="p">,</span> <span class="n">te</span><span class="p">,</span> <span class="n">re</span><span class="p">,</span> <span class="n">be</span><span class="p">]):</span>
-            <span class="n">vv</span> <span class="o">&lt;&lt;</span> <span class="n">f_dwread_epd</span><span class="p">(</span><span class="n">ee</span><span class="p">)</span>
-        <span class="n">prev_mX</span> <span class="o">&lt;&lt;</span> <span class="n">cur_mX</span>
-        <span class="n">prev_mY</span> <span class="o">&lt;&lt;</span> <span class="n">cur_mY</span>
-
 
         <span class="c1">#####################</span>
         <span class="c1">#   Draw Location   #</span>
         <span class="c1">#####################</span>
 
         <span class="c1"># draw location with "Scanner Sweep"</span>
-        <span class="n">draw_rectangle</span><span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">FRAME_PERIOD</span><span class="p">)</span>
+        <span class="n">draw_rectangle</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
 
-        <span class="c1"># graphical set</span>
-        <span class="n">DoActions</span><span class="p">(</span><span class="n">frame</span><span class="o">.</span><span class="n">AddNumber</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-        <span class="n">Trigger</span><span class="p">(</span>
-            <span class="n">conditions</span><span class="o">=</span><span class="n">frame</span><span class="o">.</span><span class="n">Exactly</span><span class="p">(</span><span class="n">FRAME_PERIOD</span><span class="p">),</span>
-            <span class="n">actions</span><span class="o">=</span><span class="n">frame</span><span class="o">.</span><span class="n">SetNumber</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="p">)</span>
         <span class="n">app_manager</span><span class="o">.</span><span class="n">request_update</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">print</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">writer</span><span class="p">):</span>
         <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_dispmode</span> <span class="o">==</span> <span class="n">DISPMODE_MAIN</span><span class="p">):</span>
-            <span class="c1"># Title, tells its editing mode</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Location Editor #%D "</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\x16</span><span class="s2">Location Editor #%D %:location; Grid: %D / "</span>
+                           <span class="s2">"Press F1 to get manual</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
+                           <span class="n">target</span><span class="p">,</span> <span class="p">(</span><span class="n">target</span><span class="p">,</span> <span class="p">),</span> <span class="n">cur_gridval</span><span class="p">)</span>
 
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"'</span><span class="si">%E</span><span class="s2">' "</span><span class="p">,</span> <span class="n">get_locationname_epd</span><span class="p">(</span><span class="n">target</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">v_tool</span> <span class="o">==</span> <span class="n">TOOL_CREATE</span><span class="p">):</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Create tool - update location with just drag</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">EUDElseIf</span><span class="p">()(</span><span class="n">v_tool</span> <span class="o">==</span> <span class="n">TOOL_EDIT</span><span class="p">):</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Edit tool"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">is_holding</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">" Holding...</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
+                    <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">" Move mouse cursor with holding 'H'</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+                <span class="n">EUDEndIf</span><span class="p">()</span>
 
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Mode: "</span><span class="p">)</span>
-            <span class="n">to_pass</span> <span class="o">=</span> <span class="n">Forward</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur_mode</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"--"</span><span class="p">)</span>
-                <span class="n">EUDJump</span><span class="p">(</span><span class="n">to_pass</span><span class="p">)</span>
+                <span class="c1"># note: without \x0D, some of those characters are handled</span>
+                <span class="c1">#       as color code in SC</span>
+                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span>
+                    <span class="s2">"%C</span><span class="se">\x0D</span><span class="s2">┎%C</span><span class="se">\x0D</span><span class="s2">━%C</span><span class="se">\x0D</span><span class="s2">┒</span><span class="se">\n</span><span class="s2">"</span>
+                    <span class="s2">"%C</span><span class="se">\x0D</span><span class="s2">┃%C</span><span class="se">\x0D</span><span class="s2">╋%C</span><span class="se">\x0D</span><span class="s2">┃</span><span class="se">\n</span><span class="s2">"</span>
+                    <span class="s2">"%C</span><span class="se">\x0D</span><span class="s2">┖%C</span><span class="se">\x0D</span><span class="s2">━%C</span><span class="se">\x0D</span><span class="s2">┚</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
+                    <span class="n">EUDTernary</span><span class="p">(</span><span class="n">cur_editmode</span><span class="o">==</span><span class="n">_POINT_LT</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+                    <span class="n">EUDTernary</span><span class="p">(</span><span class="n">cur_editmode</span><span class="o">==</span><span class="n">_SIDE_T</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+                    <span class="n">EUDTernary</span><span class="p">(</span><span class="n">cur_editmode</span><span class="o">==</span><span class="n">_POINT_RT</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+                    <span class="n">EUDTernary</span><span class="p">(</span><span class="n">cur_editmode</span><span class="o">==</span><span class="n">_SIDE_L</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+                    <span class="n">EUDTernary</span><span class="p">(</span><span class="n">cur_editmode</span><span class="o">==</span><span class="n">_MOVE</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+                    <span class="n">EUDTernary</span><span class="p">(</span><span class="n">cur_editmode</span><span class="o">==</span><span class="n">_SIDE_R</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+                    <span class="n">EUDTernary</span><span class="p">(</span><span class="n">cur_editmode</span><span class="o">==</span><span class="n">_POINT_LB</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+                    <span class="n">EUDTernary</span><span class="p">(</span><span class="n">cur_editmode</span><span class="o">==</span><span class="n">_SIDE_B</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">),</span>
+                    <span class="n">EUDTernary</span><span class="p">(</span><span class="n">cur_editmode</span><span class="o">==</span><span class="n">_POINT_RB</span><span class="p">)(</span><span class="mh">0x11</span><span class="p">)(</span><span class="mh">0x16</span><span class="p">))</span>
             <span class="n">EUDEndIf</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_modes</span><span class="p">)):</span>
-                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur_mode</span> <span class="o">==</span> <span class="n">i</span><span class="p">):</span>
-                    <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="n">py_modes_string</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
-                <span class="n">EUDEndIf</span><span class="p">()</span>
-            <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">is_holding</span> <span class="o">==</span> <span class="mi">1</span><span class="p">):</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">" Holding..."</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
-                <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">" Press '</span><span class="si">%s</span><span class="s2">' to hold"</span> <span class="o">%</span> <span class="n">keymap</span><span class="p">[</span><span class="s2">"editor"</span><span class="p">][</span><span class="s2">"hold"</span><span class="p">])</span>
-            <span class="n">EUDEndIf</span><span class="p">()</span>
 
-            <span class="n">to_pass</span> <span class="o">&lt;&lt;</span> <span class="n">NextTrigger</span><span class="p">()</span>
-
-            <span class="k">for</span> <span class="n">gi</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_grid_modes</span><span class="p">)):</span>
-                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur_grid_mode</span> <span class="o">==</span> <span class="n">gi</span><span class="p">):</span>
-                    <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Grid (Press '</span><span class="si">{}</span><span class="s2">' to change): %D"</span> \
-                        <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">keymap</span><span class="p">[</span><span class="s2">"editor"</span><span class="p">][</span><span class="s2">"change_grid_mode"</span><span class="p">])</span>
-                        <span class="p">,</span> <span class="n">py_grid_values</span><span class="p">[</span><span class="n">gi</span><span class="p">])</span>
-                <span class="n">EUDEndIf</span><span class="p">()</span>
-
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Available modes (LClick with mouse on the map to change): "</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">py_modes</span><span class="p">)):</span>
-                <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()(</span><span class="n">cur_available_modes</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>
-                    <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="n">py_modes_string</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="s2">" "</span><span class="p">)</span>
-                <span class="n">EUDEndIf</span><span class="p">()</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
-
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Left %D</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">cur_lv</span><span class="p">)</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Right %D</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">cur_rv</span><span class="p">)</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Top %D</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">cur_tv</span><span class="p">)</span>
-            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span><span class="s2">"Bottom %D</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span> <span class="n">cur_bv</span><span class="p">)</span>
+            <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span>
+                <span class="s2">"</span><span class="se">\x16</span><span class="s2">Left %D</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Right %D</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Top %D</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Bottom %D</span><span class="se">\n</span><span class="s2">"</span><span class="p">,</span>
+                <span class="n">cur_lv</span><span class="p">,</span> <span class="n">cur_rv</span><span class="p">,</span> <span class="n">cur_tv</span><span class="p">,</span> <span class="n">cur_bv</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">EUDIf</span><span class="p">()([</span><span class="n">cur_lv</span> <span class="o">&lt;=</span> <span class="mh">0x80000000</span><span class="p">,</span> <span class="n">cur_rv</span> <span class="o">&lt;=</span> <span class="mh">0x80000000</span><span class="p">]):</span>
                 <span class="k">if</span> <span class="n">EUDIfNot</span><span class="p">()(</span><span class="n">cur_lv</span> <span class="o">&lt;=</span> <span class="n">cur_rv</span><span class="p">):</span>
@@ -631,12 +624,15 @@
             <span class="n">EUDEndIf</span><span class="p">()</span>
         <span class="k">if</span> <span class="n">EUDElse</span><span class="p">()():</span>
             <span class="n">writer</span><span class="o">.</span><span class="n">write_f</span><span class="p">(</span>
-                <span class="s2">"Location Editor Manual</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"</span><span class="se">\x16</span><span class="s2">Location Editor Manual</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Press CTRL+G to change grid size (1, 8, 16, 32)</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Press CTRL+E to change tool</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Creator tool creates small location with dragging</span><span class="se">\n</span><span class="s2">"</span>
+                <span class="s2">"Editor tool updates specific component of location</span><span class="se">\n</span><span class="s2">"</span>
                 <span class="s2">"Chat sw(##) to set width with given number</span><span class="se">\n</span><span class="s2">"</span>
                 <span class="s2">"Chat sh(##) to set height with given number</span><span class="se">\n</span><span class="s2">"</span>
                 <span class="s2">"Chat sf(##) to set flag with given number</span><span class="se">\n</span><span class="s2">"</span>
-                <span class="s2">"Chat cn() to update the name</span><span class="se">\n</span><span class="s2">"</span>
-            <span class="p">)</span>
+                <span class="s2">"Chat cn() to update the name of location</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">EUDEndIf</span><span class="p">()</span>
 
         <span class="n">writer</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
