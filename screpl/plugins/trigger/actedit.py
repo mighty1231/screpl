@@ -93,7 +93,7 @@ class TrigActionEditorApp(Application):
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         entry name: amount
 
-        [ Save (CTRL+Y) ] [ CANCEL (CTRL+N) ]
+        [ Save (CTRL+Y) ] [ Cancel (CTRL+N) ]
     """
     @staticmethod
     def set_act_epd(act_epd):
@@ -270,7 +270,7 @@ class TrigActionEditorApp(Application):
 
             writer.write_f("\n\x04entry: \x11%E\n"
                            "\n"
-                           "\x04[ Save (CTRL+Y) ] [ CANCEL (CTRL+N) ]\n",
+                           "\x04[ Save (CTRL+Y) ] [ Cancel (CTRL+N) ]\n",
                            TrigEntry.cast(v_focused_entry).name_epd)
         if EUDElse()():
             writer.write_f(
@@ -280,7 +280,7 @@ class TrigActionEditorApp(Application):
                 "Chat followings to set value with helper apps\n"
                 "  ActionType(), AllyStatus(), Count(), Modifier(), Order(), "
                 "Player(), Property(), PropState(), Resource(), Score()\n"
-                "  SwitchAction(), AIScript(), Location(), String(), Switch()"
-                "Unit()\n")
+                "  SwitchAction(), AIScript(), Location(), String(), "
+                "Switch(), Unit()\n")
         EUDEndIf()
         writer.write(0)

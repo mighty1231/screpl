@@ -82,7 +82,7 @@ class TrigConditionEditorApp(Application):
         00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
         entry name: amount
 
-        [ Save (CTRL+Y) ] [ CANCEL (CTRL+N) ]
+        [ Save (CTRL+Y) ] [ Cancel (CTRL+N) ]
     """
     @staticmethod
     def set_cond_epd(cond_epd):
@@ -212,7 +212,7 @@ class TrigConditionEditorApp(Application):
 
             writer.write_f("\n\x04entry: \x11%E\n"
                            "\n"
-                           "\x04[ Save (CTRL+Y) ] [ CANCEL (CTRL+N) ]\n",
+                           "\x04[ Save (CTRL+Y) ] [ Cancel (CTRL+N) ]\n",
                            TrigEntry.cast(v_focused_entry).name_epd)
         if EUDElse()():
             writer.write_f(
