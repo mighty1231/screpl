@@ -62,9 +62,9 @@ class LocationManagerApp(Application):
 
             if EUDIfNot()(self.centerview == 0):
                 cp = f_getcurpl()
-                f_setcurpl(app_manager.get_superuser_id())
+                f_setcurpl(f_getuserplayerid())
                 DoActions([CenterView(new_location)])
-                f_setcurpl(cp)
+                f_setcurpl2cpcache()
             EUDEndIf()
             app_manager.request_update()
         EUDEndIf()

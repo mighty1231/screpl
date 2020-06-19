@@ -354,8 +354,11 @@ class LocationEditorApp(Application):
             if EUDIf()(v_tool == TOOL_CREATE):
                 writer.write_f("Create tool - update location with just drag\n")
             if EUDElseIf()(v_tool == TOOL_EDIT):
-                writer.write_f("Edit tool")
-                if EUDIf()(is_holding == 1):
+                writer.write_f("Edit tool - ")
+                if EUDIf()(cur_editmode == -1):
+                    writer.write_f(" Click on location to choose component "
+                                   "to change (red dots)\n")
+                if EUDElseIf()(is_holding == 1):
                     writer.write_f(" Holding...\n")
                 if EUDElse()():
                     writer.write_f(" Move mouse cursor with holding 'H'\n")

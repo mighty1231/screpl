@@ -432,7 +432,7 @@ class TriggerEditorApp(Application):
                 "\x17Adding an entry on condcheck triggers or IntactTrigger is safe\n"
                 "\x04Press R to update trigger text on display forcefully\n"
                 "Chat 'setp(##)' updates current trigger pointer, "
-                "'setflag(##) updates current trigger flag'\n"
+                "'setflag(##)' updates current trigger flag\n"
                 "Chat 'next()' updates current trigger pointer to next trigger\n"
                 "Chat 'new(##)' starts a new trigger editor with pointer\n"
                 "Chat 'new_nolink(##)' is same as 'new' but nolink type\n"
