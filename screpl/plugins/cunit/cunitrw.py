@@ -1,3 +1,21 @@
+"""CUnit entries
+
+types::
+
+    CUnit, CSprite
+    bool, u8, u16, s16, u32, s32
+    Target, Position, point
+    UnitMovementState
+    rect
+
+    Point<T, int scale>: T x, y;
+
+    Target: Position pt; CUnit *pUnit;
+    Position: Point<s16, 1>
+    point: s32 x, y;
+    rect: s16 l, t, r, b;
+    points: s16 x, y;
+"""
 from eudplib import *
 from screpl.main import get_app_manager, get_main_writer
 from screpl.utils.conststring import EPDConstString
@@ -5,22 +23,6 @@ from screpl.utils.struct import REPLStruct
 
 app_manager = get_app_manager()
 
-"""
-type
-CUnit, CSprite
-bool, u8, u16, s16, u32, s32
-Target, Position, point
-UnitMovementState
-rect
-
-Point<T, int scale>: T x, y;
-
-Target: Position pt; CUnit *pUnit;
-Position: Point<s16, 1>
-point: s32 x, y;
-rect: s16 l, t, r, b;
-points: s16 x, y;
-"""
 writer = get_main_writer()
 
 @EUDFunc
