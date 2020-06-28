@@ -61,11 +61,6 @@ class ReferenceTable(EUDObject):
         if self.final:
             raise RuntimeError("Add pair on final ReferenceTable")
 
-        # duplicate check
-        for k, _ in self._dict:
-            if k == key:
-                raise RuntimeError('Duplicate of key {}'.format(k))
-
         # Record original key & value + transformed key & value
         key_tr = self.key_f(key)
         value_tr = self.value_f(value)

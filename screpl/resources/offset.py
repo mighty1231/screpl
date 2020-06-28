@@ -30,3 +30,6 @@ class Offset:
 
 unitsdat_UnitMapString = Offset(0x660260, 2)
 unitsdat_ElevationLevel = Offset(0x663150, 1)
+spritesdat_ImageID = Offset(0x666160, 2)
+imagesdat_IscriptID = Offset(0x66EC48, 4)
+imagesdat_RLE = Offset(0x669E28, 1)

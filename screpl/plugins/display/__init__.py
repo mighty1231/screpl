@@ -75,16 +75,23 @@ def plugin_setup():
     # make commands
     from .incremental import IncrementalDisplayApp
     from .charreport import CharReportApp
+    from .effect import EffectApp
 
     @AppCommand([])
-    def start_command1(self):
+    def start_command_display(self):
         """Start IncrementalDisplayApp"""
         app_manager.start_application(IncrementalDisplayApp)
-    REPL.add_command('display', start_command1)
+    REPL.add_command('display', start_command_display)
+
+    @AppCommand([])
+    def start_command_effect(self):
+        """Start EffectApp"""
+        app_manager.start_application(EffectApp)
+    REPL.add_command('effect', start_command_effect)
 
     if is_bridge_mode():
         @AppCommand([])
-        def start_command2(self):
+        def start_command_charreport(self):
             """Export character report to bridge. # of characters per line"""
             app_manager.start_application(CharReportApp)
-        REPL.add_command('charreport', start_command2)
+        REPL.add_command('charreport', start_command_charreport)
