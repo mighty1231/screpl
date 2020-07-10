@@ -61,6 +61,16 @@ def f_epdsprintf(epd, *args):
     _get_writer().write_f(*args)
     _get_writer().write(0)
 
+def f_assert(conditions, *args):
+    if EUDIfNot()(conditions):
+        f_raise_error(*args)
+    EUDEndIf()
+
+def f_assert_not(conditions, *args):
+    if EUDIf()(conditions):
+        f_raise_error(*args)
+    EUDEndIf()
+
 class DisplayWriter:
     r"""Helps to display text, preserving bottom part of chat
 

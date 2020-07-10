@@ -47,6 +47,11 @@ class _REPLStructMetaclass(type):
 
         return instance
 
+    def empty_pointer(cls):
+        instance = super().__call__(EUDVariable())
+        instance._epd = EUDVariable()
+        return instance
+
     def initialize_with(cls, *args):
         from eudplib.core.eudstruct.vararray import EUDVArrayData
         fields = _REPLStructMetaclass.fieldmap[cls]

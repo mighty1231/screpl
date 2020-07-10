@@ -1,6 +1,6 @@
 """eudplib library for uuencode"""
 from eudplib import *
-from screpl.utils.byterw import REPLByteRW
+from .byterw import REPLByteRW
 
 reader = REPLByteRW()
 writer = REPLByteRW()
@@ -111,7 +111,7 @@ def uudecode(buf, target_epd):
     EUDReturn(written)
 
 def test():
-    from screpl.utils.debug import f_printf, DisplayWriter
+    from .debug import f_printf, DisplayWriter
     ret = Db(20)
     with DisplayWriter() as writer:
         uuencode(Db("Cat"), 3, EPD(ret))
